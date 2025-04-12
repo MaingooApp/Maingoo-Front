@@ -48,19 +48,20 @@ export class UploadComponent {
     const reader = new FileReader();
 
     reader.onload = () => {
-      const base64 = (reader.result as string).split(',')[1]; // quitar encabezado data:image/jpeg;base64,
-      this.enviarAOpenAI(base64);
+      const base64 = (reader.result as string).split(',')[1];
+      const mimeType = file.type;
+      this.enviarAOpenAI(base64, mimeType);
     };
 
     reader.readAsDataURL(file);
   }
 
-  enviarAOpenAI(base64: string) {
+  enviarAOpenAI(base64: string,mimeType: string) {
     if (this.cargando) return;
     this.cargando = true;
     this.msg = 'Analizando imagen...';
 
-    this.openaiService.analizarImagen(base64).subscribe({
+    this.openaiService.analizarImagen(base64, mimeType).subscribe({
       next: (res: any) => {
         this.cargando = false;
         console.log(res);
@@ -93,5 +94,15 @@ export class UploadComponent {
 
   getInputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;
+  }
+
+  convertToDecimal(value: any): number {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const sanitized = value.replace(',', '.');
+      const parsed = parseFloat(sanitized);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
   }
 }

@@ -12,7 +12,11 @@ export class OpenaiService extends BaseHttpService {
     super(http);
   }
 
-  analizarImagen(base64: string) {
-    return this.post(environment.urlBackend, { base64 }); 
+  analizarImagen(base64: string, mimeType: string) {
+    const body = {
+      base64,
+      mimeType
+    };
+    return this.post(environment.urlBackend, body ); 
   }
 }
