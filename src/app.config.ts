@@ -6,6 +6,10 @@ import Aura from '@primeng/themes/aura';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { httpErrorInterceptor } from './app/core/interceptors/http-error.interceptor';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideAuth, getAuth } from '@angular/fire/auth';
+import { environment } from './environments/environment';
+import { provideFirestore, getFirestore } from '@angular/fire/firestore'; 
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -15,6 +19,9 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(
             withFetch(),
             withInterceptors([httpErrorInterceptor])
-          )
+        ),
+        provideFirebaseApp(() => initializeApp(environment.firebase)),
+        provideAuth(() => getAuth()),
+        provideFirestore(() => getFirestore())
     ]
 };

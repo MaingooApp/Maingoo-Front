@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
-import { Access } from './access';
+import { RegisterComponent } from './register/register.component';
 import { Login } from './login/login.component';
-import { Error } from './error';
 
-export default [
-    { path: 'access', component: Access },
-    { path: 'error', component: Error },
-    { path: 'login', component: Login }
-] as Routes;
+
+const authRoutes: Routes = [
+    {path: '', redirectTo: 'login', pathMatch: 'full'},
+    { path: 'login', component: Login },
+    { path: 'register', component: RegisterComponent },
+    {path: '**', redirectTo: 'login'},
+];
+
+export default authRoutes;
