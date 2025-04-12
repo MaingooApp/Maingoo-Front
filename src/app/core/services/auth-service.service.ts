@@ -26,14 +26,24 @@ export class AuthService {
     return signOut(this.auth);
   }
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string, esAdmin = false, negocioId?: string) {
     const cred = await createUserWithEmailAndPassword(this.auth, email, password);
-    await setDoc(doc(this.firestore, 'users', cred.user.uid), {
+    const uid = cred.user.uid;
+
+    let assignedNegocioId = negocioId;
+
+    if (esAdmin || !negocioId) {
+      assignedNegocioId = uid;
+    }
+
+    // Guardar el usuario en /negocios/{negocioId}/usuarios/{uid}
+    await setDoc(doc(this.firestore, `negocios/${assignedNegocioId}/usuarios/${uid}`), {
       email,
-      rol: 'ADMIN',
-      createdAt: new Date()
+      rol: esAdmin ? 'ADMIN' : 'EMPLEADO',
+      createdAt: new Date(),
     });
-    return cred;
+
+    return { cred, negocioId: assignedNegocioId };
   }
 
   async getUserRole(uid: string): Promise<string | null> {

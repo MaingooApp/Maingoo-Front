@@ -1,10 +1,10 @@
-import { CanActivateFn, Router } from '@angular/router';
+// role.guard.ts
 import { inject } from '@angular/core';
 import { Auth, onAuthStateChanged } from '@angular/fire/auth';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
-import { from, switchMap, map } from 'rxjs';
+import { Firestore, collectionGroup, getDocs } from '@angular/fire/firestore';
+import { CanActivateFn, Router } from '@angular/router';
 
-export const roleGuard = (requiredRole: string): CanActivateFn => {
+export const roleGuard = (requiredRole: string[]): CanActivateFn => {
   return () => {
     const auth = inject(Auth);
     const firestore = inject(Firestore);
@@ -17,14 +17,21 @@ export const roleGuard = (requiredRole: string): CanActivateFn => {
           return resolve(false);
         }
 
-        const userRef = doc(firestore, 'users', user.uid);
-        const snap = await getDoc(userRef);
-        const role = snap.data()?.['rol'];
+        try {
+          const usuariosSnap = await getDocs(collectionGroup(firestore, 'usuarios'));
+          const match = usuariosSnap.docs.find(doc => doc.id === user.uid);
 
-        if (role === requiredRole) {
-          resolve(true);
-        } else {
-          router.navigate(['/unauthorized']);
+          const userRole = match?.data()?.['rol'];
+
+          if (requiredRole.includes(userRole)) {
+            return resolve(true);
+          } else {
+            router.navigate(['/unauthorized']);
+            return resolve(false);
+          }
+        } catch (error) {
+          console.error('❌ Error en roleGuard:', error);
+          router.navigate(['/auth/login']);
           resolve(false);
         }
       });

@@ -16,7 +16,7 @@ export const appRoutes: Routes = [
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
         ],
-        canActivate: [roleGuard('ADMIN')]
+        canActivate: [roleGuard(['ADMIN'])]
     },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },

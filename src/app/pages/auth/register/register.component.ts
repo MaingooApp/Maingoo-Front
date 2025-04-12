@@ -32,14 +32,19 @@ export class RegisterComponent {
       alert('Verifica los datos del formulario');
       return;
     }
-
+  
     this.cargando = true;
     try {
-      const cred = await this.auth.register(this.form.value.email, this.form.value.password);
-
-      const uid = cred.user.uid;
-      const rol = await this.auth.getUserRole(uid);
-
+      const { cred, negocioId } = await this.auth.register(
+        this.form.value.email,
+        this.form.value.password,
+        true 
+      );
+  
+      if ( negocioId) {
+      localStorage.setItem('negocioId', negocioId); 
+      }
+  
       this.router.navigate(['/dashboard']);
     } catch (error) {
       alert('Error al registrar');
