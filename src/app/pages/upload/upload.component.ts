@@ -12,6 +12,7 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InvoiceService } from '../../core/services/invoice-service.service';
 
 @Component({
   selector: 'app-upload',
@@ -34,7 +35,8 @@ import { InputIconModule } from 'primeng/inputicon';
 export class UploadComponent {
 
   constructor(private messageService: MessageService,
-    private openaiService: OpenaiService
+    private openaiService: OpenaiService,
+    private invoiceService: InvoiceService,
   ) { }
   resultado: any = null;
   msg: string = '';
@@ -74,6 +76,7 @@ export class UploadComponent {
           const soloJSON = texto.substring(inicio, fin + 1);
           try {
             this.resultado = JSON.parse(soloJSON);
+            this.invoiceService.saveInvoice(this.resultado)
           } catch (e) {
             this.resultado = null;
             console.error('Error al parsear JSON:', e);

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Auth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User } from '@angular/fire/auth';
-import { Firestore, setDoc, doc, getDoc } from '@angular/fire/firestore';
+import { Firestore, setDoc, doc, getDoc, getDocs, collectionGroup } from '@angular/fire/firestore';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -51,4 +51,13 @@ export class AuthService {
     const userSnap = await getDoc(userRef);
     return userSnap.exists() ? userSnap.data()?.['rol'] ?? null : null;
   }
+
+  async getNegocioId(uid: string): Promise<string | null> {
+    const usuariosSnap = await getDocs(collectionGroup(this.firestore, 'usuarios'));
+    const match = usuariosSnap.docs.find(doc => doc.id === uid);
+    const pathSegments = match?.ref.path.split('/');
+    const negocioId = pathSegments?.[1]; // /negocios/{negocioId}/usuarios/{uid}
+    return negocioId ?? null;
+  }
+
 }
