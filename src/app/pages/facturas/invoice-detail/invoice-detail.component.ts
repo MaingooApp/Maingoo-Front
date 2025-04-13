@@ -8,24 +8,38 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-invoice-detail',
-  imports: [CommonModule, 
-    RouterModule, 
-    ButtonModule, 
-    TableModule ,
+  imports: [CommonModule,
+    RouterModule,
+    ButtonModule,
+    TableModule,
     InputTextModule,
     IconFieldModule,
-    InputIconModule
-    ],
+    InputIconModule,
+    DialogModule
+  ],
   templateUrl: './invoice-detail.component.html'
 })
 export class InvoiceDetailComponent {
   factura: any;
   ConvertNumbers = ConvertNumbers;
+  mostrarImagen = false;
+  pdfUrlSanitizado: SafeResourceUrl | null = null;
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  ngOnInit() {
+    if (this.factura?.mimeType === 'application/pdf' && this.factura.imagen) {
+      const base64Url = 'data:application/pdf;base64,' + this.factura.imagen;
+      this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(base64Url);
+    }
+  }
+
+  constructor(private route: ActivatedRoute, private router: Router,
+    private sanitizer: DomSanitizer
+  ) {
     const nav = this.router.getCurrentNavigation();
     this.factura = nav?.extras?.state?.['factura'];
 
@@ -41,5 +55,5 @@ export class InvoiceDetailComponent {
   getInputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;
   }
-  
+
 }

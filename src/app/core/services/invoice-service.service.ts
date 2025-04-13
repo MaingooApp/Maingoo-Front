@@ -24,7 +24,9 @@ export class InvoiceService {
       factura: resultado.factura,
       productos: resultado.productos,
       subidoPor: user.uid,
-      fechaSubida: new Date()
+      fechaSubida: new Date(),
+      imagen: resultado.imagen,
+      mimeType: resultado.mimeType
     };
 
     await setDoc(facturaRef, data);

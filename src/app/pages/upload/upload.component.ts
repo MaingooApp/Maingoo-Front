@@ -85,6 +85,10 @@ export class UploadComponent {
           const soloJSON = texto.substring(inicio, fin + 1);
           try {
             this.resultado = JSON.parse(soloJSON);
+            if (this.resultado) {
+              this.resultado.imagen = base64;
+              this.resultado.mimeType = mimeType;
+            }
             await this.invoiceService.saveInvoice(this.resultado)
             if (this.resultado) {
               const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);

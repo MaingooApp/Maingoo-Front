@@ -1,5 +1,7 @@
 export interface Invoice {
   id?: string;
+  imagen?: string;
+  mimeType?: string;
   proveedor: {
     nombre: string;
     nif: string;
