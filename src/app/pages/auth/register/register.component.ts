@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -11,7 +11,7 @@ import { AppFloatingConfigurator } from '../../../layout/component/app.floatingc
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, AppFloatingConfigurator],
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, AppFloatingConfigurator, RouterModule],
 })
 export class RegisterComponent {
   cargando = false;
