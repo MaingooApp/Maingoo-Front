@@ -1,0 +1,77 @@
+<div class="p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
+  <button pButton class="mt-6" label="Volver" (click)="volver()"></button>
+
+    <h2 class="text-2xl font-bold mb-6">Detalle de Factura</h2>
+  
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- FACTURA -->
+      <div class="flex-1">
+        <h3 class="text-xl font-semibold flex items-center gap-2 mb-4">
+          <i class="pi pi-receipt text-primary"></i> Factura
+        </h3>
+        <p><strong>Número:</strong> {{ factura.factura.numero }}</p>
+        <p><strong>Fecha de emisión:</strong> {{ factura.factura.fecha_emision }}</p>
+        <p><strong>Fecha de vencimiento:</strong> {{ factura.factura.fecha_vencimiento }}</p>
+        <p><strong>Forma de pago:</strong> {{ factura.factura.forma_pago }}</p>
+        <p><strong>Total con IVA:</strong> {{ ConvertNumbers.convertToDecimal(factura.factura.total_con_iva) | currency:'EUR' }}</p>
+      </div>
+    
+      <!-- PROVEEDOR -->
+      <div class="flex-1">
+        <h3 class="text-xl font-semibold flex items-center gap-2 mb-4">
+          <i class="pi pi-building text-primary"></i> Proveedor
+        </h3>
+        <p><strong>Nombre:</strong> {{ factura.proveedor.nombre }}</p>
+        <p><strong>NIF:</strong> {{ factura.proveedor.nif }}</p>
+        <p><strong>Dirección:</strong> {{ factura.proveedor.direccion }}</p>
+        <p><strong>Email:</strong> {{ factura.proveedor.email }}</p>
+        <p><strong>Teléfono:</strong> {{ factura.proveedor.telefono }}</p>
+      </div>
+    </div>
+  
+    <div class="mt-10">
+      <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        📦 Productos
+      </h3>
+    
+      <p-table
+      #dt
+      [value]="factura.productos"
+      [paginator]="true"
+      [rows]="5"
+      [globalFilterFields]="['referencia', 'descripcion']"
+      responsiveLayout="scroll">
+
+      <ng-template #caption>
+        <div class="flex justify-start">
+            <p-iconfield iconPosition="left">
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input pInputText type="text"
+                    (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+                    placeholder="Buscar producto" />
+            </p-iconfield>
+        </div>
+    </ng-template>
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Referencia</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-prod>
+          <tr>
+            <td>{{ prod.referencia }}</td>
+            <td>{{ prod.descripcion }}</td>
+            <td>{{ prod.cantidad }}</td>
+            <td>{{ ConvertNumbers.convertToDecimal(prod.precio) | currency: 'EUR' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>  
+  </div>
+  

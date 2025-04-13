@@ -78,7 +78,7 @@ import { AuthService } from '../../core/services/auth-service.service';
                         <span>Profile</span>
                     </button>
                     <button type="button" class="layout-topbar-action" (click)="logout()">
-                        <i class="pi pi-close"></i>
+                        <i class="pi pi-sign-out"></i>
                         <span>logout</span>
                     </button>
                 </div>

@@ -56,9 +56,9 @@ export class Login {
         const rol = await this.authService.getUserRole(cred.user.uid);
   
         if (rol === 'admin') {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/']);
         } else {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/']);
         }
       } catch (error) {
         console.error(error);
