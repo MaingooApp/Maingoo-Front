@@ -7,14 +7,13 @@ import { Login } from './app/pages/auth/login/login.component';
 import { roleGuard } from './app/core/guard/role-guard.guard';
 
 export const appRoutes: Routes = [
-    {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
     {
-        path: 'dashboard',
+        path: '',
         component: AppLayout,
         children: [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
-            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }
+            { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
         ],
         canActivate: [roleGuard(['ADMIN'])]
     },

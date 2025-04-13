@@ -12,7 +12,6 @@ export const roleGuard = (requiredRole: string[]): CanActivateFn => {
 
     return new Promise<boolean>((resolve) => {
       onAuthStateChanged(auth, async (user) => {
-        console.log(`🔑 Verificando acceso para el usuario: ${user?.uid}`);
         
         if (!user) {
           router.navigate(['/auth/login']);
@@ -26,12 +25,9 @@ export const roleGuard = (requiredRole: string[]): CanActivateFn => {
           const userRole = match?.data()?.['rol'];
 
           if (requiredRole.includes(userRole)) {
-            console.log(`✅ Acceso concedido: ${userRole}`);
             
             return resolve(true);
           } else {
-            console.log(`❌ Acceso denegado: ${userRole}`);
-            
             router.navigate(['/unauthorized']);
             return resolve(false);
           }

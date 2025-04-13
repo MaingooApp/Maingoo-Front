@@ -1,7 +1,9 @@
 // factura.service.ts
 import { Injectable } from '@angular/core';
-import { Firestore, doc, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, doc, getDocs, setDoc } from '@angular/fire/firestore';
 import { AuthService } from './auth-service.service';
+import { from, Observable, of, switchMap } from 'rxjs';
+import { Invoice } from '../interfaces/Invoice.interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
@@ -12,7 +14,9 @@ export class InvoiceService {
     if (!user) throw new Error('Usuario no autenticado');
 
     const negocioId = await this.authService.getNegocioId(user.uid);
-    const facturaId = resultado.factura.numero;
+    const facturaId = resultado.factura.numero.replace(/[^\w\-]/g, '');
+    resultado.factura.numero = facturaId;
+    console.log(facturaId);
 
     const facturaRef = doc(this.firestore, `negocios/${negocioId}/facturas/${facturaId}`);
     const data = {
@@ -26,4 +30,24 @@ export class InvoiceService {
     await setDoc(facturaRef, data);
     return facturaId;
   }
+
+  getFacturas(): Observable<Invoice[]> {
+    const uid = this.authService.currentUser?.uid;
+
+    if (!uid) return of([]);
+
+    return from(this.authService.getNegocioId(uid)).pipe(
+      switchMap((negocioId) => {
+        if (!negocioId) return of([]);
+        const facturasRef = collection(this.firestore, `negocios/${negocioId}/facturas`);
+        return from(getDocs(facturasRef)).pipe(
+          switchMap((snap) => {
+            const facturas: Invoice[] = snap.docs.map((doc) => doc.data() as Invoice);
+            return of(facturas);
+          })
+        );
+      })
+    );
+  }
+
 }
