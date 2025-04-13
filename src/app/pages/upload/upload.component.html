@@ -15,18 +15,18 @@
 
                 <div *ngIf="resultado">
                     <h3>🏢 Datos del Proveedor</h3>
-                    <p><strong>Nombre:</strong> {{ resultado.proveedor?.nombre || '-' }}</p>
-                    <p><strong>NIF:</strong> {{ resultado.proveedor?.nif || '-' }}</p>
-                    <p><strong>Dirección:</strong> {{ resultado.proveedor?.direccion || '-' }}</p>
-                    <p><strong>Teléfono:</strong> {{ resultado.proveedor?.telefono || '-' }}</p>
-                    <p><strong>Email:</strong> {{ resultado.proveedor?.email || '-' }}</p>
+                    <p><strong>Nombre:</strong> {{ resultado.proveedor.nombre || '-' }}</p>
+                    <p><strong>NIF:</strong> {{ resultado.proveedor.nif || '-' }}</p>
+                    <p><strong>Dirección:</strong> {{ resultado.proveedor.direccion || '-' }}</p>
+                    <p><strong>Teléfono:</strong> {{ resultado.proveedor.telefono || '-' }}</p>
+                    <p><strong>Email:</strong> {{ resultado.proveedor.email || '-' }}</p>
 
                     <h3>🧾 Datos de la Factura</h3>
-                    <p><strong>Número:</strong> {{ resultado.factura?.numero || '-' }}</p>
-                    <p><strong>Fecha de emisión:</strong> {{ resultado.factura?.fecha_emision || '-' }}</p>
-                    <p><strong>Fecha de vencimiento:</strong> {{ resultado.factura?.fecha_vencimiento || '-' }}</p>
-                    <p><strong>Forma de pago:</strong> {{ resultado.factura?.forma_pago || '-' }}</p>
-                    <p><strong>Total con IVA:</strong> {{ convertToDecimal(resultado.factura?.total_con_iva) | currency:'EUR' }}</p>
+                    <p><strong>Número:</strong> {{ resultado.factura.numero || '-' }}</p>
+                    <p><strong>Fecha de emisión:</strong> {{ resultado.factura.fecha_emision || '-' }}</p>
+                    <p><strong>Fecha de vencimiento:</strong> {{ resultado.factura.fecha_vencimiento || '-' }}</p>
+                    <p><strong>Forma de pago:</strong> {{ resultado.factura.forma_pago || '-' }}</p>
+                    <p><strong>Total con IVA:</strong> {{ convertToDecimal(resultado.factura.total_con_iva) | currency:'EUR' }}</p>
 
                     <h3>📦 Productos</h3>
                     <p-table #dt *ngIf="resultado?.productos?.length" [value]="resultado.productos" [paginator]="true"
@@ -77,3 +77,73 @@
         </div>
     </div>
 </p-fluid>
+<p-dialog header="Agregar Proveedor" [(visible)]="mostrarModalProveedor" [modal]="true" [closable]="false"  [style]="{ width: '70%' }">
+    <form
+  *ngIf="proveedorForm"
+  [formGroup]="proveedorForm"
+  (ngSubmit)="guardarProveedor()"
+  class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4"
+>
+  <div class="flex flex-col">
+    <label for="nombre" class="text-sm font-medium text-gray-700 mb-1">Nombre</label>
+    <input
+      pInputText
+      id="nombre"
+      formControlName="nombre"
+      class="w-full"
+      placeholder="Nombre del proveedor"
+    />
+  </div>
+
+  <div class="flex flex-col">
+    <label for="nif" class="text-sm font-medium text-gray-700 mb-1">NIF</label>
+    <input
+      pInputText
+      id="nif"
+      formControlName="nif"
+      class="w-full"
+      placeholder="A-12345678"
+    />
+  </div>
+
+  <div class="flex flex-col md:col-span-2">
+    <label for="direccion" class="text-sm font-medium text-gray-700 mb-1">Dirección</label>
+    <input
+      pInputText
+      id="direccion"
+      formControlName="direccion"
+      class="w-full"
+      placeholder="Calle Ejemplo 123"
+    />
+  </div>
+
+  <div class="flex flex-col">
+    <label for="telefono" class="text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+    <input
+      pInputText
+      id="telefono"
+      formControlName="telefono"
+      class="w-full"
+      placeholder="123456789"
+    />
+  </div>
+
+  <div class="flex flex-col">
+    <label for="email" class="text-sm font-medium text-gray-700 mb-1">Email</label>
+    <input
+      pInputText
+      id="email"
+      formControlName="email"
+      class="w-full"
+      placeholder="proveedor@empresa.com"
+    />
+  </div>
+
+  <div class="md:col-span-2 flex justify-end gap-2 mt-2">
+    <button pButton type="button" label="Cancelar" (click)="mostrarModalProveedor = false"></button>
+    <button pButton type="submit" label="Guardar" [disabled]="proveedorForm.invalid"></button>
+  </div>
+</form>
+
+  </p-dialog>
+  

@@ -1,0 +1,50 @@
+<div *ngIf="supplier.length === 0; else tablaSupplier" class="bg-white rounded-xl p-10 shadow-md text-center">
+    <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem;"></i>
+    <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay proveedores registrados</h2>
+    <p class="text-gray-500">Cuando registres un proovedor, aparecerá aquí.</p>
+</div>
+<ng-template #tablaSupplier>
+    <div class="card">
+        <h2 class="text-2xl font-bold mb-4">Proveedores</h2>
+    
+        <p-table #dt [value]="supplier" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]"
+            [globalFilterFields]="['nombre', 'nif', 'email']" showGridlines stripedRows responsiveLayout="scroll">
+            <ng-template #caption>
+                <div class="flex justify-end">
+                    <p-iconfield iconPosition="left">
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
+                        <input pInputText type="text" (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+                            placeholder="Buscar proveedor" />
+                    </p-iconfield>
+                </div>
+            </ng-template>
+    
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Nombre</th>
+                    <th>NIF</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </ng-template>
+    
+            <ng-template pTemplate="body" let-prov>
+                <tr>
+                    <td>{{ prov.nombre }}</td>
+                    <td>{{ prov.nif }}</td>
+                    <td>{{ prov.direccion || '-' }}</td>
+                    <td>{{ prov.telefono || '-' }}</td>
+                    <td>{{ prov.email || '-' }}</td>
+                    <td class="text-center">
+                        <button pButton size="small" severity="danger" icon="pi pi-trash"
+                            (click)="confirmarEliminarProveedor(prov)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</ng-template>

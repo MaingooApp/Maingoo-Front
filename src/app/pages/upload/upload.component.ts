@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -14,6 +14,8 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../../core/services/invoice-service.service';
 import { OpenaiService } from '../../core/services/openai.service';
 import { SupplierService } from '../../core/services/supplier.service';
+import { DialogModule } from 'primeng/dialog';
+import { AuthService } from '../../core/services/auth-service.service';
 
 @Component({
   selector: 'app-upload',
@@ -26,7 +28,9 @@ import { SupplierService } from '../../core/services/supplier.service';
     TableModule,
     InputTextModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    DialogModule,
+    ReactiveFormsModule
   ],
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.scss',
@@ -38,10 +42,14 @@ export class UploadComponent {
     private invoiceService: InvoiceService,
     private supplierService: SupplierService,
     private confirmationService: ConfirmationService,
+    private fb: FormBuilder,
+    private auth: AuthService,
   ) { }
   resultado: Invoice | null = null;
   msg: string = '';
   cargando = false;
+  proveedorForm!: FormGroup;
+  mostrarModalProveedor = false;
 
   onUpload(event: any) {
     const files = event.files as File[];
@@ -81,11 +89,17 @@ export class UploadComponent {
             if (this.resultado) {
               const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);
               if (!proveedorExiste) {
-                // this.confirmAgregarProveedor();
+                this.confirmAgregarProveedor();
               }
             }
           } catch (e) {
             this.resultado = null;
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al procesar factura',
+              detail: 'No se pudo interpretar la información del documento. Intente nuevamente.',
+              life: 5000
+            });
             console.error('Error al parsear JSON:', e);
           }
         } else {
@@ -116,32 +130,40 @@ export class UploadComponent {
     return 0;
   }
 
-  // confirmAgregarProveedor() {
-  //   this.confirmationService.confirm({
-  //     header: 'Proveedor no encontrado',
-  //     icon: 'pi pi-exclamation-triangle',
-  //     message: 'El proveedor no está registrado. ¿Deseas agregarlo ahora?',
-  //     acceptLabel: 'Sí',
-  //     rejectLabel: 'No',
-  //     accept: () => {
-  //       // Precargamos el formulario con los datos extraídos de la factura
-  //       this.nuevoProveedor = {
-  //         nombre: this.resultado?.proveedor?.nombre || '',
-  //         nif: this.resultado?.proveedor?.nif || '',
-  //         direccion: this.resultado?.proveedor?.direccion || '',
-  //         telefono: this.resultado?.proveedor?.telefono || '',
-  //         email: this.resultado?.proveedor?.email || ''
-  //       };
-  //       this.mostrarModalProveedor = true;
-  //     },
-  //     reject: () => {
-  //       this.messageService.add({
-  //         severity: 'info',
-  //         summary: 'Cancelado',
-  //         detail: 'No se ha agregado el proveedor.'
-  //       });
-  //     }
-  //   });
-  // }
+  confirmAgregarProveedor() {
+    this.confirmationService.confirm({
+      header: 'Proveedor no encontrado',
+      icon: 'pi pi-exclamation-triangle',
+      message: 'El proveedor no está registrado. ¿Deseas agregarlo ahora?',
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
+      accept: () => {
+        this.proveedorForm = this.fb.group({
+          nombre: [this.resultado?.proveedor?.nombre || '', Validators.required],
+          nif: [this.resultado?.proveedor?.nif || '', Validators.required],
+          direccion: [this.resultado?.proveedor?.direccion || ''],
+          telefono: [this.resultado?.proveedor?.telefono || ''],
+          email: [this.resultado?.proveedor?.email || '', [Validators.email]]
+        });
+  
+        this.mostrarModalProveedor = true;
+      }
+    });
+  }
+  
+  async guardarProveedor() {
+    const user = await this.auth.currentUser;
+    if (!user || this.proveedorForm.invalid) return;
+  
+    try {
+      const proveedor = this.proveedorForm.value;
+      await this.supplierService.agregarProveedor(proveedor, user.uid);
+      this.messageService.add({ severity: 'success', summary: 'Proveedor guardado' });
+      this.mostrarModalProveedor = false;
+    } catch (err) {
+      console.error(err);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el proveedor' });
+    }
+  }
   
 }

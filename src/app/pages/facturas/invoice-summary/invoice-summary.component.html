@@ -1,45 +1,32 @@
 <div *ngIf="facturas.length === 0; else tablaFacturas" class="bg-white rounded-xl p-10 shadow-md text-center">
-    <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem;"></i>
-    <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay facturas registradas</h2>
-    <p class="text-gray-500">Cuando registres una factura, aparecerá aquí.</p>
-  </div>
+  <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem;"></i>
+  <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay facturas registradas</h2>
+  <p class="text-gray-500">Cuando registres una factura, aparecerá aquí.</p>
+</div>
 
 <ng-template #tablaFacturas>
-<div class="px-6 py-4">
+  <div class="px-6 py-4">
     <div class="bg-white rounded-xl shadow-md p-6">
       <h2 class="text-2xl font-semibold text-surface-900 mb-4 flex items-center gap-2">
         <i class="pi pi-file" style="font-size: 1.5rem;"></i>
         Facturas registradas
       </h2>
-  
-      <p-table
-        #dt
-        [value]="facturas"
-        [paginator]="true"
-        [rows]="10"
-        [loading]="loading"
-        [rowsPerPageOptions]="[5, 10, 20]"
-        [globalFilterFields]="['proveedor.nombre', 'factura.numero']"
-        showGridlines
-        stripedRows
-        responsiveLayout="scroll"
-      >
+
+      <p-table #dt [value]="facturas" [paginator]="true" [rows]="10" [loading]="loading"
+        [rowsPerPageOptions]="[5, 10, 20]" [globalFilterFields]="['proveedor.nombre', 'factura.numero']" showGridlines
+        stripedRows responsiveLayout="scroll">
         <ng-template #caption>
           <div class="flex justify-end">
             <p-iconfield iconPosition="left">
               <p-inputicon>
                 <i class="pi pi-search"></i>
               </p-inputicon>
-              <input
-                pInputText
-                type="text"
-                (input)="dt.filterGlobal(getInputValue($event), 'contains')"
-                placeholder="Buscar factura"
-              />
+              <input pInputText type="text" (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+                placeholder="Buscar factura" />
             </p-iconfield>
           </div>
         </ng-template>
-  
+
         <ng-template pTemplate="header">
           <tr>
             <th>Número</th>
@@ -49,7 +36,7 @@
             <th>Acciones</th>
           </tr>
         </ng-template>
-  
+
         <ng-template pTemplate="body" let-factura>
           <tr>
             <td>{{ factura.factura.numero }}</td>
@@ -60,20 +47,10 @@
             </td>
             <td>
               <div class="flex justify-center items-center gap-2">
-                <button
-                  pButton
-                  icon="pi pi-pencil"
-                  size="small"
-                  severity="success"
-                  (click)="verDetalle(factura)"
-                ></button>
-                <button
-                  pButton
-                  icon="pi pi-trash"
-                  severity="danger"
-                  size="small"
-                  (click)="confirmarEliminacion(factura)"
-                ></button>
+                <button pButton icon="pi pi-pencil" size="small" severity="success"
+                  (click)="verDetalle(factura)"></button>
+                <button pButton icon="pi pi-trash" severity="danger" size="small"
+                  (click)="confirmarEliminacion(factura)"></button>
               </div>
             </td>
           </tr>

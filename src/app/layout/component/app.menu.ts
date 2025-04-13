@@ -25,7 +25,8 @@ export class AppMenu {
                 items: [
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
                     { label: 'Upload File', icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
-                    { label: 'facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] }
+                    { label: 'Facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
+                    { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] }
                 ]
             },
             {

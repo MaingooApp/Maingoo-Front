@@ -45,7 +45,7 @@ export class RegisterComponent {
       localStorage.setItem('negocioId', negocioId); 
       }
   
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/']);
     } catch (error) {
       alert('Error al registrar');
       console.error(error);
