@@ -9,7 +9,8 @@ import { httpErrorInterceptor } from './app/core/interceptors/http-error.interce
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from './environments/environment';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore'; 
+import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -22,6 +23,8 @@ export const appConfig: ApplicationConfig = {
         ),
         provideFirebaseApp(() => initializeApp(environment.firebase)),
         provideAuth(() => getAuth()),
-        provideFirestore(() => getFirestore())
+        provideFirestore(() => getFirestore()),
+        ConfirmationService,
+        MessageService
     ]
 };

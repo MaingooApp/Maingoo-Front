@@ -1,18 +1,16 @@
 // invoice-summary.component.ts
-import { Component, OnInit } from '@angular/core';
-import { InvoiceService } from '../../../core/services/invoice-service.service';
-import { Invoice } from '../../../core/interfaces/Invoice.interfaces';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
 import { ConvertNumbers } from '../../../core/helpers/numbers';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { Router } from '@angular/router';
+import { Invoice } from '../../../core/interfaces/Invoice.interfaces';
+import { InvoiceService } from '../../../core/services/invoice-service.service';
 
 
 @Component({
@@ -25,10 +23,7 @@ import { Router } from '@angular/router';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    ConfirmDialogModule,
-    ToastModule
   ],
-  providers: [ConfirmationService, MessageService],
 })
 export class InvoiceSummaryComponent implements OnInit {
   facturas: Invoice[] = [];

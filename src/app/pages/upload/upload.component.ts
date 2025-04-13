@@ -1,28 +1,28 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { FileUploadModule } from 'primeng/fileupload';
 import { FluidModule } from 'primeng/fluid';
-import { MessagesModule } from 'primeng/messages';
-import { ToastModule } from 'primeng/toast';
-import { OpenaiService } from '../../core/services/openai.service';
-import { TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessagesModule } from 'primeng/messages';
+import { TableModule } from 'primeng/table';
+import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../../core/services/invoice-service.service';
+import { OpenaiService } from '../../core/services/openai.service';
+import { SupplierService } from '../../core/services/supplier.service';
 
 @Component({
   selector: 'app-upload',
-  imports: [FluidModule, 
-    ButtonModule, 
-    FileUploadModule, 
-    FormsModule, 
-    CommonModule, 
-    MessagesModule, 
-    ToastModule, 
+  imports: [FluidModule,
+    ButtonModule,
+    FileUploadModule,
+    FormsModule,
+    CommonModule,
+    MessagesModule,
     TableModule,
     InputTextModule,
     IconFieldModule,
@@ -30,15 +30,16 @@ import { InvoiceService } from '../../core/services/invoice-service.service';
   ],
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.scss',
-  providers: [MessageService],
 })
 export class UploadComponent {
 
   constructor(private messageService: MessageService,
     private openaiService: OpenaiService,
     private invoiceService: InvoiceService,
+    private supplierService: SupplierService,
+    private confirmationService: ConfirmationService,
   ) { }
-  resultado: any = null;
+  resultado: Invoice | null = null;
   msg: string = '';
   cargando = false;
 
@@ -58,13 +59,13 @@ export class UploadComponent {
     reader.readAsDataURL(file);
   }
 
-  enviarAOpenAI(base64: string,mimeType: string) {
+  enviarAOpenAI(base64: string, mimeType: string) {
     if (this.cargando) return;
     this.cargando = true;
     this.msg = 'Analizando imagen...';
 
     this.openaiService.analizarImagen(base64, mimeType).subscribe({
-      next: (res: any) => {
+      next: async (res: any) => {
         this.cargando = false;
         console.log(res);
 
@@ -76,7 +77,13 @@ export class UploadComponent {
           const soloJSON = texto.substring(inicio, fin + 1);
           try {
             this.resultado = JSON.parse(soloJSON);
-            this.invoiceService.saveInvoice(this.resultado)
+            await this.invoiceService.saveInvoice(this.resultado)
+            if (this.resultado) {
+              const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);
+              if (!proveedorExiste) {
+                // this.confirmAgregarProveedor();
+              }
+            }
           } catch (e) {
             this.resultado = null;
             console.error('Error al parsear JSON:', e);
@@ -108,4 +115,33 @@ export class UploadComponent {
     }
     return 0;
   }
+
+  // confirmAgregarProveedor() {
+  //   this.confirmationService.confirm({
+  //     header: 'Proveedor no encontrado',
+  //     icon: 'pi pi-exclamation-triangle',
+  //     message: 'El proveedor no está registrado. ¿Deseas agregarlo ahora?',
+  //     acceptLabel: 'Sí',
+  //     rejectLabel: 'No',
+  //     accept: () => {
+  //       // Precargamos el formulario con los datos extraídos de la factura
+  //       this.nuevoProveedor = {
+  //         nombre: this.resultado?.proveedor?.nombre || '',
+  //         nif: this.resultado?.proveedor?.nif || '',
+  //         direccion: this.resultado?.proveedor?.direccion || '',
+  //         telefono: this.resultado?.proveedor?.telefono || '',
+  //         email: this.resultado?.proveedor?.email || ''
+  //       };
+  //       this.mostrarModalProveedor = true;
+  //     },
+  //     reject: () => {
+  //       this.messageService.add({
+  //         severity: 'info',
+  //         summary: 'Cancelado',
+  //         detail: 'No se ha agregado el proveedor.'
+  //       });
+  //     }
+  //   });
+  // }
+  
 }
