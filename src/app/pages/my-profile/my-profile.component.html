@@ -1,1 +1,48 @@
-<p>Establecer la vista en la barra superior</p>
+<form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" class="p-fluid">
+    <div class="card">
+        <div class="font-semibold text-xl mb-4">Datos de empresa</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex flex-col gap-2">
+                <label for="nombre">Nombre del negocio</label>
+                <input pInputText id="nombre" type="text" formControlName="nombre" class="w-full" />
+                <small *ngIf="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched" class="text-red-500"> El nombre es obligatorio. </small>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="nif">NIF</label>
+                <input pInputText id="nif" type="text" formControlName="nif" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2 md:col-span-2">
+                <label for="direccion">Dirección</label>
+                <input pInputText id="direccion" type="text" formControlName="direccion" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="telefono">Teléfono</label>
+                <input pInputText id="telefono" type="text" formControlName="telefono" mask="999 999 999" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="telefono">Teléfono 2</label>
+                <input pInputText id="telefono" type="text" formControlName="telefono2" mask="999 999 999" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="iban">Numero de cuenta (IBAN)</label>
+                <input pInputText id="iban" type="text" formControlName="iban" mask="ESXX XXXX ..." class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="email">Email</label>
+                <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+                <small *ngIf="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" class="text-red-500"> Email inválido. </small>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-4 pt-6">
+            <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="perfilForm.invalid"></button>
+        </div>
+    </div>
+</form>
