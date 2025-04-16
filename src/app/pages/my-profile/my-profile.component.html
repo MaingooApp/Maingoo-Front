@@ -1,1 +1,85 @@
-<p>Establecer la vista en la barra superior</p>
+<form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" class="p-fluid">
+    <div class="card">
+        <div class="font-semibold text-xl mb-4">Datos de empresa</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Datos principales -->
+            <div class="flex flex-col gap-2">
+                <label for="nombre">Nombre del negocio</label>
+                <input pInputText id="nombre" type="text" formControlName="nombre" class="w-full" />
+                <small *ngIf="perfilForm.get('nombre')?.invalid && perfilForm.get('nombre')?.touched" class="text-red-500"> El nombre es obligatorio. </small>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="nif">NIF</label>
+                <input pInputText id="nif" type="text" formControlName="nif" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2 md:col-span-2">
+                <label for="direccion">Dirección</label>
+                <input pInputText id="direccion" type="text" formControlName="direccion" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="telefono">Teléfono</label>
+                <input pInputText id="telefono" type="text" formControlName="telefono" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="telefono2">Teléfono 2</label>
+                <input pInputText id="telefono2" type="text" formControlName="telefono2" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="iban">Número de cuenta (IBAN)</label>
+                <input pInputText id="iban" type="text" formControlName="iban" class="w-full" />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="email">Email</label>
+                <input pInputText id="email" type="email" formControlName="email" class="w-full" />
+                <small *ngIf="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" class="text-red-500"> Email inválido. </small>
+            </div>
+        </div>
+
+        <!-- Sección de contactos -->
+        <div class="font-semibold text-xl mt-8 mb-2">Personas de contacto</div>
+
+        <div formArrayName="contactos" class="flex flex-col">
+            <div *ngFor="let contacto of contactos.controls; let i = index" [formGroupName]="i" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Nombre -->
+                <div class="flex flex-col gap-2">
+                    <label for="nombreContacto-{{ i }}">Nombre</label>
+                    <input pInputText id="nombreContacto-{{ i }}" type="text" formControlName="nombre" class="w-full" />
+                </div>
+
+                <!-- Teléfono + eliminar -->
+                <div class="flex flex-col gap-2">
+                    <label for="telefonoContacto-{{ i }}">Teléfono</label>
+
+                    <input pInputText id="telefonoContacto-{{ i }}" type="text" formControlName="telefono" class="w-full" />
+                </div>
+
+                <!-- Cargo -->
+                <div class="flex flex-col gap-2">
+                    <label for="cargoContacto-{{ i }}">Cargo</label>
+                    <div class="flex items-center gap-2">
+                        <input pInputText id="cargoContacto-{{ i }}" type="text" formControlName="cargo" class="w-full" />
+                        <button pButton pRipple icon="pi pi-trash" type="button" class="p-button-rounded p-button-danger p-button-sm" (click)="eliminarContacto(i)" [style.width.px]="32" [style.height.px]="32"></button>
+                    </div>
+                </div>
+
+                <!-- Separador -->
+                <hr class="md:col-span-3 border-t border-gray-300" />
+            </div>
+        </div>
+
+        <div class="flex justify-start mt-4">
+            <button pButton type="button" icon="pi pi-plus" label="Añadir contacto" (click)="agregarContacto()"></button>
+        </div>
+
+        <div class="flex justify-end gap-4 pt-6">
+            <button pButton type="submit" label="Guardar" icon="pi pi-save" [disabled]="perfilForm.invalid"></button>
+        </div>
+    </div>
+</form>
