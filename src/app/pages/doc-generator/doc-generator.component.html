@@ -1,0 +1,41 @@
+<div class="p-6 max-w-8xl mx-auto">
+    <div class="bg-white rounded-xl shadow p-6 space-y-6">
+        <h1 class="text-2xl font-bold text-gray-800">📄 Generador de Documentación con IA</h1>
+        <p class="text-gray-600">Selecciona una opción para generar protocolos o registros y FluvIA se encargará del
+            resto.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Limpieza Cocina -->
+            <div class="border rounded-lg p-4">
+                <p class="font-semibold text-gray-700 mb-2">🧼 Limpieza de Cocina</p>
+                <p-button label="Generar Protocolo" class="w-full" (click)="generar('limpiezaCocina')">
+                </p-button>
+                <small class="text-gray-500 block mt-2">Se preguntará si es diario, semanal o mensual.</small>
+            </div>
+
+            <!-- Limpieza Maquinaria -->
+            <div class="border rounded-lg p-4">
+                <p class="font-semibold text-gray-700 mb-2">🧼 Limpieza de Maquinaria</p>
+                <p-button label="Generar Protocolo" class="w-full" (click)="generar('limpiezaMaquinaria')">
+                </p-button>
+                <small class="text-gray-500 block mt-2">Se preguntará qué máquina: freidora, horno, etc.</small>
+            </div>
+
+            <!-- Registro de Temperaturas -->
+            <div class="border rounded-lg p-4">
+                <p class="font-semibold text-gray-700 mb-2">🌡️ Registro de Temperaturas</p>
+                <p-button label="Generar Registro" class="w-full" (click)="generar('registroTemperaturas')">
+                </p-button>
+                <small class="text-gray-500 block mt-2">Mes, nombre y tipo de cámara.</small>
+            </div>
+
+            <!-- Registro de Aceite -->
+            <div class="border rounded-lg p-4">
+                <p class="font-semibold text-gray-700 mb-2">🛢️ Cambio de Aceite Freidoras</p>
+                <p-button label="Generar Registro" class="w-full" (click)="generar('registroAceite')">
+                </p-button>
+                <small class="text-gray-500 block mt-2">Se preguntará el mes.</small>
+            </div>
+        </div>
+    </div>
+</div>

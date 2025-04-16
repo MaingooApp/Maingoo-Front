@@ -5,6 +5,8 @@ import { Dashboard } from './app/pages/dashboard/dashboard';
 import { Landing } from './app/pages/landing/landing';
 import { Notfound } from './app/pages/notfound/notfound';
 import { SupplierComponent } from './app/pages/supplier/supplier.component';
+import { DocGeneratorComponent } from './app/pages/doc-generator/doc-generator.component';
+import { MyProfileComponent } from './app/pages/my-profile/my-profile.component';
 
 export const appRoutes: Routes = [
     {
@@ -14,8 +16,10 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-            {path: 'facturas', loadChildren: () => import('./app/pages/facturas/invoice.routes')},
-            {path: 'proveedores', component: SupplierComponent},
+            { path: 'facturas', loadChildren: () => import('./app/pages/facturas/invoice.routes')},
+            { path: 'proveedores', component: SupplierComponent},
+            { path: 'docgenerator',component: DocGeneratorComponent},
+            { path: 'miperfil', component: MyProfileComponent},
         ],
         canActivate: [roleGuard(['ADMIN'])]
     },

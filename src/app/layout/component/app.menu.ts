@@ -23,10 +23,12 @@ export class AppMenu {
             {
                 label: 'Home',
                 items: [
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-                    { label: 'Upload File', icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
+                    { label: 'Panel de control', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                    { label: 'Mi perfil', icon: 'pi pi-fw pi-user', routerLink: ['/miperfil'] },
+                    { label: 'Subir factura', icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
                     { label: 'Facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
-                    { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] }
+                    { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
+                    { label: 'Documentación', icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] }
                 ]
             },
             {
