@@ -14,7 +14,7 @@ import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/t
 @Component({
   selector: 'app-proveedores',
   standalone: true,
-  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule,TablaDinamicaComponent],
+  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, TablaDinamicaComponent],
   templateUrl: './supplier.component.html'
 })
 export class SupplierComponent {
@@ -31,7 +31,7 @@ export class SupplierComponent {
     { field: 'telefono', header: 'Teléfono', type: 'text', filter: true },
     { field: 'email', header: 'Email', type: 'text', filter: true }
   ] as const;
-  
+
   actions = [
     {
       icon: 'pi pi-trash',
@@ -39,16 +39,14 @@ export class SupplierComponent {
       color: 'danger',
       tooltip: 'Eliminar'
     }
-  ]as const;
+  ] as const;
 
-  constructor(private confirmationService: ConfirmationService,private messageService: MessageService,) {}
+  constructor(private confirmationService: ConfirmationService, private messageService: MessageService,) { }
 
   async ngOnInit() {
     this.cargando = true;
-    const user = await this.auth.currentUser;
-    if (user) {
-      this.supplier = await this.supplierService.getProveedores(user.uid);
-    }
+    this.supplier = await this.supplierService.getProveedores();
+
     this.cargando = false;
   }
 
@@ -70,11 +68,8 @@ export class SupplierComponent {
   }
 
   async eliminarProveedor(id: string) {
-    const user = await this.auth.currentUser;
-    if (!user) return;
-  
     try {
-      await this.supplierService.deleteSupplier(id, user.uid);
+      await this.supplierService.deleteSupplier(id);
       this.supplier = this.supplier.filter(p => p.id !== id);
       this.messageService.add({ severity: 'success', summary: 'Proveedor eliminado' });
     } catch (err) {
@@ -82,11 +77,11 @@ export class SupplierComponent {
       this.messageService.add({ severity: 'error', summary: 'Error al eliminar' });
     }
   }
-  
+
   handleAccionProveedor({ action, row }: { action: string; row: any }) {
     if (action === 'eliminar') {
       this.confirmarEliminarProveedor(row);
     }
   }
-  
+
 }

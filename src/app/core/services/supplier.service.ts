@@ -11,9 +11,7 @@ export class SupplierService {
   constructor(private authService: AuthService, private firestore: Firestore) { }
 
   async checkProveedorPorNif(nif: string): Promise<boolean> {
-    const uid = this.authService.currentUser?.uid;
-    if (!uid) return false;
-    const negocioId = await this.authService.getNegocioId(uid);
+    const negocioId = await this.authService.getNegocioId();
     if (!negocioId) return false;
 
     const id = this.sanitizeId(nif);
@@ -23,8 +21,8 @@ export class SupplierService {
     return snap.exists();
   }
 
-  async agregarProveedor(proveedor: any, uid: string): Promise<void> {
-    const negocioId = await this.authService.getNegocioId(uid);
+  async agregarProveedor(proveedor: any): Promise<void> {
+    const negocioId = await this.authService.getNegocioId();
     if (!negocioId) {
       throw new Error('No se pudo determinar el negocio del usuario');
     }
@@ -35,8 +33,8 @@ export class SupplierService {
     await setDoc(ref, { ...proveedor, id });
   }
 
-  async getProveedores(uid: string): Promise<Supplier[]> {
-    const negocioId = await this.authService.getNegocioId(uid);
+  async getProveedores(): Promise<Supplier[]> {
+    const negocioId = await this.authService.getNegocioId();
     if (!negocioId) return [];
 
     const ref = collection(this.firestore, `negocios/${negocioId}/proveedores`);
@@ -48,8 +46,8 @@ export class SupplierService {
     } as Supplier));
   }
 
-  async deleteSupplier(nif: string, uid: string): Promise<void> {
-    const negocioId = await this.authService.getNegocioId(uid);
+  async deleteSupplier(nif: string): Promise<void> {
+    const negocioId = await this.authService.getNegocioId();
     if (!negocioId) throw new Error('No se pudo obtener el negocio');
 
     const id = this.sanitizeId(nif);

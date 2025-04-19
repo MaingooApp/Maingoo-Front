@@ -4,9 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { InvoiceService } from '../../core/services/invoice-service.service';
 import { AuthService } from '../../core/services/auth-service.service';
-import { InputIcon } from 'primeng/inputicon';
+import { InvoiceService } from '../../core/services/invoice-service.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 
 @Component({
@@ -33,7 +32,6 @@ export class ProductosComponent {
     { field: 'fechaFactura', header: 'Fecha', type: 'date', filter: true },
   ] as const;
   acciones = [
-    { icon: 'pi pi-pencil', action: 'editar', color: 'success', tooltip: 'Editar' },
     { icon: 'pi pi-trash', action: 'eliminar', color: 'danger', tooltip: 'Eliminar' }
   ] as const;
 
@@ -45,19 +43,17 @@ handleAccion(event: { action: string; row: any }) {
   ngOnInit(): void {
     this.cargando = true;
 
-    this.authService.authState$.subscribe((user) => {
-      if (user) {
-        this.authService.getNegocioId(user.uid).then((negocioId) => {
-          if (!negocioId) return;
+    this.authService.getNegocioId().then((negocioId) => {
+      if (!negocioId) return;
 
-          this.invoiceService
-            .getProductosInventario(negocioId)
-            .subscribe((productos) => {
-              this.productos = productos;
-              this.cargando = false;
-            });
+      this.invoiceService
+        .getProductosInventario(negocioId)
+        .subscribe((productos) => {
+          this.productos = productos;
+          this.cargando = false;
+          console.log(this.cargando);
+          
         });
-      }
     });
   }
 

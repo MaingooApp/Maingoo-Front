@@ -1,5 +1,5 @@
 <!-- Si no hay productos -->
-<div *ngIf="productos.length === 0 && !cargando; else tablaProductos"
+<div *ngIf="!cargando && productos.length === 0; else tablaProductos"
      class="bg-white rounded-xl p-10 shadow-md text-center">
   <i class="pi pi-box text-gray-300 mb-6" style="font-size: 6rem;"></i>
   <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay productos escaneados</h2>

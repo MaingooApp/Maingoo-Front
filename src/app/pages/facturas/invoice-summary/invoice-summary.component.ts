@@ -39,7 +39,7 @@ export class InvoiceSummaryComponent implements OnInit {
   ]as const;
   
   acciones = [
-    { icon: 'pi pi-pencil', action: 'editar', tooltip: 'Ver detalle', color: 'success' },
+    { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'success' },
     { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
   ]as const;
 

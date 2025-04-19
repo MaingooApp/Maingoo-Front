@@ -13,7 +13,7 @@ export class InvoiceService {
     const user = this.authService.currentUser;
     if (!user) throw new Error('Usuario no autenticado');
 
-    const negocioId = await this.authService.getNegocioId(user.uid);
+    const negocioId = await this.authService.getNegocioId();
     const facturaId = resultado.factura.numero.replace(/[^\w\-]/g, '');
     resultado.factura.numero = facturaId;
     console.log(facturaId);
@@ -34,11 +34,8 @@ export class InvoiceService {
   }
 
   getFacturas(): Observable<Invoice[]> {
-    const uid = this.authService.currentUser?.uid;
   
-    if (!uid) return of([]);
-  
-    return from(this.authService.getNegocioId(uid)).pipe(
+    return from(this.authService.getNegocioId()).pipe(
       switchMap((negocioId) => {
         if (!negocioId) return of([]);
         const facturasRef = collection(this.firestore, `negocios/${negocioId}/facturas`);
@@ -66,10 +63,7 @@ export class InvoiceService {
   }
 
   async eliminarFactura(id: string): Promise<void> {
-    const uid = this.authService.currentUser?.uid;
-    if (!uid) throw new Error('Usuario no autenticado');
-  
-    const negocioId = await this.authService.getNegocioId(uid);
+    const negocioId = await this.authService.getNegocioId();
     if (!negocioId) throw new Error('Negocio no encontrado');
   
     const facturaRef = doc(this.firestore, `negocios/${negocioId}/facturas/${id}`);

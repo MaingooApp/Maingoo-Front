@@ -52,11 +52,14 @@ export class AuthService {
     return userSnap.exists() ? userSnap.data()?.['rol'] ?? null : null;
   }
 
-  async getNegocioId(uid: string): Promise<string | null> {
+  async getNegocioId(): Promise<string | null> {
+    const uid = this.currentUser?.uid;
+    if (!uid) return null;
+  
     const usuariosSnap = await getDocs(collectionGroup(this.firestore, 'usuarios'));
     const match = usuariosSnap.docs.find(doc => doc.id === uid);
     const pathSegments = match?.ref.path.split('/');
-    const negocioId = pathSegments?.[1]; // /negocios/{negocioId}/usuarios/{uid}
+    const negocioId = pathSegments?.[1]; 
     return negocioId ?? null;
   }
 

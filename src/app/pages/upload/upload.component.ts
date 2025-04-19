@@ -119,9 +119,8 @@ export class UploadComponent {
       this.confirmAgregarProveedor();
     }
 
-    const user = this.auth.currentUser;
-    if (user && this.resultado.productos?.length) {
-      const negocioId = await this.auth.getNegocioId(user.uid);
+    if (this.resultado.productos?.length) {
+      const negocioId = await this.auth.getNegocioId();
       if (!negocioId) {
         return
       }
@@ -171,12 +170,10 @@ export class UploadComponent {
   }
   
   async guardarProveedor() {
-    const user = await this.auth.currentUser;
-    if (!user || this.proveedorForm.invalid) return;
   
     try {
       const proveedor = this.proveedorForm.value;
-      await this.supplierService.agregarProveedor(proveedor, user.uid);
+      await this.supplierService.agregarProveedor(proveedor);
       this.messageService.add({ severity: 'success', summary: 'Proveedor guardado' });
       this.mostrarModalProveedor = false;
     } catch (err) {

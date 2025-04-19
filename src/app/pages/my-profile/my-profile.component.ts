@@ -47,14 +47,8 @@ export class MyProfileComponent {
             return;
         }
 
-        const user = this.authService.currentUser;
-        if (!user) {
-            console.error('No hay usuario autenticado.');
-            return;
-        }
-
         try {
-            const negocioId = await this.authService.getNegocioId(user.uid);
+            const negocioId = await this.authService.getNegocioId();
             if (!negocioId) {
                 console.error('No se pudo obtener el ID del negocio.');
                 return;
@@ -97,7 +91,7 @@ export class MyProfileComponent {
         }
 
         try {
-            const negocioId = await this.authService.getNegocioId(user.uid);
+            const negocioId = await this.authService.getNegocioId();
             if (!negocioId) {
                 console.error('No se pudo obtener el ID del negocio.');
                 return;
