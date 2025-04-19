@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   urlOpenIA: 'https://api.openai.com/v1/chat/completions',
-  urlBackend: 'https://omniai-back.onrender.com/api/analyze',
+  urlBackend: 'https://omniai-back.onrender.com/',
   firebase : {
     apiKey: "AIzaSyBw8Yk16MZ5QChmdVySmHdLa4k_zrn6R9g",
     authDomain: "omniai-f0bfa.firebaseapp.com",

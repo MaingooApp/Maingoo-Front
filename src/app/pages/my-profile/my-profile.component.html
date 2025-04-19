@@ -1,6 +1,16 @@
 <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" class="p-fluid">
     <div class="card">
-        <div class="font-semibold text-xl mb-4">Datos de empresa</div>
+        <div class="flex items-center justify-between mb-4">
+            <div class="font-semibold text-xl">Datos de empresa</div>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-download"
+              label="Descargar PDF"
+              (click)="descargarPerfilComoPDF()"
+              class="p-button-sm p-button-outlined"
+            ></button>
+          </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Datos principales -->
@@ -83,3 +93,4 @@
         </div>
     </div>
 </form>
+<iframe #htmlFrame style="display: none; width: 100%; height: 100%;"></iframe>

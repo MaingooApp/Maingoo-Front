@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
+import html2pdf from 'html2pdf.js';
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -10,6 +10,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { FluidModule } from 'primeng/fluid';
 import { NegocioService } from '../../core/services/negocio.service';
 import { AuthService } from '../../core/services/auth-service.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-my-profile',
@@ -19,13 +20,15 @@ import { AuthService } from '../../core/services/auth-service.service';
     styleUrl: './my-profile.component.scss'
 })
 export class MyProfileComponent {
+    @ViewChild('htmlFrame', { static: false }) htmlFrame!: ElementRef;
     perfilForm!: FormGroup;
+    cargando = false;
 
     constructor(
         private fb: FormBuilder,
         private negocioService: NegocioService,
         private authService: AuthService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         this.perfilForm = this.fb.group({
@@ -139,5 +142,32 @@ export class MyProfileComponent {
         } catch (error) {
             console.error('❌ Error al cargar el perfil del negocio:', error);
         }
+    }
+
+    async descargarPerfilComoPDF() {
+        const user = await firstValueFrom(this.authService.authState$);
+        if (!user) return;
+
+        const negocioId = await this.authService.getNegocioId(user.uid);
+        if (!negocioId) {
+            console.error('No se pudo obtener el ID del negocio.');
+            return;
+        }
+        const datos = await this.negocioService.getPerfilNegocio(negocioId);
+        const response = await this.negocioService.descargarHtmlEmpresa(datos);
+
+        const iframeDoc = this.htmlFrame.nativeElement.contentDocument || this.htmlFrame.nativeElement.contentWindow?.document;
+        if (!iframeDoc) return;
+
+        iframeDoc.open();
+        iframeDoc.write(response);
+        iframeDoc.close();
+
+        html2pdf().from(iframeDoc.body).set({
+            margin: 10,
+            filename: 'perfil_empresa.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).save();
     }
 }
