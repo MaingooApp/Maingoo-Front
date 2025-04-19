@@ -75,8 +75,6 @@ export class UploadComponent {
     this.openaiService.analizarImagen(base64, mimeType).subscribe({
       next: async (res: any) => {
         this.cargando = false;
-        console.log(res);
-
         const texto = res.choices[0].message.content;
         const inicio = texto.indexOf('{');
         const fin = texto.lastIndexOf('}');
@@ -84,18 +82,8 @@ export class UploadComponent {
         if (inicio !== -1 && fin !== -1) {
           const soloJSON = texto.substring(inicio, fin + 1);
           try {
-            this.resultado = JSON.parse(soloJSON);
-            if (this.resultado) {
-              this.resultado.imagen = base64;
-              this.resultado.mimeType = mimeType;
-            }
-            await this.invoiceService.saveInvoice(this.resultado)
-            if (this.resultado) {
-              const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);
-              if (!proveedorExiste) {
-                this.confirmAgregarProveedor();
-              }
-            }
+            const parsed = JSON.parse(soloJSON);
+            await this.procesarResultadoFactura(parsed, base64, mimeType);
           } catch (e) {
             this.resultado = null;
             this.messageService.add({
@@ -110,7 +98,6 @@ export class UploadComponent {
           this.resultado = null;
           console.error('No se encontró JSON');
         }
-
       },
       error: (err) => {
         this.cargando = false;
@@ -119,6 +106,34 @@ export class UploadComponent {
       }
     });
   }
+
+  private async procesarResultadoFactura(resultado: Invoice, base64: string, mimeType: string) {
+    this.resultado = resultado;
+    this.resultado.imagen = base64;
+    this.resultado.mimeType = mimeType;
+
+    await this.invoiceService.saveInvoice(this.resultado);
+
+    const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);
+    if (!proveedorExiste) {
+      this.confirmAgregarProveedor();
+    }
+
+    const user = this.auth.currentUser;
+    if (user && this.resultado.productos?.length) {
+      const negocioId = await this.auth.getNegocioId(user.uid);
+      if (!negocioId) {
+        return
+      }
+      await this.invoiceService.indexarProductos(
+        negocioId,
+        this.resultado.productos,
+        this.resultado.proveedor,
+        this.resultado.factura?.fecha_emision
+      );
+    }
+  }
+
 
   getInputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;

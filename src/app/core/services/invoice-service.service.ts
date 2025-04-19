@@ -1,8 +1,8 @@
 // factura.service.ts
 import { Injectable } from '@angular/core';
-import { Firestore, collection, deleteDoc, doc, getDocs, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData, deleteDoc, doc, getDocs, serverTimestamp, setDoc, writeBatch } from '@angular/fire/firestore';
 import { AuthService } from './auth-service.service';
-import { from, Observable, of, switchMap } from 'rxjs';
+import { from, map, Observable, of, switchMap } from 'rxjs';
 import { Invoice } from '../interfaces/Invoice.interfaces';
 
 @Injectable({ providedIn: 'root' })
@@ -66,4 +66,66 @@ export class InvoiceService {
     await deleteDoc(facturaRef);
   }
 
+
+  getProductosInventario(negocioId: string): Observable<any[]> {
+    const ref = collection(this.firestore, `negocios/${negocioId}/productos_indexados`);
+  
+    return collectionData(ref, { idField: 'id' }).pipe(
+      map((productos: any[]) => productos.map(producto => ({
+        ...producto,
+        precio: this.convertToDecimal(producto.precio),
+        cantidad: this.convertToDecimal(producto.cantidad),
+        fechaFactura: this.convertToDate(producto.fechaFactura)
+      })))
+    );
+  }
+
+  async indexarProductos(
+    negocioId: string,
+    productos: any[],
+    proveedor: { nombre: string; nif: string },
+    fechaFactura: string
+  ): Promise<void> {
+    const indexRef = collection(this.firestore, `negocios/${negocioId}/productos_indexados`);
+    const batch = writeBatch(this.firestore);
+
+    for (const producto of productos) {
+      const id = producto.referencia || doc(indexRef).id;
+
+      batch.set(doc(indexRef, id), {
+        ...producto,
+        proveedorNif: proveedor.nif,
+        proveedorNombre: proveedor.nombre,
+        fechaFactura,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+    }
+
+    await batch.commit();
+  }
+
+  private convertToDecimal(value: any): number {
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const sanitized = value.replace(',', '.');
+      const parsed = parseFloat(sanitized);
+      return isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  }
+
+  private convertToDate(value: any): Date | null {
+    if (value instanceof Date) return value;
+  
+    if (value?.seconds) return new Date(value.seconds * 1000);
+  
+    if (typeof value === 'string') {
+      const [fecha, hora] = value.split(' ');
+      const [dia, mes, anio] = fecha.split('/').map(Number);
+      const [h, m] = hora?.split(':').map(Number) ?? [0, 0];
+      return new Date(anio, mes - 1, dia, h, m);
+    }
+  
+    return null;
+  }
 }

@@ -7,6 +7,7 @@ import { Notfound } from './app/pages/notfound/notfound';
 import { SupplierComponent } from './app/pages/supplier/supplier.component';
 import { DocGeneratorComponent } from './app/pages/doc-generator/doc-generator.component';
 import { MyProfileComponent } from './app/pages/my-profile/my-profile.component';
+import { ProductosComponent } from './app/pages/productos/productos.component';
 
 export const appRoutes: Routes = [
     {
@@ -18,6 +19,7 @@ export const appRoutes: Routes = [
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
             { path: 'facturas', loadChildren: () => import('./app/pages/facturas/invoice.routes')},
             { path: 'proveedores', component: SupplierComponent},
+            { path: 'productos', component: ProductosComponent},
             { path: 'docgenerator',component: DocGeneratorComponent},
             { path: 'miperfil', component: MyProfileComponent},
         ],

@@ -8,7 +8,7 @@ import { ToastModule } from 'primeng/toast';
     selector: 'app-root',
     standalone: true,
     imports: [RouterModule,
-        HttpClientModule, 
+        HttpClientModule,
         ConfirmDialogModule,
         ToastModule],
     templateUrl: './app.component.html'

@@ -28,6 +28,7 @@ export class AppMenu {
                     { label: 'Subir factura', icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
                     { label: 'Facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
                     { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
+                    { label: 'Productos', icon: 'pi pi-fw pi-tags', routerLink: ['/productos'] },
                     { label: 'Documentación', icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] }
                 ]
             },

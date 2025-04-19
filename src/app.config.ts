@@ -11,12 +11,13 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from './environments/environment';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { primengEs } from './assets/i18n/primeng-es';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideAnimationsAsync(),
-        providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
+        providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } }, translation : primengEs }),
         provideHttpClient(
             withFetch(),
             withInterceptors([httpErrorInterceptor])
