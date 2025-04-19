@@ -80,9 +80,10 @@ export class TablaDinamicaComponent {
     const headers = this.columns.map(col => col.header);
     const rows = this.data.map(row =>
       this.columns.map(col => {
-        const value = row[col.field];
+        const value = this.getNestedValue(row, col.field);
+    
         if (col.type === 'numeric') return this.convertToDecimal(value);
-        if (col.type === 'date') return value instanceof Date ? value.toLocaleString() : value;
+        if (col.type === 'date' && value instanceof Date) return value.toLocaleString();
         return value ?? '';
       })
     );

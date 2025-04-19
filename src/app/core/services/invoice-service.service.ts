@@ -35,20 +35,30 @@ export class InvoiceService {
 
   getFacturas(): Observable<Invoice[]> {
     const uid = this.authService.currentUser?.uid;
-
+  
     if (!uid) return of([]);
-
+  
     return from(this.authService.getNegocioId(uid)).pipe(
       switchMap((negocioId) => {
         if (!negocioId) return of([]);
         const facturasRef = collection(this.firestore, `negocios/${negocioId}/facturas`);
         return from(getDocs(facturasRef)).pipe(
-          switchMap((snap) => {
-            const facturas: Invoice[] = snap.docs.map((doc) => ({
-              ...(doc.data() as Invoice),
-              id: doc.id
-            }));
-            return of(facturas);
+          map((snap) => {
+            const facturas: Invoice[] = snap.docs.map((doc) => {
+              const data = doc.data() as Invoice;
+  
+              return {
+                ...data,
+                id: doc.id,
+                factura: {
+                  ...data.factura,
+                  fecha_emision: this.convertToDate(data.factura?.fecha_emision) ?? '',
+                  fecha_vencimiento: this.convertToDate(data.factura?.fecha_vencimiento) ?? '',
+                  total_con_iva: this.convertToDecimal(data.factura?.total_con_iva) ?? 0,
+                }
+              };
+            });
+            return facturas;
           })
         );
       })
@@ -84,7 +94,7 @@ export class InvoiceService {
     negocioId: string,
     productos: any[],
     proveedor: { nombre: string; nif: string },
-    fechaFactura: string
+    fechaFactura: string | Date
   ): Promise<void> {
     const indexRef = collection(this.firestore, `negocios/${negocioId}/productos_indexados`);
     const batch = writeBatch(this.firestore);

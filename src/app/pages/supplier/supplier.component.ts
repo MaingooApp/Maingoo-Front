@@ -9,11 +9,12 @@ import { SupplierService } from '../../core/services/supplier.service';
 import { Auth } from '@angular/fire/auth';
 import { Supplier } from '../../core/interfaces/supplier.interface';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 
 @Component({
   selector: 'app-proveedores',
   standalone: true,
-  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule],
+  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule,TablaDinamicaComponent],
   templateUrl: './supplier.component.html'
 })
 export class SupplierComponent {
@@ -22,6 +23,23 @@ export class SupplierComponent {
 
   supplier: Supplier[] = [];
   cargando = false;
+
+  columns = [
+    { field: 'nombre', header: 'Nombre', type: 'text', filter: true },
+    { field: 'nif', header: 'NIF', type: 'text', filter: true },
+    { field: 'direccion', header: 'Dirección', type: 'text', filter: true },
+    { field: 'telefono', header: 'Teléfono', type: 'text', filter: true },
+    { field: 'email', header: 'Email', type: 'text', filter: true }
+  ] as const;
+  
+  actions = [
+    {
+      icon: 'pi pi-trash',
+      action: 'eliminar',
+      color: 'danger',
+      tooltip: 'Eliminar'
+    }
+  ]as const;
 
   constructor(private confirmationService: ConfirmationService,private messageService: MessageService,) {}
 
@@ -65,5 +83,10 @@ export class SupplierComponent {
     }
   }
   
+  handleAccionProveedor({ action, row }: { action: string; row: any }) {
+    if (action === 'eliminar') {
+      this.confirmarEliminarProveedor(row);
+    }
+  }
   
 }

@@ -11,6 +11,7 @@ import { TableModule } from 'primeng/table';
 import { ConvertNumbers } from '../../../core/helpers/numbers';
 import { Invoice } from '../../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../../../core/services/invoice-service.service';
+import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 
 
 @Component({
@@ -23,12 +24,24 @@ import { InvoiceService } from '../../../core/services/invoice-service.service';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
+    TablaDinamicaComponent
   ],
 })
 export class InvoiceSummaryComponent implements OnInit {
   facturas: Invoice[] = [];
   loading = true;
   ConvertNumbers = ConvertNumbers;
+  columnas = [
+    { field: 'factura.numero', header: 'Número', type: 'text', filter: true },
+    { field: 'proveedor.nombre', header: 'Proveedor', type: 'text', filter: true },
+    { field: 'factura.fecha_emision', header: 'Fecha emisión', type: 'date', filter: true },
+    { field: 'factura.total_con_iva', header: 'Total con IVA', type: 'numeric', filter: true }
+  ]as const;
+  
+  acciones = [
+    { icon: 'pi pi-pencil', action: 'editar', tooltip: 'Ver detalle', color: 'success' },
+    { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
+  ]as const;
 
   constructor(private invoiceService: InvoiceService, 
     private confirmationService: ConfirmationService, 
@@ -88,4 +101,13 @@ export class InvoiceSummaryComponent implements OnInit {
       console.error('Error eliminando la factura:', error);
     });
   }
+
+
+handleAccion(event: { action: string; row: any }) {
+  if (event.action === 'editar') {
+    this.verDetalle(event.row);
+  } else if (event.action === 'eliminar') {
+    this.confirmarEliminacion(event.row);
+  }
+}
 }
