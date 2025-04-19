@@ -61,6 +61,7 @@ export class SupplierComponent {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
       accept: () => {
         this.eliminarProveedor(prov.id!);
       }

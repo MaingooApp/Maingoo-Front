@@ -7,6 +7,7 @@ import { TableModule } from 'primeng/table';
 import { AuthService } from '../../core/services/auth-service.service';
 import { InvoiceService } from '../../core/services/invoice-service.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-productos',
@@ -17,6 +18,8 @@ import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/t
 export class ProductosComponent {
   private invoiceService = inject(InvoiceService);
   private authService = inject(AuthService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   productos: any[] = [];
   filtroGlobal: string = '';
@@ -35,27 +38,28 @@ export class ProductosComponent {
     { icon: 'pi pi-trash', action: 'eliminar', color: 'danger', tooltip: 'Eliminar' }
   ] as const;
 
-handleAccion(event: { action: string; row: any }) {
-  console.log('Acción recibida:', event);
-  // Aquí puedes hacer lógica condicional
-}
+  async handleAccion(event: { action: string; row: any }) {
+    this.confirmarEliminarProducto(event.row);
+  }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.cargando = true;
 
-    this.authService.getNegocioId().then((negocioId) => {
-      if (!negocioId) return;
-
-      this.invoiceService
-        .getProductosInventario(negocioId)
-        .subscribe((productos) => {
-          this.productos = productos;
-          this.cargando = false;
-          console.log(this.cargando);
-          
-        });
-    });
+    const negocioId = await this.authService.getNegocioId();
+    if (!negocioId) {
+      console.error('No se encontró el ID del negocio.');
+      this.cargando = false;
+      return;
+    }
+    this.invoiceService
+      .getProductosInventario(negocioId)
+      .subscribe((productos) => {
+        this.productos = productos;
+        this.cargando = false;
+        console.log(this.productos);
+      });
   }
+
 
   getInputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;
@@ -70,4 +74,35 @@ handleAccion(event: { action: string; row: any }) {
     }
     return 0;
   }
+
+  confirmarEliminarProducto(producto: any) {
+    this.confirmationService.confirm({
+      message: `¿Estás seguro de que deseas eliminar el producto "${producto.descripcion}"?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí',
+      rejectLabel: 'No',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: async () => {
+        try {
+          await this.invoiceService.eliminarProductoInventario(producto.id);
+          this.productos = this.productos.filter(p => p.id !== producto.id);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Eliminado',
+            detail: 'Producto eliminado correctamente',
+            life: 3000
+          });
+        } catch (error) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Hubo un problema al eliminar el producto',
+            life: 3000
+          });
+        }
+      }
+    });
+  }
+
 }

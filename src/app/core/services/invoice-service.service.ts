@@ -132,4 +132,13 @@ export class InvoiceService {
   
     return null;
   }
+
+  async eliminarProductoInventario(productoId: string): Promise<void> {
+  
+    const negocioId = await this.authService.getNegocioId();
+    if (!negocioId) throw new Error('Negocio no encontrado');
+  
+    const productoRef = doc(this.firestore, `negocios/${negocioId}/productos_indexados/${productoId}`);
+    await deleteDoc(productoRef);
+  }
 }
