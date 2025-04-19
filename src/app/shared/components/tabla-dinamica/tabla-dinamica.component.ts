@@ -94,4 +94,10 @@ export class TablaDinamicaComponent {
   
     doc.save(`${this.exportFilename}.pdf`);
   }
+
+  getNestedValue(obj: any, path: string): any {
+    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    if (value === undefined || value === null) return '';
+    return value;
+  }
 }

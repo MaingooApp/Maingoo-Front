@@ -6,7 +6,8 @@
     [rowsPerPageOptions]="[10,20,50]"
     [globalFilterFields]="globalFilterFields" 
     [loading]="loading" 
-    responsiveLayout="scroll" 
+    [scrollable]="false"
+    class="table w-full"
     showGridlines 
     stripedRows
     filterDisplay="menu" 
@@ -49,7 +50,7 @@
                 <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <ng-container *ngFor="let col of columns">
-                <th [style.minWidth]="'12rem'">
+                <th>
                     <div class="flex items-center gap-2">
                         {{ col.header }}
                         <p-columnFilter *ngIf="col.filter" [type]="col.type || 'text'" [field]="col.field"
@@ -71,11 +72,22 @@
             <ng-container *ngFor="let col of columns">
                 <td>
                     <ng-container [ngSwitch]="col.type">
-                        <span *ngSwitchCase="'numeric'">{{ convertToDecimal(row[col.field]) | number:'1.2-2' }}</span>
-                        <span *ngSwitchCase="'date'">{{ row[col.field] | date:'dd/MM/yyyy HH:mm' }}</span>
-                        <span *ngSwitchCase="'boolean'">{{ row[col.field] ? 'Sí' : 'No' }}</span>
-                        <span *ngSwitchDefault>{{ row[col.field] }}</span>
-                    </ng-container>
+                        <span *ngSwitchCase="'numeric'">
+                          {{ convertToDecimal(getNestedValue(row, col.field)) | number:'1.2-2' }}
+                        </span>
+                      
+                        <span *ngSwitchCase="'date'">
+                          {{ getNestedValue(row, col.field) | date:'dd/MM/yyyy HH:mm' }}
+                        </span>
+                      
+                        <span *ngSwitchCase="'boolean'">
+                          {{ getNestedValue(row, col.field) ? 'Sí' : 'No' }}
+                        </span>
+                      
+                        <span *ngSwitchDefault>
+                          {{ getNestedValue(row, col.field) }}
+                        </span>
+                      </ng-container>
                 </td>
             </ng-container>
             <td *ngIf="actions.length > 0">
