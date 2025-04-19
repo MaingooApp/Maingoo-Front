@@ -24,7 +24,7 @@ export class AppMenu {
                 label: 'Home',
                 items: [
                     { label: 'Panel de control', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-                    { label: 'Mi perfil', icon: 'pi pi-fw pi-user', routerLink: ['/miperfil'] },
+                    //{ label: 'Mi perfil', icon: 'pi pi-fw pi-user', routerLink: ['/miperfil'] },
                     { label: 'Subir factura', icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
                     { label: 'Facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
                     { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
