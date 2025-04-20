@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import autoTable from 'jspdf-autotable';
   templateUrl: './tabla-dinamica.component.html'
 })
 export class TablaDinamicaComponent {
+  @ViewChild('dt') dt!: Table;
   @Input() data: any[] = [];
   @Input() columns: readonly {
     field: string;
@@ -78,7 +79,9 @@ export class TablaDinamicaComponent {
     const doc = new jsPDF();
   
     const headers = this.columns.map(col => col.header);
-    const rows = this.data.map(row =>
+    const source = this.dt.filteredValue ?? this.data;
+  
+    const rows = source.map(row =>
       this.columns.map(col => {
         const value = this.getNestedValue(row, col.field);
     
