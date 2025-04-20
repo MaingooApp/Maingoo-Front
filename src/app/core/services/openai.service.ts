@@ -17,6 +17,6 @@ export class OpenaiService extends BaseHttpService {
       base64,
       mimeType
     };
-    return this.post(environment.urlBackend, body ); 
+    return this.post(environment.urlBackend + '/api/analyze', body ); 
   }
 }

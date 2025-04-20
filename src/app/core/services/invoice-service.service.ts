@@ -4,10 +4,15 @@ import { Firestore, collection, collectionData, deleteDoc, doc, getDocs, serverT
 import { AuthService } from './auth-service.service';
 import { from, map, Observable, of, switchMap } from 'rxjs';
 import { Invoice } from '../interfaces/Invoice.interfaces';
+import { BaseHttpService } from './base-http.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
-export class InvoiceService {
-  constructor(private firestore: Firestore, private authService: AuthService) {}
+export class InvoiceService extends BaseHttpService {
+  constructor(private firestore: Firestore, private authService: AuthService,http: HttpClient) {
+    super(http);
+  }
 
   async saveInvoice(resultado: any) {
     const user = this.authService.currentUser;
@@ -140,5 +145,13 @@ export class InvoiceService {
   
     const productoRef = doc(this.firestore, `negocios/${negocioId}/productos_indexados/${productoId}`);
     await deleteDoc(productoRef);
+  }
+
+  descargarZipFacturas(facturas: any[]) {
+    return this.postBlob(environment.urlBackend + 'api/exportar-facturas-zip', { facturas });
+  }
+
+  enviarFacturasPorCorreo(facturas: any[], email: string) {
+    return this.post<any>(environment.urlBackend + 'api/enviar-facturas-por-correo', { facturas, email });
   }
 }

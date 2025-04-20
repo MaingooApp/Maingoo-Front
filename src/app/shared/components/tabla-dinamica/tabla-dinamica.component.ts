@@ -104,4 +104,8 @@ export class TablaDinamicaComponent {
     if (value === undefined || value === null) return '';
     return value;
   }
+
+  getFiltrados() {
+    return this.dt.filteredValue ?? this.data;
+  }
 }

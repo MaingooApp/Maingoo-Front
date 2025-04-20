@@ -39,4 +39,11 @@ export class BaseHttpService {
       headers: this.createHeaders(headers)
     });
   }
+
+  protected postBlob(url: string, body: any, customHeaders?: { [key: string]: string }): Observable<Blob> {
+    return this.http.post(`${url}`, body, {
+      headers: this.createHeaders(customHeaders),
+      responseType: 'blob'
+    });
+  }
 }

@@ -1,6 +1,6 @@
 // invoice-summary.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,8 @@ import { ConvertNumbers } from '../../../core/helpers/numbers';
 import { Invoice } from '../../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../../../core/services/invoice-service.service';
 import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamica/tabla-dinamica.component';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
@@ -24,10 +26,13 @@ import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamic
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    TablaDinamicaComponent
+    TablaDinamicaComponent,
+    DialogModule,
+    FormsModule
   ],
 })
 export class InvoiceSummaryComponent implements OnInit {
+  @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
   facturas: Invoice[] = [];
   loading = true;
   ConvertNumbers = ConvertNumbers;
@@ -36,25 +41,30 @@ export class InvoiceSummaryComponent implements OnInit {
     { field: 'proveedor.nombre', header: 'Proveedor', type: 'text', filter: true },
     { field: 'factura.fecha_emision', header: 'Fecha emisión', type: 'date', filter: true },
     { field: 'factura.total_con_iva', header: 'Total con IVA', type: 'numeric', filter: true }
-  ]as const;
-  
+  ] as const;
+
   acciones = [
     { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'success' },
     { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
-  ]as const;
+  ] as const;
 
-  constructor(private invoiceService: InvoiceService, 
-    private confirmationService: ConfirmationService, 
+  mostrarModalExportar = false;
+  mostrarInputCorreo = false;
+  correoDestino = '';
+  exportando = false;
+
+  constructor(private invoiceService: InvoiceService,
+    private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private router: Router,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.invoiceService.getFacturas().subscribe({
       next: (data) => {
         this.facturas = data;
         console.log('Facturas cargadas:', this.facturas);
-        
+
         this.loading = false;
       },
       error: (err) => {
@@ -67,7 +77,7 @@ export class InvoiceSummaryComponent implements OnInit {
   verDetalle(factura: Invoice) {
     this.router.navigate(['/facturas/detalle', factura.id], {
       state: { factura }
-    });  
+    });
   }
 
   getInputValue(event: Event): string {
@@ -87,14 +97,14 @@ export class InvoiceSummaryComponent implements OnInit {
       }
     });
   }
-  
+
 
   eliminarFactura(factura: Invoice) {
     if (!factura.id) {
       console.warn('No se puede eliminar una factura sin ID.');
       return;
     }
-  
+
     this.invoiceService.eliminarFactura(factura.id).then(() => {
       this.facturas = this.facturas.filter(f => f.id !== factura.id);
     }).catch(error => {
@@ -103,11 +113,98 @@ export class InvoiceSummaryComponent implements OnInit {
   }
 
 
-handleAccion(event: { action: string; row: any }) {
-  if (event.action === 'editar') {
-    this.verDetalle(event.row);
-  } else if (event.action === 'eliminar') {
-    this.confirmarEliminacion(event.row);
+  handleAccion(event: { action: string; row: any }) {
+    if (event.action === 'editar') {
+      this.verDetalle(event.row);
+    } else if (event.action === 'eliminar') {
+      this.confirmarEliminacion(event.row);
+    }
   }
-}
+
+
+  exportarFacturas() {
+    const facturasFiltradas = this.tablaRef.getFiltrados();
+    if (!facturasFiltradas || facturasFiltradas.length === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'No hay facturas seleccionadas',
+        detail: 'Debe haber almenos 1 factura.'
+      });
+      return;
+    }
+
+    this.mostrarModalExportar = true;
+  }
+
+  descargarZip() {
+    this.mostrarInputCorreo = false;
+    this.exportando = true;
+    const facturasFiltradas = this.tablaRef.getFiltrados();
+  
+    this.invoiceService.descargarZipFacturas(facturasFiltradas).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'facturas.zip';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.mostrarModalExportar = false;
+        this.mostrarInputCorreo = false;
+        this.correoDestino = '';
+      },
+      error: (err) => {
+        console.error('Error al generar el ZIP', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al descargar',
+          detail: 'No se pudo generar el archivo ZIP. Intenta nuevamente.'
+        });
+      },
+      complete: () => {
+        this.exportando = false;
+      }
+    });
+  }
+
+  enviarPorCorreo() {
+    this.exportando = true;
+    const facturas = this.tablaRef.getFiltrados();
+  
+    if (!this.correoDestino) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Correo requerido',
+        detail: 'Debes ingresar un correo de destino.'
+      });
+      this.exportando = false;
+      return;
+    }
+  
+    this.invoiceService.enviarFacturasPorCorreo(facturas, this.correoDestino).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Correo enviado',
+          detail: 'Las facturas se han enviado correctamente.'
+        });
+  
+        this.mostrarModalExportar = false;
+        this.mostrarInputCorreo = false;
+        this.correoDestino = '';
+      },
+      error: (err) => {
+        console.error('❌ Error al enviar correo:', err);
+  
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al enviar',
+          detail: 'No se pudo enviar el correo. Intenta nuevamente.'
+        });
+      },
+      complete: () => {
+        this.exportando = false;
+      }
+    });
+  }
 }
