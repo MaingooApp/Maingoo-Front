@@ -33,7 +33,7 @@ export class TablaDinamicaComponent {
   @Input() columns: readonly {
     field: string;
     header: string;
-    type?: 'boolean' | 'text' | 'numeric' | 'date';
+    type?: 'boolean' | 'text' | 'numeric' | 'date' | 'list';
     filter?: boolean;
   }[] = [];
   @Input() actions: readonly {

@@ -130,7 +130,7 @@ export class UploadComponent {
             this.resultado.productos.map(p => ({ descripcion: p.descripcion }))
           )
         );
-  
+
         this.resultado.productos = this.resultado.productos.map((productoOriginal, i) => ({
           ...productoOriginal,
           ...alergenos[i]
