@@ -16,6 +16,7 @@ import { OpenaiService } from '../../core/services/openai.service';
 import { SupplierService } from '../../core/services/supplier.service';
 import { DialogModule } from 'primeng/dialog';
 import { AuthService } from '../../core/services/auth-service.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-upload',
@@ -111,19 +112,41 @@ export class UploadComponent {
     this.resultado = resultado;
     this.resultado.imagen = base64;
     this.resultado.mimeType = mimeType;
-
+  
     await this.invoiceService.saveInvoice(this.resultado);
-
+  
     const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);
     if (!proveedorExiste) {
       this.confirmAgregarProveedor();
     }
-
+  
     if (this.resultado.productos?.length) {
       const negocioId = await this.auth.getNegocioId();
-      if (!negocioId) {
-        return
+      if (!negocioId) return;
+  
+      try {
+        const alergenos = await firstValueFrom(
+          this.invoiceService.analizarProductosPorIA(
+            this.resultado.productos.map(p => ({ descripcion: p.descripcion }))
+          )
+        );
+  
+        this.resultado.productos = this.resultado.productos.map((productoOriginal, i) => ({
+          ...productoOriginal,
+          ...alergenos[i]
+        }));
+  
+      } catch (err) {
+        console.error('❌ Error analizando productos con IA:', err);
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Análisis incompleto',
+          detail: 'Los productos se han guardado sin información de alérgenos. Puedes intentarlo manualmente más tarde.',
+          life: 5000
+        });
       }
+  
+      // ✅ Indexar productos (enriquecidos o no)
       await this.invoiceService.indexarProductos(
         negocioId,
         this.resultado.productos,
