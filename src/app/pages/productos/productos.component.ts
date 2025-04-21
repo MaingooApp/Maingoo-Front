@@ -26,13 +26,13 @@ export class ProductosComponent {
   cargando = false;
   seleccionados: any[] = [];
 
+  
   columnas = [
-    { field: 'referencia', header: 'Referencia', type: 'text', filter: true },
     { field: 'descripcion', header: 'Descripción', type: 'text', filter: true },
-    { field: 'cantidad', header: 'Cantidad', type: 'numeric', filter: true },
     { field: 'precio', header: 'Precio', type: 'numeric', filter: true },
     { field: 'proveedorNombre', header: 'Proveedor', type: 'text', filter: true },
-    { field: 'fechaFactura', header: 'Fecha', type: 'date', filter: true },
+    { field: 'categoria', header: 'Categoría', type: 'text', filter: true },
+    { field: 'alergenos', header: 'Alérgenos', type: 'list', filter: true }
   ] as const;
   acciones = [
     { icon: 'pi pi-trash', action: 'eliminar', color: 'danger', tooltip: 'Eliminar' }

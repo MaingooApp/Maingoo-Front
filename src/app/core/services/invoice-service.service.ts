@@ -97,7 +97,7 @@ export class InvoiceService extends BaseHttpService {
   ): Promise<void> {
     const indexRef = collection(this.firestore, `negocios/${negocioId}/productos_indexados`);
     const batch = writeBatch(this.firestore);
-
+    debugger
     for (const producto of productos) {
       const id = producto.referencia || doc(indexRef).id;
 
@@ -153,5 +153,14 @@ export class InvoiceService extends BaseHttpService {
 
   enviarFacturasPorCorreo(facturas: any[], email: string) {
     return this.post<any>(environment.urlBackend + 'api/enviar-facturas-por-correo', { facturas, email });
+  }
+
+  analizarProductosPorIA(productos: { descripcion: string }[]) {
+    return this.post<{ productos: any[] }>(
+      environment.urlBackend + 'api/analyze/alergenos',
+      { productos }
+    ).pipe(
+      map(res => res.productos)
+    );
   }
 }
