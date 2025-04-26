@@ -155,17 +155,12 @@ export class InvoiceService extends BaseHttpService {
   }
 
   analizarProductosPorIA(productos: { descripcion: string }[]) {
-    return this.post<any>(
-      environment.urlBackend + 'api/analyze/alergenos',
-      { productos }
-    ).pipe(
-      map(res => {
-        const raw = res.productos || '';
-        const inicio = raw.indexOf('[');
-        const fin = raw.lastIndexOf(']');
-        const jsonText = raw.substring(inicio, fin + 1);
-        return JSON.parse(jsonText);
-      })
-    );
+	return this.post<{ productos: any[] }>(
+	  environment.urlBackend + 'api/analyze/alergenos',
+	  { productos }
+	).pipe(
+	  map(res => res.productos)
+	);
   }
+  
 }
