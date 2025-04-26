@@ -69,44 +69,34 @@ export class UploadComponent {
   }
 
   enviarAOpenAI(base64: string, mimeType: string) {
-    if (this.cargando) return;
-    this.cargando = true;
-    this.msg = 'Analizando imagen...';
-
-    this.openaiService.analizarImagen(base64, mimeType).subscribe({
-      next: async (res: any) => {
-        this.cargando = false;
-        const texto = res.choices[0].message.content;
-        const inicio = texto.indexOf('{');
-        const fin = texto.lastIndexOf('}');
-
-        if (inicio !== -1 && fin !== -1) {
-          const soloJSON = texto.substring(inicio, fin + 1);
-          try {
-            const parsed = JSON.parse(soloJSON);
-            await this.procesarResultadoFactura(parsed, base64, mimeType);
-          } catch (e) {
-            this.resultado = null;
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error al procesar factura',
-              detail: 'No se pudo interpretar la información del documento. Intente nuevamente.',
-              life: 5000
-            });
-            console.error('Error al parsear JSON:', e);
-          }
-        } else {
-          this.resultado = null;
-          console.error('No se encontró JSON');
-        }
-      },
-      error: (err) => {
-        this.cargando = false;
-        this.msg = 'Error al procesar la imagen.';
-        console.error(err);
-      }
-    });
-  }
+	if (this.cargando) return;
+	this.cargando = true;
+	this.msg = 'Analizando imagen...';
+  
+	this.openaiService.analizarImagen(base64, mimeType).subscribe({
+	  next: async (res: any) => {
+		this.cargando = false;
+  
+		try {
+		  await this.procesarResultadoFactura(res, base64, mimeType);
+		} catch (e) {
+		  this.resultado = null;
+		  this.messageService.add({
+			severity: 'error',
+			summary: 'Error al procesar factura',
+			detail: 'No se pudo interpretar la información del documento. Intente nuevamente.',
+			life: 5000
+		  });
+		  console.error('Error al procesar resultado:', e);
+		}
+	  },
+	  error: (err) => {
+		this.cargando = false;
+		this.msg = 'Error al procesar la imagen.';
+		console.error(err);
+	  }
+	});
+  }  
 
   private async procesarResultadoFactura(resultado: Invoice, base64: string, mimeType: string) {
     this.resultado = resultado;
