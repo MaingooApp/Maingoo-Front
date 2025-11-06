@@ -1,8 +1,7 @@
 // factura.service.ts
 import { Injectable } from '@angular/core';
-import { Firestore, collection, collectionData, deleteDoc, doc, getDocs, serverTimestamp, setDoc, writeBatch } from '@angular/fire/firestore';
 import { AuthService } from './auth-service.service';
-import { from, map, Observable, of, switchMap } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { Invoice } from '../interfaces/Invoice.interfaces';
 import { BaseHttpService } from './base-http.service';
 import { HttpClient } from '@angular/common/http';
@@ -10,157 +9,115 @@ import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService extends BaseHttpService {
-  constructor(private firestore: Firestore, private authService: AuthService,http: HttpClient) {
-    super(http);
-  }
+    private readonly API_URL = `${environment.urlBackend}api/invoices`;
 
-  async saveInvoice(resultado: any) {
-    const user = this.authService.currentUser;
-    if (!user) throw new Error('Usuario no autenticado');
+    constructor(
+        private authService: AuthService,
+        http: HttpClient
+    ) {
+        super(http);
+    }
 
-    const negocioId = await this.authService.getNegocioId();
-    const facturaId = resultado.factura.numero.replace(/[^\w\-]/g, '');
-    resultado.factura.numero = facturaId;
-    console.log(facturaId);
+    saveInvoice(resultado: any): Observable<{ id: string }> {
+        const user = this.authService.currentUser;
+        if (!user) throw new Error('Usuario no autenticado');
 
-    const facturaRef = doc(this.firestore, `negocios/${negocioId}/facturas/${facturaId}`);
-    const data = {
-      proveedor: resultado.proveedor,
-      factura: resultado.factura,
-      productos: resultado.productos,
-      subidoPor: user.uid,
-      fechaSubida: new Date(),
-      imagen: resultado.imagen,
-      mimeType: resultado.mimeType
-    };
+        const facturaId = resultado.factura.numero.replace(/[^\w\-]/g, '');
+        resultado.factura.numero = facturaId;
 
-    await setDoc(facturaRef, data);
-    return facturaId;
-  }
+        const data = {
+            proveedor: resultado.proveedor,
+            factura: resultado.factura,
+            productos: resultado.productos,
+            subidoPor: user.uid,
+            fechaSubida: new Date(),
+            imagen: resultado.imagen,
+            mimeType: resultado.mimeType
+        };
 
-  getFacturas(): Observable<Invoice[]> {
-  
-    return from(this.authService.getNegocioId()).pipe(
-      switchMap((negocioId) => {
-        if (!negocioId) return of([]);
-        const facturasRef = collection(this.firestore, `negocios/${negocioId}/facturas`);
-        return from(getDocs(facturasRef)).pipe(
-          map((snap) => {
-            const facturas: Invoice[] = snap.docs.map((doc) => {
-              const data = doc.data() as Invoice;
-  
-              return {
-                ...data,
-                id: doc.id,
-                factura: {
-                  ...data.factura,
-                  fecha_emision: this.convertToDate(data.factura?.fecha_emision) ?? '',
-                  fecha_vencimiento: this.convertToDate(data.factura?.fecha_vencimiento) ?? '',
-                  total_con_iva: this.convertToDecimal(data.factura?.total_con_iva) ?? 0,
-                }
-              };
-            });
-            return facturas;
-          })
+        return this.post<{ id: string }>(`${this.API_URL}`, data);
+    }
+
+    getFacturas(): Observable<Invoice[]> {
+        return this.get<Invoice[]>(`${this.API_URL}`).pipe(
+            map((facturas) => {
+                return facturas.map((data) => ({
+                    ...data,
+                    factura: {
+                        ...data.factura,
+                        fecha_emision: this.convertToDate(data.factura?.fecha_emision) ?? '',
+                        fecha_vencimiento: this.convertToDate(data.factura?.fecha_vencimiento) ?? '',
+                        total_con_iva: this.convertToDecimal(data.factura?.total_con_iva) ?? 0
+                    }
+                }));
+            })
         );
-      })
-    );
-  }
-
-  async eliminarFactura(id: string): Promise<void> {
-    const negocioId = await this.authService.getNegocioId();
-    if (!negocioId) throw new Error('Negocio no encontrado');
-  
-    const facturaRef = doc(this.firestore, `negocios/${negocioId}/facturas/${id}`);
-    await deleteDoc(facturaRef);
-  }
-
-
-  getProductosInventario(negocioId: string): Observable<any[]> {
-    const ref = collection(this.firestore, `negocios/${negocioId}/productos_indexados`);
-  
-    return collectionData(ref, { idField: 'id' }).pipe(
-      map((productos: any[]) => productos.map(producto => ({
-        ...producto,
-        precio: this.convertToDecimal(producto.precio),
-        cantidad: this.convertToDecimal(producto.cantidad),
-        fechaFactura: this.convertToDate(producto.fechaFactura)
-      })))
-    );
-  }
-
-  async indexarProductos(
-    negocioId: string,
-    productos: any[],
-    proveedor: { nombre: string; nif: string },
-    fechaFactura: string | Date
-  ): Promise<void> {
-    const indexRef = collection(this.firestore, `negocios/${negocioId}/productos_indexados`);
-    const batch = writeBatch(this.firestore);
-    for (const producto of productos) {
-      const id = producto.referencia || doc(indexRef).id;
-
-      batch.set(doc(indexRef, id), {
-        ...producto,
-        proveedorNif: proveedor.nif,
-        proveedorNombre: proveedor.nombre,
-        fechaFactura,
-        updatedAt: serverTimestamp(),
-      }, { merge: true });
     }
 
-    await batch.commit();
-  }
-
-  private convertToDecimal(value: any): number {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-      const sanitized = value.replace(',', '.');
-      const parsed = parseFloat(sanitized);
-      return isNaN(parsed) ? 0 : parsed;
+    eliminarFactura(id: string): Observable<void> {
+        return this.delete<void>(`${this.API_URL}/${id}`);
     }
-    return 0;
-  }
 
-  private convertToDate(value: any): Date | null {
-    if (value instanceof Date) return value;
-  
-    if (value?.seconds) return new Date(value.seconds * 1000);
-  
-    if (typeof value === 'string') {
-      const [fecha, hora] = value.split(' ');
-      const [dia, mes, anio] = fecha.split('/').map(Number);
-      const [h, m] = hora?.split(':').map(Number) ?? [0, 0];
-      return new Date(anio, mes - 1, dia, h, m);
+    getProductosInventario(): Observable<any[]> {
+        return this.get<any[]>(`${this.API_URL}/productos-inventario`).pipe(
+            map((productos: any[]) =>
+                productos.map((producto) => ({
+                    ...producto,
+                    precio: this.convertToDecimal(producto.precio),
+                    cantidad: this.convertToDecimal(producto.cantidad),
+                    fechaFactura: this.convertToDate(producto.fechaFactura)
+                }))
+            )
+        );
     }
-  
-    return null;
-  }
 
-  async eliminarProductoInventario(productoId: string): Promise<void> {
-  
-    const negocioId = await this.authService.getNegocioId();
-    if (!negocioId) throw new Error('Negocio no encontrado');
-  
-    const productoRef = doc(this.firestore, `negocios/${negocioId}/productos_indexados/${productoId}`);
-    await deleteDoc(productoRef);
-  }
+    indexarProductos(productos: any[], proveedor: { nombre: string; nif: string }, fechaFactura: string | Date): Observable<void> {
+        const data = {
+            productos,
+            proveedor,
+            fechaFactura
+        };
+        return this.post<void>(`${this.API_URL}/indexar-productos`, data);
+    }
 
-  descargarZipFacturas(facturas: any[]) {
-    return this.postBlob(environment.urlBackend + 'api/exportar-facturas-zip', { facturas });
-  }
+    private convertToDecimal(value: any): number {
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') {
+            const sanitized = value.replace(',', '.');
+            const parsed = parseFloat(sanitized);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+        return 0;
+    }
 
-  enviarFacturasPorCorreo(facturas: any[], email: string) {
-    return this.post<any>(environment.urlBackend + 'api/enviar-facturas-por-correo', { facturas, email });
-  }
+    private convertToDate(value: any): Date | null {
+        if (value instanceof Date) return value;
 
-  analizarProductosPorIA(productos: { descripcion: string }[]) {
-	return this.post<{ productos: any[] }>(
-	  environment.urlBackend + 'api/analyze/alergenos',
-	  { productos }
-	).pipe(
-	  map(res => res.productos)
-	);
-  }
-  
+        if (value?.seconds) return new Date(value.seconds * 1000);
+
+        if (typeof value === 'string') {
+            const [fecha, hora] = value.split(' ');
+            const [dia, mes, anio] = fecha.split('/').map(Number);
+            const [h, m] = hora?.split(':').map(Number) ?? [0, 0];
+            return new Date(anio, mes - 1, dia, h, m);
+        }
+
+        return null;
+    }
+
+    eliminarProductoInventario(productoId: string): Observable<void> {
+        return this.delete<void>(`${this.API_URL}/productos-inventario/${productoId}`);
+    }
+
+    descargarZipFacturas(facturas: any[]): Observable<Blob> {
+        return this.postBlob(`${environment.urlBackend}api/exportar-facturas-zip`, { facturas });
+    }
+
+    enviarFacturasPorCorreo(facturas: any[], email: string): Observable<any> {
+        return this.post<any>(`${environment.urlBackend}api/enviar-facturas-por-correo`, { facturas, email });
+    }
+
+    analizarProductosPorIA(productos: { descripcion: string }[]): Observable<any[]> {
+        return this.post<{ productos: any[] }>(`${environment.urlBackend}api/analyze/alergenos`, { productos }).pipe(map((res) => res.productos));
+    }
 }

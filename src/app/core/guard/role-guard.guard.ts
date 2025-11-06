@@ -1,42 +1,36 @@
 // role.guard.ts
 import { inject } from '@angular/core';
-import { Auth, onAuthStateChanged } from '@angular/fire/auth';
-import { Firestore, collectionGroup, getDocs } from '@angular/fire/firestore';
 import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth-service.service';
+import { map, take } from 'rxjs/operators';
 
 export const roleGuard = (requiredRole: string[]): CanActivateFn => {
-  return () => {
-    const auth = inject(Auth);
-    const firestore = inject(Firestore);
-    const router = inject(Router);
+    return () => {
+        const authService = inject(AuthService);
+        const router = inject(Router);
 
-    return new Promise<boolean>((resolve) => {
-      onAuthStateChanged(auth, async (user) => {
-        
-        if (!user) {
-          router.navigate(['/auth/login']);
-          return resolve(false);
+        // Verificar si el usuario está autenticado
+        if (!authService.isAuthenticated()) {
+            router.navigate(['/auth/login']);
+            return false;
         }
 
-        try {
-          const usuariosSnap = await getDocs(collectionGroup(firestore, 'usuarios'));
-          const match = usuariosSnap.docs.find(doc => doc.id === user.uid);
+        // Obtener el usuario actual
+        const currentUser = authService.currentUser;
 
-          const userRole = match?.data()?.['rol'];
+        if (!currentUser) {
+            router.navigate(['/auth/login']);
+            return false;
+        }
 
-          if (requiredRole.includes(userRole)) {
-            
-            return resolve(true);
-          } else {
+        // Verificar si el rol del usuario está en los roles requeridos
+        const userRole = currentUser.rol;
+
+        if (requiredRole.includes(userRole)) {
+            return true;
+        } else {
             router.navigate(['/unauthorized']);
-            return resolve(false);
-          }
-        } catch (error) {
-          console.error('❌ Error en roleGuard:', error);
-          router.navigate(['/auth/login']);
-          resolve(false);
+            return false;
         }
-      });
-    });
-  };
+    };
 };

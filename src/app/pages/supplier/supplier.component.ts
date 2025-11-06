@@ -5,84 +5,92 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
-import { SupplierService } from '../../core/services/supplier.service';
-import { Auth } from '@angular/fire/auth';
-import { Supplier } from '../../core/interfaces/supplier.interface';
+import { SupplierService, Supplier } from '../../core/services/supplier.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 
 @Component({
-  selector: 'app-proveedores',
-  standalone: true,
-  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, TablaDinamicaComponent],
-  templateUrl: './supplier.component.html'
+    selector: 'app-proveedores',
+    standalone: true,
+    imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, ButtonModule, TablaDinamicaComponent],
+    templateUrl: './supplier.component.html'
 })
 export class SupplierComponent {
-  private auth = inject(Auth);
-  private supplierService = inject(SupplierService);
+    private supplierService = inject(SupplierService);
 
-  supplier: Supplier[] = [];
-  cargando = false;
+    supplier: Supplier[] = [];
+    cargando = false;
 
-  columns = [
-    { field: 'nombre', header: 'Nombre', type: 'text', filter: true },
-    { field: 'nif', header: 'NIF', type: 'text', filter: true },
-    { field: 'direccion', header: 'Dirección', type: 'text', filter: true },
-    { field: 'telefono', header: 'Teléfono', type: 'text', filter: true },
-    { field: 'email', header: 'Email', type: 'text', filter: true }
-  ] as const;
+    columns = [
+        { field: 'name', header: 'Nombre', type: 'text', filter: true },
+        { field: 'taxId', header: 'NIF/CIF', type: 'text', filter: true },
+        { field: 'address', header: 'Dirección', type: 'text', filter: true },
+        { field: 'phone', header: 'Teléfono', type: 'text', filter: true },
+        { field: 'email', header: 'Email', type: 'text', filter: true }
+    ] as const;
 
-  actions = [
-    {
-      icon: 'pi pi-trash',
-      action: 'eliminar',
-      color: 'danger',
-      tooltip: 'Eliminar'
+    actions = [
+        {
+            icon: 'pi pi-trash',
+            action: 'eliminar',
+            color: 'danger',
+            tooltip: 'Eliminar'
+        }
+    ] as const;
+
+    constructor(
+        private confirmationService: ConfirmationService,
+        private messageService: MessageService
+    ) {}
+
+    async ngOnInit() {
+        this.cargando = true;
+        this.supplierService.listSuppliers().subscribe({
+            next: (suppliers: Supplier[]) => {
+                this.supplier = suppliers;
+                this.cargando = false;
+            },
+            error: (error: any) => {
+                console.error('Error al cargar proveedores:', error);
+                this.cargando = false;
+            }
+        });
     }
-  ] as const;
 
-  constructor(private confirmationService: ConfirmationService, private messageService: MessageService,) { }
-
-  async ngOnInit() {
-    this.cargando = true;
-    this.supplier = await this.supplierService.getProveedores();
-
-    this.cargando = false;
-  }
-
-  getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
-  confirmarEliminarProveedor(prov: Supplier) {
-    this.confirmationService.confirm({
-      message: `¿Estás seguro de eliminar al proveedor "${prov.nombre}"?`,
-      header: 'Confirmar eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, eliminar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.eliminarProveedor(prov.id!);
-      }
-    });
-  }
-
-  async eliminarProveedor(id: string) {
-    try {
-      await this.supplierService.deleteSupplier(id);
-      this.supplier = this.supplier.filter(p => p.id !== id);
-      this.messageService.add({ severity: 'success', summary: 'Proveedor eliminado' });
-    } catch (err) {
-      console.error(err);
-      this.messageService.add({ severity: 'error', summary: 'Error al eliminar' });
+    getInputValue(event: Event): string {
+        return (event.target as HTMLInputElement).value;
     }
-  }
 
-  handleAccionProveedor({ action, row }: { action: string; row: any }) {
-    if (action === 'eliminar') {
-      this.confirmarEliminarProveedor(row);
+    confirmarEliminarProveedor(prov: Supplier) {
+        this.confirmationService.confirm({
+            message: `¿Estás seguro de eliminar al proveedor "${prov.name}"?`,
+            header: 'Confirmar eliminación',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí, eliminar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this.eliminarProveedor(prov.id!);
+            }
+        });
     }
-  }
 
+    eliminarProveedor(id: string) {
+        this.supplierService.deleteSupplier(id).subscribe({
+            next: () => {
+                this.supplier = this.supplier.filter((p) => p.id !== id);
+                this.messageService.add({ severity: 'success', summary: 'Proveedor eliminado' });
+            },
+            error: (err) => {
+                console.error(err);
+                this.messageService.add({ severity: 'error', summary: 'Error al eliminar' });
+            }
+        });
+    }
+
+    handleAccionProveedor({ action, row }: { action: string; row: any }) {
+        if (action === 'eliminar') {
+            this.confirmarEliminarProveedor(row);
+        }
+    }
 }

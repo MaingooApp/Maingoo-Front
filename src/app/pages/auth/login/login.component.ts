@@ -12,59 +12,52 @@ import { AuthService } from '../../../core/services/auth-service.service';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule,
-         CheckboxModule, 
-         InputTextModule, 
-         PasswordModule, 
-         FormsModule, 
-         RouterModule, 
-         RippleModule, 
-         AppFloatingConfigurator,
-         ReactiveFormsModule
-        ],
-    templateUrl: './login.component.html',
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ReactiveFormsModule],
+    templateUrl: './login.component.html'
 })
 export class Login {
     loginForm!: FormGroup;
     cargando = false;
     checked = false;
-  
+
     constructor(
-      private fb: FormBuilder,
-      private authService: AuthService,
-      private router: Router
+        private fb: FormBuilder,
+        private authService: AuthService,
+        private router: Router
     ) {}
-  
+
     ngOnInit(): void {
-      this.loginForm = this.fb.group({
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', Validators.required],
-        rememberMe: [false] 
-      });
+        this.loginForm = this.fb.group({
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', Validators.required],
+            rememberMe: [false]
+        });
     }
-  
+
     async onSubmit() {
         console.log(this.loginForm.value);
-        
-      if (this.loginForm.invalid) return;
-      this.cargando = true;
-  
-      const { email, password } = this.loginForm.value;
-  
-      try {
-        const cred = await this.authService.login(email, password);
-        const rol = await this.authService.getUserRole(cred.user.uid);
-  
-        if (rol === 'admin') {
-          this.router.navigate(['/']);
-        } else {
-          this.router.navigate(['/']);
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Error al iniciar sesión. Verifica tus credenciales.');
-      } finally {
-        this.cargando = false;
-      }
+
+        if (this.loginForm.invalid) return;
+        this.cargando = true;
+
+        const { email, password } = this.loginForm.value;
+
+        this.authService.login(email, password).subscribe({
+            next: (response) => {
+                console.log('Login exitoso:', response);
+                // Redirigir según el rol
+                if (response.user.rol === 'ADMIN') {
+                    this.router.navigate(['/']);
+                } else {
+                    this.router.navigate(['/']);
+                }
+                this.cargando = false;
+            },
+            error: (error) => {
+                console.error('Error al iniciar sesión:', error);
+                alert('Error al iniciar sesión. Verifica tus credenciales.');
+                this.cargando = false;
+            }
+        });
     }
 }

@@ -1,5 +1,4 @@
 export const environment = {
     production: true,
-    urlOpenIA: 'https://api.openai.com/v1/chat/completions',
-    openaiApiKey: ''
-  };
+    urlBackend: 'https://ms-gateway.salmonriver-6a199de3.westeurope.azurecontainerapps.io/'
+};
