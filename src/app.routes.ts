@@ -17,13 +17,13 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') },
-            { path: 'facturas', loadChildren: () => import('./app/pages/facturas/invoice.routes')},
-            { path: 'proveedores', component: SupplierComponent},
-            { path: 'productos', component: ProductosComponent},
-            { path: 'docgenerator',component: DocGeneratorComponent},
-            { path: 'miperfil', component: MyProfileComponent},
+            { path: 'facturas', loadChildren: () => import('./app/pages/facturas/invoice.routes') },
+            { path: 'proveedores', component: SupplierComponent },
+            { path: 'productos', component: ProductosComponent },
+            { path: 'docgenerator', component: DocGeneratorComponent },
+            { path: 'miperfil', component: MyProfileComponent }
         ],
-        canActivate: [roleGuard(['ADMIN'])]
+        canActivate: [roleGuard(['ADMIN', 'DEMO', 'USER'])]
     },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },

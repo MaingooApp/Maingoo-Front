@@ -38,16 +38,16 @@ export class RegisterComponent {
 
         this.cargando = true;
 
-        this.auth.register(this.form.value.email, this.form.value.password, true).subscribe({
+        this.auth.register(this.form.value.email, this.form.value.password, 'Nuevo Usuario').subscribe({
             next: (response) => {
                 console.log('Registro exitoso:', response);
 
-                if (response.negocioId) {
-                    localStorage.setItem('negocioId', response.negocioId);
+                if (response.user.enterpriseId) {
+                    localStorage.setItem('enterpriseId', response.user.enterpriseId);
                 }
 
-                alert('Registro exitoso. Por favor inicia sesión.');
-                this.router.navigate(['/auth/login']);
+                alert('Registro exitoso. Redirigiendo...');
+                this.router.navigate(['/']);
                 this.cargando = false;
             },
             error: (error) => {

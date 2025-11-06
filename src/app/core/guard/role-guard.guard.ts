@@ -24,7 +24,7 @@ export const roleGuard = (requiredRole: string[]): CanActivateFn => {
         }
 
         // Verificar si el rol del usuario está en los roles requeridos
-        const userRole = currentUser.rol;
+        const userRole = currentUser.roleName;
 
         if (requiredRole.includes(userRole)) {
             return true;

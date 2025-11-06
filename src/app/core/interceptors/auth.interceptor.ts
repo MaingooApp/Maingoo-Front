@@ -2,14 +2,14 @@ import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent } from '@angul
 import { Observable } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
-    // Obtener el token del localStorage
-    const token = localStorage.getItem('token');
+    // Obtener el accessToken del localStorage
+    const accessToken = localStorage.getItem('accessToken');
 
     // Si existe el token, clonar la petición y añadir el header de autorización
-    if (token) {
+    if (accessToken) {
         const clonedReq = req.clone({
             setHeaders: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${accessToken}`
             }
         });
         return next(clonedReq);
