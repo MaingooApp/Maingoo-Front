@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -10,189 +10,257 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessagesModule } from 'primeng/messages';
 import { TableModule } from 'primeng/table';
-import { Invoice } from '../../core/interfaces/Invoice.interfaces';
-import { InvoiceService } from '../../core/services/invoice-service.service';
-import { OpenaiService } from '../../core/services/openai.service';
-import { SupplierService } from '../../core/services/supplier.service';
 import { DialogModule } from 'primeng/dialog';
-import { AuthService } from '../../core/services/auth-service.service';
-import { firstValueFrom } from 'rxjs';
+import { DocumentAnalysisService, AnalysisDocument } from '../../core/services/document-analysis.service';
+import { InvoiceService, Invoice } from '../../core/services/invoice.service';
+import { SupplierService, CreateSupplierDto } from '../../core/services/supplier.service';
+import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
 
 @Component({
-  selector: 'app-upload',
-  imports: [FluidModule,
-    ButtonModule,
-    FileUploadModule,
-    FormsModule,
-    CommonModule,
-    MessagesModule,
-    TableModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    DialogModule,
-    ReactiveFormsModule
-  ],
-  templateUrl: './upload.component.html',
-  styleUrl: './upload.component.scss',
+    selector: 'app-upload',
+    standalone: true,
+    imports: [FluidModule, ButtonModule, FileUploadModule, FormsModule, CommonModule, MessagesModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, DialogModule, ReactiveFormsModule],
+    templateUrl: './upload.component.html',
+    styleUrl: './upload.component.scss'
 })
-export class UploadComponent {
+export class UploadComponent implements OnDestroy {
+    currentDocument: AnalysisDocument | null = null;
+    currentInvoice: Invoice | null = null;
+    msg: string = '';
+    cargando = false;
 
-  constructor(private messageService: MessageService,
-    private openaiService: OpenaiService,
-    private invoiceService: InvoiceService,
-    private supplierService: SupplierService,
-    private confirmationService: ConfirmationService,
-    private fb: FormBuilder,
-    private auth: AuthService,
-  ) { }
-  resultado: Invoice | null = null;
-  msg: string = '';
-  cargando = false;
-  proveedorForm!: FormGroup;
-  mostrarModalProveedor = false;
+    proveedorForm!: FormGroup;
+    mostrarModalProveedor = false;
 
-  onUpload(event: any) {
-    const files = event.files as File[];
-    if (!files || files.length === 0) return;
+    private pollingSubscription?: Subscription;
 
-    const file = files[0]; // Tomamos solo el primero por ahora
-    const reader = new FileReader();
+    constructor(
+        private messageService: MessageService,
+        private documentAnalysisService: DocumentAnalysisService,
+        private invoiceService: InvoiceService,
+        private supplierService: SupplierService,
+        private confirmationService: ConfirmationService,
+        private fb: FormBuilder
+    ) {}
 
-    reader.onload = () => {
-      const base64 = (reader.result as string).split(',')[1];
-      const mimeType = file.type;
-      this.enviarAOpenAI(base64, mimeType);
-    };
+    onUpload(event: any) {
+        const files = event.files as File[];
+        if (!files || files.length === 0) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Sin archivo',
+                detail: 'Por favor selecciona un archivo para subir'
+            });
+            return;
+        }
 
-    reader.readAsDataURL(file);
-  }
-
-  enviarAOpenAI(base64: string, mimeType: string) {
-	if (this.cargando) return;
-	this.cargando = true;
-	this.msg = 'Analizando imagen...';
-  
-	this.openaiService.analizarImagen(base64, mimeType).subscribe({
-	  next: async (res: any) => {
-		this.cargando = false;
-  
-		try {
-		  await this.procesarResultadoFactura(res, base64, mimeType);
-		} catch (e) {
-		  this.resultado = null;
-		  this.messageService.add({
-			severity: 'error',
-			summary: 'Error al procesar factura',
-			detail: 'No se pudo interpretar la información del documento. Intente nuevamente.',
-			life: 5000
-		  });
-		  console.error('Error al procesar resultado:', e);
-		}
-	  },
-	  error: (err) => {
-		this.cargando = false;
-		this.msg = 'Error al procesar la imagen.';
-		console.error(err);
-	  }
-	});
-  }  
-
-  private async procesarResultadoFactura(resultado: Invoice, base64: string, mimeType: string) {
-    this.resultado = resultado;
-    this.resultado.imagen = base64;
-    this.resultado.mimeType = mimeType;
-  
-    await this.invoiceService.saveInvoice(this.resultado);
-  
-    const proveedorExiste = await this.supplierService.checkProveedorPorNif(this.resultado.proveedor.nif);
-    if (!proveedorExiste) {
-      this.confirmAgregarProveedor();
+        const file = files[0];
+        this.uploadInvoice(file);
     }
-  
-    if (this.resultado.productos?.length) {
-      const negocioId = await this.auth.getNegocioId();
-      if (!negocioId) return;
-  
-      try {
-        const alergenos = await firstValueFrom(
-          this.invoiceService.analizarProductosPorIA(
-            this.resultado.productos.map(p => ({ descripcion: p.descripcion }))
-          )
-        );
 
-        this.resultado.productos = this.resultado.productos.map((productoOriginal, i) => ({
-          ...productoOriginal,
-          ...alergenos[i]
-        }));
-  
-      } catch (err) {
-        console.error('❌ Error analizando productos con IA:', err);
+    private uploadInvoice(file: File) {
+        if (this.cargando) return;
+
+        this.cargando = true;
+        this.msg = 'Subiendo documento para análisis con IA...';
+        this.currentDocument = null;
+        this.currentInvoice = null;
+
+        this.documentAnalysisService.submitInvoiceForAnalysis(file, 'Factura subida desde el frontend').subscribe({
+            next: (response) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Documento subido',
+                    detail: 'El documento está siendo analizado por IA...',
+                    life: 3000
+                });
+
+                this.startPollingDocumentStatus(response.id);
+            },
+            error: (error) => {
+                console.error('Error al subir documento:', error);
+                this.cargando = false;
+                this.msg = '';
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error al subir',
+                    detail: 'No se pudo subir el documento. Intenta nuevamente.',
+                    life: 5000
+                });
+            }
+        });
+    }
+
+    private startPollingDocumentStatus(documentId: string) {
+        this.msg = 'Analizando documento con IA...';
+
+        this.pollingSubscription = interval(2000)
+            .pipe(
+                switchMap(() => this.documentAnalysisService.getDocumentById(documentId)),
+                takeWhile((doc) => doc.status === 'PENDING' || doc.status === 'PROCESSING', true)
+            )
+            .subscribe({
+                next: (document) => {
+                    this.currentDocument = document;
+
+                    if (document.status === 'PROCESSING') {
+                        this.msg = 'IA procesando el documento...';
+                    } else if (document.status === 'DONE') {
+                        this.onAnalysisComplete(document);
+                    } else if (document.status === 'FAILED') {
+                        this.onAnalysisFailed(document);
+                    }
+                },
+                error: (error) => {
+                    console.error('Error al verificar estado:', error);
+                    this.cargando = false;
+                    this.msg = '';
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'No se pudo verificar el estado del análisis',
+                        life: 5000
+                    });
+                }
+            });
+    }
+
+    private onAnalysisComplete(document: AnalysisDocument) {
+        this.cargando = false;
+        this.msg = 'Análisis completado exitosamente!';
+
         this.messageService.add({
-          severity: 'warn',
-          summary: 'Análisis incompleto',
-          detail: 'Los productos se han guardado sin información de alérgenos. Puedes intentarlo manualmente más tarde.',
-          life: 5000
+            severity: 'success',
+            summary: 'Análisis completado',
+            detail: 'La factura ha sido procesada y creada automáticamente',
+            life: 5000
         });
-      }
-  
-      // ✅ Indexar productos (enriquecidos o no)
-      await this.invoiceService.indexarProductos(
-        negocioId,
-        this.resultado.productos,
-        this.resultado.proveedor,
-        this.resultado.factura?.fecha_emision
-      );
+
+        if (document.invoiceId) {
+            this.loadInvoice(document.invoiceId);
+        } else {
+            console.warn('El documento no tiene invoiceId asociado');
+        }
+
+        if (document.extraction?.supplierCifNif) {
+            this.checkIfSupplierExists(document.extraction);
+        }
     }
-  }
 
+    private onAnalysisFailed(document: AnalysisDocument) {
+        this.cargando = false;
+        this.msg = '';
 
-  getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
-  convertToDecimal(value: any): number {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-      const sanitized = value.replace(',', '.');
-      const parsed = parseFloat(sanitized);
-      return isNaN(parsed) ? 0 : parsed;
-    }
-    return 0;
-  }
-
-  confirmAgregarProveedor() {
-    this.confirmationService.confirm({
-      header: 'Proveedor no encontrado',
-      icon: 'pi pi-exclamation-triangle',
-      message: 'El proveedor no está registrado. ¿Deseas agregarlo ahora?',
-      acceptLabel: 'Sí',
-      rejectLabel: 'No',
-      accept: () => {
-        this.proveedorForm = this.fb.group({
-          nombre: [this.resultado?.proveedor?.nombre || '', Validators.required],
-          nif: [this.resultado?.proveedor?.nif || '', Validators.required],
-          direccion: [this.resultado?.proveedor?.direccion || ''],
-          telefono: [this.resultado?.proveedor?.telefono || ''],
-          email: [this.resultado?.proveedor?.email || '', [Validators.email]]
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Análisis fallido',
+            detail: 'No se pudo analizar el documento. Por favor verifica que sea una imagen clara de una factura.',
+            life: 5000
         });
-  
-        this.mostrarModalProveedor = true;
-      }
-    });
-  }
-  
-  async guardarProveedor() {
-  
-    try {
-      const proveedor = this.proveedorForm.value;
-      await this.supplierService.agregarProveedor(proveedor);
-      this.messageService.add({ severity: 'success', summary: 'Proveedor guardado' });
-      this.mostrarModalProveedor = false;
-    } catch (err) {
-      console.error(err);
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el proveedor' });
     }
-  }
-  
+
+    private loadInvoice(invoiceId: string) {
+        this.invoiceService.getInvoiceById(invoiceId).subscribe({
+            next: (invoice) => {
+                this.currentInvoice = invoice;
+                console.log('Factura cargada:', invoice);
+            },
+            error: (error) => {
+                console.error('Error al cargar factura:', error);
+                this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Advertencia',
+                    detail: 'La factura se creó pero no se pudo cargar sus detalles',
+                    life: 5000
+                });
+            }
+        });
+    }
+
+    private checkIfSupplierExists(extraction: any) {
+        const supplierName = extraction.supplierName || '';
+        const supplierTaxId = extraction.supplierCifNif || '';
+
+        if (!supplierTaxId) return;
+
+        this.confirmAgregarProveedor(supplierName, supplierTaxId);
+    }
+
+    private confirmAgregarProveedor(supplierName: string, supplierTaxId: string) {
+        this.confirmationService.confirm({
+            header: 'Registrar proveedor',
+            icon: 'pi pi-question-circle',
+            message: `¿Deseas registrar al proveedor "${supplierName}" en el sistema?`,
+            acceptLabel: 'Sí, registrar',
+            rejectLabel: 'No',
+            accept: () => {
+                this.proveedorForm = this.fb.group({
+                    name: [supplierName || '', Validators.required],
+                    taxId: [supplierTaxId || '', Validators.required],
+                    email: ['', [Validators.email]],
+                    phone: [''],
+                    address: ['']
+                });
+
+                this.mostrarModalProveedor = true;
+            }
+        });
+    }
+
+    guardarProveedor() {
+        if (this.proveedorForm.invalid) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Formulario inválido',
+                detail: 'Por favor completa todos los campos requeridos'
+            });
+            return;
+        }
+
+        const supplierData: CreateSupplierDto = this.proveedorForm.value;
+
+        this.supplierService.createSupplier(supplierData).subscribe({
+            next: (supplier) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Proveedor guardado',
+                    detail: `${supplier.name} ha sido registrado exitosamente`
+                });
+                this.mostrarModalProveedor = false;
+            },
+            error: (error) => {
+                console.error('Error al guardar proveedor:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudo guardar el proveedor. Intenta nuevamente.'
+                });
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.pollingSubscription) {
+            this.pollingSubscription.unsubscribe();
+        }
+    }
+
+    formatAmount(amount: number): string {
+        return new Intl.NumberFormat('es-ES', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+    }
+
+    formatDate(dateString: string): string {
+        return new Date(dateString).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+
+    getInputValue(event: Event): string {
+        return (event.target as HTMLInputElement).value;
+    }
 }

@@ -4,35 +4,89 @@
             <div class="card flex flex-col gap-4">
                 <h2 class="text-2xl font-bold">Upload albarán</h2>
                 <div class="flex flex-col gap-4 items-center justify-center">
-                    <p-fileupload #fu mode="advanced" name="demo[]" [customUpload]="true"  accept="image/*,application/pdf"
-                        maxFileSize="5000000" [disabled]="cargando" (uploadHandler)="onUpload($event)"
-                        chooseLabel="Elegir" uploadLabel="Subir" chooseIcon="pi pi-upload" uploadIcon="pi pi-check" />
+                    <p-fileupload
+                        #fu
+                        mode="advanced"
+                        name="demo[]"
+                        [customUpload]="true"
+                        accept="image/*,application/pdf"
+                        maxFileSize="5000000"
+                        [disabled]="cargando"
+                        (uploadHandler)="onUpload($event)"
+                        chooseLabel="Elegir"
+                        uploadLabel="Subir"
+                        chooseIcon="pi pi-upload"
+                        uploadIcon="pi pi-check"
+                    />
                 </div>
             </div>
 
             <div class="card flex flex-col gap-4">
-                <div *ngIf="cargando" class="text-blue-600">Procesando imagen...</div>
+                <!-- Mensaje de carga -->
+                <div *ngIf="cargando" class="flex flex-col items-center gap-3 p-4">
+                    <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+                    <p class="text-blue-600 font-medium">{{ msg }}</p>
+                </div>
 
-                <div *ngIf="resultado">
-                    <h3>🏢 Datos del Proveedor</h3>
-                    <p><strong>Nombre:</strong> {{ resultado.proveedor.nombre || '-' }}</p>
-                    <p><strong>NIF:</strong> {{ resultado.proveedor.nif || '-' }}</p>
-                    <p><strong>Dirección:</strong> {{ resultado.proveedor.direccion || '-' }}</p>
-                    <p><strong>Teléfono:</strong> {{ resultado.proveedor.telefono || '-' }}</p>
-                    <p><strong>Email:</strong> {{ resultado.proveedor.email || '-' }}</p>
+                <!-- Estado del documento -->
+                <div *ngIf="currentDocument && !cargando" class="mb-4">
+                    <div
+                        class="flex items-center gap-2 p-3 rounded-lg"
+                        [ngClass]="{
+                            'bg-yellow-50 text-yellow-700': currentDocument.status === 'PENDING' || currentDocument.status === 'PROCESSING',
+                            'bg-green-50 text-green-700': currentDocument.status === 'DONE',
+                            'bg-red-50 text-red-700': currentDocument.status === 'FAILED'
+                        }"
+                    >
+                        <i
+                            class="pi"
+                            [ngClass]="{
+                                'pi-clock': currentDocument.status === 'PENDING',
+                                'pi-spin pi-spinner': currentDocument.status === 'PROCESSING',
+                                'pi-check-circle': currentDocument.status === 'DONE',
+                                'pi-times-circle': currentDocument.status === 'FAILED'
+                            }"
+                        ></i>
+                        <span class="font-medium">
+                            Estado:
+                            <ng-container [ngSwitch]="currentDocument.status">
+                                <span *ngSwitchCase="'PENDING'">Pendiente</span>
+                                <span *ngSwitchCase="'PROCESSING'">Procesando con IA</span>
+                                <span *ngSwitchCase="'DONE'">Completado</span>
+                                <span *ngSwitchCase="'FAILED'">Fallido</span>
+                            </ng-container>
+                        </span>
+                    </div>
+                </div>
 
-                    <h3>🧾 Datos de la Factura</h3>
-                    <p><strong>Número:</strong> {{ resultado.factura.numero || '-' }}</p>
-                    <p><strong>Fecha de emisión:</strong> {{ resultado.factura.fecha_emision || '-' }}</p>
-                    <p><strong>Fecha de vencimiento:</strong> {{ resultado.factura.fecha_vencimiento || '-' }}</p>
-                    <p><strong>Forma de pago:</strong> {{ resultado.factura.forma_pago || '-' }}</p>
-                    <p><strong>Total con IVA:</strong> {{ convertToDecimal(resultado.factura.total_con_iva) | currency:'EUR' }}</p>
+                <!-- Datos de la factura procesada -->
+                <div *ngIf="currentInvoice">
+                    <h3 class="text-xl font-bold mb-3">🏢 Datos del Proveedor</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                        <p><strong>Nombre:</strong> {{ currentDocument?.extraction?.supplierName || '-' }}</p>
+                        <p><strong>CIF/NIF:</strong> {{ currentDocument?.extraction?.supplierCifNif || '-' }}</p>
+                    </div>
 
-                    <h3>📦 Productos</h3>
-                    <p-table #dt *ngIf="resultado?.productos?.length" [value]="resultado.productos" [paginator]="true"
-                        [rows]="5" [rowsPerPageOptions]="[5, 10, 20]"
-                        [globalFilterFields]="['referencia', 'descripcion', 'numero_albaran']" showGridlines stripedRows
-                        responsiveLayout="scroll">
+                    <h3 class="text-xl font-bold mb-3">🧾 Datos de la Factura</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                        <p><strong>Número:</strong> {{ currentInvoice.invoiceNumber || '-' }}</p>
+                        <p><strong>Fecha:</strong> {{ currentInvoice.date ? formatDate(currentInvoice.date) : '-' }}</p>
+                        <p><strong>Importe:</strong> {{ formatAmount(currentInvoice.amount) }}</p>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-3">📦 Líneas de Factura</h3>
+                    <p-table
+                        #dt
+                        *ngIf="currentInvoice.lines && currentInvoice.lines.length > 0"
+                        [value]="currentInvoice.lines"
+                        [paginator]="true"
+                        [rows]="5"
+                        [rowsPerPageOptions]="[5, 10, 20]"
+                        [globalFilterFields]="['description', 'productCode']"
+                        showGridlines
+                        stripedRows
+                        responsiveLayout="scroll"
+                    >
                         <!-- 🔍 Buscador global -->
                         <ng-template #caption>
                             <div class="flex justify-end">
@@ -40,9 +94,7 @@
                                     <p-inputicon>
                                         <i class="pi pi-search"></i>
                                     </p-inputicon>
-                                    <input pInputText type="text"
-                                        (input)="dt.filterGlobal(getInputValue($event), 'contains')"
-                                        placeholder="Buscar producto" />
+                                    <input pInputText type="text" (input)="dt.filterGlobal(getInputValue($event), 'contains')" placeholder="Buscar línea" />
                                 </p-iconfield>
                             </div>
                         </ng-template>
@@ -50,100 +102,62 @@
                         <!-- Encabezado -->
                         <ng-template pTemplate="header">
                             <tr>
-                                <th>Nº Albarán</th>
-                                <th>Referencia</th>
                                 <th>Descripción</th>
+                                <th>Código</th>
                                 <th>Cantidad</th>
-                                <th>Precio</th>
+                                <th>Precio Unitario</th>
+                                <th>Total</th>
                             </tr>
                         </ng-template>
 
                         <!-- Cuerpo -->
-                        <ng-template pTemplate="body" let-producto>
+                        <ng-template pTemplate="body" let-line>
                             <tr>
-                                <td>{{ producto.numero_albaran || '-' }}</td>
-                                <td>{{ producto.referencia || '-' }}</td>
-                                <td>{{ producto.descripcion || '-' }}</td>
-                                <td>{{ producto.cantidad || '-' }}</td>
-                                <td>{{ convertToDecimal(producto.precio) | currency: 'EUR' }}</td>
+                                <td>{{ line.description || '-' }}</td>
+                                <td>{{ line.productCode || '-' }}</td>
+                                <td>{{ line.quantity || '-' }}</td>
+                                <td>{{ formatAmount(line.unitPrice) }}</td>
+                                <td>{{ formatAmount(line.totalPrice) }}</td>
                             </tr>
                         </ng-template>
                     </p-table>
 
-                    <p *ngIf="!resultado?.productos?.length" class="text-gray-500 italic">No se encontraron productos.
-                    </p>
+                    <p *ngIf="!currentInvoice.lines || currentInvoice.lines.length === 0" class="text-gray-500 italic">No se encontraron líneas en la factura.</p>
                 </div>
             </div>
         </div>
     </div>
 </p-fluid>
-<p-dialog header="Agregar Proveedor" [(visible)]="mostrarModalProveedor" [modal]="true" [closable]="false"  [style]="{ width: '70%' }">
-    <form
-  *ngIf="proveedorForm"
-  [formGroup]="proveedorForm"
-  (ngSubmit)="guardarProveedor()"
-  class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4"
->
-  <div class="flex flex-col">
-    <label for="nombre" class="text-sm font-medium text-gray-700 mb-1">Nombre</label>
-    <input
-      pInputText
-      id="nombre"
-      formControlName="nombre"
-      class="w-full"
-      placeholder="Nombre del proveedor"
-    />
-  </div>
+<p-dialog header="Agregar Proveedor" [(visible)]="mostrarModalProveedor" [modal]="true" [closable]="false" [style]="{ width: '70%' }">
+    <form *ngIf="proveedorForm" [formGroup]="proveedorForm" (ngSubmit)="guardarProveedor()" class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+        <div class="flex flex-col">
+            <label for="name" class="text-sm font-medium text-gray-700 mb-1">Nombre</label>
+            <input pInputText id="name" formControlName="name" class="w-full" placeholder="Nombre del proveedor" />
+        </div>
 
-  <div class="flex flex-col">
-    <label for="nif" class="text-sm font-medium text-gray-700 mb-1">NIF</label>
-    <input
-      pInputText
-      id="nif"
-      formControlName="nif"
-      class="w-full"
-      placeholder="A-12345678"
-    />
-  </div>
+        <div class="flex flex-col">
+            <label for="taxId" class="text-sm font-medium text-gray-700 mb-1">CIF/NIF</label>
+            <input pInputText id="taxId" formControlName="taxId" class="w-full" placeholder="A-12345678" />
+        </div>
 
-  <div class="flex flex-col md:col-span-2">
-    <label for="direccion" class="text-sm font-medium text-gray-700 mb-1">Dirección</label>
-    <input
-      pInputText
-      id="direccion"
-      formControlName="direccion"
-      class="w-full"
-      placeholder="Calle Ejemplo 123"
-    />
-  </div>
+        <div class="flex flex-col md:col-span-2">
+            <label for="address" class="text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <input pInputText id="address" formControlName="address" class="w-full" placeholder="Calle Ejemplo 123" />
+        </div>
 
-  <div class="flex flex-col">
-    <label for="telefono" class="text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-    <input
-      pInputText
-      id="telefono"
-      formControlName="telefono"
-      class="w-full"
-      placeholder="123456789"
-    />
-  </div>
+        <div class="flex flex-col">
+            <label for="phone" class="text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input pInputText id="phone" formControlName="phone" class="w-full" placeholder="123456789" />
+        </div>
 
-  <div class="flex flex-col">
-    <label for="email" class="text-sm font-medium text-gray-700 mb-1">Email</label>
-    <input
-      pInputText
-      id="email"
-      formControlName="email"
-      class="w-full"
-      placeholder="proveedor@empresa.com"
-    />
-  </div>
+        <div class="flex flex-col">
+            <label for="email" class="text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input pInputText id="email" formControlName="email" class="w-full" placeholder="proveedor@empresa.com" />
+        </div>
 
-  <div class="md:col-span-2 flex justify-end gap-2 mt-2">
-    <button pButton type="button" label="Cancelar" (click)="mostrarModalProveedor = false"></button>
-    <button pButton type="submit" label="Guardar" [disabled]="proveedorForm.invalid"></button>
-  </div>
-</form>
-
-  </p-dialog>
-  
+        <div class="md:col-span-2 flex justify-end gap-2 mt-2">
+            <button pButton type="button" label="Cancelar" (click)="mostrarModalProveedor = false"></button>
+            <button pButton type="submit" label="Guardar" [disabled]="proveedorForm.invalid"></button>
+        </div>
+    </form>
+</p-dialog>

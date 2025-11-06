@@ -1,5 +1,5 @@
 {
-  "name": "omniai",
+  "name": "maingoo",
   "version": "19.0.1",
   "scripts": {
     "ng": "ng",
@@ -15,14 +15,12 @@
     "@angular/common": "^19.2.6",
     "@angular/compiler": "^19.2.6",
     "@angular/core": "^19.2.6",
-    "@angular/fire": "^19.1.0",
     "@angular/forms": "^19.2.6",
     "@angular/platform-browser": "^19.2.6",
     "@angular/platform-browser-dynamic": "^19.2.6",
     "@angular/router": "^19.2.6",
     "@primeng/themes": "^19.0.10",
     "chart.js": "4.4.2",
-    "firebase": "^11.6.0",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "primeclt": "^0.1.5",

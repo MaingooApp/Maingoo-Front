@@ -8,49 +8,53 @@ import { AuthService } from '../../../core/services/auth-service.service';
 import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  templateUrl: './register.component.html',
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, AppFloatingConfigurator, RouterModule],
+    selector: 'app-register',
+    standalone: true,
+    templateUrl: './register.component.html',
+    imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, AppFloatingConfigurator, RouterModule]
 })
 export class RegisterComponent {
-  cargando = false;
+    cargando = false;
 
-  form: any;
+    form: any;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    });
-  }
-
-
-  async onSubmit() {
-    if (this.form.invalid || this.form.value.password !== this.form.value.confirmPassword) {
-      alert('Verifica los datos del formulario');
-      return;
+    constructor(
+        private fb: FormBuilder,
+        private auth: AuthService,
+        private router: Router
+    ) {
+        this.form = this.fb.group({
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', Validators.required]
+        });
     }
-  
-    this.cargando = true;
-    try {
-      const { cred, negocioId } = await this.auth.register(
-        this.form.value.email,
-        this.form.value.password,
-        true 
-      );
-  
-      if ( negocioId) {
-      localStorage.setItem('negocioId', negocioId); 
-      }
-  
-      this.router.navigate(['/']);
-    } catch (error) {
-      alert('Error al registrar');
-      console.error(error);
-    } finally {
-      this.cargando = false;
+
+    async onSubmit() {
+        if (this.form.invalid || this.form.value.password !== this.form.value.confirmPassword) {
+            alert('Verifica los datos del formulario');
+            return;
+        }
+
+        this.cargando = true;
+
+        this.auth.register(this.form.value.email, this.form.value.password, true).subscribe({
+            next: (response) => {
+                console.log('Registro exitoso:', response);
+
+                if (response.negocioId) {
+                    localStorage.setItem('negocioId', response.negocioId);
+                }
+
+                alert('Registro exitoso. Por favor inicia sesión.');
+                this.router.navigate(['/auth/login']);
+                this.cargando = false;
+            },
+            error: (error) => {
+                alert('Error al registrar');
+                console.error(error);
+                this.cargando = false;
+            }
+        });
     }
-  }
 }

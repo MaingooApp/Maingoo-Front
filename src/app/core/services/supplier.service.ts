@@ -1,61 +1,61 @@
 import { Injectable } from '@angular/core';
-import { collection, deleteDoc, doc, Firestore, getDoc, getDocs, setDoc } from '@angular/fire/firestore';
-import { Supplier } from '../interfaces/supplier.interface';
-import { AuthService } from './auth-service.service';
+import { Observable } from 'rxjs';
+import { BaseHttpService } from './base-http.service';
+
+export interface Supplier {
+    id: string;
+    name: string;
+    taxId: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CreateSupplierDto {
+    name: string;
+    taxId: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+}
+
+export interface UpdateSupplierDto {
+    name?: string;
+    taxId?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+}
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
-export class SupplierService {
+export class SupplierService extends BaseHttpService {
+    private readonly API_URL = '/api/suppliers';
 
-  constructor(private authService: AuthService, private firestore: Firestore) { }
-
-  async checkProveedorPorNif(nif: string): Promise<boolean> {
-    const negocioId = await this.authService.getNegocioId();
-    if (!negocioId) return false;
-
-    const id = this.sanitizeId(nif);
-    const ref = doc(this.firestore, `negocios/${negocioId}/proveedores/${id}`);
-    const snap = await getDoc(ref);
-
-    return snap.exists();
-  }
-
-  async agregarProveedor(proveedor: any): Promise<void> {
-    const negocioId = await this.authService.getNegocioId();
-    if (!negocioId) {
-      throw new Error('No se pudo determinar el negocio del usuario');
+    createSupplier(data: CreateSupplierDto): Observable<Supplier> {
+        return this.post<Supplier>(this.API_URL, data);
     }
 
-    const id = this.sanitizeId(proveedor.nif);
-    const ref = doc(this.firestore, `negocios/${negocioId}/proveedores/${id}`);
+    listSuppliers(): Observable<Supplier[]> {
+        return this.get<Supplier[]>(this.API_URL);
+    }
 
-    await setDoc(ref, { ...proveedor, id });
-  }
+    getSupplierById(supplierId: string): Observable<Supplier> {
+        return this.get<Supplier>(`${this.API_URL}/${supplierId}`);
+    }
 
-  async getProveedores(): Promise<Supplier[]> {
-    const negocioId = await this.authService.getNegocioId();
-    if (!negocioId) return [];
+    updateSupplier(supplierId: string, data: UpdateSupplierDto): Observable<Supplier> {
+        return this.put<Supplier>(`${this.API_URL}/${supplierId}`, data);
+    }
 
-    const ref = collection(this.firestore, `negocios/${negocioId}/proveedores`);
-    const snap = await getDocs(ref);
+    deleteSupplier(supplierId: string): Observable<void> {
+        return this.delete<void>(`${this.API_URL}/${supplierId}`);
+    }
 
-    return snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as Supplier));
-  }
-
-  async deleteSupplier(nif: string): Promise<void> {
-    const negocioId = await this.authService.getNegocioId();
-    if (!negocioId) throw new Error('No se pudo obtener el negocio');
-
-    const id = this.sanitizeId(nif);
-    const ref = doc(this.firestore, `negocios/${negocioId}/proveedores/${id}`);
-    await deleteDoc(ref);
-  }
-
-  sanitizeId(nif: string): string {
-    return nif.replace(/[\/.#\[\]]/g, '_');
-  }
+    findByTaxId(taxId: string): Observable<Supplier | null> {
+        return this.get<Supplier | null>(`${this.API_URL}/search?taxId=${taxId}`);
+    }
 }
