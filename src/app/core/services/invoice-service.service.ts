@@ -29,7 +29,7 @@ export class InvoiceService extends BaseHttpService {
             proveedor: resultado.proveedor,
             factura: resultado.factura,
             productos: resultado.productos,
-            subidoPor: user.uid,
+            subidoPor: user.id,
             fechaSubida: new Date(),
             imagen: resultado.imagen,
             mimeType: resultado.mimeType

@@ -5,21 +5,33 @@ import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 
 export interface User {
-    uid: string;
+    id: string;
     email: string;
-    rol: string;
-    negocioId: string;
-    createdAt?: Date;
+    name: string;
+    roleId: string;
+    roleName: string;
+    enterpriseId: string;
+    phonePrefix: string | null;
+    phoneNumber: string | null;
+    emailFluvia: string | null;
+    createdAt: string;
+}
+
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: string;
+    refreshExpiresIn: string;
 }
 
 export interface LoginResponse {
-    token: string;
     user: User;
+    tokens: AuthTokens;
 }
 
 export interface RegisterResponse {
     user: User;
-    negocioId: string;
+    tokens: AuthTokens;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,9 +46,10 @@ export class AuthService extends BaseHttpService {
     }
 
     private loadUserFromStorage(): void {
-        const token = localStorage.getItem('token');
+        const accessToken = localStorage.getItem('accessToken');
+        const refreshToken = localStorage.getItem('refreshToken');
         const userStr = localStorage.getItem('user');
-        if (token && userStr) {
+        if (accessToken && refreshToken && userStr) {
             try {
                 const user = JSON.parse(userStr);
                 this.userSubject.next(user);
@@ -47,13 +60,19 @@ export class AuthService extends BaseHttpService {
         }
     }
 
-    private saveToStorage(token: string, user: User): void {
-        localStorage.setItem('token', token);
+    private saveToStorage(tokens: AuthTokens, user: User): void {
+        localStorage.setItem('accessToken', tokens.accessToken);
+        localStorage.setItem('refreshToken', tokens.refreshToken);
+        localStorage.setItem('expiresIn', tokens.expiresIn);
+        localStorage.setItem('refreshExpiresIn', tokens.refreshExpiresIn);
         localStorage.setItem('user', JSON.stringify(user));
     }
 
     private clearStorage(): void {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('expiresIn');
+        localStorage.removeItem('refreshExpiresIn');
         localStorage.removeItem('user');
     }
 
@@ -62,13 +81,17 @@ export class AuthService extends BaseHttpService {
     }
 
     getToken(): string | null {
-        return localStorage.getItem('token');
+        return localStorage.getItem('accessToken');
+    }
+
+    getRefreshToken(): string | null {
+        return localStorage.getItem('refreshToken');
     }
 
     login(email: string, password: string): Observable<LoginResponse> {
         return this.post<LoginResponse>(`${this.API_URL}/login`, { email, password }).pipe(
             tap((response) => {
-                this.saveToStorage(response.token, response.user);
+                this.saveToStorage(response.tokens, response.user);
                 this.userSubject.next(response.user);
             })
         );
@@ -83,36 +106,39 @@ export class AuthService extends BaseHttpService {
         });
     }
 
-    register(email: string, password: string, esAdmin = false, negocioId?: string): Observable<RegisterResponse> {
+    register(email: string, password: string, name: string): Observable<RegisterResponse> {
         const body = {
             email,
             password,
-            esAdmin,
-            negocioId
+            name
         };
         return this.post<RegisterResponse>(`${this.API_URL}/register`, body).pipe(
             tap((response) => {
                 // Opcionalmente podrías auto-loguear al usuario después del registro
-                // this.saveToStorage(response.token, response.user);
-                // this.userSubject.next(response.user);
+                this.saveToStorage(response.tokens, response.user);
+                this.userSubject.next(response.user);
             })
         );
     }
 
-    getUserRole(uid: string): Observable<string | null> {
-        return this.get<{ rol: string | null }>(`${this.API_URL}/users/${uid}/role`).pipe(map((response) => response.rol)) as Observable<string | null>;
+    getUserRole(): string | null {
+        return this.currentUser?.roleName || null;
+    }
+
+    getEnterpriseId(): string | null {
+        return this.currentUser?.enterpriseId || null;
+    }
+
+    getUserId(): string | null {
+        return this.currentUser?.id || null;
     }
 
     getNegocioId(): Observable<string | null> {
-        const uid = this.currentUser?.uid;
-        if (!uid) {
-            return new Observable((observer) => {
-                observer.next(null);
-                observer.complete();
-            });
-        }
-
-        return this.get<{ negocioId: string | null }>(`${this.API_URL}/users/${uid}/negocio`).pipe(map((response) => response.negocioId)) as Observable<string | null>;
+        const enterpriseId = this.getEnterpriseId();
+        return new Observable((observer) => {
+            observer.next(enterpriseId);
+            observer.complete();
+        });
     }
 
     isAuthenticated(): boolean {
