@@ -9,8 +9,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ConvertNumbers } from '../../../core/helpers/numbers';
-import { InvoiceFromBackend } from '../../../core/interfaces/Invoice.interfaces';
-import { InvoiceService } from '../../../core/services/invoice-service.service';
+import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
 import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
@@ -22,7 +21,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class InvoiceSummaryComponent implements OnInit {
     @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
-    facturas: InvoiceFromBackend[] = [];
+    facturas: Invoice[] = [];
     loading = true;
     ConvertNumbers = ConvertNumbers;
     columnas = [
@@ -50,21 +49,21 @@ export class InvoiceSummaryComponent implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        this.invoiceService.getFacturas().subscribe({
-            next: (data) => {
+        this.invoiceService.getInvoices().subscribe({
+            next: (data: Invoice[]) => {
                 this.facturas = data;
                 console.log('Facturas cargadas:', this.facturas);
 
                 this.loading = false;
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('Error cargando facturas', err);
                 this.loading = false;
             }
         });
     }
 
-    verDetalle(factura: InvoiceFromBackend) {
+    verDetalle(factura: Invoice) {
         this.router.navigate(['/facturas/detalle', factura.id]);
     }
 
@@ -72,7 +71,7 @@ export class InvoiceSummaryComponent implements OnInit {
         return (event.target as HTMLInputElement).value;
     }
 
-    confirmarEliminacion(factura: InvoiceFromBackend) {
+    confirmarEliminacion(factura: Invoice) {
         this.confirmationService.confirm({
             message: `¿Seguro que deseas eliminar la factura <b>${factura.invoiceNumber || 'sin número'}</b>?`,
             header: 'Confirmar eliminación',
@@ -86,17 +85,17 @@ export class InvoiceSummaryComponent implements OnInit {
         });
     }
 
-    eliminarFactura(factura: InvoiceFromBackend) {
+    eliminarFactura(factura: Invoice) {
         if (!factura.id) {
             console.warn('No se puede eliminar una factura sin ID.');
             return;
         }
 
-        this.invoiceService.eliminarFactura(factura.id).subscribe({
+        this.invoiceService.deleteInvoice(factura.id).subscribe({
             next: () => {
                 this.facturas = this.facturas.filter((f) => f.id !== factura.id);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error eliminando la factura:', error);
                 this.messageService.add({
                     severity: 'error',
@@ -135,7 +134,7 @@ export class InvoiceSummaryComponent implements OnInit {
         const facturasFiltradas = this.tablaRef.getFiltrados();
 
         this.invoiceService.descargarZipFacturas(facturasFiltradas).subscribe({
-            next: (blob) => {
+            next: (blob: Blob) => {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -146,7 +145,7 @@ export class InvoiceSummaryComponent implements OnInit {
                 this.mostrarInputCorreo = false;
                 this.correoDestino = '';
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('Error al generar el ZIP', err);
                 this.messageService.add({
                     severity: 'error',
@@ -186,7 +185,7 @@ export class InvoiceSummaryComponent implements OnInit {
                 this.mostrarInputCorreo = false;
                 this.correoDestino = '';
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('❌ Error al enviar correo:', err);
 
                 this.messageService.add({

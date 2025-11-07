@@ -10,8 +10,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
-import { InvoiceFromBackend } from '../../../core/interfaces/Invoice.interfaces';
-import { InvoiceService } from '../../../core/services/invoice-service.service';
+import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -20,7 +19,7 @@ import { MessageService } from 'primeng/api';
     templateUrl: './invoice-detail.component.html'
 })
 export class InvoiceDetailComponent implements OnInit {
-    factura: InvoiceFromBackend | null = null;
+    factura: Invoice | null = null;
     ConvertNumbers = ConvertNumbers;
     mostrarImagen = false;
     pdfUrlSanitizado: SafeResourceUrl | null = null;
@@ -52,8 +51,8 @@ export class InvoiceDetailComponent implements OnInit {
 
     cargarFactura(id: string) {
         this.loading = true;
-        this.invoiceService.getFacturaById(id).subscribe({
-            next: (factura) => {
+        this.invoiceService.getInvoiceById(id).subscribe({
+            next: (factura: Invoice) => {
                 this.factura = factura;
 
                 // Si hay imagen y es PDF, preparar la URL sanitizada
@@ -66,7 +65,7 @@ export class InvoiceDetailComponent implements OnInit {
 
                 this.loading = false;
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error cargando la factura:', error);
                 this.messageService.add({
                     severity: 'error',

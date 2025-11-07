@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseHttpService } from './base-http.service';
+import { environment } from '../../../environments/environment';
 
 export interface Supplier {
     id: string;
@@ -33,7 +34,7 @@ export interface UpdateSupplierDto {
     providedIn: 'root'
 })
 export class SupplierService extends BaseHttpService {
-    private readonly API_URL = '/api/suppliers';
+    private readonly API_URL = `${environment.urlBackend}api/suppliers`;
 
     createSupplier(data: CreateSupplierDto): Observable<Supplier> {
         return this.post<Supplier>(this.API_URL, data);

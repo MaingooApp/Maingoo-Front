@@ -59,6 +59,29 @@ export class InvoiceService extends BaseHttpService {
     updateInvoice(id: string, invoice: Partial<CreateInvoiceDto>): Observable<Invoice> {
         return this.put<Invoice>(`${this.API_URL}/${id}`, invoice);
     }
+
+    /**
+     * Descarga un ZIP con las imágenes de las facturas seleccionadas
+     * POST /api/exportar-facturas-zip
+     */
+    descargarZipFacturas(facturas: Invoice[]): Observable<Blob> {
+        return this.postBlob(`${environment.urlBackend}api/exportar-facturas-zip`, { facturas });
+    }
+
+    /**
+     * Envía facturas por correo electrónico
+     * POST /api/enviar-facturas-por-correo
+     */
+    enviarFacturasPorCorreo(facturas: Invoice[], email: string): Observable<any> {
+        return this.post<any>(`${environment.urlBackend}api/enviar-facturas-por-correo`, { facturas, email });
+    }
+
+    // TODO: Implementar métodos para productos (migrados del servicio antiguo)
+    // Estos métodos son necesarios para el componente productos.component.ts
+    // - getProductosInventario(): Observable<any[]>
+    // - eliminarProductoInventario(productoId: string): Observable<void>
+    // - indexarProductos(productos: any[], proveedor: { nombre: string; nif: string }, fechaFactura: string | Date): Observable<void>
+    // - analizarProductosPorIA(productos: { descripcion: string }[]): Observable<any[]>
 }
 
 /**
