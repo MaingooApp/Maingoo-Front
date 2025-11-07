@@ -25,7 +25,7 @@ export class DocumentAnalysisService extends BaseHttpService {
      * @param notes Notas opcionales sobre la factura
      * @returns Observable con el ID del documento creado
      */
-    submitInvoiceForAnalysis(file: File, notes?: string): Observable<{ id: string; message: string }> {
+    submitInvoiceForAnalysis(file: File, notes?: string): Observable<{ documentId: string }> {
         const formData = new FormData();
         formData.append('file', file);
         if (notes) {
@@ -33,7 +33,7 @@ export class DocumentAnalysisService extends BaseHttpService {
         }
 
         // Para FormData, no usar headers de JSON
-        return this.http.post<{ id: string; message: string }>(`${this.API_URL}/invoice`, formData);
+        return this.http.post<{ documentId: string }>(`${this.API_URL}/invoice`, formData);
     }
 
     /**

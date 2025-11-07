@@ -23,7 +23,7 @@ export const appRoutes: Routes = [
             { path: 'docgenerator', component: DocGeneratorComponent },
             { path: 'miperfil', component: MyProfileComponent }
         ],
-        canActivate: [roleGuard(['ADMIN', 'DEMO', 'USER'])]
+        canActivate: [roleGuard(['ADMIN', 'admin', 'USER'])]
     },
     { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },

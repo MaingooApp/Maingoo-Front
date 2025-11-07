@@ -144,4 +144,23 @@ export class AuthService extends BaseHttpService {
     isAuthenticated(): boolean {
         return !!this.getToken() && !!this.currentUser;
     }
+
+    refreshAccessToken(): Observable<AuthTokens> {
+        const refreshToken = this.getRefreshToken();
+        if (!refreshToken) {
+            throw new Error('No refresh token available');
+        }
+
+        return this.post<{ tokens: AuthTokens }>(`${this.API_URL}/refresh`, {
+            refreshToken
+        }).pipe(
+            map((response) => response.tokens),
+            tap((tokens) => {
+                localStorage.setItem('accessToken', tokens.accessToken);
+                localStorage.setItem('refreshToken', tokens.refreshToken);
+                localStorage.setItem('expiresIn', tokens.expiresIn);
+                localStorage.setItem('refreshExpiresIn', tokens.refreshExpiresIn);
+            })
+        );
+    }
 }
