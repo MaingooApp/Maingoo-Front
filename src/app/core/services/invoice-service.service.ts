@@ -42,6 +42,10 @@ export class InvoiceService extends BaseHttpService {
         return this.get<InvoiceFromBackend[]>(`${this.API_URL}`);
     }
 
+    getFacturaById(id: string): Observable<InvoiceFromBackend> {
+        return this.get<InvoiceFromBackend>(`${this.API_URL}/${id}`);
+    }
+
     eliminarFactura(id: string): Observable<void> {
         return this.delete<void>(`${this.API_URL}/${id}`);
     }
