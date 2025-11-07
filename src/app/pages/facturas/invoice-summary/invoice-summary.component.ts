@@ -9,7 +9,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ConvertNumbers } from '../../../core/helpers/numbers';
-import { Invoice } from '../../../core/interfaces/Invoice.interfaces';
+import { InvoiceFromBackend } from '../../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../../../core/services/invoice-service.service';
 import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { DialogModule } from 'primeng/dialog';
@@ -22,14 +22,14 @@ import { FormsModule } from '@angular/forms';
 })
 export class InvoiceSummaryComponent implements OnInit {
     @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
-    facturas: Invoice[] = [];
+    facturas: InvoiceFromBackend[] = [];
     loading = true;
     ConvertNumbers = ConvertNumbers;
     columnas = [
-        { field: 'factura.numero', header: 'Número', type: 'text', filter: true },
-        { field: 'proveedor.nombre', header: 'Proveedor', type: 'text', filter: true },
-        { field: 'factura.fecha_emision', header: 'Fecha emisión', type: 'date', filter: true },
-        { field: 'factura.total_con_iva', header: 'Total con IVA', type: 'numeric', filter: true }
+        { field: 'invoiceNumber', header: 'Número', type: 'text', filter: true },
+        { field: 'supplier.name', header: 'Proveedor', type: 'text', filter: true },
+        { field: 'date', header: 'Fecha emisión', type: 'date', filter: true },
+        { field: 'amount', header: 'Total con IVA', type: 'numeric', filter: true }
     ] as const;
 
     acciones = [
@@ -64,7 +64,7 @@ export class InvoiceSummaryComponent implements OnInit {
         });
     }
 
-    verDetalle(factura: Invoice) {
+    verDetalle(factura: InvoiceFromBackend) {
         this.router.navigate(['/facturas/detalle', factura.id], {
             state: { factura }
         });
@@ -74,9 +74,9 @@ export class InvoiceSummaryComponent implements OnInit {
         return (event.target as HTMLInputElement).value;
     }
 
-    confirmarEliminacion(factura: Invoice) {
+    confirmarEliminacion(factura: InvoiceFromBackend) {
         this.confirmationService.confirm({
-            message: `¿Seguro que deseas eliminar la factura <b>${factura.factura.numero}</b>?`,
+            message: `¿Seguro que deseas eliminar la factura <b>${factura.invoiceNumber || 'sin número'}</b>?`,
             header: 'Confirmar eliminación',
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Sí',
@@ -88,7 +88,7 @@ export class InvoiceSummaryComponent implements OnInit {
         });
     }
 
-    eliminarFactura(factura: Invoice) {
+    eliminarFactura(factura: InvoiceFromBackend) {
         if (!factura.id) {
             console.warn('No se puede eliminar una factura sin ID.');
             return;

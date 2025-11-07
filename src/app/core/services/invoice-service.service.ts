@@ -2,14 +2,14 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth-service.service';
 import { map, Observable } from 'rxjs';
-import { Invoice } from '../interfaces/Invoice.interfaces';
+import { Invoice, InvoiceFromBackend } from '../interfaces/Invoice.interfaces';
 import { BaseHttpService } from './base-http.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService extends BaseHttpService {
-    private readonly API_URL = `${environment.urlBackend}api/invoices`;
+    private readonly API_URL = `${environment.urlBackend}api/suppliers/invoices`;
 
     constructor(
         private authService: AuthService,
@@ -38,20 +38,8 @@ export class InvoiceService extends BaseHttpService {
         return this.post<{ id: string }>(`${this.API_URL}`, data);
     }
 
-    getFacturas(): Observable<Invoice[]> {
-        return this.get<Invoice[]>(`${this.API_URL}`).pipe(
-            map((facturas) => {
-                return facturas.map((data) => ({
-                    ...data,
-                    factura: {
-                        ...data.factura,
-                        fecha_emision: this.convertToDate(data.factura?.fecha_emision) ?? '',
-                        fecha_vencimiento: this.convertToDate(data.factura?.fecha_vencimiento) ?? '',
-                        total_con_iva: this.convertToDecimal(data.factura?.total_con_iva) ?? 0
-                    }
-                }));
-            })
-        );
+    getFacturas(): Observable<InvoiceFromBackend[]> {
+        return this.get<InvoiceFromBackend[]>(`${this.API_URL}`);
     }
 
     eliminarFactura(id: string): Observable<void> {
