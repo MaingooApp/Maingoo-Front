@@ -75,21 +75,42 @@ export interface CreateInvoiceDto {
 }
 
 export interface InvoiceLine {
-    description: string;
-    quantity: number;
-    unitPrice: number;
-    tax: string;
+    id: string;
+    invoiceId: string;
+    suppliersProductId: string | null;
+    description: string | null;
+    quantity: string;
+    unitPrice: string;
+    price: string | null;
+    tax: string | null;
+    createdAt: string;
+}
+
+export interface Supplier {
+    id: string;
+    name: string;
+    cifNif: string;
+    address: string | null;
+    phoneNumber: string | null;
+    commercialName: string | null;
+    commercialPhoneNumber: string | null;
+    deliveryDays: string | null;
+    minPriceDelivery: string | null;
+    sanitaryRegistrationNumber: string | null;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Invoice {
     id: string;
     enterpriseId: string;
-    supplierName: string;
-    supplierCifNif: string;
-    invoiceNumber: string;
+    supplierId: string;
+    type: string | null;
+    invoiceNumber: string | null;
+    imageUrl: string | null;
+    amount: string;
     date: string;
-    amount: number;
-    lines: InvoiceLine[];
     createdAt: string;
-    updatedAt: string;
+    supplier: Supplier;
+    invoiceLines: InvoiceLine[];
 }
