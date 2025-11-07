@@ -74,8 +74,7 @@ export class UploadComponent implements OnDestroy {
                     detail: 'El documento está siendo analizado por IA...',
                     life: 3000
                 });
-
-                this.startPollingDocumentStatus(response.id);
+                this.startPollingDocumentStatus(response.documentId);
             },
             error: (error) => {
                 console.error('Error al subir documento:', error);
@@ -94,7 +93,7 @@ export class UploadComponent implements OnDestroy {
     private startPollingDocumentStatus(documentId: string) {
         this.msg = 'Analizando documento con IA...';
 
-        this.pollingSubscription = interval(2000)
+        this.pollingSubscription = interval(3000)
             .pipe(
                 switchMap(() => this.documentAnalysisService.getDocumentById(documentId)),
                 takeWhile((doc) => doc.status === 'PENDING' || doc.status === 'PROCESSING', true)

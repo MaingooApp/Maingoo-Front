@@ -46,7 +46,7 @@ export class Login {
             next: (response) => {
                 console.log('Login exitoso:', response);
                 // Redirigir según el rol
-                if (response.user.roleName === 'ADMIN') {
+                if (response.user.roleName === 'admin') {
                     this.router.navigate(['/']);
                 } else {
                     this.router.navigate(['/']);
