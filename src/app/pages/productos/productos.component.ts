@@ -5,7 +5,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { AuthService } from '../../core/services/auth-service.service';
-import { InvoiceService } from '../../core/services/invoice-service.service';
+// TODO: Migrar a invoice.service.ts cuando se implementen los métodos de productos
+// import { InvoiceService } from '../../core/services/invoice-service.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -16,7 +17,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     styleUrl: './productos.component.scss'
 })
 export class ProductosComponent {
-    private invoiceService = inject(InvoiceService);
+    // TODO: Reactivar cuando se migren los métodos de productos al servicio nuevo
+    // private invoiceService = inject(InvoiceService);
     private authService = inject(AuthService);
     private confirmationService = inject(ConfirmationService);
     private messageService = inject(MessageService);
@@ -42,17 +44,26 @@ export class ProductosComponent {
     async ngOnInit(): Promise<void> {
         this.cargando = true;
 
+        // TODO: Reactivar cuando se implementen los métodos de productos en invoice.service.ts
+        // Métodos necesarios: getProductosInventario()
+        /* 
         this.invoiceService.getProductosInventario().subscribe({
-            next: (productos) => {
+            next: (productos: any) => {
                 this.productos = productos;
                 this.cargando = false;
                 console.log(this.productos);
             },
-            error: (error) => {
+            error: (error: any) => {
                 console.error('Error al cargar productos:', error);
                 this.cargando = false;
             }
         });
+        */
+
+        // Temporalmente: datos vacíos
+        this.productos = [];
+        this.cargando = false;
+        console.warn('⚠️ Componente de productos deshabilitado temporalmente. Necesita migración de métodos.');
     }
 
     getInputValue(event: Event): string {
@@ -70,6 +81,17 @@ export class ProductosComponent {
     }
 
     confirmarEliminarProducto(producto: any) {
+        // TODO: Reactivar cuando se implementen los métodos de productos en invoice.service.ts
+        // Métodos necesarios: eliminarProductoInventario()
+
+        this.messageService.add({
+            severity: 'warn',
+            summary: 'Funcionalidad no disponible',
+            detail: 'Esta funcionalidad está temporalmente deshabilitada durante la migración.',
+            life: 3000
+        });
+
+        /* 
         this.confirmationService.confirm({
             message: `¿Estás seguro de que deseas eliminar el producto "${producto.descripcion}"?`,
             header: 'Confirmar eliminación',
@@ -88,7 +110,7 @@ export class ProductosComponent {
                             life: 3000
                         });
                     },
-                    error: (error) => {
+                    error: (error: any) => {
                         console.error('Error al eliminar producto:', error);
                         this.messageService.add({
                             severity: 'error',
@@ -100,5 +122,6 @@ export class ProductosComponent {
                 });
             }
         });
+        */
     }
 }
