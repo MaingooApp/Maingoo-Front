@@ -23,10 +23,10 @@ export class SupplierComponent {
 
     columns = [
         { field: 'name', header: 'Nombre', type: 'text', filter: true },
-        { field: 'taxId', header: 'NIF/CIF', type: 'text', filter: true },
+        { field: 'cifNif', header: 'NIF/CIF', type: 'text', filter: true },
         { field: 'address', header: 'Dirección', type: 'text', filter: true },
-        { field: 'phone', header: 'Teléfono', type: 'text', filter: true },
-        { field: 'email', header: 'Email', type: 'text', filter: true }
+        { field: 'phoneNumber', header: 'Teléfono', type: 'text', filter: true },
+        { field: 'commercialName', header: 'Nombre Comercial', type: 'text', filter: true }
     ] as const;
 
     actions = [
