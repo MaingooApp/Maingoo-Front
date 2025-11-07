@@ -65,9 +65,7 @@ export class InvoiceSummaryComponent implements OnInit {
     }
 
     verDetalle(factura: InvoiceFromBackend) {
-        this.router.navigate(['/facturas/detalle', factura.id], {
-            state: { factura }
-        });
+        this.router.navigate(['/facturas/detalle', factura.id]);
     }
 
     getInputValue(event: Event): string {

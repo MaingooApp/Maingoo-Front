@@ -40,6 +40,18 @@ export interface Supplier {
     updatedAt: string;
 }
 
+export interface InvoiceLine {
+    id: string;
+    invoiceId: string;
+    suppliersProductId: string | null;
+    description: string | null;
+    quantity: string;
+    unitPrice: string;
+    price: string | null;
+    tax: string | null;
+    createdAt: string;
+}
+
 export interface InvoiceFromBackend {
     id: string;
     enterpriseId: string;
@@ -51,6 +63,7 @@ export interface InvoiceFromBackend {
     date: string;
     createdAt: string;
     supplier: Supplier;
+    invoiceLines?: InvoiceLine[];
 }
 
 export interface Invoice {

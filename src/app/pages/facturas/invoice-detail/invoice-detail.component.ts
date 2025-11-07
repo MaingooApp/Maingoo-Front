@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -10,36 +10,73 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
+import { InvoiceFromBackend } from '../../../core/interfaces/Invoice.interfaces';
+import { InvoiceService } from '../../../core/services/invoice-service.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-invoice-detail',
     imports: [CommonModule, RouterModule, ButtonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, DialogModule],
     templateUrl: './invoice-detail.component.html'
 })
-export class InvoiceDetailComponent {
-    factura: any;
+export class InvoiceDetailComponent implements OnInit {
+    factura: InvoiceFromBackend | null = null;
     ConvertNumbers = ConvertNumbers;
     mostrarImagen = false;
     pdfUrlSanitizado: SafeResourceUrl | null = null;
-
-    ngOnInit() {
-        if (this.factura?.mimeType === 'application/pdf' && this.factura.imagen) {
-            const base64Url = 'data:application/pdf;base64,' + this.factura.imagen;
-            this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(base64Url);
-        }
-    }
+    loading = true;
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private sanitizer: DomSanitizer
-    ) {
-        const nav = this.router.getCurrentNavigation();
-        this.factura = nav?.extras?.state?.['factura'];
+        private sanitizer: DomSanitizer,
+        private invoiceService: InvoiceService,
+        private messageService: MessageService
+    ) {}
 
-        if (!this.factura) {
-            this.router.navigate(['/']);
+    ngOnInit() {
+        const facturaId = this.route.snapshot.paramMap.get('id');
+
+        if (!facturaId) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se proporcionó un ID de factura válido.'
+            });
+            this.router.navigate(['/facturas']);
+            return;
         }
+
+        this.cargarFactura(facturaId);
+    }
+
+    cargarFactura(id: string) {
+        this.loading = true;
+        this.invoiceService.getFacturaById(id).subscribe({
+            next: (factura) => {
+                this.factura = factura;
+
+                // Si hay imagen y es PDF, preparar la URL sanitizada
+                if (factura.imageUrl && factura.imageUrl.includes('.pdf')) {
+                    this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(factura.imageUrl);
+                } else if (factura.imageUrl) {
+                    // Para imágenes normales, también sanitizar si es necesario
+                    this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(factura.imageUrl);
+                }
+
+                this.loading = false;
+            },
+            error: (error) => {
+                console.error('Error cargando la factura:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudo cargar la factura. Por favor, intenta nuevamente.'
+                });
+                this.loading = false;
+                this.router.navigate(['/facturas']);
+            }
+        });
     }
 
     volver() {
