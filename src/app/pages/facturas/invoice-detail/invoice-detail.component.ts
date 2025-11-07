@@ -12,48 +12,41 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
 
 @Component({
-  selector: 'app-invoice-detail',
-  imports: [CommonModule,
-    RouterModule,
-    ButtonModule,
-    TableModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    DialogModule
-  ],
-  templateUrl: './invoice-detail.component.html'
+    selector: 'app-invoice-detail',
+    imports: [CommonModule, RouterModule, ButtonModule, TableModule, InputTextModule, IconFieldModule, InputIconModule, DialogModule],
+    templateUrl: './invoice-detail.component.html'
 })
 export class InvoiceDetailComponent {
-  factura: any;
-  ConvertNumbers = ConvertNumbers;
-  mostrarImagen = false;
-  pdfUrlSanitizado: SafeResourceUrl | null = null;
+    factura: any;
+    ConvertNumbers = ConvertNumbers;
+    mostrarImagen = false;
+    pdfUrlSanitizado: SafeResourceUrl | null = null;
 
-  ngOnInit() {
-    if (this.factura?.mimeType === 'application/pdf' && this.factura.imagen) {
-      const base64Url = 'data:application/pdf;base64,' + this.factura.imagen;
-      this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(base64Url);
+    ngOnInit() {
+        if (this.factura?.mimeType === 'application/pdf' && this.factura.imagen) {
+            const base64Url = 'data:application/pdf;base64,' + this.factura.imagen;
+            this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(base64Url);
+        }
     }
-  }
 
-  constructor(private route: ActivatedRoute, private router: Router,
-    private sanitizer: DomSanitizer
-  ) {
-    const nav = this.router.getCurrentNavigation();
-    this.factura = nav?.extras?.state?.['factura'];
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private sanitizer: DomSanitizer
+    ) {
+        const nav = this.router.getCurrentNavigation();
+        this.factura = nav?.extras?.state?.['factura'];
 
-    if (!this.factura) {
-      this.router.navigate(['/']);
+        if (!this.factura) {
+            this.router.navigate(['/']);
+        }
     }
-  }
 
-  volver() {
-    this.router.navigate(['/facturas']);
-  }
+    volver() {
+        this.router.navigate(['/facturas']);
+    }
 
-  getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
+    getInputValue(event: Event): string {
+        return (event.target as HTMLInputElement).value;
+    }
 }
