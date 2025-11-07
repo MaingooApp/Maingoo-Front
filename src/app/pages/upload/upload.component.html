@@ -63,26 +63,26 @@
                 <div *ngIf="currentInvoice">
                     <h3 class="text-xl font-bold mb-3">🏢 Datos del Proveedor</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-                        <p><strong>Nombre:</strong> {{ currentDocument?.extraction?.supplierName || '-' }}</p>
-                        <p><strong>CIF/NIF:</strong> {{ currentDocument?.extraction?.supplierCifNif || '-' }}</p>
+                        <p><strong>Nombre:</strong> {{ currentInvoice.supplier.name || '-' }}</p>
+                        <p><strong>CIF/NIF:</strong> {{ currentInvoice.supplier.cifNif || '-' }}</p>
                     </div>
 
                     <h3 class="text-xl font-bold mb-3">🧾 Datos de la Factura</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                         <p><strong>Número:</strong> {{ currentInvoice.invoiceNumber || '-' }}</p>
                         <p><strong>Fecha:</strong> {{ currentInvoice.date ? formatDate(currentInvoice.date) : '-' }}</p>
-                        <p><strong>Importe:</strong> {{ formatAmount(currentInvoice.amount) }}</p>
+                        <p><strong>Importe:</strong> {{ formatAmount(+currentInvoice.amount) }}</p>
                     </div>
 
                     <h3 class="text-xl font-bold mb-3">📦 Líneas de Factura</h3>
                     <p-table
                         #dt
-                        *ngIf="currentInvoice.lines && currentInvoice.lines.length > 0"
-                        [value]="currentInvoice.lines"
+                        *ngIf="currentInvoice.invoiceLines && currentInvoice.invoiceLines.length > 0"
+                        [value]="currentInvoice.invoiceLines"
                         [paginator]="true"
                         [rows]="5"
                         [rowsPerPageOptions]="[5, 10, 20]"
-                        [globalFilterFields]="['description', 'productCode']"
+                        [globalFilterFields]="['description']"
                         showGridlines
                         stripedRows
                         responsiveLayout="scroll"
@@ -103,7 +103,6 @@
                         <ng-template pTemplate="header">
                             <tr>
                                 <th>Descripción</th>
-                                <th>Código</th>
                                 <th>Cantidad</th>
                                 <th>Precio Unitario</th>
                                 <th>Total</th>
@@ -114,15 +113,14 @@
                         <ng-template pTemplate="body" let-line>
                             <tr>
                                 <td>{{ line.description || '-' }}</td>
-                                <td>{{ line.productCode || '-' }}</td>
                                 <td>{{ line.quantity || '-' }}</td>
-                                <td>{{ formatAmount(line.unitPrice) }}</td>
-                                <td>{{ formatAmount(line.totalPrice) }}</td>
+                                <td>{{ formatAmount(+line.unitPrice) }}</td>
+                                <td>{{ formatAmount(+(line.price || 0)) }}</td>
                             </tr>
                         </ng-template>
                     </p-table>
 
-                    <p *ngIf="!currentInvoice.lines || currentInvoice.lines.length === 0" class="text-gray-500 italic">No se encontraron líneas en la factura.</p>
+                    <p *ngIf="!currentInvoice.invoiceLines || currentInvoice.invoiceLines.length === 0" class="text-gray-500 italic">No se encontraron líneas en la factura.</p>
                 </div>
             </div>
         </div>

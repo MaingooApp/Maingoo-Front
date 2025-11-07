@@ -161,6 +161,8 @@ export class UploadComponent implements OnDestroy {
     private loadInvoice(invoiceId: string) {
         this.invoiceService.getInvoiceById(invoiceId).subscribe({
             next: (invoice) => {
+                console.log(invoice);
+
                 this.currentInvoice = invoice;
                 console.log('Factura cargada:', invoice);
             },
