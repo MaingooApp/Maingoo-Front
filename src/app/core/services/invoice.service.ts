@@ -76,6 +76,14 @@ export class InvoiceService extends BaseHttpService {
         return this.post<any>(`${environment.urlBackend}api/enviar-facturas-por-correo`, { facturas, email });
     }
 
+    /**
+     * Obtiene la URL temporal del documento original de la factura
+     * GET /api/suppliers/invoices/:id/document-url?expiresInHours=24
+     */
+    getDocumentUrl(id: string, expiresInHours: number = 24): Observable<DocumentUrlResponse> {
+        return this.get<DocumentUrlResponse>(`${this.API_URL}/${id}/document-url?expiresInHours=${expiresInHours}`);
+    }
+
     // TODO: Implementar métodos para productos (migrados del servicio antiguo)
     // Estos métodos son necesarios para el componente productos.component.ts
     // - getProductosInventario(): Observable<any[]>
@@ -131,9 +139,16 @@ export interface Invoice {
     type: string | null;
     invoiceNumber: string | null;
     imageUrl: string | null;
+    blobName: string | null;
     amount: string;
     date: string;
     createdAt: string;
     supplier: Supplier;
     invoiceLines: InvoiceLine[];
+}
+
+export interface DocumentUrlResponse {
+    url: string;
+    expiresIn: number;
+    blobName: string;
 }

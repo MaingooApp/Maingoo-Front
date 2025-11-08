@@ -24,6 +24,10 @@ export class InvoiceDetailComponent implements OnInit {
     mostrarImagen = false;
     pdfUrlSanitizado: SafeResourceUrl | null = null;
     loading = true;
+    downloadingDocument = false;
+
+    // Clave para el almacenamiento de caché
+    private readonly CACHE_KEY_PREFIX = 'invoice_document_cache_';
 
     constructor(
         private route: ActivatedRoute,
@@ -80,6 +84,117 @@ export class InvoiceDetailComponent implements OnInit {
 
     volver() {
         this.router.navigate(['/facturas']);
+    }
+
+    descargarDocumentoOriginal() {
+        if (!this.factura?.id) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se puede descargar el documento.'
+            });
+            return;
+        }
+
+        // Verificar si tenemos una URL en caché válida
+        const cachedData = this.getCachedDocumentUrl(this.factura.id);
+        if (cachedData) {
+            this.downloadFile(cachedData.url, this.factura.blobName || 'factura.pdf');
+            return;
+        }
+
+        // Si no hay caché o expiró, obtener nueva URL
+        this.downloadingDocument = true;
+        this.invoiceService.getDocumentUrl(this.factura.id, 24).subscribe({
+            next: (response) => {
+                // Guardar en caché la URL con su fecha de expiración
+                this.setCachedDocumentUrl(this.factura!.id, response.url, response.expiresIn);
+
+                // Descargar el archivo
+                this.downloadFile(response.url, response.blobName);
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: 'Documento descargado correctamente.'
+                });
+                this.downloadingDocument = false;
+            },
+            error: (error: any) => {
+                console.error('Error descargando documento:', error);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudo descargar el documento. Por favor, intenta nuevamente.'
+                });
+                this.downloadingDocument = false;
+            }
+        });
+    }
+
+    /**
+     * Obtiene la URL del documento desde sessionStorage si aún es válida
+     */
+    private getCachedDocumentUrl(invoiceId: string): { url: string } | null {
+        try {
+            const cacheKey = this.CACHE_KEY_PREFIX + invoiceId;
+            const cachedData = sessionStorage.getItem(cacheKey);
+
+            if (!cachedData) {
+                return null;
+            }
+
+            const parsed = JSON.parse(cachedData);
+            const expiresAt = new Date(parsed.expiresAt);
+            const now = new Date();
+
+            // Verificar si la URL aún no ha expirado (con un margen de 5 minutos)
+            const expiresWithMargin = new Date(expiresAt.getTime() - 5 * 60 * 1000);
+
+            if (now < expiresWithMargin) {
+                return { url: parsed.url };
+            }
+
+            // Si expiró, eliminar del storage
+            sessionStorage.removeItem(cacheKey);
+            return null;
+        } catch (error) {
+            console.error('Error al leer caché de documento:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Guarda la URL del documento en sessionStorage
+     */
+    private setCachedDocumentUrl(invoiceId: string, url: string, expiresInHours: number) {
+        try {
+            const cacheKey = this.CACHE_KEY_PREFIX + invoiceId;
+            const expiresAt = new Date();
+            expiresAt.setHours(expiresAt.getHours() + expiresInHours);
+
+            const cacheData = {
+                url,
+                expiresAt: expiresAt.toISOString()
+            };
+
+            sessionStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        } catch (error) {
+            console.error('Error al guardar caché de documento:', error);
+        }
+    }
+
+    /**
+     * Descarga un archivo usando la URL proporcionada
+     */
+    private downloadFile(url: string, filename: string) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     getInputValue(event: Event): string {
