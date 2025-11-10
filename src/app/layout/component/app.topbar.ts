@@ -34,7 +34,7 @@ import { AuthService } from '../../core/services/auth-service.service';
                         />
                     </g>
                 </svg>
-                <span>OmniAI</span>
+                <span>Maingoo</span>
             </a>
         </div>
 
