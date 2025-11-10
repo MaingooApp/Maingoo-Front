@@ -1,22 +1,39 @@
+
+// - Component: decorador para declarar un componente Angular
 import { Component } from '@angular/core';
+// - MenuItem: interfaz de PrimeNG para items de menú (no usada explícitamente en template
+//   pero preservada para posibles futuras ampliaciones)
 import { MenuItem } from 'primeng/api';
+// - Router, RouterModule: navegación y directivas de enrutamiento
 import { Router, RouterModule } from '@angular/router';
+// - CommonModule: directivas comunes (ngIf, ngFor, etc.) necesarias para componentes standalone
 import { CommonModule } from '@angular/common';
+// - StyleClassModule: módulo de PrimeNG para animaciones/estilos que usa pStyleClass
 import { StyleClassModule } from 'primeng/styleclass';
+// - AppConfigurator: componente hijo que maneja la configuración visual (tema, colores)
 import { AppConfigurator } from './app.configurator';
+// - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../service/layout.service';
+// - AuthService: servicio de autenticación que expone métodos como logout()
 import { AuthService } from '../../core/services/auth-service.service';
 
+// Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
+    // Selector del componente usado en plantillas: <app-topbar></app-topbar>
     selector: 'app-topbar',
+    // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
+    // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
     standalone: true,
     imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+    // Plantilla HTML inline del topbar. Aquí se define el logo, botones de acción,
+    // el conmutador de tema y el menú de usuario.
     template: ` <div class="layout-topbar">
         <div class="layout-topbar-logo-container">
             <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
                 <i class="pi pi-bars"></i>
             </button>
-            <a class="layout-topbar-logo" routerLink="/">
+                <!-- Enlace al inicio con logo SVG y nombre de la aplicación -->
+                <a class="layout-topbar-logo" routerLink="/">
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
@@ -38,12 +55,18 @@ import { AuthService } from '../../core/services/auth-service.service';
             </a>
         </div>
 
-        <div class="layout-topbar-actions">
+    <!-- Zona de acciones a la derecha del topbar: configurador, tema, menú rápido y perfil -->
+    <div class="layout-topbar-actions">
+            <!-- Configuración rápida: tema oscuro/claro y paleta/configurador -->
             <div class="layout-config-menu">
+                <!-- Botón para alternar entre tema oscuro y claro.
+                     Usa layoutService.isDarkTheme() para cambiar el icono dinámicamente. -->
                 <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
                     <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
                 </button>
                 <div class="relative">
+                    <!-- Botón que abre el configurador visual (app-configurator) usando
+                         pStyleClass para animaciones de entrada/salida de PrimeNG -->
                     <button
                         class="layout-topbar-action layout-topbar-action-highlight"
                         pStyleClass="@next"
@@ -55,6 +78,7 @@ import { AuthService } from '../../core/services/auth-service.service';
                     >
                         <i class="pi pi-palette"></i>
                     </button>
+                    <!-- Componente autónomo que muestra opciones de configuración (tema, color, layout) -->
                     <app-configurator />
                 </div>
             </div>
@@ -63,6 +87,8 @@ import { AuthService } from '../../core/services/auth-service.service';
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
+            <!-- Menú principal (visible en pantallas grandes). Incluye accesos rápidos
+                 como Calendario, Mensajes, Perfil y Cerrar sesión. -->
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
                     <button type="button" class="layout-topbar-action">
@@ -73,10 +99,12 @@ import { AuthService } from '../../core/services/auth-service.service';
                         <i class="pi pi-inbox"></i>
                         <span>Messages</span>
                     </button>
+                    <!-- Enlace al perfil del usuario (ruta /miperfil) -->
                     <button type="button" class="layout-topbar-action" routerLink="/miperfil">
                         <i class="pi pi-user"></i>
                         <span>Profile</span>
                     </button>
+                    <!-- Botón de cierre de sesión que delega en authService y navega al login -->
                     <button type="button" class="layout-topbar-action" (click)="logout()">
                         <i class="pi pi-sign-out"></i>
                         <span>logout</span>
@@ -87,16 +115,26 @@ import { AuthService } from '../../core/services/auth-service.service';
     </div>`
 })
 export class AppTopbar {
+    // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
     items!: MenuItem[];
 
-    constructor(public layoutService: LayoutService,private authService: AuthService, private router: Router) {}
+    // Injectamos servicios usados por el topbar:
+    // - layoutService: controla el estado del layout (sidebar abierto, tema, etc.)
+    // - authService: provee métodos de autenticación, p.ej. logout()
+    // - router: para navegar programáticamente (después del logout se redirige al login)
+    constructor(public layoutService: LayoutService, private authService: AuthService, private router: Router) {}
 
+    // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
+    // Usa una función de actualización inmutable sobre layoutService.layoutConfig
+    // (asumiendo que layoutConfig es un signal/observable con método update).
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
     }
 
-     logout() {
+    // logout: llama a authService.logout() y luego navega a la página de login.
+    // Nota: authService.logout() debería encargarse de limpiar tokens/localStorage.
+    logout() {
         this.authService.logout();
         this.router.navigate(['/auth/login']);
-     }
+    }
 }
