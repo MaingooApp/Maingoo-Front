@@ -79,7 +79,7 @@ export class UploadComponent implements OnDestroy {
             error: (error) => {
                 console.error('Error al subir documento:', error);
                 this.cargando = false;
-                this.msg = error.message || 'Error al subir el documento';
+                this.msg = error;
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error al subir',
