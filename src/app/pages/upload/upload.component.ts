@@ -55,6 +55,38 @@ export class UploadComponent implements OnDestroy {
         }
 
         const file = files[0];
+
+        // Validar el archivo
+        console.log('Archivo seleccionado:', {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified
+        });
+
+        // Verificar si es un formato de imagen o PDF válido
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'];
+        const fileType = file.type.toLowerCase();
+
+        if (!fileType || (!validTypes.includes(fileType) && !file.name.toLowerCase().match(/\.(jpg|jpeg|png|webp|heic|heif|pdf)$/))) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Formato inválido',
+                detail: 'Por favor selecciona una imagen (JPG, PNG, WEBP, HEIC) o un PDF'
+            });
+            return;
+        }
+
+        // Verificar tamaño (máximo 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Archivo muy grande',
+                detail: 'El archivo no puede superar los 10MB'
+            });
+            return;
+        }
+
         this.uploadInvoice(file);
     }
 
@@ -78,12 +110,30 @@ export class UploadComponent implements OnDestroy {
             },
             error: (error) => {
                 console.error('Error al subir documento:', error);
+                console.error('Error completo:', JSON.stringify(error, null, 2));
+                console.error('Error status:', error?.status);
+                console.error('Error message:', error?.message);
+                console.error('Error error:', error?.error);
+
                 this.cargando = false;
-                this.msg = error;
+                this.msg = '';
+
+                let errorDetail = 'No se pudo subir el archivo. ';
+
+                if (error?.status === 0) {
+                    errorDetail += 'No hay conexión con el servidor. Verifica tu conexión a internet.';
+                } else if (error?.error?.message) {
+                    errorDetail += error.error.message;
+                } else if (error?.message) {
+                    errorDetail += error.message;
+                } else {
+                    errorDetail += 'Error desconocido. Por favor intenta nuevamente.';
+                }
+
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error al subir',
-                    detail: error.message,
+                    detail: errorDetail,
                     life: 5000
                 });
             }

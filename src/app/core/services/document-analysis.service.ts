@@ -21,18 +21,34 @@ export class DocumentAnalysisService extends BaseHttpService {
     /**
      * Sube una factura para análisis con IA
      * POST /api/analyze/invoice
-     * @param file Archivo de imagen (PNG, JPG, WEBP)
+     * @param file Archivo de imagen (PNG, JPG, WEBP, HEIC) o PDF
      * @param notes Notas opcionales sobre la factura
      * @returns Observable con el ID del documento creado
      */
     submitInvoiceForAnalysis(file: File, notes?: string): Observable<{ documentId: string }> {
         const formData = new FormData();
-        formData.append('file', file);
+
+        // Asegurar que el archivo tenga un nombre y tipo correctos
+        const fileName = file.name || 'document.pdf';
+        const fileType = file.type || 'application/pdf';
+
+        // Crear un nuevo Blob con el tipo correcto si es necesario
+        const fileBlob = new Blob([file], { type: fileType });
+
+        // Append con nombre explícito y tipo
+        formData.append('file', fileBlob, fileName);
+
         if (notes) {
             formData.append('notes', notes);
         }
 
-        // Para FormData, no usar headers de JSON
+        console.log('Enviando FormData:', {
+            fileName,
+            fileType,
+            fileSize: file.size
+        });
+
+        // Para FormData, no usar headers de JSON y permitir que el navegador establezca el Content-Type con boundary
         return this.http.post<{ documentId: string }>(`${this.API_URL}/invoice`, formData);
     }
 
