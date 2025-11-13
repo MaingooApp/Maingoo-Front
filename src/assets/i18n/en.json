@@ -1,0 +1,32 @@
+{
+  "title": "Welcome to my application",
+  "description": "This is a basic i18n test in Angular.",
+  "hello_name": "Hello {{name}}!",
+  "menu": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "profile": "My profile",
+    "upload_invoice": "Upload invoice",
+    "invoices": "Invoices",
+    "suppliers": "Suppliers",
+    "products": "Products",
+    "documentation": "Documentation",
+    "schedules": "Schedules",
+    "ui_components": "UI Components",
+    "form_layout": "Form Layout",
+    "input": "Input",
+    "button": "Button",
+    "table": "Table",
+    "list": "List",
+    "tree": "Tree",
+    "panel": "Panel",
+    "overlay": "Overlay",
+    "media": "Media",
+    "menu": "Menu",
+    "message": "Message",
+    "file": "File",
+    "chart": "Chart",
+    "timeline": "Timeline",
+    "misc": "Misc"
+  }
+}

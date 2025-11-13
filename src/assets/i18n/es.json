@@ -1,0 +1,32 @@
+{
+  "title": "Bienvenido a mi aplicación",
+  "description": "Esta es una prueba básica de i18n en Angular.",
+  "hello_name": "Hola {{name}}!",
+  "menu": {
+    "home": "Home",
+    "dashboard": "Panel de control",
+    "profile": "Mi perfil",
+    "upload_invoice": "Subir factura",
+    "invoices": "Facturas",
+    "suppliers": "Proveedores",
+    "products": "Productos",
+    "documentation": "Documentación",
+    "schedules": "Horarios",
+    "ui_components": "Componentes UI",
+    "form_layout": "Diseño de formulario",
+    "input": "Entrada",
+    "button": "Botón",
+    "table": "Tabla",
+    "list": "Lista",
+    "tree": "Árbol",
+    "panel": "Panel",
+    "overlay": "Superposición",
+    "media": "Medios",
+    "menu": "Menú",
+    "message": "Mensaje",
+    "file": "Archivo",
+    "chart": "Gráfico",
+    "timeline": "Línea de tiempo",
+    "misc": "Varios"
+  }
+}
