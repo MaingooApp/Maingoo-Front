@@ -20,6 +20,8 @@
     "@angular/platform-browser-dynamic": "^19.2.15",
     "@angular/router": "^19.2.15",
     "@angular/service-worker": "^19.2.15",
+    "@ngx-translate/core": "^15.0.0",
+    "@ngx-translate/http-loader": "^8.0.0",
     "@primeng/themes": "^19.0.10",
     "chart.js": "4.4.2",
     "jspdf": "^3.0.1",

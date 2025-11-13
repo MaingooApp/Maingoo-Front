@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-menu',
     standalone: true,
-    imports: [CommonModule, AppMenuitem, RouterModule],
+    imports: [CommonModule, AppMenuitem, RouterModule, TranslateModule],
     template: `<ul class="layout-menu">
         <ng-container *ngFor="let item of model; let i = index">
             <li app-menuitem *ngIf="!item.separator" [item]="item" [index]="i" [root]="true"></li>
@@ -18,39 +19,48 @@ import { AppMenuitem } from './app.menuitem';
 export class AppMenu {
     model: MenuItem[] = [];
 
+    constructor(private translate: TranslateService) {}
+
     ngOnInit() {
+        this.loadMenu();
+        this.translate.onLangChange.subscribe(() => {
+            this.loadMenu();
+        });
+    }
+
+    private loadMenu() {
         this.model = [
             {
-                label: 'Home',
+                label: this.translate.instant('menu.home'),
                 items: [
-                    { label: 'Panel de control', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
-                    //{ label: 'Mi perfil', icon: 'pi pi-fw pi-user', routerLink: ['/miperfil'] },
-                    { label: 'Subir factura', icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
-                    { label: 'Facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
-                    { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
-                    { label: 'Productos', icon: 'pi pi-fw pi-tags', routerLink: ['/productos'] },
-                    { label: 'Documentación', icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] },
-                    { label: 'Horarios', icon: 'pi pi-fw pi-calendar', routerLink: ['/Horarios'] }
+                    { label: this.translate.instant('menu.dashboard'), icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+                    //{ label: this.translate.instant('menu.profile'), icon: 'pi pi-fw pi-user', routerLink: ['/miperfil'] },
+                    { label: this.translate.instant('menu.upload_invoice'), icon: 'pi pi-fw pi-file', routerLink: ['/pages/upload'] },
+                    { label: this.translate.instant('menu.invoices'), icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
+                    { label: this.translate.instant('menu.suppliers'), icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
+                    { label: this.translate.instant('menu.products'), icon: 'pi pi-fw pi-tags', routerLink: ['/productos'] },
+                    { label: this.translate.instant('menu.documentation'), icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] },
+                    { label: this.translate.instant('menu.schedules'), icon: 'pi pi-fw pi-calendar', routerLink: ['/Horarios'] }
                 ]
             },
             {
-                label: 'UI Components',
+                label: this.translate.instant('menu.ui_components'),
                 items: [
-                    { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
-                    { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
-                    { label: 'Button', icon: 'pi pi-fw pi-mobile', class: 'rotated-icon', routerLink: ['/uikit/button'] },
-                    { label: 'Table', icon: 'pi pi-fw pi-table', routerLink: ['/uikit/table'] },
-                    { label: 'List', icon: 'pi pi-fw pi-list', routerLink: ['/uikit/list'] },
-                    { label: 'Tree', icon: 'pi pi-fw pi-share-alt', routerLink: ['/uikit/tree'] },
-                    { label: 'Panel', icon: 'pi pi-fw pi-tablet', routerLink: ['/uikit/panel'] },
-                    { label: 'Overlay', icon: 'pi pi-fw pi-clone', routerLink: ['/uikit/overlay'] },
-                    { label: 'Media', icon: 'pi pi-fw pi-image', routerLink: ['/uikit/media'] },
-                    { label: 'Menu', icon: 'pi pi-fw pi-bars', routerLink: ['/uikit/menu'] },
-                    { label: 'Message', icon: 'pi pi-fw pi-comment', routerLink: ['/uikit/message'] },
-                    { label: 'File', icon: 'pi pi-fw pi-file', routerLink: ['/uikit/file'] },
-                    { label: 'Chart', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/uikit/charts'] },
-                    { label: 'Timeline', icon: 'pi pi-fw pi-calendar', routerLink: ['/uikit/timeline'] },
-                    { label: 'Misc', icon: 'pi pi-fw pi-circle', routerLink: ['/uikit/misc'] }
+                    { label: this.translate.instant('menu.form_layout'), icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
+                    { label: this.translate.instant('menu.input'), icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
+                    { label: this.translate.instant('menu.button'), icon: 'pi pi-fw pi-mobile', class: 'rotated-icon', routerLink: ['/uikit/button'] },
+                    { label: this.translate.instant('menu.table'), icon: 'pi pi-fw pi-table', routerLink: ['/uikit/table'] },
+                    { label: this.translate.instant('menu.list'), icon: 'pi pi-fw pi-list', routerLink: ['/uikit/list'] },
+                    { label: this.translate.instant('menu.tree'), icon: 'pi pi-fw pi-share-alt', routerLink: ['/uikit/tree'] },
+                    { label: this.translate.instant('menu.panel'), icon: 'pi pi-fw pi-tablet', routerLink: ['/uikit/panel'] },
+                    { label: this.translate.instant('menu.overlay'), icon: 'pi pi-fw pi-clone', routerLink: ['/uikit/overlay'] },
+                    { label: this.translate.instant('menu.media'), icon: 'pi pi-fw pi-image', routerLink: ['/uikit/media'] },
+                    { label: this.translate.instant('menu.menu'), icon: 'pi pi-fw pi-bars', routerLink: ['/uikit/menu'] },
+                    { label: this.translate.instant('menu.message'), icon: 'pi pi-fw pi-comment', routerLink: ['/uikit/message'] },
+                    { label: this.translate.instant('menu.file'), icon: 'pi pi-fw pi-file', routerLink: ['/uikit/file'] },
+                    { label: this.translate.instant('menu.chart'), icon: 'pi pi-fw pi-chart-bar', routerLink: ['/uikit/charts'] },
+                    { label: this.translate.instant('menu.timeline'), icon: 'pi pi-fw pi-calendar', routerLink: ['/uikit/timeline'] },
+                    { label: this.translate.instant('menu.misc'), icon: 'pi pi-fw pi-circle', routerLink: ['/uikit/misc'] }
                 ]
             },
         ];
