@@ -10,7 +10,7 @@
         
         <!-- Logo y nombre de la aplicación -->
         <a routerLink="/" class="flex items-center">
-            <img src="assets/images/maingoo_logo.svg" alt="Maingoo" height="40" width="40" style="object-fit: contain;">
+            <img src="assets/images/maingoo_logo.svg" alt="Maingoo" height="30" width="30" style="object-fit: contain;">
             <span class="ml-2 text-2xl font-semibold">Maingoo</span>
         </a>
     </div>
@@ -31,7 +31,7 @@
             
             <!-- Botón para abrir el configurador de paleta de colores -->
             <div class="relative">
-                <button
+                <!-- <button
                     class="layout-topbar-action layout-topbar-action-highlight"
                     pStyleClass="@next"
                     enterFromClass="hidden"
@@ -41,7 +41,7 @@
                     [hideOnOutsideClick]="true"
                 >
                     <i class="pi pi-palette"></i>
-                </button>
+                </button> -->
                 <!-- Componente de configuración visual -->
                 <app-configurator />
             </div>
@@ -63,12 +63,6 @@
         <!-- === Menú de navegación principal (Desktop) === -->
         <div class="layout-topbar-menu hidden lg:block">
             <div class="layout-topbar-menu-content">
-                
-                <!-- Acceso a Calendario -->
-                <button type="button" class="layout-topbar-action">
-                    <i class="pi pi-calendar"></i>
-                    <span>Calendar</span>
-                </button>
                 
                 <!-- Acceso a Chat -->
                 <button type="button" class="layout-topbar-action">

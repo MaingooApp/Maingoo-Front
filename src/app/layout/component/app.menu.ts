@@ -29,7 +29,8 @@ export class AppMenu {
                     { label: 'Facturas', icon: 'pi pi-fw pi-list', routerLink: ['/facturas'] },
                     { label: 'Proovedores', icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
                     { label: 'Productos', icon: 'pi pi-fw pi-tags', routerLink: ['/productos'] },
-                    { label: 'Documentación', icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] }
+                    { label: 'Documentación', icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] },
+                    { label: 'Horarios', icon: 'pi pi-fw pi-calendar', routerLink: ['/Horarios'] }
                 ]
             },
             {
