@@ -51,6 +51,7 @@ export class InvoiceSummaryComponent implements OnInit {
 
     proveedorForm!: FormGroup;
     mostrarModalProveedor = false;
+    display: boolean = false;
 
     private pollingSubscription?: Subscription;
 
