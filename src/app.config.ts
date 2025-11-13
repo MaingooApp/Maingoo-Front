@@ -1,5 +1,5 @@
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, isDevMode } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeng/themes/aura';
@@ -9,6 +9,7 @@ import { appRoutes } from './app.routes';
 import { httpErrorInterceptor } from './app/core/interceptors/http-error.interceptor';
 import { authInterceptor } from './app/core/interceptors/auth.interceptor';
 import { primengEs } from './assets/i18n/primeng-es';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -17,6 +18,9 @@ export const appConfig: ApplicationConfig = {
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } }, translation: primengEs }),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),
         ConfirmationService,
-        MessageService
+        MessageService, provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
     ]
 };
