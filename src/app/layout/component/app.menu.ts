@@ -38,7 +38,8 @@ export class AppMenu {
                     { label: this.translate.instant('menu.suppliers'), icon: 'pi pi-fw pi-box', routerLink: ['/proveedores'] },
                     { label: this.translate.instant('menu.products'), icon: 'pi pi-fw pi-tags', routerLink: ['/productos'] },
                     { label: this.translate.instant('menu.documentation'), icon: 'pi pi-fw pi-file', routerLink: ['/docgenerator'] },
-                    { label: this.translate.instant('menu.schedules'), icon: 'pi pi-fw pi-calendar', routerLink: ['/Horarios'] }
+                    { label: this.translate.instant('menu.schedules'), icon: 'pi pi-fw pi-calendar', routerLink: ['/horarios'] },
+                    { label: this.translate.instant('menu.settings'), icon: 'pi pi-fw pi-cog', routerLink: ['/configuracion'] }
                 ]
             },
             {
