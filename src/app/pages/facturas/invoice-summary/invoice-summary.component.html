@@ -5,8 +5,32 @@
 </div>
 
 <ng-template #tablaFacturas>
+    <div class="flex flex-col md:flex-row gap-8">
+        <div class="md:w-full">
+            <div class="card flex flex-col gap-4">
+                <h2 class="text-2xl font-bold">Upload albarán</h2>
+                <div class="flex flex-col gap-4 items-center justify-center">
+                    <p-fileupload
+                        #fu
+                        mode="advanced"
+                        name="demo[]"
+                        [customUpload]="true"
+                        accept="image/*,application/pdf"
+                        maxFileSize="5000000"
+                        [disabled]="cargando"
+                        (uploadHandler)="onUpload($event)"
+                        chooseLabel="Elegir"
+                        uploadLabel="Subir"
+                        chooseIcon="pi pi-upload"
+                        uploadIcon="pi pi-check"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="px-6 py-4">
         <div class="bg-white rounded-xl shadow-md p-6">
+            
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-semibold text-surface-900 flex items-center gap-2">
                     <i class="pi pi-file" style="font-size: 1.5rem"></i>
