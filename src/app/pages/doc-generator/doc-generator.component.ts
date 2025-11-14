@@ -39,6 +39,13 @@ interface Fryer {
   capacity: string;
 }
 
+interface DocumentCard {
+  id: string;
+  title: string;
+  tags: string[];
+  type: 'temperature' | 'oil' | 'other';
+}
+
 @Component({
   selector: 'app-doc-generator',
   imports: [
@@ -59,6 +66,18 @@ interface Fryer {
 })
 export class DocGeneratorComponent {
   searchQuery: string = '';
+  documentSearchQuery: string = '';
+  selectedTagFilters: string[] = [];
+  
+  availableTags = [
+    { name: 'APPCC', color: 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200' },
+    { name: 'RRHH', color: 'bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200' }
+  ];
+  
+  documentCards: DocumentCard[] = [
+    { id: 'temperatures', title: 'Registro Temperaturas', tags: ['APPCC'], type: 'temperature' },
+    { id: 'oil', title: 'Cambios de Aceite', tags: ['APPCC'], type: 'oil' }
+  ];
   
   // Camera modal
   displayCameraModal: boolean = false;
@@ -123,6 +142,64 @@ export class DocGeneratorComponent {
   ];
 
   constructor(private messageService: MessageService) {}
+
+  get filteredDocuments(): DocumentCard[] {
+    let filtered = this.documentCards;
+    
+    // Filtrar por etiquetas seleccionadas
+    if (this.selectedTagFilters.length > 0) {
+      filtered = filtered.filter(doc => 
+        this.selectedTagFilters.some(tag => doc.tags.includes(tag))
+      );
+    }
+    
+    // Filtrar por búsqueda de texto
+    if (this.documentSearchQuery.trim()) {
+      const query = this.documentSearchQuery.toLowerCase();
+      filtered = filtered.filter(doc => 
+        doc.title.toLowerCase().includes(query) ||
+        doc.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+    
+    return filtered;
+  }
+
+  isDocumentVisible(docId: string): boolean {
+    return this.filteredDocuments.some(doc => doc.id === docId);
+  }
+
+  getTagColor(tag: string): string {
+    const colors: { [key: string]: string } = {
+      'APPCC': 'bg-blue-100 text-blue-800 border-blue-300',
+      'Calidad': 'bg-green-100 text-green-800 border-green-300',
+      'Legal': 'bg-purple-100 text-purple-800 border-purple-300',
+      'RRHH': 'bg-orange-100 text-orange-800 border-orange-300'
+    };
+    return colors[tag] || 'bg-gray-100 text-gray-800 border-gray-300';
+  }
+
+  onDocumentSearch() {
+    console.log('Buscando documentos:', this.documentSearchQuery);
+  }
+
+  toggleTagFilter(tagName: string) {
+    const index = this.selectedTagFilters.indexOf(tagName);
+    if (index > -1) {
+      this.selectedTagFilters.splice(index, 1);
+    } else {
+      this.selectedTagFilters.push(tagName);
+    }
+  }
+
+  isTagFilterActive(tagName: string): boolean {
+    return this.selectedTagFilters.includes(tagName);
+  }
+
+  clearAllFilters() {
+    this.selectedTagFilters = [];
+    this.documentSearchQuery = '';
+  }
 
   hasActiveFilters(): boolean {
     return this.quickFilters.some(f => f.active);

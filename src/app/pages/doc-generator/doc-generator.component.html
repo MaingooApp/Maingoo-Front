@@ -9,7 +9,68 @@
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
           Documentación
         </h1>
-        <p class="text-gray-600 mt-1 text-sm">Gestiona documentos, APPCC, contratos, normativas y más</p>
+      </div>
+    </div>
+
+    <!-- Search Bar for Documents -->
+    <div class="mb-4">
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Search Input -->
+        <div class="flex-1 relative">
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-search"></i>
+            <input 
+              type="text" 
+              pInputText 
+              [(ngModel)]="documentSearchQuery"
+              (keyup)="onDocumentSearch()"
+              placeholder="Buscar por nombre o etiqueta..." 
+              class="w-full pl-10 pr-4 py-3 rounded-lg border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+          </span>
+          
+          <!-- Clear search button -->
+          <button 
+            *ngIf="documentSearchQuery"
+            pButton 
+            type="button"
+            icon="pi pi-times" 
+            class="p-button-text p-button-rounded absolute right-2 top-1/2 transform -translate-y-1/2"
+            (click)="documentSearchQuery = ''; onDocumentSearch()"></button>
+        </div>
+
+        <!-- Tag Filters -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-sm text-gray-600 font-medium hidden lg:block">Filtrar por:</span>
+          <button 
+            *ngFor="let tag of availableTags"
+            type="button"
+            (click)="toggleTagFilter(tag.name)"
+            [class]="'text-xs font-semibold px-3 py-2 rounded-full border transition-all cursor-pointer ' + 
+                     tag.color + 
+                     (isTagFilterActive(tag.name) ? ' ring-2 ring-offset-1 ring-indigo-400 shadow-md' : ' opacity-70')">
+            <i [class]="'pi ' + (isTagFilterActive(tag.name) ? 'pi-check-circle' : 'pi-circle') + ' mr-1'"></i>
+            {{ tag.name }}
+          </button>
+          
+          <!-- Clear Filters -->
+          <button 
+            *ngIf="selectedTagFilters.length > 0 || documentSearchQuery"
+            pButton 
+            type="button"
+            icon="pi pi-filter-slash" 
+            label="Limpiar"
+            class="p-button-text p-button-sm"
+            (click)="clearAllFilters()"></button>
+        </div>
+      </div>
+
+      <!-- Active Filters Info -->
+      <div *ngIf="selectedTagFilters.length > 0" class="mt-3 flex items-center gap-2 text-sm">
+        <i class="pi pi-info-circle text-blue-500"></i>
+        <span class="text-gray-600">
+          Mostrando documentos con: 
+          <strong class="text-gray-800">{{ selectedTagFilters.join(', ') }}</strong>
+        </span>
       </div>
     </div>
   </div>
@@ -18,13 +79,19 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     
     <!-- Registro de Temperaturas Card -->
-    <p-card>
+    <p-card *ngIf="isDocumentVisible('temperatures')">
       <ng-template pTemplate="header">
         <div class="bg-gradient-to-r from-cyan-500 to-white-500 rounded-tl-lg rounded-tr-lg">
-          <div class="flex items-center justify-between text-white p-6">
-            <div class="flex items-center">
-                <img src="assets/icons/temperature.svg" alt="Temperaturas" class="w-6 h-6 mr-3"/>
-              <h3 class="text-xl font-semibold m-0">Registro Temperaturas</h3>
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <img src="assets/icons/temperature.svg" alt="Temperaturas" class="w-6 h-6"/>
+              <h3 class="text-xl font-semibold m-0 text-black">Registro Temperaturas</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let tag of documentCards[0].tags" 
+                    class="text-xs font-semibold px-2 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-black/30 text-black">
+                {{ tag }}
+              </span>
             </div>
           </div>
         </div>
@@ -49,13 +116,19 @@
     </p-card>
 
     <!-- Registro de Cambios de Aceite Card -->
-    <p-card>
+    <p-card *ngIf="isDocumentVisible('oil')">
       <ng-template pTemplate="header">
         <div class="bg-gradient-to-r from-yellow-500 to-white-500 rounded-tl-lg rounded-tr-lg">
-          <div class="flex items-center justify-between text-white p-6">
-            <div class="flex items-center">
-                <img src="assets/icons/droplet-half-2.svg" alt="Cambios de Aceite" class="w-6 h-6 mr-3"/>
-              <h3 class="text-xl font-semibold m-0">Cambios de Aceite</h3>
+          <div class="p-6">
+            <div class="flex items-center gap-3 mb-2">
+              <img src="assets/icons/droplet-half-2.svg" alt="Cambios de Aceite" class="w-6 h-6"/>
+              <h3 class="text-xl font-semibold m-0 text-black">Cambios de Aceite</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span *ngFor="let tag of documentCards[1].tags" 
+                    class="text-xs font-semibold px-2 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-black/30 text-black">
+                {{ tag }}
+              </span>
             </div>
           </div>
         </div>
