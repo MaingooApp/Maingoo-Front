@@ -99,9 +99,50 @@
         </div>
       </ng-template>
 
-      <div class="text-center py-8 text-gray-400">
+      <!-- Empty State -->
+      <div *ngIf="cameras.length === 0" class="text-center py-8 text-gray-400">
         <i class="pi pi-thermometer text-4xl mb-3"></i>
-        <p class="text-sm">Sin registros</p>
+        <p class="text-sm">No hay cámaras registradas</p>
+        <p class="text-xs mt-2">Añade una cámara para comenzar</p>
+      </div>
+
+      <!-- Cameras List -->
+      <div *ngIf="cameras.length > 0" class="space-y-3">
+        <div *ngFor="let camera of cameras" 
+             class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
+             (click)="openTemperatureRegistration(camera)">
+          <div class="flex items-center justify-between">
+            <!-- Camera Info -->
+            <div class="flex items-center gap-3">
+              <div class="bg-gray-100 rounded-lg p-2">
+                <img [src]="getCameraIcon(camera.type)" [alt]="camera.name" class="w-5 h-5" 
+                     style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);"/>
+              </div>
+              <div>
+                <h4 class="font-semibold text-gray-800 text-sm">{{ camera.name }}</h4>
+                <p class="text-xs text-gray-500">{{ getCameraTypeLabel(camera.type) }}</p>
+              </div>
+            </div>
+
+            <!-- Temperature Display -->
+            <div class="text-right">
+              <div *ngIf="camera.lastTemp" class="text-xl font-bold text-blue-600">
+                {{ camera.lastTemp }}°C
+              </div>
+              <div *ngIf="!camera.lastTemp" class="text-xs text-gray-400">
+                Sin registros
+              </div>
+              <div *ngIf="camera.lastCheck" class="text-xs text-gray-500 mt-1">
+                {{ camera.lastCheck | date:'short' }}
+              </div>
+            </div>
+
+            <!-- Action Icon -->
+            <div class="ml-3">
+              <i class="pi pi-angle-right text-gray-400"></i>
+            </div>
+          </div>
+        </div>
       </div>
 
       <ng-template pTemplate="footer">
@@ -339,6 +380,293 @@
           icon="pi pi-check"
           severity="success"
           (click)="saveFryerModal()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal de Vista de Cámara -->
+  <p-dialog 
+    [(visible)]="displayCameraViewModal" 
+    [modal]="true"
+    [style]="{width: '500px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3 w-full">
+        <div class="bg-blue-100 rounded-lg p-2">
+          <img *ngIf="selectedCamera" 
+               [src]="getCameraIcon(selectedCamera.type)" 
+               [alt]="selectedCamera.name" 
+               class="w-6 h-6" 
+               style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);"/>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold m-0">{{ selectedCamera?.name }}</h3>
+          <p class="text-sm text-gray-600 m-0">{{ getCameraTypeLabel(selectedCamera?.type || 'positive') }}</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="py-4">
+      <!-- Temperature Info -->
+      <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6 mb-4">
+        <div class="text-center">
+          <p class="text-sm text-gray-600 mb-2">Última Temperatura</p>
+          <div *ngIf="selectedCamera?.lastTemp" class="text-5xl font-bold text-blue-600 mb-2">
+            {{ selectedCamera?.lastTemp }}°C
+          </div>
+          <div *ngIf="!selectedCamera?.lastTemp" class="text-2xl text-gray-400 mb-2">
+            Sin registros
+          </div>
+          <p *ngIf="selectedCamera?.lastCheck" class="text-xs text-gray-500">
+            Última medición: {{ selectedCamera?.lastCheck | date:'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p *ngIf="!selectedCamera?.lastCheck" class="text-xs text-gray-400">
+            No se han registrado mediciones
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Register Temperature Button -->
+        <button 
+          pButton 
+          type="button"
+          label="Registrar Temperatura" 
+          icon="pi pi-plus-circle"
+          severity="success"
+          class="w-full"
+          (click)="registerTemperature()"></button>
+
+        <!-- Edit Button -->
+        <button 
+          pButton 
+          type="button"
+          label="Editar" 
+          icon="pi pi-pencil"
+          severity="secondary"
+          [outlined]="true"
+          class="w-full"
+          (click)="editCamera()"></button>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-between items-center w-full">
+        <button 
+          pButton 
+          type="button"
+          label="Eliminar Cámara" 
+          icon="pi pi-trash"
+          severity="danger"
+          class="p-button-text"
+          (click)="deleteCamera()"></button>
+        <button 
+          pButton 
+          type="button"
+          label="Cerrar" 
+          icon="pi pi-times"
+          severity="secondary"
+          (click)="closeCameraViewModal()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Temperature Registration Modal -->
+  <p-dialog 
+    [(visible)]="displayTemperatureModal" 
+    [modal]="true" 
+    [style]="{ width: '500px' }"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3 w-full">
+        <div class="bg-blue-100 rounded-lg p-2">
+          <i class="pi pi-thermometer text-blue-800" style="font-size: 1.5rem"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold m-0">Registrar Temperatura</h3>
+          <p class="text-sm text-gray-600 m-0">{{ selectedCamera?.name }}</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="space-y-4">
+      <!-- Rango recomendado -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div class="flex items-center gap-2 mb-1">
+          <i class="pi pi-info-circle text-blue-600"></i>
+          <span class="text-sm font-semibold text-blue-800">Rango Recomendado</span>
+        </div>
+        <p class="text-sm text-blue-700 m-0">
+          <span *ngIf="selectedCamera?.type === 'positive'">Frigorífico: 0°C a 5°C</span>
+          <span *ngIf="selectedCamera?.type === 'negative'">Congelador: -18°C a -22°C</span>
+        </p>
+      </div>
+
+      <!-- Temperatura -->
+      <div>
+        <label for="temperature" class="block text-sm font-medium mb-2">
+          Temperatura <span class="text-red-500">*</span>
+        </label>
+        <div class="flex items-center gap-2">
+          <input 
+            id="temperature"
+            type="number" 
+            pInputText 
+            [(ngModel)]="newTemperature"
+            placeholder="Ej: 3.5"
+            step="0.1"
+            class="flex-1"
+            [style]="{ width: '100%' }"/>
+          <span class="text-2xl font-semibold text-gray-600">°C</span>
+        </div>
+      </div>
+
+      <!-- Observaciones -->
+      <div>
+        <label for="observations" class="block text-sm font-medium mb-2">
+          Observaciones (opcional)
+        </label>
+        <textarea 
+          id="observations"
+          pInputTextarea
+          [(ngModel)]="temperatureObservations"
+          placeholder="Añade cualquier observación relevante..."
+          rows="3"
+          class="w-full resize-none"
+          [style]="{ width: '100%' }"></textarea>
+      </div>
+
+      <!-- Información adicional -->
+      <div class="text-xs text-gray-500 flex items-center gap-2">
+        <i class="pi pi-clock"></i>
+        <span>Se registrará con fecha y hora actual</span>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2">
+        <button 
+          pButton 
+          type="button"
+          label="Cancelar" 
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelTemperatureRegistration()"></button>
+        <button 
+          pButton 
+          type="button"
+          label="Guardar Registro" 
+          icon="pi pi-check"
+          severity="success"
+          (click)="saveTemperatureRegistration()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Camera Edit Modal -->
+  <p-dialog 
+    [(visible)]="displayCameraEditModal" 
+    [modal]="true" 
+    [style]="{ width: '500px' }"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3 w-full">
+        <div class="bg-blue-100 rounded-lg p-2">
+          <i class="pi pi-pencil text-blue-800" style="font-size: 1.5rem"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold m-0">Editar Cámara</h3>
+          <p class="text-sm text-gray-600 m-0">Modificar información de la cámara</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <div class="space-y-4">
+      <!-- Nombre -->
+      <div>
+        <label for="editCameraName" class="block text-sm font-medium mb-2">
+          Nombre de la Cámara <span class="text-red-500">*</span>
+        </label>
+        <input 
+          id="editCameraName"
+          type="text" 
+          pInputText 
+          [(ngModel)]="editCameraData.name"
+          placeholder="Ej: Cámara Principal"
+          class="w-full"
+          [style]="{ width: '100%' }"/>
+      </div>
+
+      <!-- Tipo de Frío -->
+      <div>
+        <label for="editCameraType" class="block text-sm font-medium mb-2">
+          Tipo de Frío <span class="text-red-500">*</span>
+        </label>
+        <p-dropdown 
+          id="editCameraType"
+          [options]="cameraTypes" 
+          [(ngModel)]="editCameraData.type"
+          optionLabel="label" 
+          optionValue="value"
+          placeholder="Selecciona el tipo"
+          [style]="{ width: '100%' }">
+          <ng-template let-option pTemplate="item">
+            <div class="flex items-center gap-3">
+              <img 
+                [src]="option.icon" 
+                [alt]="option.label" 
+                class="w-5 h-5"
+                style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);"/>
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+          <ng-template let-option pTemplate="selectedItem">
+            <div class="flex items-center gap-2" *ngIf="option">
+              <img 
+                [src]="option.icon" 
+                [alt]="option.label" 
+                class="w-5 h-5"
+                style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);"/>
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <!-- Info sobre datos conservados -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-info-circle text-blue-600"></i>
+          <span class="text-sm text-blue-800">Los registros de temperatura se mantendrán</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2">
+        <button 
+          pButton 
+          type="button"
+          label="Cancelar" 
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelCameraEdit()"></button>
+        <button 
+          pButton 
+          type="button"
+          label="Guardar Cambios" 
+          icon="pi pi-check"
+          severity="success"
+          (click)="saveCameraEdit()"></button>
       </div>
     </ng-template>
   </p-dialog>

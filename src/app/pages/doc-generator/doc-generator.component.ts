@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextarea } from 'primeng/inputtextarea';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -30,8 +31,11 @@ interface TemperatureRecord {
 }
 
 interface Camera {
+  id?: number;
   name: string;
   type: 'positive' | 'negative';
+  lastTemp?: number;
+  lastCheck?: Date;
 }
 
 interface Fryer {
@@ -52,6 +56,7 @@ interface DocumentCard {
     CommonModule,
     ButtonModule,
     InputTextModule,
+    InputTextarea,
     FormsModule,
     ToastModule,
     BadgeModule,
@@ -78,6 +83,25 @@ export class DocGeneratorComponent {
     { id: 'temperatures', title: 'Registro Temperaturas', tags: ['APPCC'], type: 'temperature' },
     { id: 'oil', title: 'Cambios de Aceite', tags: ['APPCC'], type: 'oil' }
   ];
+  
+  // Cameras list
+  cameras: Camera[] = [];
+  
+  // Camera view modal
+  displayCameraViewModal: boolean = false;
+  selectedCamera: Camera | null = null;
+  
+  // Temperature registration modal
+  displayTemperatureModal: boolean = false;
+  newTemperature: number | null = null;
+  temperatureObservations: string = '';
+  
+  // Camera edit modal
+  displayCameraEditModal: boolean = false;
+  editCameraData: Camera = {
+    name: '',
+    type: 'positive'
+  };
   
   // Camera modal
   displayCameraModal: boolean = false;
@@ -232,14 +256,23 @@ export class DocGeneratorComponent {
       return;
     }
 
+    const camera: Camera = {
+      id: this.cameras.length + 1,
+      name: this.newCamera.name,
+      type: this.newCamera.type,
+      lastTemp: undefined,
+      lastCheck: undefined
+    };
+
+    this.cameras.push(camera);
+
     this.messageService.add({
       severity: 'success',
       summary: 'Cámara Añadida',
-      detail: `${this.newCamera.name} (${this.newCamera.type === 'positive' ? 'Frigorífico' : 'Congelador'}) añadida correctamente`
+      detail: `${camera.name} (${camera.type === 'positive' ? 'Frigorífico' : 'Congelador'}) añadida correctamente`
     });
     
-    console.log('Nueva cámara:', this.newCamera);
-    // TODO: Guardar cámara en el servicio/backend
+    console.log('Cámaras actuales:', this.cameras);
     
     this.displayCameraModal = false;
   }
@@ -250,6 +283,177 @@ export class DocGeneratorComponent {
       name: '',
       type: 'positive'
     };
+  }
+
+  getCameraIcon(type: string): string {
+    return type === 'positive' ? 'assets/icons/temperature-plus.svg' : 'assets/icons/temperature-minus.svg';
+  }
+
+  getCameraTypeLabel(type: string): string {
+    return type === 'positive' ? 'Frigorífico' : 'Congelador';
+  }
+
+  openTemperatureRegistration(camera: Camera) {
+    this.selectedCamera = camera;
+    this.displayCameraViewModal = true;
+  }
+
+  closeCameraViewModal() {
+    this.displayCameraViewModal = false;
+    this.selectedCamera = null;
+  }
+
+  registerTemperature() {
+    if (!this.selectedCamera) return;
+    
+    this.newTemperature = null;
+    this.temperatureObservations = '';
+    this.displayTemperatureModal = true;
+  }
+  
+  saveTemperatureRegistration() {
+    if (!this.selectedCamera || this.newTemperature === null) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atención',
+        detail: 'Por favor ingresa una temperatura válida'
+      });
+      return;
+    }
+    
+    // Validar rangos según tipo de cámara
+    const isValidTemp = this.validateTemperature(this.newTemperature, this.selectedCamera.type);
+    
+    if (!isValidTemp.valid) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Temperatura Fuera de Rango',
+        detail: isValidTemp.message
+      });
+    }
+    
+    // Actualizar la cámara con la nueva temperatura
+    this.selectedCamera.lastTemp = this.newTemperature;
+    this.selectedCamera.lastCheck = new Date();
+    
+    // Actualizar en el array de cámaras
+    const cameraIndex = this.cameras.findIndex(c => c.id === this.selectedCamera!.id);
+    if (cameraIndex > -1) {
+      this.cameras[cameraIndex] = { ...this.selectedCamera };
+    }
+    
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Temperatura Registrada',
+      detail: `${this.newTemperature}°C registrados para ${this.selectedCamera.name}`
+    });
+    
+    console.log('Temperatura registrada:', {
+      camera: this.selectedCamera.name,
+      temperature: this.newTemperature,
+      observations: this.temperatureObservations,
+      timestamp: new Date()
+    });
+    
+    this.displayTemperatureModal = false;
+  }
+  
+  cancelTemperatureRegistration() {
+    this.displayTemperatureModal = false;
+    this.newTemperature = null;
+    this.temperatureObservations = '';
+  }
+  
+  validateTemperature(temp: number, type: string): { valid: boolean; message: string } {
+    if (type === 'positive') {
+      // Frigorífico: rango ideal 0°C a 5°C
+      if (temp < 0 || temp > 8) {
+        return {
+          valid: false,
+          message: `Temperatura fuera del rango recomendado (0°C - 5°C). Valor actual: ${temp}°C`
+        };
+      }
+    } else if (type === 'negative') {
+      // Congelador: rango ideal -18°C a -22°C
+      if (temp > -10 || temp < -30) {
+        return {
+          valid: false,
+          message: `Temperatura fuera del rango recomendado (-18°C a -22°C). Valor actual: ${temp}°C`
+        };
+      }
+    }
+    
+    return { valid: true, message: 'OK' };
+  }
+
+  editCamera() {
+    if (!this.selectedCamera) return;
+    
+    // Copiar los datos de la cámara seleccionada al formulario de edición
+    this.editCameraData = {
+      id: this.selectedCamera.id,
+      name: this.selectedCamera.name,
+      type: this.selectedCamera.type,
+      lastTemp: this.selectedCamera.lastTemp,
+      lastCheck: this.selectedCamera.lastCheck
+    };
+    
+    this.displayCameraEditModal = true;
+  }
+  
+  saveCameraEdit() {
+    if (!this.editCameraData.name.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atención',
+        detail: 'Por favor ingresa el nombre de la cámara'
+      });
+      return;
+    }
+    
+    // Actualizar la cámara en el array
+    const cameraIndex = this.cameras.findIndex(c => c.id === this.editCameraData.id);
+    if (cameraIndex > -1) {
+      this.cameras[cameraIndex] = { ...this.editCameraData };
+      
+      // Si es la cámara seleccionada actualmente, actualizar también
+      if (this.selectedCamera && this.selectedCamera.id === this.editCameraData.id) {
+        this.selectedCamera = { ...this.editCameraData };
+      }
+    }
+    
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Cámara Actualizada',
+      detail: `${this.editCameraData.name} actualizada correctamente`
+    });
+    
+    console.log('Cámara editada:', this.editCameraData);
+    
+    this.displayCameraEditModal = false;
+  }
+  
+  cancelCameraEdit() {
+    this.displayCameraEditModal = false;
+    this.editCameraData = {
+      name: '',
+      type: 'positive'
+    };
+  }
+
+  deleteCamera() {
+    if (!this.selectedCamera) return;
+    
+    const cameraName = this.selectedCamera.name;
+    this.cameras = this.cameras.filter(c => c.id !== this.selectedCamera!.id);
+    
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Cámara Eliminada',
+      detail: `${cameraName} ha sido eliminada`
+    });
+    
+    this.closeCameraViewModal();
   }
 
   addNewFryer() {
