@@ -1,41 +1,60 @@
-<div class="p-6 max-w-8xl mx-auto">
-    <div class="bg-white rounded-xl shadow p-6 space-y-6">
-        <h1 class="text-2xl font-bold text-gray-800">📄 Generador de Documentación con IA</h1>
-        <p class="text-gray-600">Selecciona una opción para generar protocolos o registros y FluvIA se encargará del
-            resto.</p>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Limpieza Cocina -->
-            <div class="border rounded-lg p-4">
-                <p class="font-semibold text-gray-700 mb-2">🧼 Limpieza de Cocina</p>
-                <p-button label="Generar Protocolo" class="w-full" (click)="generar('limpiezaCocina')">
-                </p-button>
-                <small class="text-gray-500 block mt-2">Se preguntará si es diario, semanal o mensual.</small>
-            </div>
-
-            <!-- Limpieza Maquinaria -->
-            <div class="border rounded-lg p-4">
-                <p class="font-semibold text-gray-700 mb-2">🧼 Limpieza de Maquinaria</p>
-                <p-button label="Generar Protocolo" class="w-full" (click)="generar('limpiezaMaquinaria')">
-                </p-button>
-                <small class="text-gray-500 block mt-2">Se preguntará qué máquina: freidora, horno, etc.</small>
-            </div>
-
-            <!-- Registro de Temperaturas -->
-            <div class="border rounded-lg p-4">
-                <p class="font-semibold text-gray-700 mb-2">🌡️ Registro de Temperaturas</p>
-                <p-button label="Generar Registro" class="w-full" (click)="generar('registroTemperaturas')">
-                </p-button>
-                <small class="text-gray-500 block mt-2">Mes, nombre y tipo de cámara.</small>
-            </div>
-
-            <!-- Registro de Aceite -->
-            <div class="border rounded-lg p-4">
-                <p class="font-semibold text-gray-700 mb-2">🛢️ Cambio de Aceite Freidoras</p>
-                <p-button label="Generar Registro" class="w-full" (click)="generar('registroAceite')">
-                </p-button>
-                <small class="text-gray-500 block mt-2">Se preguntará el mes.</small>
-            </div>
-        </div>
+<div>
+  <p-toast />
+  <!-- ========== HEADER ========== -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+    
+    <!-- Title Section -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          Documentación
+        </h1>
+        <p class="text-gray-600 mt-1 text-sm">Gestiona documentos, checklists y certificaciones</p>
+      </div>
     </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Registro de Temperaturas Card -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="bg-gradient-to-r from-cyan-500 to-white-500 rounded-tl-lg rounded-tr-lg">
+          <div class="flex items-center justify-between text-white p-6">
+            <div class="flex items-center">
+                <img src="assets/icons/temperature.svg" alt="Temperaturas" class="w-6 h-6 mr-3"/>
+              <h3 class="text-xl font-semibold m-0">Temperaturas</h3>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="text-center py-8 text-gray-400">
+        <i class="pi pi-thermometer text-4xl mb-3"></i>
+        <p class="text-sm">Sin registros</p>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          type="button"
+          label="Añadir Cámara Frigorífica" 
+          icon="pi pi-plus"
+          severity="success"
+          [outlined]="true"
+          class="w-full"
+          (click)="addNewCamera()"></button>
+      </ng-template>
+    </p-card>
+
+    <!-- Placeholder -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div class="text-center text-gray-400">
+        <i class="pi pi-inbox text-4xl mb-3"></i>
+        <p class="text-sm">Más documentos próximamente</p>
+      </div>
+    </div>
+
+  </div>
 </div>
