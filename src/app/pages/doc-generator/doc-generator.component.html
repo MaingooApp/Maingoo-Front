@@ -109,9 +109,8 @@
       <!-- Cameras List -->
       <div *ngIf="cameras.length > 0" class="space-y-3">
         <div *ngFor="let camera of cameras" 
-             class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer"
-             (click)="openTemperatureRegistration(camera)">
-          <div class="flex items-center justify-between">
+             class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm transition-all">
+          <div class="flex items-center justify-between mb-3">
             <!-- Camera Info -->
             <div class="flex items-center gap-3">
               <div class="bg-gray-100 rounded-lg p-2">
@@ -136,11 +135,27 @@
                 {{ camera.lastCheck | date:'short' }}
               </div>
             </div>
+          </div>
 
-            <!-- Action Icon -->
-            <div class="ml-3">
-              <i class="pi pi-angle-right text-gray-400"></i>
-            </div>
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-2">
+            <button 
+              pButton 
+              type="button"
+              label="Ver Detalle" 
+              icon="pi pi-eye"
+              severity="secondary"
+              [outlined]="true"
+              class="w-full text-xs"
+              (click)="openTemperatureRegistration(camera)"></button>
+            <button 
+              pButton 
+              type="button"
+              label="Registrar Temp." 
+              icon="pi pi-thermometer"
+              severity="success"
+              class="w-full text-xs"
+              (click)="openQuickTemperatureRegistration(camera)"></button>
           </div>
         </div>
       </div>
@@ -429,22 +444,12 @@
       </div>
 
       <!-- Action Buttons -->
-      <div class="grid grid-cols-2 gap-3">
-        <!-- Register Temperature Button -->
-        <button 
-          pButton 
-          type="button"
-          label="Registrar Temperatura" 
-          icon="pi pi-plus-circle"
-          severity="success"
-          class="w-full"
-          (click)="registerTemperature()"></button>
-
+      <div class="flex justify-center">
         <!-- Edit Button -->
         <button 
           pButton 
           type="button"
-          label="Editar" 
+          label="Editar Cámara" 
           icon="pi pi-pencil"
           severity="secondary"
           [outlined]="true"
