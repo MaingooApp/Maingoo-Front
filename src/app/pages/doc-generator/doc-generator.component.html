@@ -9,7 +9,7 @@
         <h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
           Documentación
         </h1>
-        <p class="text-gray-600 mt-1 text-sm">Gestiona documentos, checklists y certificaciones</p>
+        <p class="text-gray-600 mt-1 text-sm">Gestiona documentos, APPCC, contratos, normativas y más</p>
       </div>
     </div>
   </div>
@@ -24,7 +24,7 @@
           <div class="flex items-center justify-between text-white p-6">
             <div class="flex items-center">
                 <img src="assets/icons/temperature.svg" alt="Temperaturas" class="w-6 h-6 mr-3"/>
-              <h3 class="text-xl font-semibold m-0">Temperaturas</h3>
+              <h3 class="text-xl font-semibold m-0">Registro Temperaturas</h3>
             </div>
           </div>
         </div>
@@ -48,8 +48,38 @@
       </ng-template>
     </p-card>
 
+    <!-- Registro de Cambios de Aceite Card -->
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="bg-gradient-to-r from-yellow-500 to-white-500 rounded-tl-lg rounded-tr-lg">
+          <div class="flex items-center justify-between text-white p-6">
+            <div class="flex items-center">
+                <img src="assets/icons/droplet-half-2.svg" alt="Cambios de Aceite" class="w-6 h-6 mr-3"/>
+              <h3 class="text-xl font-semibold m-0">Cambios de Aceite</h3>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <div class="text-center py-8 text-gray-400">
+        <p class="text-sm">Sin registros</p>
+      </div>
+
+      <ng-template pTemplate="footer">
+        <button 
+          pButton 
+          type="button"
+          label="Añadir Freidora" 
+          icon="pi pi-plus"
+          severity="success"
+          [outlined]="true"
+          class="w-full"
+          (click)="addNewFryer()"></button>
+      </ng-template>
+    </p-card>
+
     <!-- Placeholder -->
-    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
       <div class="text-center text-gray-400">
         <i class="pi pi-inbox text-4xl mb-3"></i>
         <p class="text-sm">Más documentos próximamente</p>
@@ -57,4 +87,182 @@
     </div>
 
   </div>
+
+  <!-- Modal para Añadir Cámara -->
+  <p-dialog 
+    [(visible)]="displayCameraModal" 
+    [modal]="true"
+    [style]="{width: '450px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <span class="font-semibold text-lg">Nueva Cámara Frigorífica</span>
+      </div>
+    </ng-template>
+
+    <div class="space-y-4 py-4">
+      <!-- Nombre de la Cámara -->
+      <div>
+        <label for="cameraName" class="block text-sm font-medium text-gray-700 mb-2">
+          Nombre de la Cámara
+        </label>
+        <input 
+          id="cameraName"
+          type="text" 
+          pInputText 
+          [(ngModel)]="newCamera.name"
+          placeholder="Ej: Cámara Principal, Congelador 1..."
+          class="w-full"
+          autofocus />
+      </div>
+
+      <!-- Tipo de Frío -->
+      <div>
+        <label for="cameraType" class="block text-sm font-medium text-gray-700 mb-2">
+          <i class="pi pi-snowflake mr-1"></i>
+          Tipo de Frío
+        </label>
+        <p-dropdown 
+          id="cameraType"
+          [(ngModel)]="newCamera.type"
+          [options]="cameraTypes"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecciona el tipo"
+          class="w-full"
+          [style]="{'width': '100%'}">
+          <ng-template pTemplate="selectedItem" let-option>
+            <div *ngIf="option" class="flex items-center gap-2">
+              <img [src]="option.icon" [alt]="option.label" class="w-5 h-5" />
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+          <ng-template let-option pTemplate="item">
+            <div class="flex items-center gap-2">
+              <img [src]="option.icon" [alt]="option.label" class="w-5 h-5" />
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <!-- Info adicional -->
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
+        <div class="flex items-start gap-2">
+          <i class="pi pi-info-circle text-blue-600 mt-0.5"></i>
+          <div class="text-sm text-blue-800">
+            <p class="font-medium">Tipos de frío:</p>
+            <ul class="mt-1 space-y-1 text-xs">
+              <li>• <strong>Positivo:</strong> 0°C a 5°C (Refrigeración)</li>
+              <li>• <strong>Negativo:</strong> -18°C o menos (Congelación)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2">
+        <button 
+          pButton 
+          type="button"
+          label="Cancelar" 
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelCameraModal()"></button>
+        <button 
+          pButton 
+          type="button"
+          label="Guardar" 
+          icon="pi pi-check"
+          severity="success"
+          (click)="saveCameraModal()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal para Añadir Freidora -->
+  <p-dialog 
+    [(visible)]="displayFryerModal" 
+    [modal]="true"
+    [style]="{width: '450px'}"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="header">
+      <div class="flex items-center gap-3">
+        <i class="pi pi-plus-circle text-orange-600 text-2xl"></i>
+        <span class="font-semibold text-lg">Nueva Freidora</span>
+      </div>
+    </ng-template>
+
+    <div class="space-y-4 py-4">
+      <!-- Nombre de la Freidora -->
+      <div>
+        <label for="fryerName" class="block text-sm font-medium text-gray-700 mb-2">
+          Nombre de la Freidora
+        </label>
+        <input 
+          id="fryerName"
+          type="text" 
+          pInputText 
+          [(ngModel)]="newFryer.name"
+          placeholder="Ej: Freidora Principal, Freidora 1..."
+          class="w-full"
+          autofocus />
+      </div>
+
+      <!-- Capacidad -->
+      <div>
+        <label for="fryerCapacity" class="block text-sm font-medium text-gray-700 mb-2">
+          Capacidad (opcional)
+        </label>
+        <input 
+          id="fryerCapacity"
+          type="text" 
+          pInputText 
+          [(ngModel)]="newFryer.capacity"
+          placeholder="Ej: 10L, 15L, 20L..."
+          class="w-full" />
+      </div>
+
+      <!-- Info adicional -->
+      <div class="bg-orange-50 border-l-4 border-orange-400 p-3 rounded">
+        <div class="flex items-start gap-2">
+          <i class="pi pi-info-circle text-orange-600 mt-0.5"></i>
+          <div class="text-sm text-orange-800">
+            <p class="font-medium">Recomendaciones:</p>
+            <ul class="mt-1 space-y-1 text-xs">
+              <li>• Cambiar aceite cada 5-7 días de uso intensivo</li>
+              <li>• Verificar temperatura y color diariamente</li>
+              <li>• Registrar cada cambio para trazabilidad</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2">
+        <button 
+          pButton 
+          type="button"
+          label="Cancelar" 
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelFryerModal()"></button>
+        <button 
+          pButton 
+          type="button"
+          label="Guardar" 
+          icon="pi pi-check"
+          severity="success"
+          (click)="saveFryerModal()"></button>
+      </div>
+    </ng-template>
+  </p-dialog>
 </div>

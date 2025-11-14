@@ -9,6 +9,8 @@ import { BadgeModule } from 'primeng/badge';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 
 interface QuickFilter {
   id: string;
@@ -27,6 +29,16 @@ interface TemperatureRecord {
   status: 'ok' | 'warning' | 'critical';
 }
 
+interface Camera {
+  name: string;
+  type: 'positive' | 'negative';
+}
+
+interface Fryer {
+  name: string;
+  capacity: string;
+}
+
 @Component({
   selector: 'app-doc-generator',
   imports: [
@@ -37,7 +49,9 @@ interface TemperatureRecord {
     ToastModule,
     BadgeModule,
     MenuModule,
-    CardModule
+    CardModule,
+    DialogModule,
+    DropdownModule
   ],
   providers: [MessageService],
   templateUrl: './doc-generator.component.html',
@@ -45,6 +59,25 @@ interface TemperatureRecord {
 })
 export class DocGeneratorComponent {
   searchQuery: string = '';
+  
+  // Camera modal
+  displayCameraModal: boolean = false;
+  newCamera: Camera = {
+    name: '',
+    type: 'positive'
+  };
+  
+  cameraTypes = [
+    { label: 'Frío Positivo (Frigorífico)', value: 'positive', icon: 'assets/icons/temperature-plus.svg' },
+    { label: 'Frío Negativo (Congelador)', value: 'negative', icon: 'assets/icons/temperature-minus.svg' }
+  ];
+
+  // Fryer modal
+  displayFryerModal: boolean = false;
+  newFryer: Fryer = {
+    name: '',
+    capacity: ''
+  };
   
   quickFilters: QuickFilter[] = [
     {
@@ -105,12 +138,79 @@ export class DocGeneratorComponent {
   }
 
   addNewCamera() {
+    this.displayCameraModal = true;
+    this.newCamera = {
+      name: '',
+      type: 'positive'
+    };
+  }
+
+  saveCameraModal() {
+    if (!this.newCamera.name.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atención',
+        detail: 'Por favor ingresa el nombre de la cámara'
+      });
+      return;
+    }
+
     this.messageService.add({
       severity: 'success',
-      summary: 'Nueva Cámara',
-      detail: 'Abriendo formulario para añadir cámara frigorífica...'
+      summary: 'Cámara Añadida',
+      detail: `${this.newCamera.name} (${this.newCamera.type === 'positive' ? 'Frigorífico' : 'Congelador'}) añadida correctamente`
     });
-    // TODO: Implementar modal para añadir cámara
+    
+    console.log('Nueva cámara:', this.newCamera);
+    // TODO: Guardar cámara en el servicio/backend
+    
+    this.displayCameraModal = false;
+  }
+
+  cancelCameraModal() {
+    this.displayCameraModal = false;
+    this.newCamera = {
+      name: '',
+      type: 'positive'
+    };
+  }
+
+  addNewFryer() {
+    this.displayFryerModal = true;
+    this.newFryer = {
+      name: '',
+      capacity: ''
+    };
+  }
+
+  saveFryerModal() {
+    if (!this.newFryer.name.trim()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atención',
+        detail: 'Por favor ingresa el nombre de la freidora'
+      });
+      return;
+    }
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Freidora Añadida',
+      detail: `${this.newFryer.name} añadida correctamente`
+    });
+    
+    console.log('Nueva freidora:', this.newFryer);
+    // TODO: Guardar freidora en el servicio/backend
+    
+    this.displayFryerModal = false;
+  }
+
+  cancelFryerModal() {
+    this.displayFryerModal = false;
+    this.newFryer = {
+      name: '',
+      capacity: ''
+    };
   }
 
   onSearch() {
