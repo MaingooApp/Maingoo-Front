@@ -47,7 +47,7 @@ interface DocumentCard {
   id: string;
   title: string;
   tags: string[];
-  type: 'temperature' | 'oil' | 'other';
+  type: 'temperature' | 'oil' | 'payroll' | 'other';
 }
 
 @Component({
@@ -81,7 +81,8 @@ export class DocGeneratorComponent {
   
   documentCards: DocumentCard[] = [
     { id: 'temperatures', title: 'Registro Temperaturas', tags: ['APPCC'], type: 'temperature' },
-    { id: 'oil', title: 'Cambios de Aceite', tags: ['APPCC'], type: 'oil' }
+    { id: 'oil', title: 'Cambios de Aceite', tags: ['APPCC'], type: 'oil' },
+    { id: 'payroll', title: 'Nóminas', tags: ['RRHH'], type: 'payroll' }
   ];
   
   // Cameras list
@@ -296,6 +297,13 @@ export class DocGeneratorComponent {
   openTemperatureRegistration(camera: Camera) {
     this.selectedCamera = camera;
     this.displayCameraViewModal = true;
+  }
+
+  openQuickTemperatureRegistration(camera: Camera) {
+    this.selectedCamera = camera;
+    this.newTemperature = null;
+    this.temperatureObservations = '';
+    this.displayTemperatureModal = true;
   }
 
   closeCameraViewModal() {
@@ -551,5 +559,14 @@ export class DocGeneratorComponent {
       detail: 'Abriendo formulario de checklist...'
     });
     // Aquí implementar la lógica de creación
+  }
+
+  uploadPayroll() {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Subir Nómina',
+      detail: 'Abriendo selector de archivos para nóminas...'
+    });
+    // TODO: Implementar selector de archivos para nóminas
   }
 }
