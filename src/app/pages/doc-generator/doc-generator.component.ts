@@ -12,6 +12,9 @@ import { MenuItem } from 'primeng/api';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { FluidModule } from 'primeng/fluid';
 
 interface QuickFilter {
   id: string;
@@ -63,6 +66,9 @@ interface DocumentCard {
     MenuModule,
     CardModule,
     DialogModule,
+    IconFieldModule,
+    FluidModule,
+    InputIconModule,
     DropdownModule
   ],
   providers: [MessageService],
