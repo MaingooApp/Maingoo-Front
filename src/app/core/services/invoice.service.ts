@@ -12,6 +12,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({ providedIn: 'root' })
 export class InvoiceService extends BaseHttpService {
     private readonly API_URL = `${environment.urlBackend}api/suppliers/invoices`;
+    private readonly PRODUCTS_URL = `${environment.urlBackend}api/products`;
 
     constructor(http: HttpClient) {
         super(http);
@@ -84,6 +85,22 @@ export class InvoiceService extends BaseHttpService {
         return this.get<DocumentUrlResponse>(`${this.API_URL}/${id}/document-url?expiresInHours=${expiresInHours}`);
     }
 
+    /**
+     * Obtiene todos los productos del inventario consolidado
+     * GET /api/products
+     */
+    getProducts(): Observable<Product[]> {
+        return this.get<Product[]>(this.PRODUCTS_URL);
+    }
+
+    /**
+     * Obtiene un producto específico por su ID
+     * GET /api/products/:id
+     */
+    getProductById(id: string): Observable<Product> {
+        return this.get<Product>(`${this.PRODUCTS_URL}/${id}`);
+    }
+
     // TODO: Implementar métodos para productos (migrados del servicio antiguo)
     // Estos métodos son necesarios para el componente productos.component.ts
     // - getProductosInventario(): Observable<any[]>
@@ -151,4 +168,30 @@ export interface DocumentUrlResponse {
     url: string;
     expiresIn: number;
     blobName: string;
+}
+
+export interface ProductCategory {
+    id: string;
+    name: string;
+    description: string | null;
+}
+
+export interface ProductAllergen {
+    id: string;
+    name: string;
+    code: string;
+    description: string;
+}
+
+export interface Product {
+    id: string;
+    name: string;
+    eanCode: string;
+    description: string | null;
+    categoryId: string;
+    unit: string;
+    category: ProductCategory;
+    allergens: ProductAllergen[];
+    createdAt: string;
+    updatedAt: string;
 }

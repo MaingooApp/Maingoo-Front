@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth-service.service';
-// TODO: Migrar a invoice.service.ts cuando se implementen los métodos de productos
-// import { InvoiceService } from '../../core/services/invoice-service.service';
+import { InvoiceService, Product } from '../../core/services/invoice.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -16,54 +16,60 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     templateUrl: './productos.component.html',
     styleUrl: './productos.component.scss'
 })
-export class ProductosComponent {
-    // TODO: Reactivar cuando se migren los métodos de productos al servicio nuevo
-    // private invoiceService = inject(InvoiceService);
+export class ProductosComponent implements OnInit {
+    private invoiceService = inject(InvoiceService);
     private authService = inject(AuthService);
     private confirmationService = inject(ConfirmationService);
     private messageService = inject(MessageService);
+    private router = inject(Router);
 
-    productos: any[] = [];
+    productos: Product[] = [];
     filtroGlobal: string = '';
     cargando = false;
-    seleccionados: any[] = [];
 
     columnas = [
-        { field: 'descripcion', header: 'Descripción', type: 'text', filter: true },
-        { field: 'precio', header: 'Precio', type: 'numeric', filter: true },
-        { field: 'proveedorNombre', header: 'Proveedor', type: 'text', filter: true },
-        { field: 'categoria', header: 'Categoría', type: 'text', filter: true },
-        { field: 'alergenos', header: 'Alérgenos', type: 'text', filter: true }
+        { field: 'name', header: 'Nombre', type: 'text', filter: true },
+        { field: 'eanCode', header: 'EAN', type: 'text', filter: true },
+        { field: 'category.name', header: 'Categoría', type: 'text', filter: true },
+        { field: 'unit', header: 'Unidad', type: 'text', filter: true },
+        { field: 'createdAt', header: 'Creado', type: 'date', filter: true }
     ] as const;
-    acciones = [{ icon: 'pi pi-trash', action: 'eliminar', color: 'danger', tooltip: 'Eliminar' }] as const;
+    acciones = [
+        { icon: 'pi pi-eye', action: 'ver', color: 'secondary', tooltip: 'Ver detalle' },
+        { icon: 'pi pi-trash', action: 'eliminar', color: 'danger', tooltip: 'Eliminar' }
+    ] as const;
 
-    async handleAccion(event: { action: string; row: any }) {
-        this.confirmarEliminarProducto(event.row);
+    handleAccion(event: { action: string; row: Product }) {
+        if (event.action === 'ver') {
+            this.verDetalleProducto(event.row);
+            return;
+        }
+
+        if (event.action === 'eliminar') {
+            this.confirmarEliminarProducto(event.row);
+        }
     }
 
     async ngOnInit(): Promise<void> {
         this.cargando = true;
 
-        // TODO: Reactivar cuando se implementen los métodos de productos en invoice.service.ts
-        // Métodos necesarios: getProductosInventario()
-        /* 
-        this.invoiceService.getProductosInventario().subscribe({
-            next: (productos: any) => {
+        this.invoiceService.getProducts().subscribe({
+            next: (productos: Product[]) => {
                 this.productos = productos;
                 this.cargando = false;
-                console.log(this.productos);
+                console.log('Productos cargados:', this.productos);
             },
             error: (error: any) => {
                 console.error('Error al cargar productos:', error);
                 this.cargando = false;
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'No se pudieron cargar los productos. Intenta nuevamente.',
+                    life: 4000
+                });
             }
         });
-        */
-
-        // Temporalmente: datos vacíos
-        this.productos = [];
-        this.cargando = false;
-        console.warn('⚠️ Componente de productos deshabilitado temporalmente. Necesita migración de métodos.');
     }
 
     getInputValue(event: Event): string {
@@ -80,7 +86,7 @@ export class ProductosComponent {
         return 0;
     }
 
-    confirmarEliminarProducto(producto: any) {
+    confirmarEliminarProducto(producto: Product) {
         // TODO: Reactivar cuando se implementen los métodos de productos en invoice.service.ts
         // Métodos necesarios: eliminarProductoInventario()
 
@@ -123,5 +129,9 @@ export class ProductosComponent {
             }
         });
         */
+    }
+
+    private verDetalleProducto(producto: Product) {
+        this.router.navigate(['/productos/detalle', producto.id]);
     }
 }
