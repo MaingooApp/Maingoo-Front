@@ -15,6 +15,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { FluidModule } from 'primeng/fluid';
+import { ChipModule } from 'primeng/chip';
 
 interface QuickFilter {
   id: string;
@@ -69,6 +70,7 @@ interface DocumentCard {
     IconFieldModule,
     FluidModule,
     InputIconModule,
+    ChipModule,
     DropdownModule
   ],
   providers: [MessageService],
