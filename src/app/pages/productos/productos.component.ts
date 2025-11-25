@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth-service.service';
 import { InvoiceService, Product } from '../../core/services/invoice.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
     selector: 'app-productos',
@@ -19,8 +19,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 export class ProductosComponent implements OnInit {
     private invoiceService = inject(InvoiceService);
     private authService = inject(AuthService);
-    private confirmationService = inject(ConfirmationService);
-    private messageService = inject(MessageService);
+    private toastService = inject(ToastService);
     private router = inject(Router);
 
     productos: Product[] = [];
@@ -62,12 +61,7 @@ export class ProductosComponent implements OnInit {
             error: (error: any) => {
                 console.error('Error al cargar productos:', error);
                 this.cargando = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudieron cargar los productos. Intenta nuevamente.',
-                    life: 4000
-                });
+                this.toastService.error('Error', 'No se pudieron cargar los productos. Intenta nuevamente.', 4000);
             }
         });
     }
@@ -90,40 +84,19 @@ export class ProductosComponent implements OnInit {
         // TODO: Reactivar cuando se implementen los métodos de productos en invoice.service.ts
         // Métodos necesarios: eliminarProductoInventario()
 
-        this.messageService.add({
-            severity: 'warn',
-            summary: 'Funcionalidad no disponible',
-            detail: 'Esta funcionalidad está temporalmente deshabilitada durante la migración.',
-            life: 3000
-        });
+        this.toastService.warn('Funcionalidad no disponible', 'Esta funcionalidad está temporalmente deshabilitada durante la migración.', 3000);
 
         /* 
-        this.confirmationService.confirm({
-            message: `¿Estás seguro de que deseas eliminar el producto "${producto.descripcion}"?`,
-            header: 'Confirmar eliminación',
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: 'Sí',
-            rejectLabel: 'No',
-            acceptButtonStyleClass: 'p-button-danger',
-            accept: () => {
+        this.confirmDialog.confirmDeletion(`¿Estás seguro de que deseas eliminar el producto "${producto.descripcion}"?`, {
+            onAccept: () => {
                 this.invoiceService.eliminarProductoInventario(producto.id).subscribe({
                     next: () => {
                         this.productos = this.productos.filter((p) => p.id !== producto.id);
-                        this.messageService.add({
-                            severity: 'success',
-                            summary: 'Eliminado',
-                            detail: 'Producto eliminado correctamente',
-                            life: 3000
-                        });
+                        this.toastService.success('Eliminado', 'Producto eliminado correctamente', 3000);
                     },
                     error: (error: any) => {
                         console.error('Error al eliminar producto:', error);
-                        this.messageService.add({
-                            severity: 'error',
-                            summary: 'Error',
-                            detail: 'Hubo un problema al eliminar el producto',
-                            life: 3000
-                        });
+                        this.toastService.error('Error', 'Hubo un problema al eliminar el producto', 3000);
                     }
                 });
             }

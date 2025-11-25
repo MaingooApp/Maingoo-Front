@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
 import { InvoiceService, Product } from '../../../core/services/invoice.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
     selector: 'app-product-detail',
@@ -14,17 +14,13 @@ export class ProductDetailComponent implements OnInit {
     producto: Product | null = null;
     loading = true;
 
-    constructor(private route: ActivatedRoute, private router: Router, private invoiceService: InvoiceService, private messageService: MessageService) {}
+    constructor(private route: ActivatedRoute, private router: Router, private invoiceService: InvoiceService, private toastService: ToastService) {}
 
     ngOnInit(): void {
         const productId = this.route.snapshot.paramMap.get('id');
 
         if (!productId) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se proporcionó un ID de producto válido.'
-            });
+            this.toastService.error('Error', 'No se proporcionó un ID de producto válido.');
             this.router.navigate(['/productos']);
             return;
         }
@@ -42,11 +38,7 @@ export class ProductDetailComponent implements OnInit {
             error: (error) => {
                 console.error('Error cargando producto:', error);
                 this.loading = false;
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudo cargar el producto. Intenta nuevamente.'
-                });
+                this.toastService.error('Error', 'No se pudo cargar el producto. Intenta nuevamente.');
                 this.router.navigate(['/productos']);
             }
         });

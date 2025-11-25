@@ -6,8 +6,9 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { SupplierService, Supplier } from '../../core/services/supplier.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
+import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
     selector: 'app-proveedores',
@@ -39,8 +40,8 @@ export class SupplierComponent {
     ] as const;
 
     constructor(
-        private confirmationService: ConfirmationService,
-        private messageService: MessageService
+        private confirmDialog: ConfirmDialogService,
+        private toastService: ToastService
     ) {}
 
     async ngOnInit() {
@@ -62,14 +63,10 @@ export class SupplierComponent {
     }
 
     confirmarEliminarProveedor(prov: Supplier) {
-        this.confirmationService.confirm({
-            message: `¿Estás seguro de eliminar al proveedor "${prov.name}"?`,
-            header: 'Confirmar eliminación',
-            icon: 'pi pi-exclamation-triangle',
+        this.confirmDialog.confirmDeletion(`¿Estás seguro de eliminar al proveedor "${prov.name}"?`, {
             acceptLabel: 'Sí, eliminar',
             rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-danger',
-            accept: () => {
+            onAccept: () => {
                 this.eliminarProveedor(prov.id!);
             }
         });
@@ -79,11 +76,11 @@ export class SupplierComponent {
         this.supplierService.deleteSupplier(id).subscribe({
             next: () => {
                 this.supplier = this.supplier.filter((p) => p.id !== id);
-                this.messageService.add({ severity: 'success', summary: 'Proveedor eliminado' });
+                this.toastService.success('Proveedor eliminado');
             },
             error: (err) => {
                 console.error(err);
-                this.messageService.add({ severity: 'error', summary: 'Error al eliminar' });
+                this.toastService.error('Error al eliminar');
             }
         });
     }
