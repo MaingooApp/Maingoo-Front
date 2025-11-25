@@ -11,7 +11,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
 import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
-import { MessageService } from 'primeng/api';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
     selector: 'app-invoice-detail',
@@ -34,18 +34,14 @@ export class InvoiceDetailComponent implements OnInit {
         private router: Router,
         private sanitizer: DomSanitizer,
         private invoiceService: InvoiceService,
-        private messageService: MessageService
+        private toastService: ToastService
     ) {}
 
     ngOnInit() {
         const facturaId = this.route.snapshot.paramMap.get('id');
 
         if (!facturaId) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se proporcionó un ID de factura válido.'
-            });
+            this.toastService.error('Error', 'No se proporcionó un ID de factura válido.');
             this.router.navigate(['/facturas']);
             return;
         }
@@ -71,11 +67,7 @@ export class InvoiceDetailComponent implements OnInit {
             },
             error: (error: any) => {
                 console.error('Error cargando la factura:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudo cargar la factura. Por favor, intenta nuevamente.'
-                });
+                this.toastService.error('Error', 'No se pudo cargar la factura. Por favor, intenta nuevamente.');
                 this.loading = false;
                 this.router.navigate(['/facturas']);
             }
@@ -88,11 +80,7 @@ export class InvoiceDetailComponent implements OnInit {
 
     descargarDocumentoOriginal() {
         if (!this.factura?.id) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se puede descargar el documento.'
-            });
+            this.toastService.error('Error', 'No se puede descargar el documento.');
             return;
         }
 
@@ -113,20 +101,12 @@ export class InvoiceDetailComponent implements OnInit {
                 // Descargar el archivo
                 this.downloadFile(response.url, response.blobName);
 
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Éxito',
-                    detail: 'Documento descargado correctamente.'
-                });
+                this.toastService.success('Éxito', 'Documento descargado correctamente.');
                 this.downloadingDocument = false;
             },
             error: (error: any) => {
                 console.error('Error descargando documento:', error);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'No se pudo descargar el documento. Por favor, intenta nuevamente.'
-                });
+                this.toastService.error('Error', 'No se pudo descargar el documento. Por favor, intenta nuevamente.');
                 this.downloadingDocument = false;
             }
         });
