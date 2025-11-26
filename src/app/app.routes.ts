@@ -1,8 +1,7 @@
 import { Routes } from '@angular/router';
 import { roleGuard } from './core/guard/role-guard.guard';
 import { AppLayout } from './layout/component/app.layout';
-import { Dashboard } from './features/dashboard/dashboard';
-import { Landing } from './features/landing/landing';
+import { Dashboard } from './features/dashboard/dashboard.component';
 import { Notfound } from './features/notfound/notfound';
 import { SupplierComponent } from './features/supplier/supplier.component';
 import { DocGeneratorComponent } from './features/doc-generator/doc-generator.component';
@@ -24,7 +23,6 @@ export const appRoutes: Routes = [
         ],
         canActivate: [roleGuard(['ADMIN', 'admin', 'USER'])]
     },
-    { path: 'landing', component: Landing },
     { path: 'notfound', component: Notfound },
     { path: 'auth', loadChildren: () => import('./features/auth/auth.routes') },
     { path: '**', redirectTo: '/notfound' }

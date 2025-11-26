@@ -14,43 +14,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { ToastService } from '../../shared/services/toast.service';
-
-interface QuickFilter {
-    id: string;
-    label: string;
-    icon: string;
-    count: number;
-    active: boolean;
-    color: 'success' | 'info' | 'danger' | 'secondary';
-}
-
-interface TemperatureRecord {
-    id: number;
-    cameraName: string;
-    temperature: number;
-    timestamp: Date;
-    status: 'ok' | 'warning' | 'critical';
-}
-
-interface Camera {
-    id?: number;
-    name: string;
-    type: 'positive' | 'negative';
-    lastTemp?: number;
-    lastCheck?: Date;
-}
-
-interface Fryer {
-    name: string;
-    capacity: string;
-}
-
-interface DocumentCard {
-    id: string;
-    title: string;
-    tags: string[];
-    type: 'temperature' | 'oil' | 'payroll' | 'other';
-}
+import { Camera, DocumentCard, Fryer, QuickFilter } from './interfaces/doc-generator.interface';
 
 @Component({
     selector: 'app-doc-generator',
