@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
-import { RegisterComponent } from './register/register.component';
-import { Login } from './login/login.component';
-
+import { Login } from './pages/login/login.component';
+import { RegisterComponent } from './pages/register/register.component';
 
 const authRoutes: Routes = [
-    {path: '', redirectTo: 'login', pathMatch: 'full'},
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: 'login', component: Login },
     { path: 'register', component: RegisterComponent },
-    {path: '**', redirectTo: 'login'},
+    { path: '**', redirectTo: 'login' }
 ];
 
 export default authRoutes;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Confirmation, ConfirmationService } from 'primeng/api';
-import { ConfirmDialogOptions } from '../../core/interfaces/Confirm-dialog-options.interface';
+import { ConfirmDialogOptions } from '../interfaces/confirm-dialog-options.interface';
 
 @Injectable({ providedIn: 'root' })
 export class ConfirmDialogService {

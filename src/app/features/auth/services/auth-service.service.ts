@@ -1,38 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap, map } from 'rxjs';
-import { BaseHttpService } from './base-http.service';
-import { environment } from '../../../environments/environment';
+import { BaseHttpService } from '../../../core/services/base-http.service';
+import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-
-export interface User {
-    id: string;
-    email: string;
-    name: string;
-    roleId: string;
-    roleName: string;
-    enterpriseId: string;
-    phonePrefix: string | null;
-    phoneNumber: string | null;
-    emailFluvia: string | null;
-    createdAt: string;
-}
-
-export interface AuthTokens {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: string;
-    refreshExpiresIn: string;
-}
-
-export interface LoginResponse {
-    user: User;
-    tokens: AuthTokens;
-}
-
-export interface RegisterResponse {
-    user: User;
-    tokens: AuthTokens;
-}
+import { AuthTokens, LoginResponse, RegisterResponse, User } from '../interfaces/auth.interface';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService extends BaseHttpService {

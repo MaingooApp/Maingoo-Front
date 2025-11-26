@@ -4,8 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { AuthService } from '../../../core/services/auth-service.service';
-import { AppFloatingConfigurator } from '../../../layout/component/app.floatingconfigurator';
+import { AppFloatingConfigurator } from '../../../../layout/component/app.floatingconfigurator';
+import { AuthService } from '../../services/auth-service.service';
 
 @Component({
     selector: 'app-register',

@@ -14,7 +14,7 @@ import { AppConfigurator } from '../app.configurator';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../../service/layout.service';
 // - AuthService: servicio de autenticación que expone métodos como logout()
-import { AuthService } from '../../../core/services/auth-service.service';
+import { AuthService } from '../../../features/auth/services/auth-service.service';
 
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
@@ -27,7 +27,6 @@ import { AuthService } from '../../../core/services/auth-service.service';
     // Template externo: se usa un archivo HTML separado para mejor organización
     templateUrl: './app.topbar.html'
 })
-
 export class AppTopbar {
     // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
     items!: MenuItem[];
@@ -36,7 +35,11 @@ export class AppTopbar {
     // - layoutService: controla el estado del layout (sidebar abierto, tema, etc.)
     // - authService: provee métodos de autenticación, p.ej. logout()
     // - router: para navegar programáticamente (después del logout se redirige al login)
-    constructor(public layoutService: LayoutService, private authService: AuthService, private router: Router) {}
+    constructor(
+        public layoutService: LayoutService,
+        private authService: AuthService,
+        private router: Router
+    ) {}
 
     // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
     // Usa una función de actualización inmutable sobre layoutService.layoutConfig
