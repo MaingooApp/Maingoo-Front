@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { Crud } from './crud/crud';
-import { Empty } from './empty/empty';
+import { Empty } from '../shared/components/empty/empty';
+import { Crud } from '../shared/components/crud/crud';
 
 export default [
     { path: 'crud', component: Crud },
