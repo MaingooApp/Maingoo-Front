@@ -16,8 +16,8 @@ import { RippleModule } from 'primeng/ripple';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { TagModule } from 'primeng/tag';
-import { Customer, CustomerService, Representative } from '../service/customer.service';
-import { Product, ProductService } from '../service/product.service';
+import { Customer, CustomerService, Representative } from '../../services/customer.service';
+import { Product, ProductService } from '../../services/product.service';
 
 interface expandedRows {
     [key: string]: boolean;
