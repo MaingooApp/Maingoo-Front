@@ -17,7 +17,7 @@ export const appRoutes: Routes = [
             { path: 'pages', loadChildren: () => import('./features/pages.routes') },
             { path: 'facturas', loadChildren: () => import('./features/invoices/invoice.routes') },
             { path: 'proveedores', component: SupplierComponent },
-            { path: 'productos', loadChildren: () => import('./features/productos/product.routes') },
+            { path: 'productos', loadChildren: () => import('./features/products/product.routes') },
             { path: 'docgenerator', component: DocGeneratorComponent },
             { path: 'miperfil', component: MyProfileComponent }
         ],
