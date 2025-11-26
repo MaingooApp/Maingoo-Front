@@ -1,7 +1,7 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, throwError, BehaviorSubject, filter, take, switchMap, catchError } from 'rxjs';
-import { AuthService } from '../services/auth-service.service';
+import { AuthService } from '../../features/auth/services/auth-service.service';
 import { Router } from '@angular/router';
 
 let isRefreshing = false;

@@ -9,7 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
 import { FluidModule } from 'primeng/fluid';
 import { EnterpriseService, Enterprise, EnterpriseType } from '../../core/services/enterprise.service';
-import { AuthService } from '../../core/services/auth-service.service';
+import { AuthService } from '../auth/services/auth-service.service';
 
 @Component({
     selector: 'app-my-profile',
