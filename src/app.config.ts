@@ -4,6 +4,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeng/themes/aura';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService } from 'primeng/dynamicdialog';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
 import { httpErrorInterceptor } from './app/core/interceptors/http-error.interceptor';
@@ -35,6 +36,7 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),
         ConfirmationService,
         MessageService,
+        DialogService,
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
             registrationStrategy: 'registerWhenStable:30000'
