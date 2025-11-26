@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BaseHttpService } from './base-http.service';
+import { BaseHttpService } from '../../../core/services/base-http.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Servicio para gestionar empresas/negocios

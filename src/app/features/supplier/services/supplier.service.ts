@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BaseHttpService } from './base-http.service';
-import { environment } from '../../../environments/environment';
+import { BaseHttpService } from '../../../core/services/base-http.service';
+import { environment } from '../../../../environments/environment';
 
 export interface Supplier {
     id?: string;

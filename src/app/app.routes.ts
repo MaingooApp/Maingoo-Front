@@ -5,7 +5,7 @@ import { Dashboard } from './features/dashboard/dashboard.component';
 import { Notfound } from './shared/components/notfound/notfound';
 import { SupplierComponent } from './features/supplier/supplier.component';
 import { DocGeneratorComponent } from './features/doc-generator/doc-generator.component';
-import { MyProfileComponent } from './features/my-profile/my-profile.component';
+import { MyProfileComponent } from './features/enterprise/pages/profile/my-profile.component';
 
 export const appRoutes: Routes = [
     {
