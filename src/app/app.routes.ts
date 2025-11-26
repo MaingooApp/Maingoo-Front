@@ -15,7 +15,7 @@ export const appRoutes: Routes = [
             { path: '', component: Dashboard },
             { path: 'uikit', loadChildren: () => import('./features/uikit/uikit.routes') },
             { path: 'pages', loadChildren: () => import('./features/pages.routes') },
-            { path: 'facturas', loadChildren: () => import('./features/facturas/invoice.routes') },
+            { path: 'facturas', loadChildren: () => import('./features/invoices/invoice.routes') },
             { path: 'proveedores', component: SupplierComponent },
             { path: 'productos', loadChildren: () => import('./features/productos/product.routes') },
             { path: 'docgenerator', component: DocGeneratorComponent },
