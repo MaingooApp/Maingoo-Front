@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { ProductosComponent } from './productos.component';
-import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { ProductosComponent } from './pages/list/productos.component';
+import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
 
 const productRoutes: Routes = [
     { path: '', component: ProductosComponent },
