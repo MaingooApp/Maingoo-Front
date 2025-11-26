@@ -27,12 +27,7 @@
             <!-- Tipo de empresa -->
             <div class="flex flex-col gap-2">
                 <label for="type">Tipo de empresa *</label>
-                <select id="type" formControlName="type" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="RESTAURANT">Restaurante</option>
-                    <option value="CATERING">Catering</option>
-                    <option value="HOTEL">Hotel</option>
-                    <option value="OTHER">Otro</option>
-                </select>
+                <p-select id="type" formControlName="type" [options]="tiposEmpresa" optionLabel="label" optionValue="value" placeholder="Selecciona un tipo" class="w-full scroll" />
             </div>
 
             <!-- Dirección -->

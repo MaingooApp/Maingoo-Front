@@ -8,19 +8,37 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
 import { FluidModule } from 'primeng/fluid';
+import { SelectModule } from 'primeng/select';
 import { EnterpriseService, Enterprise, EnterpriseType } from '../../core/services/enterprise.service';
 import { AuthService } from '../../core/services/auth-service.service';
 
 @Component({
     selector: 'app-my-profile',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputMaskModule, ButtonModule, CardModule, FluidModule],
+    imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputMaskModule, ButtonModule, CardModule, FluidModule, SelectModule],
     templateUrl: './my-profile.component.html',
     styleUrl: './my-profile.component.scss'
 })
 export class MyProfileComponent {
     perfilForm!: FormGroup;
     currentEnterprise?: Enterprise;
+
+    tiposEmpresa = [
+        { label: 'Bar', value: 'bar' },
+        { label: 'Restaurante', value: 'restaurante' },
+        { label: 'Cafetería', value: 'cafeteria' },
+        { label: 'Buffet', value: 'buffet' },
+        { label: 'Cocktelería', value: 'cockteleria' },
+        { label: 'Catering', value: 'catering' },
+        { label: 'Cervecería', value: 'cerveceria' },
+        { label: 'Foodtruck', value: 'foodtruck' },
+        { label: 'Chiringuito', value: 'chiringuito' },
+        { label: 'Heladería', value: 'heladeria' },
+        { label: 'Panadería', value: 'panaderia' },
+        { label: 'Pizzería', value: 'pizzeria' },
+        { label: 'Hamburguesería', value: 'hamburgueseria' },
+        { label: 'Otro', value: 'otro' }
+    ];
 
     constructor(
         private fb: FormBuilder,
