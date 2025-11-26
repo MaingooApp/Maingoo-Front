@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { InvoiceService, Product } from '../../../core/services/invoice.service';
+import { InvoiceService, Product } from '../../invoices/services/invoice.service';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({

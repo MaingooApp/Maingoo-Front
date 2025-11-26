@@ -8,7 +8,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ConvertNumbers } from '../../../../shared/helpers/numbers';
-import { Invoice, InvoiceService } from '../../../../core/services/invoice.service';
+import { Invoice, InvoiceService } from '../../services/invoice.service';
 import { TablaDinamicaComponent } from '../../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { DialogModule } from 'primeng/dialog';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
