@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InvoiceService, Product } from '../../../core/services/invoice.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-product-detail',
@@ -14,7 +14,12 @@ export class ProductDetailComponent implements OnInit {
     producto: Product | null = null;
     loading = true;
 
-    constructor(private route: ActivatedRoute, private router: Router, private invoiceService: InvoiceService, private toastService: ToastService) {}
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private invoiceService: InvoiceService,
+        private toastService: ToastService
+    ) {}
 
     ngOnInit(): void {
         const productId = this.route.snapshot.paramMap.get('id');

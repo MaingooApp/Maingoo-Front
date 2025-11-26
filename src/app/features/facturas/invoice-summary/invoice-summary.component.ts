@@ -16,8 +16,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { AnalysisDocument, DocumentAnalysisService } from '../../../core/services/document-analysis.service';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
 import { CreateSupplierDto, SupplierService } from '../../../core/services/supplier.service';
-import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-invoice-summary',

@@ -13,7 +13,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
-import { ToastService } from '../../core/services/toast.service';
+import { ToastService } from '../../shared/services/toast.service';
 
 interface QuickFilter {
     id: string;

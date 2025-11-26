@@ -7,8 +7,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
 import { SupplierService, Supplier } from '../../core/services/supplier.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
-import { ConfirmDialogService } from '../../core/services/confirm-dialog.service';
-import { ToastService } from '../../core/services/toast.service';
+import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
     selector: 'app-proveedores',
