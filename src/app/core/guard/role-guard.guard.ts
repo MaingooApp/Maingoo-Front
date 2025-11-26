@@ -1,7 +1,7 @@
 // role.guard.ts
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth-service.service';
+import { AuthService } from '../../features/auth/services/auth-service.service';
 import { map, take } from 'rxjs/operators';
 
 export const roleGuard = (requiredRole: string[]): CanActivateFn => {
