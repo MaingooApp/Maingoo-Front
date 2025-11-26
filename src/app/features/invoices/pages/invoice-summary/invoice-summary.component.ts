@@ -7,17 +7,17 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { ConvertNumbers } from '../../../shared/helpers/numbers';
-import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
-import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamica/tabla-dinamica.component';
+import { ConvertNumbers } from '../../../../shared/helpers/numbers';
+import { Invoice, InvoiceService } from '../../../../core/services/invoice.service';
+import { TablaDinamicaComponent } from '../../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { DialogModule } from 'primeng/dialog';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
-import { AnalysisDocument, DocumentAnalysisService } from '../../../core/services/document-analysis.service';
+import { AnalysisDocument, DocumentAnalysisService } from '../../../../core/services/document-analysis.service';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
-import { CreateSupplierDto, SupplierService } from '../../../core/services/supplier.service';
-import { ConfirmDialogService } from '../../../shared/services/confirm-dialog.service';
-import { ToastService } from '../../../shared/services/toast.service';
+import { CreateSupplierDto, SupplierService } from '../../../../core/services/supplier.service';
+import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog.service';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-invoice-summary',
