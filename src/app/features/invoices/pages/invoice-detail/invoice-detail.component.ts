@@ -10,7 +10,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
-import { Invoice, InvoiceService } from '../../../../core/services/invoice.service';
+import { Invoice, InvoiceService } from '../../services/invoice.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
