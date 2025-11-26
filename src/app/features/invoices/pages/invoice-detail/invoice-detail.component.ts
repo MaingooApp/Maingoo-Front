@@ -3,15 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { ConvertNumbers } from '../../../shared/helpers/numbers';
+import { ConvertNumbers } from '../../../../shared/helpers/numbers';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
-import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
-import { ToastService } from '../../../shared/services/toast.service';
+import { Invoice, InvoiceService } from '../../../../core/services/invoice.service';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-invoice-detail',
