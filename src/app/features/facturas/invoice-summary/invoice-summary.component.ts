@@ -7,7 +7,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { ConvertNumbers } from '../../../core/helpers/numbers';
+import { ConvertNumbers } from '../../../shared/helpers/numbers';
 import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
 import { TablaDinamicaComponent } from '../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { DialogModule } from 'primeng/dialog';
@@ -45,7 +45,7 @@ export class InvoiceSummaryComponent implements OnInit {
     mostrarInputCorreo = false;
     correoDestino = '';
     exportando = false;
-     currentDocument: AnalysisDocument | null = null;
+    currentDocument: AnalysisDocument | null = null;
     currentInvoice: Invoice | null = null;
     msg: string = '';
     cargando = false;
@@ -141,7 +141,7 @@ export class InvoiceSummaryComponent implements OnInit {
         });
     }
 
-private startPollingDocumentStatus(documentId: string) {
+    private startPollingDocumentStatus(documentId: string) {
         this.msg = 'Analizando documento con IA...';
 
         this.pollingSubscription = interval(3000)
