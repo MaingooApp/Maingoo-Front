@@ -11,7 +11,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { DialogModule } from 'primeng/dialog';
 import { Invoice, InvoiceService } from '../../../core/services/invoice.service';
-import { ToastService } from '../../../core/services/toast.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
     selector: 'app-invoice-detail',
