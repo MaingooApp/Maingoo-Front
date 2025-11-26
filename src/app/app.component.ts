@@ -1,12 +1,12 @@
 import { HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ToastModule } from 'primeng/toast';
-import packageJson from '../package.json';
-import { LanguageService } from './app/core/services/language.service';
-import { TranslateService } from '@ngx-translate/core';
+import packageJson from '../../package.json';
+import { LanguageService } from './core/services/language.service';
 
 @Component({
     selector: 'app-root',
@@ -15,9 +15,16 @@ import { TranslateService } from '@ngx-translate/core';
     templateUrl: './app.component.html'
 })
 export class AppComponent {
-    constructor(private lang: LanguageService, private t: TranslateService) {
+    constructor(
+        private lang: LanguageService,
+        private t: TranslateService
+    ) {
         console.warn('Version:', packageJson.version);
     }
-    get cur() { return this.lang.current(); }
-    set(code: 'es'|'en') { this.lang.use(code); }
+    get cur() {
+        return this.lang.current();
+    }
+    set(code: 'es' | 'en') {
+        this.lang.use(code);
+    }
 }
