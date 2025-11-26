@@ -9,46 +9,8 @@ import { LayoutService } from '../../layout/service/layout.service';
     selector: 'app-chart-demo',
     standalone: true,
     imports: [CommonModule, ChartModule, FluidModule],
-    template: `
-        <p-fluid class="grid grid-cols-12 gap-8">
-            <div class="col-span-12 xl:col-span-6">
-                <div class="card">
-                    <div class="font-semibold text-xl mb-4">Linear</div>
-                    <p-chart type="line" [data]="lineData" [options]="lineOptions"></p-chart>
-                </div>
-            </div>
-            <div class="col-span-12 xl:col-span-6">
-                <div class="card">
-                    <div class="font-semibold text-xl mb-4">Bar</div>
-                    <p-chart type="bar" [data]="barData" [options]="barOptions"></p-chart>
-                </div>
-            </div>
-            <div class="col-span-12 xl:col-span-6">
-                <div class="card flex flex-col items-center">
-                    <div class="font-semibold text-xl mb-4">Pie</div>
-                    <p-chart type="pie" [data]="pieData" [options]="pieOptions"></p-chart>
-                </div>
-            </div>
-            <div class="col-span-12 xl:col-span-6">
-                <div class="card flex flex-col items-center">
-                    <div class="font-semibold text-xl mb-4">Doughnut</div>
-                    <p-chart type="doughnut" [data]="pieData" [options]="pieOptions"></p-chart>
-                </div>
-            </div>
-            <div class="col-span-12 xl:col-span-6">
-                <div class="card flex flex-col items-center">
-                    <div class="font-semibold text-xl mb-4">Polar Area</div>
-                    <p-chart type="polarArea" [data]="polarData" [options]="polarOptions"></p-chart>
-                </div>
-            </div>
-            <div class="col-span-12 xl:col-span-6">
-                <div class="card flex flex-col items-center">
-                    <div class="font-semibold text-xl mb-4">Radar</div>
-                    <p-chart type="radar" [data]="radarData" [options]="radarOptions"></p-chart>
-                </div>
-            </div>
-        </p-fluid>
-    `
+    templateUrl: './chartdemo.html',
+    styleUrls: ['./chartdemo.scss']
 })
 export class ChartDemo {
     lineData: any;

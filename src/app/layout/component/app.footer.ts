@@ -3,8 +3,7 @@ import { Component } from '@angular/core';
 @Component({
     standalone: true,
     selector: 'app-footer',
-    template: `<div class="layout-footer">
-        OmniAI
-    </div>`
+    templateUrl: './app.footer.html',
+    styleUrls: ['./app.footer.scss']
 })
 export class AppFooter {}
