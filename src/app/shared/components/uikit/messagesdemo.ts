@@ -8,35 +8,35 @@ import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-    selector: 'app-messages-demo',
-    standalone: true,
-    imports: [CommonModule, ToastModule, ButtonModule, InputTextModule, MessageModule, FormsModule],
-    templateUrl: './messagesdemo.html',
-    styleUrls: ['./messagesdemo.scss'],
-    providers: [MessageService]
+  selector: 'app-messages-demo',
+  standalone: true,
+  imports: [CommonModule, ToastModule, ButtonModule, InputTextModule, MessageModule, FormsModule],
+  templateUrl: './messagesdemo.html',
+  styleUrls: ['./messagesdemo.scss'],
+  providers: [MessageService]
 })
 export class MessagesDemo {
-    msgs: ToastMessageOptions[] | null = [];
+  msgs: ToastMessageOptions[] | null = [];
 
-    username: string | undefined;
+  username: string | undefined;
 
-    email: string | undefined;
+  email: string | undefined;
 
-    constructor(private service: MessageService) {}
+  constructor(private service: MessageService) {}
 
-    showInfoViaToast() {
-        this.service.add({ severity: 'info', summary: 'Info Message', detail: 'PrimeNG rocks' });
-    }
+  showInfoViaToast() {
+    this.service.add({ severity: 'info', summary: 'Info Message', detail: 'PrimeNG rocks' });
+  }
 
-    showWarnViaToast() {
-        this.service.add({ severity: 'warn', summary: 'Warn Message', detail: 'There are unsaved changes' });
-    }
+  showWarnViaToast() {
+    this.service.add({ severity: 'warn', summary: 'Warn Message', detail: 'There are unsaved changes' });
+  }
 
-    showErrorViaToast() {
-        this.service.add({ severity: 'error', summary: 'Error Message', detail: 'Validation failed' });
-    }
+  showErrorViaToast() {
+    this.service.add({ severity: 'error', summary: 'Error Message', detail: 'Validation failed' });
+  }
 
-    showSuccessViaToast() {
-        this.service.add({ severity: 'success', summary: 'Success Message', detail: 'Message sent' });
-    }
+  showSuccessViaToast() {
+    this.service.add({ severity: 'success', summary: 'Success Message', detail: 'Message sent' });
+  }
 }

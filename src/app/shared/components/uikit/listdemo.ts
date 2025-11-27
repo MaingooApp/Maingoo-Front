@@ -10,74 +10,83 @@ import { TagModule } from 'primeng/tag';
 import { Product, ProductService } from '../../services/product.service';
 
 @Component({
-    selector: 'app-list-demo',
-    standalone: true,
-    imports: [CommonModule, DataViewModule, FormsModule, SelectButtonModule, PickListModule, OrderListModule, TagModule, ButtonModule],
-    templateUrl: './listdemo.html',
-    styleUrls: ['./listdemo.scss'],
-    styles: `
-        ::ng-deep {
-            .p-orderlist-list-container {
-                width: 100%;
-            }
-        }
-    `,
-    providers: [ProductService]
+  selector: 'app-list-demo',
+  standalone: true,
+  imports: [
+    CommonModule,
+    DataViewModule,
+    FormsModule,
+    SelectButtonModule,
+    PickListModule,
+    OrderListModule,
+    TagModule,
+    ButtonModule
+  ],
+  templateUrl: './listdemo.html',
+  styleUrls: ['./listdemo.scss'],
+  styles: `
+    ::ng-deep {
+      .p-orderlist-list-container {
+        width: 100%;
+      }
+    }
+  `,
+  providers: [ProductService]
 })
 export class ListDemo {
-    layout: 'list' | 'grid' = 'list';
+  layout: 'list' | 'grid' = 'list';
 
-    options = ['list', 'grid'];
+  options = ['list', 'grid'];
 
-    products: Product[] = [];
+  products: Product[] = [];
 
-    sourceCities: any[] = [];
+  sourceCities: any[] = [];
 
-    targetCities: any[] = [];
+  targetCities: any[] = [];
 
-    orderCities: any[] = [];
+  orderCities: any[] = [];
 
-    constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService) {}
 
-    ngOnInit() {
-        this.productService.getProductsSmall().then((data) => (this.products = data.slice(0, 6)));
+  ngOnInit() {
+    this.productService.getProductsSmall().then((data) => (this.products = data.slice(0, 6)));
 
-        this.sourceCities = [
-            { name: 'San Francisco', code: 'SF' },
-            { name: 'London', code: 'LDN' },
-            { name: 'Paris', code: 'PRS' },
-            { name: 'Istanbul', code: 'IST' },
-            { name: 'Berlin', code: 'BRL' },
-            { name: 'Barcelona', code: 'BRC' },
-            { name: 'Rome', code: 'RM' }
-        ];
+    this.sourceCities = [
+      { name: 'San Francisco', code: 'SF' },
+      { name: 'London', code: 'LDN' },
+      { name: 'Paris', code: 'PRS' },
+      { name: 'Istanbul', code: 'IST' },
+      { name: 'Berlin', code: 'BRL' },
+      { name: 'Barcelona', code: 'BRC' },
+      { name: 'Rome', code: 'RM' }
+    ];
 
-        this.targetCities = [];
+    this.targetCities = [];
 
-        this.orderCities = [
-            { name: 'San Francisco', code: 'SF' },
-            { name: 'London', code: 'LDN' },
-            { name: 'Paris', code: 'PRS' },
-            { name: 'Istanbul', code: 'IST' },
-            { name: 'Berlin', code: 'BRL' },
-            { name: 'Barcelona', code: 'BRC' },
-            { name: 'Rome', code: 'RM' }
-        ];
+    this.orderCities = [
+      { name: 'San Francisco', code: 'SF' },
+      { name: 'London', code: 'LDN' },
+      { name: 'Paris', code: 'PRS' },
+      { name: 'Istanbul', code: 'IST' },
+      { name: 'Berlin', code: 'BRL' },
+      { name: 'Barcelona', code: 'BRC' },
+      { name: 'Rome', code: 'RM' }
+    ];
+  }
+
+  getSeverity(product: Product) {
+    switch (product.inventoryStatus) {
+      case 'INSTOCK':
+        return 'success';
+
+      case 'LOWSTOCK':
+        return 'warn';
+
+      case 'OUTOFSTOCK':
+        return 'danger';
+
+      default:
+        return 'info';
     }
-
-    getSeverity(product: Product) {
-        switch (product.inventoryStatus) {
-            case 'INSTOCK':
-                return 'success';
-
-            case 'LOWSTOCK':
-                return 'warn';
-
-            case 'OUTOFSTOCK':
-                return 'danger';
-
-            default:
-                return 'info';
-        }
-    }
+  }
 }

@@ -10,54 +10,64 @@ import { AppFloatingConfigurator } from '../../../../layout/component/app.floati
 import { AuthService } from '../../services/auth-service.service';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, ReactiveFormsModule],
-    templateUrl: './login.component.html'
+  selector: 'app-login',
+  standalone: true,
+  imports: [
+    ButtonModule,
+    CheckboxModule,
+    InputTextModule,
+    PasswordModule,
+    FormsModule,
+    RouterModule,
+    RippleModule,
+    AppFloatingConfigurator,
+    ReactiveFormsModule
+  ],
+  templateUrl: './login.component.html'
 })
 export class Login {
-    loginForm!: FormGroup;
-    cargando = false;
-    checked = false;
+  loginForm!: FormGroup;
+  cargando = false;
+  checked = false;
 
-    constructor(
-        private fb: FormBuilder,
-        private authService: AuthService,
-        private router: Router
-    ) {}
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-    ngOnInit(): void {
-        this.loginForm = this.fb.group({
-            email: ['', [Validators.required, Validators.email]],
-            password: ['', Validators.required],
-            rememberMe: [false]
-        });
-    }
+  ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      rememberMe: [false]
+    });
+  }
 
-    async onSubmit() {
-        console.log(this.loginForm.value);
+  async onSubmit() {
+    console.log(this.loginForm.value);
 
-        if (this.loginForm.invalid) return;
-        this.cargando = true;
+    if (this.loginForm.invalid) return;
+    this.cargando = true;
 
-        const { email, password } = this.loginForm.value;
+    const { email, password } = this.loginForm.value;
 
-        this.authService.login(email, password).subscribe({
-            next: (response) => {
-                console.log('Login exitoso:', response);
-                // Redirigir según el rol
-                if (response.user.roleName === 'admin') {
-                    this.router.navigate(['/']);
-                } else {
-                    this.router.navigate(['/']);
-                }
-                this.cargando = false;
-            },
-            error: (error) => {
-                console.error('Error al iniciar sesión:', error);
-                alert('Error al iniciar sesión. Verifica tus credenciales.');
-                this.cargando = false;
-            }
-        });
-    }
+    this.authService.login(email, password).subscribe({
+      next: (response) => {
+        console.log('Login exitoso:', response);
+        // Redirigir según el rol
+        if (response.user.roleName === 'admin') {
+          this.router.navigate(['/']);
+        } else {
+          this.router.navigate(['/']);
+        }
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al iniciar sesión:', error);
+        alert('Error al iniciar sesión. Verifica tus credenciales.');
+        this.cargando = false;
+      }
+    });
+  }
 }

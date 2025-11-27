@@ -6,19 +6,19 @@ import { CommonModule } from '@angular/common';
 import { Product, ProductService } from '../../../shared/services/product.service';
 
 @Component({
-    standalone: true,
-    selector: 'app-recent-sales-widget',
-    imports: [CommonModule, TableModule, ButtonModule, RippleModule],
-    templateUrl: './recentsaleswidget.html',
-    styleUrls: ['./recentsaleswidget.scss'],
-    providers: [ProductService]
+  standalone: true,
+  selector: 'app-recent-sales-widget',
+  imports: [CommonModule, TableModule, ButtonModule, RippleModule],
+  templateUrl: './recentsaleswidget.html',
+  styleUrls: ['./recentsaleswidget.scss'],
+  providers: [ProductService]
 })
 export class RecentSalesWidget {
-    products!: Product[];
+  products!: Product[];
 
-    constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService) {}
 
-    ngOnInit() {
-        this.productService.getProductsSmall().then((data) => (this.products = data));
-    }
+  ngOnInit() {
+    this.productService.getProductsSmall().then((data) => (this.products = data));
+  }
 }
