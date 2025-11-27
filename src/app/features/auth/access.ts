@@ -5,10 +5,10 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 
 @Component({
-    selector: 'app-access',
-    standalone: true,
-    imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule],
-    templateUrl: './access.html',
-    styleUrls: ['./access.scss']
+  selector: 'app-access',
+  standalone: true,
+  imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule],
+  templateUrl: './access.html',
+  styleUrls: ['./access.scss']
 })
 export class Access {}

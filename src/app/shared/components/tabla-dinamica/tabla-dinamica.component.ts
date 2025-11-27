@@ -56,7 +56,6 @@ export class TablaDinamicaComponent {
 
   @Output() actionClick = new EventEmitter<{ action: string; row: any }>();
 
-
   onActionClick(action: string, row: any) {
     this.actionClick.emit({ action, row });
   }
@@ -77,25 +76,25 @@ export class TablaDinamicaComponent {
 
   exportarComoPdf() {
     const doc = new jsPDF();
-  
-    const headers = this.columns.map(col => col.header);
+
+    const headers = this.columns.map((col) => col.header);
     const source = this.dt.filteredValue ?? this.data;
-  
-    const rows = source.map(row =>
-      this.columns.map(col => {
+
+    const rows = source.map((row) =>
+      this.columns.map((col) => {
         const value = this.getNestedValue(row, col.field);
-    
+
         if (col.type === 'numeric') return this.convertToDecimal(value);
         if (col.type === 'date' && value instanceof Date) return value.toLocaleString();
         return value ?? '';
       })
     );
-  
+
     autoTable(doc, {
       head: [headers],
       body: rows
     });
-  
+
     doc.save(`${this.exportFilename}.pdf`);
   }
 

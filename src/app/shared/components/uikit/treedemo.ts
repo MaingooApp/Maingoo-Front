@@ -7,41 +7,41 @@ import { CommonModule } from '@angular/common';
 import { NodeService } from '../../services/node.service';
 
 @Component({
-    selector: 'app-tree-demo',
-    standalone: true,
-    imports: [CommonModule, FormsModule, TreeModule, TreeTableModule],
-    templateUrl: './treedemo.html',
-    styleUrls: ['./treedemo.scss'],
-    providers: [NodeService]
+  selector: 'app-tree-demo',
+  standalone: true,
+  imports: [CommonModule, FormsModule, TreeModule, TreeTableModule],
+  templateUrl: './treedemo.html',
+  styleUrls: ['./treedemo.scss'],
+  providers: [NodeService]
 })
 export class TreeDemo implements OnInit {
-    treeValue: TreeNode[] = [];
+  treeValue: TreeNode[] = [];
 
-    treeTableValue: TreeNode[] = [];
+  treeTableValue: TreeNode[] = [];
 
-    selectedTreeValue: TreeNode[] = [];
+  selectedTreeValue: TreeNode[] = [];
 
-    selectedTreeTableValue = {};
+  selectedTreeTableValue = {};
 
-    cols: any[] = [];
+  cols: any[] = [];
 
-    nodeService = inject(NodeService);
+  nodeService = inject(NodeService);
 
-    ngOnInit() {
-        this.nodeService.getFiles().then((files) => (this.treeValue = files));
-        this.nodeService.getTreeTableNodes().then((files: any) => (this.treeTableValue = files));
+  ngOnInit() {
+    this.nodeService.getFiles().then((files) => (this.treeValue = files));
+    this.nodeService.getTreeTableNodes().then((files: any) => (this.treeTableValue = files));
 
-        this.cols = [
-            { field: 'name', header: 'Name' },
-            { field: 'size', header: 'Size' },
-            { field: 'type', header: 'Type' }
-        ];
+    this.cols = [
+      { field: 'name', header: 'Name' },
+      { field: 'size', header: 'Size' },
+      { field: 'type', header: 'Type' }
+    ];
 
-        this.selectedTreeTableValue = {
-            '0-0': {
-                partialChecked: false,
-                checked: true
-            }
-        };
-    }
+    this.selectedTreeTableValue = {
+      '0-0': {
+        partialChecked: false,
+        checked: true
+      }
+    };
+  }
 }

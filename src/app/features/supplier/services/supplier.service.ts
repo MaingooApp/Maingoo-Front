@@ -5,32 +5,32 @@ import { environment } from '../../../../environments/environment';
 import { CreateSupplierDto, Supplier, UpdateSupplierDto } from '../interfaces/supplier.interface';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class SupplierService extends BaseHttpService {
-    private readonly API_URL = `${environment.urlBackend}api/suppliers`;
+  private readonly API_URL = `${environment.urlBackend}api/suppliers`;
 
-    createSupplier(data: CreateSupplierDto): Observable<Supplier> {
-        return this.post<Supplier>(this.API_URL, data);
-    }
+  createSupplier(data: CreateSupplierDto): Observable<Supplier> {
+    return this.post<Supplier>(this.API_URL, data);
+  }
 
-    listSuppliers(): Observable<Supplier[]> {
-        return this.get<Supplier[]>(this.API_URL);
-    }
+  listSuppliers(): Observable<Supplier[]> {
+    return this.get<Supplier[]>(this.API_URL);
+  }
 
-    getSupplierById(supplierId: string): Observable<Supplier> {
-        return this.get<Supplier>(`${this.API_URL}/${supplierId}`);
-    }
+  getSupplierById(supplierId: string): Observable<Supplier> {
+    return this.get<Supplier>(`${this.API_URL}/${supplierId}`);
+  }
 
-    updateSupplier(supplierId: string, data: UpdateSupplierDto): Observable<Supplier> {
-        return this.put<Supplier>(`${this.API_URL}/${supplierId}`, data);
-    }
+  updateSupplier(supplierId: string, data: UpdateSupplierDto): Observable<Supplier> {
+    return this.put<Supplier>(`${this.API_URL}/${supplierId}`, data);
+  }
 
-    deleteSupplier(supplierId: string): Observable<void> {
-        return this.delete<void>(`${this.API_URL}/${supplierId}`);
-    }
+  deleteSupplier(supplierId: string): Observable<void> {
+    return this.delete<void>(`${this.API_URL}/${supplierId}`);
+  }
 
-    findByTaxId(taxId: string): Observable<Supplier | null> {
-        return this.get<Supplier | null>(`${this.API_URL}/search?taxId=${taxId}`);
-    }
+  findByTaxId(taxId: string): Observable<Supplier | null> {
+    return this.get<Supplier | null>(`${this.API_URL}/search?taxId=${taxId}`);
+  }
 }

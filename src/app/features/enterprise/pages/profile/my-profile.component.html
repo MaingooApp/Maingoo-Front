@@ -1,104 +1,167 @@
 <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" class="p-fluid">
-    <div class="card">
-        <div class="font-semibold text-xl mb-4">Datos de empresa</div>
+  <div class="card">
+    <div class="font-semibold text-xl mb-4">Datos de empresa</div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Nombre de la empresa -->
-            <div class="flex flex-col gap-2">
-                <label for="name">Nombre de la empresa *</label>
-                <input pInputText id="name" type="text" formControlName="name" class="w-full" />
-                <small *ngIf="perfilForm.get('name')?.invalid && perfilForm.get('name')?.touched" class="text-red-500"> El nombre es obligatorio. </small>
-            </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Nombre de la empresa -->
+      <div class="flex flex-col gap-2">
+        <label for="name">Nombre de la empresa *</label>
+        <input pInputText id="name" type="text" formControlName="name" class="w-full" />
+        <small *ngIf="perfilForm.get('name')?.invalid && perfilForm.get('name')?.touched" class="text-red-500">
+          El nombre es obligatorio.
+        </small>
+      </div>
 
-            <!-- CIF/NIF -->
-            <div class="flex flex-col gap-2">
-                <label for="cifNif">CIF/NIF *</label>
-                <input pInputText id="cifNif" type="text" formControlName="cifNif" class="w-full" placeholder="A-12345678" />
-                <small *ngIf="perfilForm.get('cifNif')?.invalid && perfilForm.get('cifNif')?.touched" class="text-red-500"> El CIF/NIF es obligatorio. </small>
-            </div>
+      <!-- CIF/NIF -->
+      <div class="flex flex-col gap-2">
+        <label for="cifNif">CIF/NIF *</label>
+        <input pInputText id="cifNif" type="text" formControlName="cifNif" class="w-full" placeholder="A-12345678" />
+        <small *ngIf="perfilForm.get('cifNif')?.invalid && perfilForm.get('cifNif')?.touched" class="text-red-500">
+          El CIF/NIF es obligatorio.
+        </small>
+      </div>
 
-            <!-- Email -->
-            <div class="flex flex-col gap-2">
-                <label for="email">Email *</label>
-                <input pInputText id="email" type="email" formControlName="email" class="w-full" placeholder="empresa@ejemplo.com" />
-                <small *ngIf="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" class="text-red-500"> Email inválido o requerido. </small>
-            </div>
+      <!-- Email -->
+      <div class="flex flex-col gap-2">
+        <label for="email">Email *</label>
+        <input
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          class="w-full"
+          placeholder="empresa@ejemplo.com" />
+        <small *ngIf="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" class="text-red-500">
+          Email inválido o requerido.
+        </small>
+      </div>
 
-            <!-- Tipo de empresa -->
-            <div class="flex flex-col gap-2">
-                <label for="type">Tipo de empresa *</label>
-                <select id="type" formControlName="type" class="w-full p-2 border border-gray-300 rounded">
-                    <option value="RESTAURANT">Restaurante</option>
-                    <option value="CATERING">Catering</option>
-                    <option value="HOTEL">Hotel</option>
-                    <option value="OTHER">Otro</option>
-                </select>
-            </div>
+      <!-- Tipo de empresa -->
+      <div class="flex flex-col gap-2">
+        <label for="type">Tipo de empresa *</label>
+        <select id="type" formControlName="type" class="w-full p-2 border border-gray-300 rounded">
+          <option value="RESTAURANT">Restaurante</option>
+          <option value="CATERING">Catering</option>
+          <option value="HOTEL">Hotel</option>
+          <option value="OTHER">Otro</option>
+        </select>
+      </div>
 
-            <!-- Dirección -->
-            <div class="flex flex-col gap-2 md:col-span-2">
-                <label for="address">Dirección *</label>
-                <input pInputText id="address" type="text" formControlName="address" class="w-full" placeholder="Calle Ejemplo 123" />
-                <small *ngIf="perfilForm.get('address')?.invalid && perfilForm.get('address')?.touched" class="text-red-500"> La dirección es obligatoria. </small>
-            </div>
+      <!-- Dirección -->
+      <div class="flex flex-col gap-2 md:col-span-2">
+        <label for="address">Dirección *</label>
+        <input
+          pInputText
+          id="address"
+          type="text"
+          formControlName="address"
+          class="w-full"
+          placeholder="Calle Ejemplo 123" />
+        <small *ngIf="perfilForm.get('address')?.invalid && perfilForm.get('address')?.touched" class="text-red-500">
+          La dirección es obligatoria.
+        </small>
+      </div>
 
-            <!-- Ciudad -->
-            <div class="flex flex-col gap-2">
-                <label for="city">Ciudad *</label>
-                <input pInputText id="city" type="text" formControlName="city" class="w-full" placeholder="Madrid" />
-                <small *ngIf="perfilForm.get('city')?.invalid && perfilForm.get('city')?.touched" class="text-red-500"> La ciudad es obligatoria. </small>
-            </div>
+      <!-- Ciudad -->
+      <div class="flex flex-col gap-2">
+        <label for="city">Ciudad *</label>
+        <input pInputText id="city" type="text" formControlName="city" class="w-full" placeholder="Madrid" />
+        <small *ngIf="perfilForm.get('city')?.invalid && perfilForm.get('city')?.touched" class="text-red-500">
+          La ciudad es obligatoria.
+        </small>
+      </div>
 
-            <!-- Código postal -->
-            <div class="flex flex-col gap-2">
-                <label for="postalCode">Código postal *</label>
-                <input pInputText id="postalCode" type="text" formControlName="postalCode" class="w-full" placeholder="28001" />
-                <small *ngIf="perfilForm.get('postalCode')?.invalid && perfilForm.get('postalCode')?.touched" class="text-red-500"> El código postal es obligatorio. </small>
-            </div>
+      <!-- Código postal -->
+      <div class="flex flex-col gap-2">
+        <label for="postalCode">Código postal *</label>
+        <input pInputText id="postalCode" type="text" formControlName="postalCode" class="w-full" placeholder="28001" />
+        <small
+          *ngIf="perfilForm.get('postalCode')?.invalid && perfilForm.get('postalCode')?.touched"
+          class="text-red-500">
+          El código postal es obligatorio.
+        </small>
+      </div>
 
-            <!-- País -->
-            <div class="flex flex-col gap-2">
-                <label for="country">País *</label>
-                <input pInputText id="country" type="text" formControlName="country" class="w-full" placeholder="España" />
-                <small *ngIf="perfilForm.get('country')?.invalid && perfilForm.get('country')?.touched" class="text-red-500"> El país es obligatorio. </small>
-            </div>
+      <!-- País -->
+      <div class="flex flex-col gap-2">
+        <label for="country">País *</label>
+        <input pInputText id="country" type="text" formControlName="country" class="w-full" placeholder="España" />
+        <small *ngIf="perfilForm.get('country')?.invalid && perfilForm.get('country')?.touched" class="text-red-500">
+          El país es obligatorio.
+        </small>
+      </div>
 
-            <!-- IBAN -->
-            <div class="flex flex-col gap-2">
-                <label for="iban">Número de cuenta (IBAN)</label>
-                <input pInputText id="iban" type="text" formControlName="iban" class="w-full" placeholder="ES00 0000 0000 0000 0000 0000" />
-            </div>
-        </div>
-
-        <!-- Sección de teléfonos -->
-        <div class="font-semibold text-xl mt-8 mb-4">Teléfonos de contacto</div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Teléfono principal -->
-            <div class="flex flex-col gap-2">
-                <label for="firstPhone">Teléfono principal *</label>
-                <div class="flex gap-2">
-                    <input pInputText id="firstPhonePrefix" type="text" formControlName="firstPhonePrefix" class="w-20" placeholder="+34" />
-                    <input pInputText id="firstPhoneNumber" type="text" formControlName="firstPhoneNumber" class="flex-1" placeholder="612345678" />
-                </div>
-                <small *ngIf="(perfilForm.get('firstPhonePrefix')?.invalid || perfilForm.get('firstPhoneNumber')?.invalid) && (perfilForm.get('firstPhonePrefix')?.touched || perfilForm.get('firstPhoneNumber')?.touched)" class="text-red-500">
-                    El teléfono principal es obligatorio.
-                </small>
-            </div>
-
-            <!-- Teléfono secundario -->
-            <div class="flex flex-col gap-2">
-                <label for="secondPhone">Teléfono secundario</label>
-                <div class="flex gap-2">
-                    <input pInputText id="secondPhonePrefix" type="text" formControlName="secondPhonePrefix" class="w-20" placeholder="+34" />
-                    <input pInputText id="secondPhoneNumber" type="text" formControlName="secondPhoneNumber" class="flex-1" placeholder="612345678" />
-                </div>
-            </div>
-        </div>
-
-        <!-- Botón de guardar -->
-        <div class="flex justify-end gap-4 pt-6">
-            <button pButton type="submit" label="Guardar cambios" icon="pi pi-save" [disabled]="perfilForm.invalid"></button>
-        </div>
+      <!-- IBAN -->
+      <div class="flex flex-col gap-2">
+        <label for="iban">Número de cuenta (IBAN)</label>
+        <input
+          pInputText
+          id="iban"
+          type="text"
+          formControlName="iban"
+          class="w-full"
+          placeholder="ES00 0000 0000 0000 0000 0000" />
+      </div>
     </div>
+
+    <!-- Sección de teléfonos -->
+    <div class="font-semibold text-xl mt-8 mb-4">Teléfonos de contacto</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Teléfono principal -->
+      <div class="flex flex-col gap-2">
+        <label for="firstPhone">Teléfono principal *</label>
+        <div class="flex gap-2">
+          <input
+            pInputText
+            id="firstPhonePrefix"
+            type="text"
+            formControlName="firstPhonePrefix"
+            class="w-20"
+            placeholder="+34" />
+          <input
+            pInputText
+            id="firstPhoneNumber"
+            type="text"
+            formControlName="firstPhoneNumber"
+            class="flex-1"
+            placeholder="612345678" />
+        </div>
+        <small
+          *ngIf="
+            (perfilForm.get('firstPhonePrefix')?.invalid || perfilForm.get('firstPhoneNumber')?.invalid) &&
+            (perfilForm.get('firstPhonePrefix')?.touched || perfilForm.get('firstPhoneNumber')?.touched)
+          "
+          class="text-red-500">
+          El teléfono principal es obligatorio.
+        </small>
+      </div>
+
+      <!-- Teléfono secundario -->
+      <div class="flex flex-col gap-2">
+        <label for="secondPhone">Teléfono secundario</label>
+        <div class="flex gap-2">
+          <input
+            pInputText
+            id="secondPhonePrefix"
+            type="text"
+            formControlName="secondPhonePrefix"
+            class="w-20"
+            placeholder="+34" />
+          <input
+            pInputText
+            id="secondPhoneNumber"
+            type="text"
+            formControlName="secondPhoneNumber"
+            class="flex-1"
+            placeholder="612345678" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón de guardar -->
+    <div class="flex justify-end gap-4 pt-6">
+      <button pButton type="submit" label="Guardar cambios" icon="pi pi-save" [disabled]="perfilForm.invalid"></button>
+    </div>
+  </div>
 </form>

@@ -13,28 +13,41 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 
 @Component({
-    selector: 'app-misc-demo',
-    standalone: true,
-    imports: [CommonModule, ProgressBarModule, BadgeModule, AvatarModule, ScrollPanelModule, TagModule, ChipModule, ButtonModule, SkeletonModule, AvatarGroupModule, ScrollTopModule, OverlayBadgeModule],
-    templateUrl: './miscdemo.html',
-    styleUrls: ['./miscdemo.scss']
+  selector: 'app-misc-demo',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ProgressBarModule,
+    BadgeModule,
+    AvatarModule,
+    ScrollPanelModule,
+    TagModule,
+    ChipModule,
+    ButtonModule,
+    SkeletonModule,
+    AvatarGroupModule,
+    ScrollTopModule,
+    OverlayBadgeModule
+  ],
+  templateUrl: './miscdemo.html',
+  styleUrls: ['./miscdemo.scss']
 })
 export class MiscDemo {
-    value = 0;
+  value = 0;
 
-    interval: any;
+  interval: any;
 
-    ngOnInit() {
-        this.interval = setInterval(() => {
-            this.value = this.value + Math.floor(Math.random() * 10) + 1;
-            if (this.value >= 100) {
-                this.value = 100;
-                clearInterval(this.interval);
-            }
-        }, 2000);
-    }
-
-    ngOnDestroy() {
+  ngOnInit() {
+    this.interval = setInterval(() => {
+      this.value = this.value + Math.floor(Math.random() * 10) + 1;
+      if (this.value >= 100) {
+        this.value = 100;
         clearInterval(this.interval);
-    }
+      }
+    }, 2000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.interval);
+  }
 }

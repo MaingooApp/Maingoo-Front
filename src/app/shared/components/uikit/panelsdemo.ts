@@ -18,46 +18,46 @@ import { TabsModule } from 'primeng/tabs';
 import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
-    selector: 'app-panels-demo',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ToolbarModule,
-        ButtonModule,
-        RippleModule,
-        SplitButtonModule,
-        AccordionModule,
-        FieldsetModule,
-        MenuModule,
-        InputTextModule,
-        DividerModule,
-        SplitterModule,
-        PanelModule,
-        TabsModule,
-        IconFieldModule,
-        InputIconModule
-    ],
-    templateUrl: './panelsdemo.html',
-    styleUrls: ['./panelsdemo.scss']
+  selector: 'app-panels-demo',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ToolbarModule,
+    ButtonModule,
+    RippleModule,
+    SplitButtonModule,
+    AccordionModule,
+    FieldsetModule,
+    MenuModule,
+    InputTextModule,
+    DividerModule,
+    SplitterModule,
+    PanelModule,
+    TabsModule,
+    IconFieldModule,
+    InputIconModule
+  ],
+  templateUrl: './panelsdemo.html',
+  styleUrls: ['./panelsdemo.scss']
 })
 export class PanelsDemo {
-    items: MenuItem[] = [
-        {
-            label: 'Save',
-            icon: 'pi pi-check'
-        },
-        {
-            label: 'Update',
-            icon: 'pi pi-upload'
-        },
-        {
-            label: 'Delete',
-            icon: 'pi pi-trash'
-        },
-        {
-            label: 'Home Page',
-            icon: 'pi pi-home'
-        }
-    ];
+  items: MenuItem[] = [
+    {
+      label: 'Save',
+      icon: 'pi pi-check'
+    },
+    {
+      label: 'Update',
+      icon: 'pi pi-upload'
+    },
+    {
+      label: 'Delete',
+      icon: 'pi pi-trash'
+    },
+    {
+      label: 'Home Page',
+      icon: 'pi pi-home'
+    }
+  ];
 }
