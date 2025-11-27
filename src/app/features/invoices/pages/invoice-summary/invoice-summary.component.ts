@@ -15,9 +15,10 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { FileUploadModule } from 'primeng/fileupload';
 import { AnalysisDocument, DocumentAnalysisService } from '../../../../core/services/document-analysis.service';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
-import { CreateSupplierDto, SupplierService } from '../../../supplier/services/supplier.service';
 import { ConfirmDialogService } from '../../../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { SupplierService } from '../../../supplier/services/supplier.service';
+import { CreateSupplierDto } from '../../../supplier/interfaces/supplier.interface';
 
 @Component({
     selector: 'app-invoice-summary',
