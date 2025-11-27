@@ -7,18 +7,18 @@ import { FormsModule } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
 
 @Component({
-    selector: 'app-formlayout-demo',
-    standalone: true,
-    imports: [InputTextModule, FluidModule, ButtonModule, SelectModule, FormsModule, TextareaModule],
-    templateUrl: './formlayoutdemo.html',
-    styleUrls: ['./formlayoutdemo.scss']
+  selector: 'app-formlayout-demo',
+  standalone: true,
+  imports: [InputTextModule, FluidModule, ButtonModule, SelectModule, FormsModule, TextareaModule],
+  templateUrl: './formlayoutdemo.html',
+  styleUrls: ['./formlayoutdemo.scss']
 })
 export class FormLayoutDemo {
-    dropdownItems = [
-        { name: 'Option 1', code: 'Option 1' },
-        { name: 'Option 2', code: 'Option 2' },
-        { name: 'Option 3', code: 'Option 3' }
-    ];
+  dropdownItems = [
+    { name: 'Option 1', code: 'Option 1' },
+    { name: 'Option 2', code: 'Option 2' },
+    { name: 'Option 3', code: 'Option 3' }
+  ];
 
-    dropdownItem = null;
+  dropdownItem = null;
 }

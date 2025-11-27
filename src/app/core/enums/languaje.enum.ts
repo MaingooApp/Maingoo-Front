@@ -1,3 +1,3 @@
 export enum Language {
-    LS_KEY = 'lang'
+  LS_KEY = 'lang'
 }

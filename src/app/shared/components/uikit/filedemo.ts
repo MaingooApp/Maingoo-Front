@@ -6,27 +6,27 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-    selector: 'app-file-demo',
-    standalone: true,
-    imports: [CommonModule, FileUploadModule, ToastModule, ButtonModule],
-    templateUrl: './filedemo.html',
-    styleUrls: ['./filedemo.scss'],
-    providers: [MessageService]
+  selector: 'app-file-demo',
+  standalone: true,
+  imports: [CommonModule, FileUploadModule, ToastModule, ButtonModule],
+  templateUrl: './filedemo.html',
+  styleUrls: ['./filedemo.scss'],
+  providers: [MessageService]
 })
 export class FileDemo {
-    uploadedFiles: any[] = [];
+  uploadedFiles: any[] = [];
 
-    constructor(private messageService: MessageService) {}
+  constructor(private messageService: MessageService) {}
 
-    onUpload(event: any) {
-        for (const file of event.files) {
-            this.uploadedFiles.push(file);
-        }
-
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
+  onUpload(event: any) {
+    for (const file of event.files) {
+      this.uploadedFiles.push(file);
     }
 
-    onBasicUpload() {
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
-    }
+    this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded' });
+  }
+
+  onBasicUpload() {
+    this.messageService.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded with Basic Mode' });
+  }
 }
