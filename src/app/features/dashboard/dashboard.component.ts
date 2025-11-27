@@ -6,9 +6,9 @@ import { BestSellingWidget } from './components/bestsellingwidget';
 import { RevenueStreamWidget } from './components/revenuestreamwidget';
 
 @Component({
-    selector: 'app-dashboard',
-    imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.scss']
+  selector: 'app-dashboard',
+  imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss']
 })
 export class Dashboard {}

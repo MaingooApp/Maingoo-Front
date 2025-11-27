@@ -32,138 +32,138 @@ import { TreeNode } from 'primeng/api';
 import { Country } from '../../services/customer.service';
 
 @Component({
-    selector: 'app-input-demo',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        InputTextModule,
-        ButtonModule,
-        CheckboxModule,
-        RadioButtonModule,
-        SelectButtonModule,
-        InputGroupModule,
-        FluidModule,
-        IconFieldModule,
-        InputIconModule,
-        FloatLabelModule,
-        AutoCompleteModule,
-        InputNumberModule,
-        SliderModule,
-        RatingModule,
-        ColorPickerModule,
-        KnobModule,
-        SelectModule,
-        DatePickerModule,
-        ToggleButtonModule,
-        ToggleSwitchModule,
-        TreeSelectModule,
-        MultiSelectModule,
-        ListboxModule,
-        InputGroupAddonModule,
-        TextareaModule
-    ],
-    templateUrl: './inputdemo.html',
-    styleUrls: ['./inputdemo.scss'],
-    providers: [CountryService, NodeService]
+  selector: 'app-input-demo',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputTextModule,
+    ButtonModule,
+    CheckboxModule,
+    RadioButtonModule,
+    SelectButtonModule,
+    InputGroupModule,
+    FluidModule,
+    IconFieldModule,
+    InputIconModule,
+    FloatLabelModule,
+    AutoCompleteModule,
+    InputNumberModule,
+    SliderModule,
+    RatingModule,
+    ColorPickerModule,
+    KnobModule,
+    SelectModule,
+    DatePickerModule,
+    ToggleButtonModule,
+    ToggleSwitchModule,
+    TreeSelectModule,
+    MultiSelectModule,
+    ListboxModule,
+    InputGroupAddonModule,
+    TextareaModule
+  ],
+  templateUrl: './inputdemo.html',
+  styleUrls: ['./inputdemo.scss'],
+  providers: [CountryService, NodeService]
 })
 export class InputDemo implements OnInit {
-    floatValue: any = null;
+  floatValue: any = null;
 
-    autoValue: any[] | undefined;
+  autoValue: any[] | undefined;
 
-    autoFilteredValue: any[] = [];
+  autoFilteredValue: any[] = [];
 
-    selectedAutoValue: any = null;
+  selectedAutoValue: any = null;
 
-    calendarValue: any = null;
+  calendarValue: any = null;
 
-    inputNumberValue: any = null;
+  inputNumberValue: any = null;
 
-    sliderValue: number = 50;
+  sliderValue: number = 50;
 
-    ratingValue: any = null;
+  ratingValue: any = null;
 
-    colorValue: string = '#1976D2';
+  colorValue: string = '#1976D2';
 
-    radioValue: any = null;
+  radioValue: any = null;
 
-    checkboxValue: any[] = [];
+  checkboxValue: any[] = [];
 
-    switchValue: boolean = false;
+  switchValue: boolean = false;
 
-    listboxValues: any[] = [
-        { name: 'New York', code: 'NY' },
-        { name: 'Rome', code: 'RM' },
-        { name: 'London', code: 'LDN' },
-        { name: 'Istanbul', code: 'IST' },
-        { name: 'Paris', code: 'PRS' }
-    ];
+  listboxValues: any[] = [
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+  ];
 
-    listboxValue: any = null;
+  listboxValue: any = null;
 
-    dropdownValues = [
-        { name: 'New York', code: 'NY' },
-        { name: 'Rome', code: 'RM' },
-        { name: 'London', code: 'LDN' },
-        { name: 'Istanbul', code: 'IST' },
-        { name: 'Paris', code: 'PRS' }
-    ];
+  dropdownValues = [
+    { name: 'New York', code: 'NY' },
+    { name: 'Rome', code: 'RM' },
+    { name: 'London', code: 'LDN' },
+    { name: 'Istanbul', code: 'IST' },
+    { name: 'Paris', code: 'PRS' }
+  ];
 
-    dropdownValue: any = null;
+  dropdownValue: any = null;
 
-    multiselectCountries: Country[] = [
-        { name: 'Australia', code: 'AU' },
-        { name: 'Brazil', code: 'BR' },
-        { name: 'China', code: 'CN' },
-        { name: 'Egypt', code: 'EG' },
-        { name: 'France', code: 'FR' },
-        { name: 'Germany', code: 'DE' },
-        { name: 'India', code: 'IN' },
-        { name: 'Japan', code: 'JP' },
-        { name: 'Spain', code: 'ES' },
-        { name: 'United States', code: 'US' }
-    ];
+  multiselectCountries: Country[] = [
+    { name: 'Australia', code: 'AU' },
+    { name: 'Brazil', code: 'BR' },
+    { name: 'China', code: 'CN' },
+    { name: 'Egypt', code: 'EG' },
+    { name: 'France', code: 'FR' },
+    { name: 'Germany', code: 'DE' },
+    { name: 'India', code: 'IN' },
+    { name: 'Japan', code: 'JP' },
+    { name: 'Spain', code: 'ES' },
+    { name: 'United States', code: 'US' }
+  ];
 
-    multiselectSelectedCountries!: Country[];
+  multiselectSelectedCountries!: Country[];
 
-    toggleValue: boolean = false;
+  toggleValue: boolean = false;
 
-    selectButtonValue: any = null;
+  selectButtonValue: any = null;
 
-    selectButtonValues: any = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }];
+  selectButtonValues: any = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }];
 
-    knobValue: number = 50;
+  knobValue: number = 50;
 
-    inputGroupValue: boolean = false;
+  inputGroupValue: boolean = false;
 
-    treeSelectNodes!: TreeNode[];
+  treeSelectNodes!: TreeNode[];
 
-    selectedNode: any = null;
+  selectedNode: any = null;
 
-    countryService = inject(CountryService);
+  countryService = inject(CountryService);
 
-    nodeService = inject(NodeService);
+  nodeService = inject(NodeService);
 
-    ngOnInit() {
-        this.countryService.getCountries().then((countries) => {
-            this.autoValue = countries;
-        });
+  ngOnInit() {
+    this.countryService.getCountries().then((countries) => {
+      this.autoValue = countries;
+    });
 
-        this.nodeService.getFiles().then((data) => (this.treeSelectNodes = data));
+    this.nodeService.getFiles().then((data) => (this.treeSelectNodes = data));
+  }
+
+  filterCountry(event: AutoCompleteCompleteEvent) {
+    const filtered: any[] = [];
+    const query = event.query;
+
+    for (let i = 0; i < (this.autoValue as any[]).length; i++) {
+      const country = (this.autoValue as any[])[i];
+      if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
+        filtered.push(country);
+      }
     }
 
-    filterCountry(event: AutoCompleteCompleteEvent) {
-        const filtered: any[] = [];
-        const query = event.query;
-
-        for (let i = 0; i < (this.autoValue as any[]).length; i++) {
-            const country = (this.autoValue as any[])[i];
-            if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-                filtered.push(country);
-            }
-        }
-
-        this.autoFilteredValue = filtered;
-    }
+    this.autoFilteredValue = filtered;
+  }
 }

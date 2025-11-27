@@ -1,26 +1,25 @@
 <div *ngIf="supplier.length === 0; else tablaSupplier" class="bg-white rounded-xl p-10 shadow-md text-center">
-    <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem"></i>
-    <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay proveedores registrados</h2>
-    <p class="text-gray-500">Cuando registres un proveedor, aparecerá aquí.</p>
+  <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem"></i>
+  <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay proveedores registrados</h2>
+  <p class="text-gray-500">Cuando registres un proveedor, aparecerá aquí.</p>
 </div>
 
 <ng-template #tablaSupplier>
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-2xl font-semibold text-surface-900 mb-4 flex items-center gap-2">
-            <i class="pi pi-users" style="font-size: 1.5rem"></i>
-            Proveedores
-        </h2>
+  <div class="bg-white rounded-xl shadow-md p-6">
+    <h2 class="text-2xl font-semibold text-surface-900 mb-4 flex items-center gap-2">
+      <i class="pi pi-users" style="font-size: 1.5rem"></i>
+      Proveedores
+    </h2>
 
-        <app-tabla-dinamica
-            [data]="supplier"
-            [columns]="columns"
-            [globalFilterFields]="['name', 'cifNif', 'commercialName']"
-            [loading]="false"
-            [exportPdf]="true"
-            [showRowIndex]="true"
-            [actions]="actions"
-            (actionClick)="handleAccionProveedor($event)"
-        >
-        </app-tabla-dinamica>
-    </div>
+    <app-tabla-dinamica
+      [data]="supplier"
+      [columns]="columns"
+      [globalFilterFields]="['name', 'cifNif', 'commercialName']"
+      [loading]="false"
+      [exportPdf]="true"
+      [showRowIndex]="true"
+      [actions]="actions"
+      (actionClick)="handleAccionProveedor($event)">
+    </app-tabla-dinamica>
+  </div>
 </ng-template>

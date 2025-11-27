@@ -9,8 +9,7 @@ describe('DocGeneratorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DocGeneratorComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DocGeneratorComponent);
     component = fixture.componentInstance;

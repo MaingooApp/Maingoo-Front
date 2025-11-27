@@ -1,86 +1,133 @@
 <div class="p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md" *ngIf="!loading && factura">
-    <div class="flex flex-wrap gap-2 mb-6">
-        <button pButton label="Volver" (click)="volver()" icon="pi pi-arrow-left"></button>
-        <button pButton [label]="mostrarImagen ? 'Ocultar imagen' : 'Ver imagen'" (click)="mostrarImagen = !mostrarImagen" icon="pi pi-image" *ngIf="factura.imageUrl" severity="secondary"></button>
-        <button pButton label="Descargar original" (click)="descargarDocumentoOriginal()" icon="pi pi-download" [loading]="downloadingDocument" *ngIf="factura.blobName" severity="help"></button>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <button pButton label="Volver" (click)="volver()" icon="pi pi-arrow-left"></button>
+    <button
+      pButton
+      [label]="mostrarImagen ? 'Ocultar imagen' : 'Ver imagen'"
+      (click)="mostrarImagen = !mostrarImagen"
+      icon="pi pi-image"
+      *ngIf="factura.imageUrl"
+      severity="secondary"></button>
+    <button
+      pButton
+      label="Descargar original"
+      (click)="descargarDocumentoOriginal()"
+      icon="pi pi-download"
+      [loading]="downloadingDocument"
+      *ngIf="factura.blobName"
+      severity="help"></button>
+  </div>
+
+  <h2 class="text-2xl font-bold mb-6">Detalle de Factura</h2>
+
+  <div class="flex flex-col md:flex-row gap-8">
+    <!-- FACTURA -->
+    <div class="flex-1">
+      <h3 class="text-xl font-semibold flex items-center gap-2 mb-4">
+        <i class="pi pi-receipt text-primary"></i> Factura
+      </h3>
+      <p><strong>Número:</strong> {{ factura.invoiceNumber || 'N/A' }}</p>
+      <p><strong>Fecha:</strong> {{ factura.date | date: 'dd/MM/yyyy' }}</p>
+      <p><strong>Tipo:</strong> {{ factura.type || 'N/A' }}</p>
+      <p><strong>Total:</strong> {{ ConvertNumbers.convertToDecimal(factura.amount) | currency: 'EUR' }}</p>
     </div>
 
-    <h2 class="text-2xl font-bold mb-6">Detalle de Factura</h2>
+    <!-- PROVEEDOR -->
+    <div class="flex-1">
+      <h3 class="text-xl font-semibold flex items-center gap-2 mb-4">
+        <i class="pi pi-building text-primary"></i> Proveedor
+      </h3>
+      <p><strong>Nombre:</strong> {{ factura.supplier.name }}</p>
+      <p><strong>CIF/NIF:</strong> {{ factura.supplier.cifNif }}</p>
+      <p *ngIf="factura.supplier.address"><strong>Dirección:</strong> {{ factura.supplier.address }}</p>
+      <p *ngIf="factura.supplier.phoneNumber"><strong>Teléfono:</strong> {{ factura.supplier.phoneNumber }}</p>
+      <p *ngIf="factura.supplier.commercialName">
+        <strong>Nombre comercial:</strong> {{ factura.supplier.commercialName }}
+      </p>
+    </div>
+  </div>
 
-    <div class="flex flex-col md:flex-row gap-8">
-        <!-- FACTURA -->
-        <div class="flex-1">
-            <h3 class="text-xl font-semibold flex items-center gap-2 mb-4"><i class="pi pi-receipt text-primary"></i> Factura</h3>
-            <p><strong>Número:</strong> {{ factura.invoiceNumber || 'N/A' }}</p>
-            <p><strong>Fecha:</strong> {{ factura.date | date: 'dd/MM/yyyy' }}</p>
-            <p><strong>Tipo:</strong> {{ factura.type || 'N/A' }}</p>
-            <p><strong>Total:</strong> {{ ConvertNumbers.convertToDecimal(factura.amount) | currency: 'EUR' }}</p>
+  <!-- Productos / Líneas de factura -->
+  <div class="mt-10" *ngIf="factura.invoiceLines && factura.invoiceLines.length > 0">
+    <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <i class="pi pi-box text-primary"></i>
+      Productos
+      <span class="text-sm font-normal text-gray-500">({{ factura.invoiceLines.length }} artículos)</span>
+    </h3>
+
+    <p-table
+      #dt
+      [value]="factura.invoiceLines"
+      [paginator]="true"
+      [rows]="10"
+      [globalFilterFields]="['description']"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-sm">
+      <ng-template #caption>
+        <div class="flex justify-start">
+          <p-iconfield iconPosition="left">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input
+              pInputText
+              type="text"
+              (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+              placeholder="Buscar producto" />
+          </p-iconfield>
         </div>
+      </ng-template>
 
-        <!-- PROVEEDOR -->
-        <div class="flex-1">
-            <h3 class="text-xl font-semibold flex items-center gap-2 mb-4"><i class="pi pi-building text-primary"></i> Proveedor</h3>
-            <p><strong>Nombre:</strong> {{ factura.supplier.name }}</p>
-            <p><strong>CIF/NIF:</strong> {{ factura.supplier.cifNif }}</p>
-            <p *ngIf="factura.supplier.address"><strong>Dirección:</strong> {{ factura.supplier.address }}</p>
-            <p *ngIf="factura.supplier.phoneNumber"><strong>Teléfono:</strong> {{ factura.supplier.phoneNumber }}</p>
-            <p *ngIf="factura.supplier.commercialName"><strong>Nombre comercial:</strong> {{ factura.supplier.commercialName }}</p>
-        </div>
-    </div>
-
-    <!-- Productos / Líneas de factura -->
-    <div class="mt-10" *ngIf="factura.invoiceLines && factura.invoiceLines.length > 0">
-        <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
-            <i class="pi pi-box text-primary"></i>
-            Productos
-            <span class="text-sm font-normal text-gray-500">({{ factura.invoiceLines.length }} artículos)</span>
-        </h3>
-
-        <p-table #dt [value]="factura.invoiceLines" [paginator]="true" [rows]="10" [globalFilterFields]="['description']" responsiveLayout="scroll" styleClass="p-datatable-sm">
-            <ng-template #caption>
-                <div class="flex justify-start">
-                    <p-iconfield iconPosition="left">
-                        <p-inputicon>
-                            <i class="pi pi-search"></i>
-                        </p-inputicon>
-                        <input pInputText type="text" (input)="dt.filterGlobal(getInputValue($event), 'contains')" placeholder="Buscar producto" />
-                    </p-iconfield>
-                </div>
-            </ng-template>
-
-            <ng-template pTemplate="header">
-                <tr>
-                    <th>Descripción</th>
-                    <th class="text-right" style="width: 120px">Cantidad</th>
-                    <th class="text-right" style="width: 140px">Precio unitario</th>
-                    <th class="text-right" style="width: 140px">Total</th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-line>
-                <tr>
-                    <td>{{ line.description || 'Sin descripción' }}</td>
-                    <td class="text-right">{{ line.quantity }}</td>
-                    <td class="text-right">{{ ConvertNumbers.convertToDecimal(line.unitPrice) | currency: 'EUR' }}</td>
-                    <td class="text-right font-semibold">{{ line.price ? (ConvertNumbers.convertToDecimal(line.price) | currency: 'EUR') : '-' }}</td>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
-                <tr>
-                    <td colspan="4" class="text-center py-4 text-gray-500">No se encontraron productos</td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Descripción</th>
+          <th class="text-right" style="width: 120px">Cantidad</th>
+          <th class="text-right" style="width: 140px">Precio unitario</th>
+          <th class="text-right" style="width: 140px">Total</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-line>
+        <tr>
+          <td>{{ line.description || 'Sin descripción' }}</td>
+          <td class="text-right">{{ line.quantity }}</td>
+          <td class="text-right">{{ ConvertNumbers.convertToDecimal(line.unitPrice) | currency: 'EUR' }}</td>
+          <td class="text-right font-semibold">
+            {{ line.price ? (ConvertNumbers.convertToDecimal(line.price) | currency: 'EUR') : '-' }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-4 text-gray-500">No se encontraron productos</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
 
 <div class="p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md text-center" *ngIf="loading">
-    <i class="pi pi-spin pi-spinner text-primary" style="font-size: 3rem"></i>
-    <p class="mt-4 text-gray-600">Cargando factura...</p>
+  <i class="pi pi-spin pi-spinner text-primary" style="font-size: 3rem"></i>
+  <p class="mt-4 text-gray-600">Cargando factura...</p>
 </div>
 
-<p-dialog [(visible)]="mostrarImagen" modal="true" header="Documento original" [style]="{ width: '80vw' }" [breakpoints]="{ '960px': '95vw' }" [dismissableMask]="true">
-    <ng-container *ngIf="factura && factura.imageUrl">
-        <iframe *ngIf="factura.imageUrl.includes('.pdf')" [src]="pdfUrlSanitizado" width="100%" height="600" class="border rounded shadow"></iframe>
-        <img *ngIf="!factura.imageUrl.includes('.pdf')" [src]="factura.imageUrl" alt="Factura escaneada" class="rounded shadow max-w-full border border-gray-200" />
-    </ng-container>
+<p-dialog
+  [(visible)]="mostrarImagen"
+  modal="true"
+  header="Documento original"
+  [style]="{ width: '80vw' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [dismissableMask]="true">
+  <ng-container *ngIf="factura && factura.imageUrl">
+    <iframe
+      *ngIf="factura.imageUrl.includes('.pdf')"
+      [src]="pdfUrlSanitizado"
+      width="100%"
+      height="600"
+      class="border rounded shadow"></iframe>
+    <img
+      *ngIf="!factura.imageUrl.includes('.pdf')"
+      [src]="factura.imageUrl"
+      alt="Factura escaneada"
+      class="rounded shadow max-w-full border border-gray-200" />
+  </ng-container>
 </p-dialog>
