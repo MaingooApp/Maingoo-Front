@@ -8,7 +8,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import Aura from '@primeng/themes/aura';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { primengEs } from '../assets/i18n/primeng-es';
 import { appRoutes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -30,7 +30,8 @@ export const appConfig: ApplicationConfig = {
                     useFactory: httpLoaderFactory,
                     deps: [HttpClient]
                 }
-            })
+            }),
+            DynamicDialogModule
         ),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } }, translation: primengEs }),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),
