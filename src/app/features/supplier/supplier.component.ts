@@ -5,10 +5,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
-import { SupplierService, Supplier } from './services/supplier.service';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
+import { SupplierService } from './services/supplier.service';
+import { Supplier } from './interfaces/supplier.interface';
 
 @Component({
     selector: 'app-proveedores',
