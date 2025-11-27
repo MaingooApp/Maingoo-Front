@@ -9,8 +9,7 @@ describe('TablaDinamicaComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TablaDinamicaComponent]
-    })
-    .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(TablaDinamicaComponent);
     component = fixture.componentInstance;
