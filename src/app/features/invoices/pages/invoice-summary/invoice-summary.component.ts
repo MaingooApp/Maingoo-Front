@@ -48,7 +48,7 @@ export class InvoiceSummaryComponent implements OnInit {
   columns = COLUMNS;
 
   actions = signal<Action[]>([
-    { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'success' },
+    { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'primary' },
     { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
   ]);
 
@@ -76,25 +76,6 @@ export class InvoiceSummaryComponent implements OnInit {
     });
   }
 
-  formatAmount(amount: number): string {
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount);
-  }
-
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
-
-  getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
   verDetalle(factura: Invoice) {
     this.router.navigate(['/facturas/detalle', factura.id]);
   }
@@ -107,7 +88,6 @@ export class InvoiceSummaryComponent implements OnInit {
         rejectLabel: 'No',
         onAccept: () => {
           this.eliminarFactura(factura);
-          this.toastService.success('Eliminado', 'La factura ha sido eliminada.');
         }
       }
     );
@@ -122,6 +102,7 @@ export class InvoiceSummaryComponent implements OnInit {
     this.invoiceService.deleteInvoice(factura.id).subscribe({
       next: () => {
         this.invoices.update((facturas) => facturas.filter((f) => f.id !== factura.id));
+        this.toastService.success('Factura eliminada', 'La factura ha sido eliminada correctamente.');
       },
       error: (error: any) => {
         console.error('Error eliminando la factura:', error);
