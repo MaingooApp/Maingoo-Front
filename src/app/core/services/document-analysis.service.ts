@@ -25,7 +25,10 @@ export class DocumentAnalysisService extends BaseHttpService {
    * @param notes Notas opcionales sobre la factura
    * @returns Observable con el ID del documento creado
    */
-  submitInvoiceForAnalysis(file: File, notes?: string): Observable<{ documentId: string }> {
+  submitInvoiceForAnalysis(
+    file: File,
+    data: { documentType: string; hasDeliveryNotes: boolean }
+  ): Observable<{ documentId: string }> {
     const formData = new FormData();
 
     // Asegurar que el archivo tenga un nombre y tipo correctos
@@ -38,9 +41,8 @@ export class DocumentAnalysisService extends BaseHttpService {
     // Append con nombre explícito y tipo
     formData.append('file', fileBlob, fileName);
 
-    if (notes) {
-      formData.append('notes', notes);
-    }
+    formData.append('documentType', data.documentType);
+    formData.append('hasDeliveryNotes', data.hasDeliveryNotes.toString());
 
     console.log('Enviando FormData:', {
       fileName,
