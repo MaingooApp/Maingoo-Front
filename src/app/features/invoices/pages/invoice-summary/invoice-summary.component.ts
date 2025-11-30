@@ -13,14 +13,13 @@ import { ModalService } from '@shared/services/modal.service';
 import { ToastService } from '@shared/services/toast.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { Subscription } from 'rxjs';
 import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add-invoice-modal.component';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 @Component({
   selector: 'app-invoice-summary',
