@@ -10,6 +10,8 @@ import { FormsModule } from '@angular/forms';
 import { InputIcon } from 'primeng/inputicon';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Column } from '../../interfaces/columns.interface';
+import { Action } from '../../interfaces/actions.interface';
 
 @Component({
   selector: 'app-tabla-dinamica',
@@ -30,18 +32,8 @@ import autoTable from 'jspdf-autotable';
 export class TablaDinamicaComponent {
   @ViewChild('dt') dt!: Table;
   @Input() data: any[] = [];
-  @Input() columns: readonly {
-    field: string;
-    header: string;
-    type?: 'boolean' | 'text' | 'numeric' | 'date' | 'list';
-    filter?: boolean;
-  }[] = [];
-  @Input() actions: readonly {
-    icon: string;
-    tooltip?: string;
-    color?: 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
-    action: string;
-  }[] = [];
+  @Input() columns: readonly Column[] = [];
+  @Input() actions: readonly Action[] = [];
   @Input() loading = false;
   @Input() emptyMessage = 'No se encontraron resultados.';
   @Input() globalFilterFields: string[] = [];
