@@ -10,6 +10,8 @@ import { FormsModule } from '@angular/forms';
 import { InputIcon } from 'primeng/inputicon';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Column } from '../../interfaces/columns.interface';
+import { Action } from '../../interfaces/actions.interface';
 
 @Component({
   selector: 'app-tabla-dinamica',
@@ -30,18 +32,8 @@ import autoTable from 'jspdf-autotable';
 export class TablaDinamicaComponent {
   @ViewChild('dt') dt!: Table;
   @Input() data: any[] = [];
-  @Input() columns: readonly {
-    field: string;
-    header: string;
-    type?: 'boolean' | 'text' | 'numeric' | 'date' | 'list';
-    filter?: boolean;
-  }[] = [];
-  @Input() actions: readonly {
-    icon: string;
-    tooltip?: string;
-    color?: 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help' | 'contrast';
-    action: string;
-  }[] = [];
+  @Input() columns: readonly Column[] = [];
+  @Input() actions: readonly Action[] = [];
   @Input() loading = false;
   @Input() emptyMessage = 'No se encontraron resultados.';
   @Input() globalFilterFields: string[] = [];
@@ -55,7 +47,6 @@ export class TablaDinamicaComponent {
   @Output() selectionChange = new EventEmitter<any[]>();
 
   @Output() actionClick = new EventEmitter<{ action: string; row: any }>();
-
 
   onActionClick(action: string, row: any) {
     this.actionClick.emit({ action, row });
@@ -77,25 +68,25 @@ export class TablaDinamicaComponent {
 
   exportarComoPdf() {
     const doc = new jsPDF();
-  
-    const headers = this.columns.map(col => col.header);
+
+    const headers = this.columns.map((col) => col.header);
     const source = this.dt.filteredValue ?? this.data;
-  
-    const rows = source.map(row =>
-      this.columns.map(col => {
+
+    const rows = source.map((row) =>
+      this.columns.map((col) => {
         const value = this.getNestedValue(row, col.field);
-    
+
         if (col.type === 'numeric') return this.convertToDecimal(value);
         if (col.type === 'date' && value instanceof Date) return value.toLocaleString();
         return value ?? '';
       })
     );
-  
+
     autoTable(doc, {
       head: [headers],
       body: rows
     });
-  
+
     doc.save(`${this.exportFilename}.pdf`);
   }
 
