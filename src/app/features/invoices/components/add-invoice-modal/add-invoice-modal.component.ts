@@ -162,11 +162,14 @@ export class AddInvoiceModalComponent {
       )
       .subscribe({
         next: (document) => {
-          if (document.status === 'PROCESSING') {
-          } else if (document.status === 'DONE') {
+          if (document.status === 'DONE') {
             this._toastService.success('Análisis completo', 'El documento ha sido analizado correctamente', 5000);
           } else if (document.status === 'FAILED') {
-            this._toastService.error('Error en análisis', 'El análisis del documento ha fallado', 5000);
+            this._toastService.error(
+              'Error en análisis',
+              document.errorReason || 'El análisis del documento ha fallado',
+              5000
+            );
           }
         },
         error: (error) => {
