@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { BaseHttpService } from '../../../core/services/base-http.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
 
 /**
  * Servicio para gestionar facturas
@@ -100,98 +101,4 @@ export class InvoiceService extends BaseHttpService {
   getProductById(id: string): Observable<Product> {
     return this.get<Product>(`${this.PRODUCTS_URL}/${id}`);
   }
-
-  // TODO: Implementar métodos para productos (migrados del servicio antiguo)
-  // Estos métodos son necesarios para el componente productos.component.ts
-  // - getProductosInventario(): Observable<any[]>
-  // - eliminarProductoInventario(productoId: string): Observable<void>
-  // - indexarProductos(productos: any[], proveedor: { nombre: string; nif: string }, fechaFactura: string | Date): Observable<void>
-  // - analizarProductosPorIA(productos: { descripcion: string }[]): Observable<any[]>
-}
-
-/**
- * Interfaces basadas en la API real
- */
-export interface CreateInvoiceDto {
-  enterpriseId: string;
-  supplierName: string;
-  supplierCifNif: string;
-  invoiceNumber: string;
-  date: string; // ISO 8601 format
-  amount: number;
-  lines: InvoiceLine[];
-}
-
-export interface InvoiceLine {
-  id: string;
-  invoiceId: string;
-  suppliersProductId: string | null;
-  description: string | null;
-  quantity: string;
-  unitPrice: string;
-  price: string | null;
-  tax: string | null;
-  createdAt: string;
-}
-
-export interface Supplier {
-  id: string;
-  name: string;
-  cifNif: string;
-  address: string | null;
-  phoneNumber: string | null;
-  commercialName: string | null;
-  commercialPhoneNumber: string | null;
-  deliveryDays: string | null;
-  minPriceDelivery: string | null;
-  sanitaryRegistrationNumber: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Invoice {
-  id: string;
-  enterpriseId: string;
-  supplierId: string;
-  type: string | null;
-  invoiceNumber: string | null;
-  imageUrl: string | null;
-  blobName: string | null;
-  amount: string;
-  date: string;
-  createdAt: string;
-  supplier: Supplier;
-  invoiceLines: InvoiceLine[];
-}
-
-export interface DocumentUrlResponse {
-  url: string;
-  expiresIn: number;
-  blobName: string;
-}
-
-export interface ProductCategory {
-  id: string;
-  name: string;
-  description: string | null;
-}
-
-export interface ProductAllergen {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  eanCode: string;
-  description: string | null;
-  categoryId: string;
-  unit: string;
-  category: ProductCategory;
-  allergens: ProductAllergen[];
-  createdAt: string;
-  updatedAt: string;
 }
