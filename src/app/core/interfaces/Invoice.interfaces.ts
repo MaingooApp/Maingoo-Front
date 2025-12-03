@@ -1,30 +1,31 @@
-export interface Proveedor {
-  nombre: string;
-  nif: string;
-  direccion: string;
-  telefono: string;
-  email: string;
+import { DocumentType } from '../enums/documents.enum';
+
+export interface Product {
+  id: string;
+  name: string;
+  eanCode: string;
+  description: string | null;
+  categoryId: string;
+  unit: string;
+  category: ProductCategory;
+  allergens: ProductAllergen[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface FacturaInfo {
-  numero: string;
-  fecha_emision: string | Date;
-  fecha_vencimiento: string | Date;
-  forma_pago: string;
-  total_con_iva: string | number;
+export interface ProductCategory {
+  id: string;
+  name: string;
+  description: string | null;
 }
 
-export interface Producto {
-  numero_albaran: string;
-  referencia: string;
-  descripcion: string;
-  cantidad: string;
-  precio: string;
-  categoria?: string;
-  alergenos?: string[];
+export interface ProductAllergen {
+  id: string;
+  name: string;
+  code: string;
+  description: string;
 }
 
-// Nueva interfaz que coincide con la estructura del backend
 export interface Supplier {
   id: string;
   name: string;
@@ -52,25 +53,34 @@ export interface InvoiceLine {
   createdAt: string;
 }
 
-export interface InvoiceFromBackend {
+export interface Invoice {
   id: string;
   enterpriseId: string;
   supplierId: string;
   type: string | null;
   invoiceNumber: string | null;
-  imageUrl: string | null;
+  blobName: string | null;
   amount: string;
   date: string;
   createdAt: string;
+  hasDeliveryNotes: boolean;
+  documentType: DocumentType;
   supplier: Supplier;
-  invoiceLines?: InvoiceLine[];
+  invoiceLines: InvoiceLine[];
 }
 
-export interface Invoice {
-  id?: string;
-  imagen?: string;
-  mimeType?: string;
-  proveedor: Proveedor;
-  factura: FacturaInfo;
-  productos: Producto[];
+export interface CreateInvoiceDto {
+  enterpriseId: string;
+  supplierName: string;
+  supplierCifNif: string;
+  invoiceNumber: string;
+  date: string;
+  amount: number;
+  lines: InvoiceLine[];
+}
+
+export interface DocumentUrlResponse {
+  url: string;
+  expiresIn: number;
+  blobName: string;
 }

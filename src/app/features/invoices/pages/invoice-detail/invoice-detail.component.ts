@@ -1,17 +1,16 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
+import { DocumentTypePipe } from '@app/core/pipes/document-type.pipe';
+import { ConvertNumbers } from '@shared/helpers/numbers';
+import { ToastService } from '@shared/services/toast.service';
 import { ButtonModule } from 'primeng/button';
-import { ConvertNumbers } from '../../../../shared/helpers/numbers';
-import { TableModule } from 'primeng/table';
-import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { DialogModule } from 'primeng/dialog';
-import { Invoice, InvoiceService } from '../../services/invoice.service';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
+import { InvoiceService } from '../../services/invoice.service';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -23,25 +22,21 @@ import { ToastService } from '../../../../shared/services/toast.service';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    DialogModule
+    DocumentTypePipe
   ],
   templateUrl: './invoice-detail.component.html'
 })
 export class InvoiceDetailComponent implements OnInit {
   factura: Invoice | null = null;
   ConvertNumbers = ConvertNumbers;
-  mostrarImagen = false;
-  pdfUrlSanitizado: SafeResourceUrl | null = null;
   loading = true;
   downloadingDocument = false;
 
-  // Clave para el almacenamiento de caché
   private readonly CACHE_KEY_PREFIX = 'invoice_document_cache_';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sanitizer: DomSanitizer,
     private invoiceService: InvoiceService,
     private toastService: ToastService
   ) {}
@@ -63,14 +58,6 @@ export class InvoiceDetailComponent implements OnInit {
     this.invoiceService.getInvoiceById(id).subscribe({
       next: (factura: Invoice) => {
         this.factura = factura;
-
-        // Si hay imagen y es PDF, preparar la URL sanitizada
-        if (factura.imageUrl && factura.imageUrl.includes('.pdf')) {
-          this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(factura.imageUrl);
-        } else if (factura.imageUrl) {
-          // Para imágenes normales, también sanitizar si es necesario
-          this.pdfUrlSanitizado = this.sanitizer.bypassSecurityTrustResourceUrl(factura.imageUrl);
-        }
 
         this.loading = false;
       },
