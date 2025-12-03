@@ -4,7 +4,8 @@ import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild } from '@
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { COLUMNS } from '@features/invoices/constants/columns';
-import { Invoice, InvoiceService } from '@features/invoices/services/invoice.service';
+import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
+import { InvoiceService } from '@features/invoices/services/invoice.service';
 import { TablaDinamicaComponent } from '@shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConvertNumbers } from '@shared/helpers/numbers';
 import { Action } from '@shared/interfaces/actions.interface';
@@ -105,7 +106,7 @@ export class InvoiceSummaryComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error eliminando la factura:', error);
-        this.toastService.error('Error', 'No se pudo eliminar la factura.');
+        this.toastService.error('Error', error.error?.message || 'No se pudo eliminar la factura. Intenta nuevamente.');
       }
     });
   }
