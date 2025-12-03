@@ -1,4 +1,4 @@
-<div class="p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md" *ngIf="!loading && producto">
+<div class="p-8 card rounded-xl shadow-md" *ngIf="!loading && producto">
   <div class="flex flex-wrap gap-2 mb-6">
     <button pButton label="Volver" icon="pi pi-arrow-left" (click)="volver()"></button>
   </div>
@@ -17,7 +17,7 @@
       <p><strong>Descripción:</strong> {{ producto.description || 'Sin descripción' }}</p>
       <p><strong>EAN / Código:</strong> {{ producto.eanCode || 'No disponible' }}</p>
       <p><strong>Unidad de medida:</strong> {{ producto.unit }}</p>
-      <p><strong>ID interno:</strong> {{ producto.id }}</p>
+      <p><strong>Stock:</strong> {{ producto.stock }}</p>
     </div>
 
     <div class="space-y-3">
@@ -27,7 +27,6 @@
       </h3>
       <p><strong>Categoría:</strong> {{ producto.category.name || 'Sin categoría' }}</p>
       <p *ngIf="producto.category.description" class="text-gray-600">{{ producto.category.description }}</p>
-      <p><strong>Category ID:</strong> {{ producto.categoryId }}</p>
     </div>
   </div>
 

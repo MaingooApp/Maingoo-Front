@@ -106,7 +106,7 @@ export class InvoiceSummaryComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error eliminando la factura:', error);
-        this.toastService.error('Error', 'No se pudo eliminar la factura.');
+        this.toastService.error('Error', error.error?.message || 'No se pudo eliminar la factura. Intenta nuevamente.');
       }
     });
   }
