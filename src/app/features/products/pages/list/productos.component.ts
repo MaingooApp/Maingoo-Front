@@ -6,7 +6,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth-service.service';
-import { InvoiceService, Product } from '../../../invoices/services/invoice.service';
+import { Product } from '@app/core/interfaces/Invoice.interfaces';
+import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { TablaDinamicaComponent } from '../../../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ToastService } from '../../../../shared/services/toast.service';
 
