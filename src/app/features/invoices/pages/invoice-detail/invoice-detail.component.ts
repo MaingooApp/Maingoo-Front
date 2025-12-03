@@ -6,7 +6,6 @@ import { DocumentTypePipe } from '@app/core/pipes/document-type.pipe';
 import { ConvertNumbers } from '@shared/helpers/numbers';
 import { ToastService } from '@shared/services/toast.service';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -23,7 +22,6 @@ import { InvoiceService } from '../../services/invoice.service';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    DialogModule,
     DocumentTypePipe
   ],
   templateUrl: './invoice-detail.component.html'
