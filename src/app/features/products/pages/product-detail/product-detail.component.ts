@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { InvoiceService, Product } from '../../../invoices/services/invoice.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { Product } from '@app/core/interfaces/Invoice.interfaces';
+import { InvoiceService } from '@app/features/invoices/services/invoice.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -36,7 +37,7 @@ export class ProductDetailComponent implements OnInit {
   private cargarProducto(id: string) {
     this.loading = true;
     this.invoiceService.getProductById(id).subscribe({
-      next: (producto) => {
+      next: (producto: Product) => {
         this.producto = producto;
         this.loading = false;
       },

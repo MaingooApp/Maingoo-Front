@@ -89,7 +89,7 @@ export class SupplierComponent {
       },
       error: (err) => {
         console.error(err);
-        this.toastService.error('Error al eliminar');
+        this.toastService.error('Error al eliminar', err.error.message || 'Intenta nuevamente más tarde.');
       }
     });
   }

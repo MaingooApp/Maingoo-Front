@@ -80,9 +80,14 @@ export class DocumentAnalysisService extends BaseHttpService {
  */
 export interface AnalysisDocument {
   id: string;
-  fileName: string;
-  fileUrl: string;
+  enterpriseId?: string;
+  uploadedBy: string;
+  filename: string;
+  mimetype: string;
+  hasDeliveryNotes: boolean;
+  documentType: string;
   status: 'PENDING' | 'PROCESSING' | 'DONE' | 'FAILED';
+  errorReason?: string;
   extraction?: {
     supplierName?: string;
     supplierCifNif?: string;
@@ -96,8 +101,8 @@ export interface AnalysisDocument {
       tax: string;
     }>;
   };
-  invoiceId?: string; // ID de la factura creada en el servicio de proveedores
-  notes?: string;
+  invoiceId?: string;
+  processedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

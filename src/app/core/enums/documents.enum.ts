@@ -1,4 +1,4 @@
 export enum DocumentType {
   INVOICE = 'invoice',
-  ALBARAN = 'albaran'
+  DELIVERY_NOTE = 'delivery_note'
 }

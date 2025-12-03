@@ -10,8 +10,8 @@ export const documentTypes: Record<DocumentType, DocumentTypeConfig> = {
     label: 'Factura',
     value: DocumentType.INVOICE
   },
-  [DocumentType.ALBARAN]: {
+  [DocumentType.DELIVERY_NOTE]: {
     label: 'Albarán',
-    value: DocumentType.ALBARAN
+    value: DocumentType.DELIVERY_NOTE
   }
 };
