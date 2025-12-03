@@ -29,7 +29,7 @@ export class ProductosComponent implements OnInit {
 
   columnas = [
     { field: 'name', header: 'Nombre', type: 'text', filter: true },
-    { field: 'eanCode', header: 'EAN', type: 'text', filter: true },
+    { field: 'stock', header: 'Stock', type: 'text', filter: true },
     { field: 'category.name', header: 'Categoría', type: 'text', filter: true },
     { field: 'unit', header: 'Unidad', type: 'text', filter: true },
     { field: 'createdAt', header: 'Creado', type: 'date', filter: true }
