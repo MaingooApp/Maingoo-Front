@@ -11,6 +11,7 @@ export interface Product {
   allergens: ProductAllergen[];
   createdAt: string;
   updatedAt: string;
+  stock: number;
 }
 
 export interface ProductCategory {
