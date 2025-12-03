@@ -1,18 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
+import { DocumentTypePipe } from '@app/core/pipes/document-type.pipe';
+import { ConvertNumbers } from '@shared/helpers/numbers';
+import { ToastService } from '@shared/services/toast.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
-import { ConvertNumbers } from '@shared/helpers/numbers';
-import { ToastService } from '@shared/services/toast.service';
 import { InvoiceService } from '../../services/invoice.service';
-import { DocumentTypePipe } from '@app/core/pipes/document-type.pipe';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -32,7 +31,6 @@ import { DocumentTypePipe } from '@app/core/pipes/document-type.pipe';
 export class InvoiceDetailComponent implements OnInit {
   factura: Invoice | null = null;
   ConvertNumbers = ConvertNumbers;
-  pdfUrlSanitizado: SafeResourceUrl | null = null;
   loading = true;
   downloadingDocument = false;
 
