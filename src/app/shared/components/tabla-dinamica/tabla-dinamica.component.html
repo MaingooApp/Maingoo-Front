@@ -1,111 +1,115 @@
-<p-table 
-    #dt 
-    [value]="data" 
-    [paginator]="true" 
-    [rows]="20" 
-    [rowsPerPageOptions]="[10,20,50]"
-    [globalFilterFields]="globalFilterFields" 
-    [loading]="loading" 
-    responsiveLayout="scroll"
-    class="w-full"
-    showGridlines 
-    stripedRows
-    filterDisplay="menu" 
-    [selection]="enableCheckbox ? selection : null"
-    [selectionMode]="enableCheckbox ? selectionMode : null"
-    (selectionChange)="enableCheckbox && selectionChange.emit($event)"
-    >
+<p-table
+  #dt
+  [value]="data"
+  [paginator]="true"
+  [rows]="20"
+  [rowsPerPageOptions]="[10, 20, 50]"
+  [globalFilterFields]="globalFilterFields"
+  [loading]="loading"
+  responsiveLayout="scroll"
+  class="w-full"
+  showGridlines
+  stripedRows
+  filterDisplay="menu"
+  [selection]="enableCheckbox ? selection : null"
+  [selectionMode]="enableCheckbox ? selectionMode : null"
+  (selectionChange)="enableCheckbox && selectionChange.emit($event)">
+  <!-- Filtro global -->
+  <ng-template #caption>
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+      <!-- Botón PDF -->
+      <div class="flex items-center gap-3">
+        <button
+          *ngIf="exportPdf"
+          pButton
+          icon="pi pi-file-pdf"
+          label="Exportar PDF"
+          severity="primary"
+          (click)="exportarComoPdf()"></button>
+      </div>
 
-    <!-- Filtro global -->
-    <ng-template #caption>
-        <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
-          <!-- Botón PDF -->
-          <div class="flex items-center gap-3">
-            <button *ngIf="exportPdf"
-                    pButton
-                    icon="pi pi-file-pdf"
-                    label="Exportar PDF"
-                    severity="success"
-                    (click)="exportarComoPdf()">
-            </button>
+      <!-- Buscador -->
+      <p-iconfield iconPosition="left" class="ml-auto">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+          placeholder="Buscar..." />
+      </p-iconfield>
+    </div>
+  </ng-template>
+
+  <!-- Cabecera -->
+  <ng-template pTemplate="header">
+    <tr>
+      <th *ngIf="showRowIndex">N</th>
+      <th *ngIf="enableCheckbox">
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
+      <ng-container *ngFor="let col of columns">
+        <th>
+          <div class="flex items-center gap-2">
+            {{ col.header }}
+            <p-columnFilter *ngIf="col.filter" [type]="col.type || 'text'" [field]="col.field" display="menu" />
           </div>
-      
-          <!-- Buscador -->
-          <p-iconfield iconPosition="left" class="ml-auto">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input pInputText type="text"
-                   (input)="dt.filterGlobal(getInputValue($event), 'contains')"
-                   placeholder="Buscar..." />
-          </p-iconfield>
+        </th>
+      </ng-container>
+      <th *ngIf="actions.length > 0" style="width: 4rem">Acciones</th>
+    </tr>
+  </ng-template>
+
+  <!-- Cuerpo -->
+  <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+    <tr>
+      <td *ngIf="showRowIndex">{{ dt.first + rowIndex + 1 }}</td>
+      <td *ngIf="enableCheckbox">
+        <p-tableCheckbox [value]="row"></p-tableCheckbox>
+      </td>
+      <ng-container *ngFor="let col of columns">
+        <td>
+          <ng-container [ngSwitch]="col.type">
+            <span *ngSwitchCase="'numeric'">
+              {{ convertToDecimal(getNestedValue(row, col.field)) | number: '1.2-2' }}
+            </span>
+
+            <span *ngSwitchCase="'date'">
+              {{ getNestedValue(row, col.field) | date: 'dd/MM/yyyy HH:mm' }}
+            </span>
+
+            <span *ngSwitchCase="'boolean'">
+              {{ getNestedValue(row, col.field) ? 'Sí' : 'No' }}
+            </span>
+
+            <span *ngSwitchDefault>
+              {{ getNestedValue(row, col.field) }}
+            </span>
+          </ng-container>
+        </td>
+      </ng-container>
+      <td *ngIf="actions.length > 0">
+        <div class="flex gap-2 justify-center">
+          <button
+            *ngFor="let act of actions"
+            pButton
+            [icon]="act.icon"
+            [severity]="act.color || 'primary'"
+            [pTooltip]="act.tooltip || act.action"
+            (click)="onActionClick(act.action, row)"
+            size="small"></button>
         </div>
-      </ng-template>
+      </td>
+    </tr>
+  </ng-template>
 
-    <!-- Cabecera -->
-    <ng-template pTemplate="header">
-        <tr>
-            <th *ngIf="showRowIndex">N</th>
-            <th *ngIf="enableCheckbox">
-                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-            </th>
-            <ng-container *ngFor="let col of columns">
-                <th>
-                    <div class="flex items-center gap-2">
-                        {{ col.header }}
-                        <p-columnFilter *ngIf="col.filter" [type]="col.type || 'text'" [field]="col.field"
-                            display="menu" />
-                    </div>
-                </th>
-            </ng-container>
-            <th *ngIf="actions.length > 0" style="width: 4rem">Acciones</th>
-        </tr>
-    </ng-template>
-
-    <!-- Cuerpo -->
-    <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
-        <tr>
-            <td *ngIf="showRowIndex">{{ dt.first + rowIndex + 1 }}</td>
-            <td *ngIf="enableCheckbox">
-                <p-tableCheckbox [value]="row"></p-tableCheckbox>
-            </td>
-            <ng-container *ngFor="let col of columns">
-                <td>
-                    <ng-container [ngSwitch]="col.type">
-                        <span *ngSwitchCase="'numeric'">
-                          {{ convertToDecimal(getNestedValue(row, col.field)) | number:'1.2-2' }}
-                        </span>
-                      
-                        <span *ngSwitchCase="'date'">
-                          {{ getNestedValue(row, col.field) | date:'dd/MM/yyyy HH:mm' }}
-                        </span>
-                      
-                        <span *ngSwitchCase="'boolean'">
-                          {{ getNestedValue(row, col.field) ? 'Sí' : 'No' }}
-                        </span>
-                      
-                        <span *ngSwitchDefault>
-                          {{ getNestedValue(row, col.field) }}
-                        </span>
-                      </ng-container>
-                </td>
-            </ng-container>
-            <td *ngIf="actions.length > 0">
-                <div class="flex gap-2 justify-center">
-                    <button *ngFor="let act of actions" pButton [icon]="act.icon" [severity]="act.color || 'primary'"
-                        [pTooltip]="act.tooltip || act.action" (click)="onActionClick(act.action, row)" size="small">
-                    </button>
-                </div>
-            </td>
-        </tr>
-    </ng-template>
-
-    <!-- Vacío -->
-    <ng-template #emptymessage>
-        <tr>
-            <td [attr.colspan]="columns.length + 1" class="text-center text-gray-500 italic">
-                {{ emptyMessage }}
-            </td>
-        </tr>
-    </ng-template>
+  <!-- Vacío -->
+  <ng-template #emptymessage>
+    <tr>
+      <td [attr.colspan]="columns.length + 1" class="text-center text-gray-500 italic">
+        {{ emptyMessage }}
+      </td>
+    </tr>
+  </ng-template>
 </p-table>
