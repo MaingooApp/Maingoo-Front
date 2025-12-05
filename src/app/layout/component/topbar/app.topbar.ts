@@ -14,41 +14,44 @@ import { AppConfigurator } from '../app.configurator';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../../service/layout.service';
 // - AuthService: servicio de autenticación que expone métodos como logout()
-import { AuthService } from '../../../core/services/auth-service.service';
+import { AuthService } from '../../../features/auth/services/auth-service.service';
 
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
-    // Selector del componente usado en plantillas: <app-topbar></app-topbar>
-    selector: 'app-topbar',
-    // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
-    // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
-    standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
-    // Template externo: se usa un archivo HTML separado para mejor organización
-    templateUrl: './app.topbar.html'
+  // Selector del componente usado en plantillas: <app-topbar></app-topbar>
+  selector: 'app-topbar',
+  // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
+  // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
+  standalone: true,
+  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+  // Template externo: se usa un archivo HTML separado para mejor organización
+  templateUrl: './app.topbar.html'
 })
-
 export class AppTopbar {
-    // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
-    items!: MenuItem[];
+  // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
+  items!: MenuItem[];
 
-    // Injectamos servicios usados por el topbar:
-    // - layoutService: controla el estado del layout (sidebar abierto, tema, etc.)
-    // - authService: provee métodos de autenticación, p.ej. logout()
-    // - router: para navegar programáticamente (después del logout se redirige al login)
-    constructor(public layoutService: LayoutService, private authService: AuthService, private router: Router) {}
+  // Injectamos servicios usados por el topbar:
+  // - layoutService: controla el estado del layout (sidebar abierto, tema, etc.)
+  // - authService: provee métodos de autenticación, p.ej. logout()
+  // - router: para navegar programáticamente (después del logout se redirige al login)
+  constructor(
+    public layoutService: LayoutService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-    // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
-    // Usa una función de actualización inmutable sobre layoutService.layoutConfig
-    // (asumiendo que layoutConfig es un signal/observable con método update).
-    toggleDarkMode() {
-        this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
-    }
+  // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
+  // Usa una función de actualización inmutable sobre layoutService.layoutConfig
+  // (asumiendo que layoutConfig es un signal/observable con método update).
+  toggleDarkMode() {
+    this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+  }
 
-    // logout: llama a authService.logout() y luego navega a la página de login.
-    // Nota: authService.logout() debería encargarse de limpiar tokens/localStorage.
-    logout() {
-        this.authService.logout();
-        this.router.navigate(['/auth/login']);
-    }
+  // logout: llama a authService.logout() y luego navega a la página de login.
+  // Nota: authService.logout() debería encargarse de limpiar tokens/localStorage.
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
+  }
 }
