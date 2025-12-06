@@ -165,3 +165,158 @@
     </div>
   </div>
 </form>
+
+<!-- Sección de seguridad de la cuenta -->
+<div class="card mt-6">
+  <div class="mb-6">
+    <h2 class="text-2xl font-semibold text-surface-900 dark:text-surface-0 mb-2">Seguridad de la cuenta</h2>
+    <p class="text-surface-600 dark:text-surface-400">Gestiona la seguridad de tu cuenta</p>
+  </div>
+
+  <p-tabView>
+    <!-- Pestaña: Cambiar contraseña -->
+    <p-tabPanel header="Cambiar contraseña">
+      <form [formGroup]="passwordForm" (ngSubmit)="cambiarPassword()" class="p-fluid">
+        <div class="flex flex-col gap-6 max-w-2xl">
+          <!-- Contraseña actual -->
+          <div class="flex flex-col gap-2">
+            <label for="currentPassword" class="font-medium">Contraseña actual *</label>
+            <p-password
+              id="currentPassword"
+              formControlName="currentPassword"
+              placeholder="••••••••"
+              [toggleMask]="true"
+              [feedback]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full" />
+            <small
+              *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+              class="text-red-500">
+              <i class="pi pi-exclamation-circle mr-1"></i>
+              La contraseña actual es obligatoria
+            </small>
+          </div>
+
+          <div class="border-t border-surface-200 dark:border-surface-700"></div>
+
+          <!-- Nueva contraseña -->
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <label for="newPassword" class="font-medium">Nueva contraseña *</label>
+              <button
+                type="button"
+                class="text-sm text-primary hover:underline flex items-center gap-1"
+                (click)="passwordHelpPopover.toggle($event)">
+                <i class="pi pi-info-circle"></i>
+                Requisitos
+              </button>
+            </div>
+
+            <p-popover #passwordHelpPopover>
+              <div class="p-4 max-w-xs">
+                <p class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Requisitos de contraseña:</p>
+                <div class="space-y-2 text-sm">
+                  <div class="flex items-start gap-2">
+                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span>Mínimo 8 caracteres</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span>Al menos 1 letra mayúscula (A-Z)</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span>Al menos 1 letra minúscula (a-z)</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span>Al menos 1 número (0-9)</span>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span>Al menos 1 carácter especial</span>
+                  </div>
+                </div>
+              </div>
+            </p-popover>
+
+            <p-password
+              id="newPassword"
+              formControlName="newPassword"
+              placeholder="••••••••"
+              [toggleMask]="true"
+              [feedback]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full" />
+
+            <small
+              *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+              class="text-red-500">
+              <i class="pi pi-exclamation-circle mr-1"></i>
+              <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']"
+                >La nueva contraseña es obligatoria</span
+              >
+              <span *ngIf="passwordForm.get('newPassword')?.errors?.['passwordPolicy']"
+                >La contraseña no cumple con los requisitos de seguridad</span
+              >
+            </small>
+          </div>
+
+          <!-- Confirmar nueva contraseña -->
+          <div class="flex flex-col gap-2">
+            <label for="confirmPassword" class="font-medium">Confirmar nueva contraseña *</label>
+            <p-password
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              [toggleMask]="true"
+              [feedback]="false"
+              styleClass="w-full"
+              inputStyleClass="w-full" />
+
+            <small
+              *ngIf="
+                (passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched) ||
+                (passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched)
+              "
+              class="text-red-500">
+              <i class="pi pi-exclamation-circle mr-1"></i>
+              <span *ngIf="passwordForm.get('confirmPassword')?.errors?.['required']"
+                >Debes confirmar la nueva contraseña</span
+              >
+              <span
+                *ngIf="
+                  passwordForm.errors?.['passwordMismatch'] &&
+                  !passwordForm.get('confirmPassword')?.errors?.['required']
+                "
+                >Las contraseñas no coinciden</span
+              >
+            </small>
+          </div>
+        </div>
+
+        <!-- Botón de cambiar contraseña -->
+        <div class="flex justify-end mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
+          <button
+            pButton
+            type="submit"
+            label="Actualizar contraseña"
+            icon="pi pi-shield"
+            [disabled]="passwordForm.invalid"
+            class="p-button-success"></button>
+        </div>
+      </form>
+    </p-tabPanel>
+
+    <!-- Pestaña: Cambiar email (preparado para futuro) -->
+    <p-tabPanel header="Cambiar email">
+      <div class="flex flex-col items-center justify-center p-8 text-center">
+        <i class="pi pi-envelope text-6xl text-surface-300 dark:text-surface-600 mb-4"></i>
+        <h3 class="text-xl font-semibold text-surface-700 dark:text-surface-300 mb-2">Próximamente</h3>
+        <p class="text-surface-600 dark:text-surface-400 max-w-md">
+          La funcionalidad para cambiar el email estará disponible próximamente.
+        </p>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>
