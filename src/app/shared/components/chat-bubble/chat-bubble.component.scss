@@ -22,6 +22,17 @@
       transform: scale(0.95);
     }
   }
+
+  // Modo oscuro para el botón flotante
+  :host-context(.app-dark) ::ng-deep .chat-bubble-button {
+    background: #6B9E86 !important;
+    border-color: #1A3C34 !important;
+    
+    &:hover {
+      background: #8BC4A8 !important;
+      box-shadow: 0 6px 16px rgba(107, 158, 134, 0.35);
+    }
+  }
 }
 
 /* Ventana de chat */
@@ -35,6 +46,12 @@
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.3s ease-out;
+}
+
+// Modo oscuro para ventana
+:host-context(.app-dark) .chat-window {
+  border-color: #6B9E86;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes slideUp {
@@ -55,11 +72,23 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 2px solid #6B9E86;
+  background: #1A3C34;
 
   h3 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
+    color: white;
+  }
+}
+
+// Modo oscuro para header
+:host-context(.app-dark) .chat-header {
+  background: #6B9E86;
+  border-bottom-color: #1A3C34;
+  
+  h3 {
+    color: #1A3C34;
   }
 }
 
@@ -68,6 +97,14 @@
   
   &:hover {
     background: rgba(107, 158, 134, 0.3) !important;
+  }
+}
+
+:host-context(.app-dark) ::ng-deep .close-button {
+  color: #1A3C34 !important;
+  
+  &:hover {
+    background: rgba(26, 60, 52, 0.2) !important;
   }
 }
 
@@ -109,6 +146,11 @@
   box-shadow: 0 2px 4px rgba(26, 60, 52, 0.08);
 }
 
+:host-context(.app-dark) .bot-message {
+  border-left-color: #6B9E86;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 .user-message {
   background: #1A3C34;
   color: white;
@@ -117,12 +159,22 @@
   box-shadow: 0 2px 4px rgba(26, 60, 52, 0.15);
 }
 
+:host-context(.app-dark) .user-message {
+  background: #6B9E86;
+  color: #1A3C34;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 /* Input de mensaje */
 .chat-input {
   padding: 16px;
   border-top: 1px solid #6B9E86;
   display: flex;
   gap: 8px;
+}
+
+:host-context(.app-dark) .chat-input {
+  border-top-color: #6B9E86;
 }
 
 .message-input {
@@ -143,6 +195,14 @@
   }
 }
 
+:host-context(.app-dark) .message-input {
+  border-color: #6B9E86;
+  
+  &:focus {
+    border-color: #8BC4A8;
+  }
+}
+
 :host ::ng-deep .send-button {
   width: 40px;
   height: 40px;
@@ -157,6 +217,15 @@
 
   &:active {
     transform: scale(0.95);
+  }
+}
+
+:host-context(.app-dark) ::ng-deep .send-button {
+  background: #6B9E86 !important;
+  border-color: #1A3C34 !important;
+  
+  &:hover {
+    background: #8BC4A8 !important;
   }
 }
 
