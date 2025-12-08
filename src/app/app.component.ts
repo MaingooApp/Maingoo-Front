@@ -7,11 +7,12 @@ import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { ToastModule } from 'primeng/toast';
 import packageJson from '../../package.json';
 import { LanguageService } from './core/services/language.service';
+import { ChatBubbleComponent } from './shared/components/chat-bubble/chat-bubble.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule, HttpClientModule, ConfirmDialogModule, ToastModule, DynamicDialogModule],
+  imports: [RouterModule, HttpClientModule, ConfirmDialogModule, ToastModule, DynamicDialogModule, ChatBubbleComponent],
   templateUrl: './app.component.html'
 })
 export class AppComponent {
