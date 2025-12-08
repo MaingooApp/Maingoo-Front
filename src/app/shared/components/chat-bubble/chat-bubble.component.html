@@ -1,5 +1,5 @@
 <!-- Botón flotante (burbuja) -->
-<div class="chat-bubble-container">
+<div class="fixed bottom-6 right-6 z-[9999]">
   @if (!isOpen()) {
     <p-button 
       [rounded]="true"
@@ -7,15 +7,15 @@
       icon="pi pi-comments"
       (onClick)="toggleChat()"
       aria-label="Abrir chat"
-      styleClass="chat-bubble-button" />
+      styleClass="!w-[70px] !h-[70px] !text-[28px] !bg-[#1A3C34] !border-[3px] !border-[#6B9E86] shadow-lg hover:scale-110 hover:!bg-[#6B9E86] active:scale-95 transition-all duration-300 dark:!bg-[#6B9E86] dark:!border-[#1A3C34] dark:hover:!bg-[#8BC4A8]" />
   }
 
   <!-- Ventana de chat expandida -->
   @if (isOpen()) {
-    <div class="chat-window bg-surface-0 dark:bg-surface-900">
-      <!-- Header usando card -->
-      <div class="chat-header bg-[#1A3C34] text-surface-0">
-        <h3 class="text-surface-0">Chat de Ayuda</h3>
+    <div class="w-[380px] h-[500px] bg-surface-0 dark:bg-surface-900 rounded-2xl border-2 border-[#6B9E86] shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.3s_ease-out] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+      <!-- Header -->
+      <div class="bg-[#1A3C34] dark:bg-[#6B9E86] px-5 py-4 flex justify-between items-center border-b-2 border-[#6B9E86] dark:border-[#1A3C34] rounded-t-2xl shadow-2xl">
+        <h3 class="m-0 text-lg font-semibold text-white dark:text-[#1A3C34]">Chat de Ayuda</h3>
         <p-button 
           [rounded]="true"
           [text]="true"
@@ -23,29 +23,53 @@
           icon="pi pi-times"
           (onClick)="closeChat()"
           aria-label="Cerrar chat"
-          styleClass="close-button" />
+          styleClass="!text-white dark:!text-[#1A3C34] hover:!bg-[rgba(107,158,134,0.3)] dark:hover:!bg-[rgba(26,60,52,0.2)]" />
       </div>
 
       <!-- Área de mensajes -->
-      <div class="chat-messages bg-surface-50 dark:bg-surface-800">
-        <div class="message bot-message bg-surface-0 dark:bg-surface-700">
-          <p class="text-surface-900 dark:text-surface-0">¡Hola! ¿En qué puedo ayudarte?</p>
+      <div class="flex-1 p-5 overflow-y-auto bg-surface-50 dark:bg-surface-800">
+        <div class="mb-3 p-3 rounded-lg max-w-[80%] bg-surface-0 dark:bg-surface-700 border-l-[3px] border-[#6B9E86] shadow-sm animate-[fadeIn_0.3s_ease-out] dark:shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+          <p class="m-0 text-sm leading-relaxed text-surface-900 dark:text-surface-0">¡Hola! ¿En qué puedo ayudarte?</p>
         </div>
       </div>
 
       <!-- Input de mensaje -->
-      <div class="chat-input bg-surface-0 dark:bg-surface-900">
+      <div class="p-4 bg-surface-0 dark:bg-surface-900 border-t border-[#6B9E86] flex gap-2">
         <input 
           type="text" 
           placeholder="Escribe un mensaje..."
           pInputText
-          class="message-input w-full bg-surface-50 dark:bg-surface-800" />
+          class="flex-1 px-3.5 py-2.5 border-2 border-[#6B9E86] dark:border-[#6B9E86] rounded-full outline-none text-sm transition-all bg-surface-50 dark:bg-surface-800 focus:border-[#1A3C34] dark:focus:border-[#8BC4A8] placeholder:text-[#6B9E86]" />
         <p-button 
           [rounded]="true"
           icon="pi pi-send"
           severity="secondary"
-          styleClass="send-button" />
+          styleClass="!w-10 !h-10 !bg-[#1A3C34] !border-2 !border-[#6B9E86] hover:!bg-[#6B9E86] hover:scale-105 active:scale-95 transition-all dark:!bg-[#6B9E86] dark:!border-[#1A3C34] dark:hover:!bg-[#8BC4A8]" />
       </div>
     </div>
   }
 </div>
+
+<style>
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
