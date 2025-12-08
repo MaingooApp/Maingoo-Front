@@ -3,31 +3,24 @@
   bottom: 24px;
   right: 24px;
   z-index: 9999;
-}
 
-/* Botón flotante */
-.chat-bubble-button {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  :host ::ng-deep .chat-bubble-button {
+    width: 60px;
+    height: 60px;
+    background: #1A3C34 !important;
+    border: 3px solid #6B9E86 !important;
+    box-shadow: 0 4px 12px rgba(26, 60, 52, 0.25);
+    transition: all 0.3s ease;
 
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  }
+    &:hover {
+      transform: scale(1.1);
+      background: #6B9E86 !important;
+      box-shadow: 0 6px 16px rgba(26, 60, 52, 0.35);
+    }
 
-  &:active {
-    transform: scale(0.95);
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }
 
@@ -35,9 +28,9 @@
 .chat-window {
   width: 380px;
   height: 500px;
-  background: white;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 2px solid #6B9E86;
+  box-shadow: 0 8px 32px rgba(26, 60, 52, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -57,12 +50,11 @@
 
 /* Header del chat */
 .chat-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 2px solid #6B9E86;
 
   h3 {
     margin: 0;
@@ -71,22 +63,11 @@
   }
 }
 
-.close-button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background 0.2s;
-
+:host ::ng-deep .close-button {
+  color: white !important;
+  
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(107, 158, 134, 0.3) !important;
   }
 }
 
@@ -95,7 +76,6 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background: #f5f5f5;
 }
 
 .message {
@@ -124,23 +104,23 @@
 }
 
 .bot-message {
-  background: white;
-  border-left: 3px solid #667eea;
+  border-left: 3px solid #6B9E86;
   align-self: flex-start;
+  box-shadow: 0 2px 4px rgba(26, 60, 52, 0.08);
 }
 
 .user-message {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1A3C34;
   color: white;
   margin-left: auto;
   align-self: flex-end;
+  box-shadow: 0 2px 4px rgba(26, 60, 52, 0.15);
 }
 
 /* Input de mensaje */
 .chat-input {
   padding: 16px;
-  background: white;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #6B9E86;
   display: flex;
   gap: 8px;
 }
@@ -148,35 +128,30 @@
 .message-input {
   flex: 1;
   padding: 10px 14px;
-  border: 1px solid #ddd;
+  border: 2px solid #6B9E86;
   border-radius: 20px;
   outline: none;
   font-size: 14px;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
 
   &:focus {
-    border-color: #667eea;
+    border-color: #1A3C34;
   }
 
   &::placeholder {
-    color: #999;
+    color: #6B9E86;
   }
 }
 
-.send-button {
+:host ::ng-deep .send-button {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s;
+  background: #1A3C34 !important;
+  border: 2px solid #6B9E86 !important;
+  transition: all 0.2s;
 
   &:hover {
+    background: #6B9E86 !important;
     transform: scale(1.05);
   }
 

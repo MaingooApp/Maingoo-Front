@@ -1,44 +1,50 @@
 <!-- Botón flotante (burbuja) -->
 <div class="chat-bubble-container">
   @if (!isOpen()) {
-    <button 
-      class="chat-bubble-button" 
-      (click)="toggleChat()"
-      aria-label="Abrir chat">
-      <i class="pi pi-comments"></i>
-    </button>
+    <p-button 
+      [rounded]="true"
+      severity="secondary"
+      icon="pi pi-comments"
+      (onClick)="toggleChat()"
+      aria-label="Abrir chat"
+      styleClass="chat-bubble-button" />
   }
 
   <!-- Ventana de chat expandida -->
   @if (isOpen()) {
-    <div class="chat-window">
-      <!-- Header -->
-      <div class="chat-header">
-        <h3>Chat de Ayuda</h3>
-        <button 
-          class="close-button" 
-          (click)="closeChat()"
-          aria-label="Cerrar chat">
-          <i class="pi pi-times"></i>
-        </button>
+    <div class="chat-window bg-surface-0 dark:bg-surface-900">
+      <!-- Header usando card -->
+      <div class="chat-header bg-[#1A3C34] text-surface-0">
+        <h3 class="text-surface-0">Chat de Ayuda</h3>
+        <p-button 
+          [rounded]="true"
+          [text]="true"
+          severity="secondary"
+          icon="pi pi-times"
+          (onClick)="closeChat()"
+          aria-label="Cerrar chat"
+          styleClass="close-button" />
       </div>
 
       <!-- Área de mensajes -->
-      <div class="chat-messages">
-        <div class="message bot-message">
-          <p>¡Hola! ¿En qué puedo ayudarte?</p>
+      <div class="chat-messages bg-surface-50 dark:bg-surface-800">
+        <div class="message bot-message bg-surface-0 dark:bg-surface-700">
+          <p class="text-surface-900 dark:text-surface-0">¡Hola! ¿En qué puedo ayudarte?</p>
         </div>
       </div>
 
       <!-- Input de mensaje -->
-      <div class="chat-input">
+      <div class="chat-input bg-surface-0 dark:bg-surface-900">
         <input 
           type="text" 
           placeholder="Escribe un mensaje..."
-          class="message-input" />
-        <button class="send-button">
-          <i class="pi pi-send"></i>
-        </button>
+          pInputText
+          class="message-input w-full bg-surface-50 dark:bg-surface-800" />
+        <p-button 
+          [rounded]="true"
+          icon="pi pi-send"
+          severity="secondary"
+          styleClass="send-button" />
       </div>
     </div>
   }
