@@ -1,10 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-chat-bubble',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonModule, InputTextModule],
   templateUrl: './chat-bubble.component.html',
   styleUrl: './chat-bubble.component.scss'
 })
