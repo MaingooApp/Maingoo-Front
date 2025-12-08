@@ -1,0 +1,45 @@
+<!-- Botón flotante (burbuja) -->
+<div class="chat-bubble-container">
+  @if (!isOpen()) {
+    <button 
+      class="chat-bubble-button" 
+      (click)="toggleChat()"
+      aria-label="Abrir chat">
+      <i class="pi pi-comments"></i>
+    </button>
+  }
+
+  <!-- Ventana de chat expandida -->
+  @if (isOpen()) {
+    <div class="chat-window">
+      <!-- Header -->
+      <div class="chat-header">
+        <h3>Chat de Ayuda</h3>
+        <button 
+          class="close-button" 
+          (click)="closeChat()"
+          aria-label="Cerrar chat">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <!-- Área de mensajes -->
+      <div class="chat-messages">
+        <div class="message bot-message">
+          <p>¡Hola! ¿En qué puedo ayudarte?</p>
+        </div>
+      </div>
+
+      <!-- Input de mensaje -->
+      <div class="chat-input">
+        <input 
+          type="text" 
+          placeholder="Escribe un mensaje..."
+          class="message-input" />
+        <button class="send-button">
+          <i class="pi pi-send"></i>
+        </button>
+      </div>
+    </div>
+  }
+</div>
