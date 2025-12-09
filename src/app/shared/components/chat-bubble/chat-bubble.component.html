@@ -34,7 +34,7 @@
       <!-- Área de mensajes (Cuerpo del Chat) -->
       <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800 min-h-[400px] max-h-[450px]">
         <!-- Mensajes dinámicos -->
-        @for (message of messages; track message.id) {
+        @for (message of messages; track message.id; let idx = $index) {
           @if (message.sender === 'bot') {
             <!-- Mensaje del BOT -->
             <div class="flex items-start space-x-2 mb-3 animate-[fadeIn_0.3s_ease-out]">
@@ -46,6 +46,26 @@
                 <span class="text-xs text-[#6B9E86] dark:text-[#8BC4A8] mt-1 block">
                   {{ message.timestamp | date:'shortTime' }}
                 </span>
+                
+                <!-- Acciones rápidas (solo en el primer mensaje) -->
+                @if (isFirstBotMessage(idx)) {
+                  <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-surface-600">
+                    <button 
+                      (click)="handleQuickAction('Subir factura')"
+                      class="px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-600 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 flex items-center gap-1.5"
+                    >
+                      <i class="pi pi-upload text-xs"></i>
+                      <span>Subir factura</span>
+                    </button>
+                    <button 
+                      (click)="handleQuickAction('Informe de compras')"
+                      class="px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-600 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 flex items-center gap-1.5"
+                    >
+                      <i class="pi pi-chart-bar text-xs"></i>
+                      <span>Informe de compras</span>
+                    </button>
+                  </div>
+                }
               </div>
             </div>
           } @else {
