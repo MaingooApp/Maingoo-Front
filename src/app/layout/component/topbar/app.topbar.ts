@@ -9,6 +9,8 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 // - StyleClassModule: módulo de PrimeNG para animaciones/estilos que usa pStyleClass
 import { StyleClassModule } from 'primeng/styleclass';
+// - TooltipModule: módulo de PrimeNG para mostrar tooltips en los botones
+import { TooltipModule } from 'primeng/tooltip';
 // - AppConfigurator: componente hijo que maneja la configuración visual (tema, colores)
 import { AppConfigurator } from '../app.configurator';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
@@ -23,7 +25,7 @@ import { AuthService } from '../../../features/auth/services/auth-service.servic
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, AppConfigurator],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, AppConfigurator],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html'
 })
@@ -46,6 +48,19 @@ export class AppTopbar {
   // (asumiendo que layoutConfig es un signal/observable con método update).
   toggleDarkMode() {
     this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
+  }
+
+  // toggleNotifications: método para mostrar/ocultar el panel de notificaciones
+  // En este momento solo se crea el método, la funcionalidad completa se implementará después
+  toggleNotifications() {
+    // TODO: Implementar lógica para mostrar panel de notificaciones o toast
+    console.log('Notificaciones clickeadas');
+  }
+
+  // openSettings: método para abrir el panel de configuración del sistema
+  openSettings() {
+    // TODO: Implementar lógica para abrir panel de configuración
+    console.log('Configuración clickeada');
   }
 
   // logout: llama a authService.logout() y luego navega a la página de login.
