@@ -2,8 +2,8 @@
 <div class="layout-topbar">
   <!-- ========== SECCIÓN IZQUIERDA: Logo y Menú ========== -->
   <div class="layout-topbar-logo-container">
-    <!-- Botón hamburguesa para abrir/cerrar el sidebar -->
-    <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
+    <!-- Botón hamburguesa para abrir/cerrar el sidebar (solo en móvil y tablet) -->
+    <button class="layout-menu-button layout-topbar-action lg:!hidden" (click)="layoutService.onMenuToggle()">
       <i class="pi pi-bars"></i>
     </button>
 
