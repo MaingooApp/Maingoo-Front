@@ -31,7 +31,7 @@ export class AppSidebar {
   private audioChunks: Blob[] = [];
 
   quickLinks = [
-    { label: 'Dashboard', icon: 'pi pi-home', route: '/' },
+    { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
     { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
     { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
     { label: 'Productos', icon: 'pi pi-tags', route: '/productos' },
