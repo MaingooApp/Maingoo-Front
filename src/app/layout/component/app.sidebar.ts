@@ -34,8 +34,7 @@ export class AppSidebar {
     { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
     { label: 'Productos', icon: 'pi pi-tags', route: '/productos' },
     { label: 'Generador', icon: 'pi pi-file-edit', route: '/docgenerator' },
-    { label: 'Horarios', icon: 'pi pi-calendar', route: '/horarios' },
-    { label: 'Configuración', icon: 'pi pi-cog', route: '/configuracion' }
+    { label: 'Horarios', icon: 'pi pi-calendar', route: '/horarios' }
   ];
 
   constructor(

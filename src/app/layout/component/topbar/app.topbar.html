@@ -2,11 +2,6 @@
 <div class="layout-topbar">
   <!-- ========== SECCIÓN IZQUIERDA: Logo y Menú ========== -->
   <div class="layout-topbar-logo-container">
-    <!-- Botón hamburguesa para abrir/cerrar el sidebar (solo en móvil y tablet) -->
-    <button class="layout-menu-button layout-topbar-action lg:!hidden" (click)="layoutService.onMenuToggle()">
-      <i class="pi pi-bars"></i>
-    </button>
-
     <!-- Logo y nombre de la aplicación -->
     <a routerLink="/" class="flex items-center">
       <img src="assets/images/maingoo_logo.svg" alt="Maingoo" height="30" width="30" style="object-fit: contain" />
@@ -26,6 +21,11 @@
                     'pi-moon': layoutService.isDarkTheme(), 
                     'pi-sun': !layoutService.isDarkTheme() 
                 }"></i>
+      </button>
+
+      <!-- Botón para abrir/cerrar el sidebar del chat -->
+      <button type="button" class="layout-topbar-action" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-comments"></i>
       </button>
 
       <!-- Botón para abrir el configurador de paleta de colores -->
