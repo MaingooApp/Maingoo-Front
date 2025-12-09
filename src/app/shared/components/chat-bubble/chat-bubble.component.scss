@@ -1,2 +1,31 @@
-// Archivo vacío - todos los estilos se manejan con Tailwind en el HTML
+// Estilos para el chat expandido (similar a layout-sidebar)
+.layout-chat-sidebar {
+    position: fixed;
+    width: 25rem;
+    height: calc(100vh - 8rem);
+    z-index: 999;
+    overflow: hidden;
+    user-select: none;
+    top: 6rem;
+    right: 2rem;
+    transition:
+        transform var(--layout-section-transition-duration),
+        right var(--layout-section-transition-duration);
+    background-color: var(--surface-overlay);
+    border-radius: var(--content-border-radius);
+    display: flex;
+    flex-direction: column;
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 

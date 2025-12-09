@@ -20,6 +20,7 @@ export class ChatBubbleComponent {
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
   
   isOpen = signal(false);
+  isExpanded = signal(false);
   messageText = '';
   messages: ChatMessage[] = [];
   isTyping = false;
@@ -54,7 +55,18 @@ export class ChatBubbleComponent {
     }
   }
 
+  expandChat() {
+    this.isExpanded.set(true);
+    setTimeout(() => this.scrollToBottom(), 100);
+  }
+
+  minimizeChat() {
+    this.isExpanded.set(false);
+    setTimeout(() => this.scrollToBottom(), 100);
+  }
+
   closeChat() {
+    this.isExpanded.set(false);
     this.isOpen.set(false);
   }
 
@@ -178,7 +190,8 @@ export class ChatBubbleComponent {
   }
 
   private scrollToBottom() {
-    const messagesContainer = document.getElementById('chat-messages');
+    const containerId = this.isExpanded() ? 'chat-messages-expanded' : 'chat-messages';
+    const messagesContainer = document.getElementById(containerId);
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
