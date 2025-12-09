@@ -43,9 +43,6 @@
               </div>
               <div class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3">
                 <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
-                <span class="text-xs text-[#6B9E86] dark:text-[#8BC4A8] mt-1 block">
-                  {{ message.timestamp | date:'shortTime' }}
-                </span>
                 
                 <!-- Acciones rápidas (solo en el primer mensaje) -->
                 @if (isFirstBotMessage(idx)) {
@@ -73,9 +70,6 @@
             <div class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
               <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3">
                 <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
-                <span class="text-xs opacity-75 mt-1 block">
-                  {{ message.timestamp | date:'shortTime' }}
-                </span>
               </div>
               <div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
                 <i class="pi pi-user text-white text-xs"></i>
