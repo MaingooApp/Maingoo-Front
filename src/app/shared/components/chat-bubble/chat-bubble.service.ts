@@ -13,7 +13,7 @@ export interface ChatMessage {
   providedIn: 'root'
 })
 export class ChatBubbleService {
-  private n8nWebhookUrl = 'https://n8n.maingoo.tech/webhook-test/app-chat';
+  private n8nWebhookUrl = 'https://n8n.maingoo.tech/webhook/app-chat';
   private sessionId: string;
   
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([
