@@ -1,51 +1,68 @@
 <!-- ==================== TOPBAR PRINCIPAL ==================== -->
-<div class="layout-topbar">
-  <!-- ========== SECCIÓN IZQUIERDA: Logo y Menú ========== -->
-  <div class="layout-topbar-logo-container">
-    <!-- Logo y nombre de la aplicación -->
+<div class="w-full h-20 bg-transparent dark:bg-transparent flex justify-center items-center px-8 pt-4">
+  <div class="w-full bg-white dark:bg-surface-900 rounded-[var(--content-border-radius)] shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex justify-between items-center px-10 h-full">
+    <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
     <a routerLink="/" class="flex items-center gap-5">
       <!-- Avatar con iniciales del usuario -->
-      <div class="w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center">
-        <span class="text-white dark:text-[#1A3C34] font-bold text-sm">NU</span>
+      <div class="w-12 h-12 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center shadow-[0_2px_8px_rgba(26,60,52,0.15)]">
+        <span class="text-white dark:text-[#1A3C34] font-bold text-base">NU</span>
       </div>
-      <span class="text-2xl font-semibold whitespace-nowrap">NOMBRE USUARIO | NOMBRE DE NEGOCIO</span>
+      <span class="text-lg font-semibold text-[#1A3C34] dark:text-surface-0 whitespace-nowrap">NOMBRE USUARIO | NOMBRE DE NEGOCIO</span>
     </a>
-  </div>
 
-  <!-- ========== SECCIÓN DERECHA: Acciones y Menú de Usuario ========== -->
-  <div class="layout-topbar-actions">
-    <!-- === Menú de acciones con espaciado uniforme === -->
-    <div class="flex items-center gap-5">
+    <!-- ========== SECCIÓN DERECHA: Cápsula Flotante ========== -->
+    <div class="bg-[#F0F7F4] dark:bg-surface-800 rounded-full px-8 py-3.5 shadow-[0_2px_12px_rgba(26,60,52,0.06)] flex items-center gap-7">
       <!-- Botón para alternar entre tema oscuro/claro -->
-      <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+      <button 
+        type="button" 
+        (click)="toggleDarkMode()"
+        class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+        aria-label="Cambiar tema"
+      >
         <i
+          class="text-xl"
           [ngClass]="{ 
-                    'pi ': true, 
-                    'pi-moon': layoutService.isDarkTheme(), 
-                    'pi-sun': !layoutService.isDarkTheme() 
-                }"></i>
+            'pi ': true, 
+            'pi-moon': layoutService.isDarkTheme(), 
+            'pi-sun': !layoutService.isDarkTheme() 
+          }"></i>
       </button>
 
       <!-- Botón para abrir/cerrar el sidebar del chat -->
-      <button type="button" class="layout-topbar-action flex items-center justify-center" (click)="layoutService.onMenuToggle()">
-        <img src="assets/images/maingoo_logo.svg" alt="Chat Maingoo" class="w-6 h-6 object-contain translate-x-[1px]" />
+      <button 
+        type="button" 
+        (click)="layoutService.onMenuToggle()"
+        class="flex items-center justify-center hover:scale-105 transition-all duration-200"
+        aria-label="Abrir chat"
+      >
+        <img src="assets/images/maingoo_logo.svg" alt="Chat Maingoo" class="w-6 h-6 object-contain" />
       </button>
 
       <!-- Acceso al Perfil del usuario -->
-      <button type="button" class="layout-topbar-action" routerLink="/miperfil">
-        <i class="pi pi-user"></i>
+      <button 
+        type="button" 
+        routerLink="/miperfil"
+        class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+        aria-label="Mi perfil"
+      >
+        <i class="pi pi-user text-xl"></i>
       </button>
 
       <!-- Botón de Cerrar Sesión -->
-      <button type="button" class="layout-topbar-action" (click)="logout()">
-        <i class="pi pi-sign-out"></i>
+      <button 
+        type="button" 
+        (click)="logout()"
+        class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+        aria-label="Cerrar sesión"
+      >
+        <i class="pi pi-sign-out text-xl"></i>
       </button>
     </div>
+  </div>
 
-    <!-- Componente de configuración visual (oculto) -->
-    <div class="hidden">
-      <app-configurator />
-    </div>
+  <!-- Componente de configuración visual (oculto) -->
+  <div class="hidden">
+    <app-configurator />
   </div>
 </div>
 <!-- ==================== FIN TOPBAR ==================== -->
