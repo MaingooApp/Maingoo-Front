@@ -1,7 +1,7 @@
-// Estilos para el chat expandido (similar a layout-sidebar)
+// Estilos para el chat lateral permanente (igual que layout-sidebar)
 .layout-chat-sidebar {
     position: fixed;
-    width: 25rem;
+    width: 20rem;
     height: calc(100vh - 8rem);
     z-index: 999;
     overflow: hidden;
@@ -15,7 +15,6 @@
     border-radius: var(--content-border-radius);
     display: flex;
     flex-direction: column;
-    animation: slideInRight 0.3s ease-out;
 }
 
 // Scrollbar personalizado para las píldoras de navegación
@@ -41,14 +40,5 @@
     }
 }
 
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+
 

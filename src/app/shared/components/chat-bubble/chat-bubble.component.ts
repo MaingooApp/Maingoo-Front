@@ -20,8 +20,9 @@ export class ChatBubbleComponent {
   @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
   
-  isOpen = signal(false);
-  isExpanded = signal(false);
+  // Chat siempre visible - estos signals ya no se usan
+  isOpen = signal(true);
+  isExpanded = signal(true);
   messageText = '';
   messages: ChatMessage[] = [];
   isTyping = false;
@@ -59,19 +60,7 @@ export class ChatBubbleComponent {
     });
   }
 
-  toggleChat() {
-    this.isExpanded.set(true);
-    setTimeout(() => this.scrollToBottom(), 100);
-  }
-
-  minimizeChat() {
-    // Eliminado - ya no se usa
-  }
-
-  closeChat() {
-    this.isExpanded.set(false);
-    this.isOpen.set(false);
-  }
+  // Métodos eliminados - el chat es permanente
 
   async sendMessage() {
     if (!this.messageText.trim()) return;
