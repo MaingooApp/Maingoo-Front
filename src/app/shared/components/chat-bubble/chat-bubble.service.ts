@@ -54,6 +54,16 @@ export class ChatBubbleService {
   async sendMessage(message: string): Promise<void> {
     if (!message.trim()) return;
 
+    // Validar longitud máxima del mensaje (seguridad)
+    const maxLength = 500;
+    if (message.length > maxLength) {
+      console.warn(`Mensaje truncado: excede el límite de ${maxLength} caracteres`);
+      message = message.substring(0, maxLength);
+    }
+
+    // Sanitizar entrada básica: eliminar caracteres de control
+    message = message.replace(/[\x00-\x1F\x7F]/g, '');
+
     // Agregar mensaje del usuario
     const userMessage: ChatMessage = {
       id: Date.now().toString(),

@@ -24,6 +24,7 @@ export class AppSidebar {
   messages: ChatMessage[] = [];
   isTyping = false;
   isRecording = false;
+  readonly maxMessageLength = 500;
   
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
