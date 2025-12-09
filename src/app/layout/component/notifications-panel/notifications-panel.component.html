@@ -1,0 +1,52 @@
+<!-- Panel de notificaciones deslizable desde la derecha -->
+@if (layoutService.isNotificationPanelActive()) {
+  <div 
+    class="absolute bg-white dark:bg-surface-800 rounded-l-2xl shadow-lg border border-gray-200 dark:border-surface-700 z-[997] w-96 overflow-hidden flex flex-col transition-all duration-300 ease-in-out right-[2rem]"
+    style="top: 6rem; height: calc((100vh - 10rem) / 3);">
+  <!-- Header del panel -->
+  <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-surface-700 bg-[#F0F7F4] dark:bg-surface-900">
+    <h3 class="text-sm font-semibold text-[#1A3C34] dark:text-surface-0">Notificaciones</h3>
+    <div class="flex items-center gap-2">
+      @if (notifications.length > 0) {
+        <button 
+          (click)="clearAllNotifications()"
+          class="text-xs text-[#6B9E86] hover:text-[#1A3C34] dark:hover:text-surface-0 transition-colors px-2 py-1 rounded"
+        >
+          Limpiar todo
+        </button>
+      }
+      <button 
+        (click)="layoutService.toggleNotificationPanel()"
+        class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] transition-colors"
+      >
+        <i class="pi pi-times text-sm"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Lista de notificaciones -->
+  <div class="overflow-y-auto flex-1 bg-white dark:bg-surface-800">
+    @if (notifications.length === 0) {
+      <div class="p-8 text-center">
+        <i class="pi pi-bell-slash text-4xl text-gray-400 dark:text-surface-500 mb-3"></i>
+        <p class="text-sm text-gray-500 dark:text-surface-400">No hay notificaciones</p>
+      </div>
+    } @else {
+      @for (notification of notifications; track notification.id) {
+        <div class="p-4 border-b border-gray-100 dark:border-surface-700 hover:bg-gray-50 dark:hover:bg-surface-700/50 transition-colors">
+          <div class="flex items-start gap-3">
+            <i [class]="'pi ' + getSeverityIcon(notification.severity) + ' text-lg ' + getSeverityColor(notification.severity)"></i>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-[#1A3C34] dark:text-surface-0 mb-1">{{ notification.summary }}</p>
+              @if (notification.detail) {
+                <p class="text-xs text-gray-600 dark:text-surface-300 mb-2">{{ notification.detail }}</p>
+              }
+              <p class="text-xs text-gray-400 dark:text-surface-400">{{ formatTime(notification.timestamp) }}</p>
+            </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+}

@@ -39,8 +39,10 @@
       tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm"
       >
       <i class="pi pi-bell text-xl"></i>
-      <!-- Indicador de notificaciones no leídas (opcional) -->
-      <!-- <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span> -->
+      <!-- Indicador de notificaciones no leídas -->
+      @if (hasUnreadNotifications) {
+        <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+      }
     </button>
     
     <!-- Acceso al Perfil del usuario -->
