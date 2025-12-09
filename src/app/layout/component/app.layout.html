@@ -1,11 +1,12 @@
 <div class="layout-wrapper min-h-screen" [ngClass]="containerClass">
   <app-topbar></app-topbar>
-  <div class="layout-main-container flex flex-col min-h-screen justify-between px-8 pt-4 transition-[margin-right] duration-300">
+  <div class="layout-main-container flex flex-col min-h-screen justify-between px-8 pt-4 transition-[margin-right] duration-300" [ngClass]="mainContainerClass">
     <div class="layout-main flex-auto pb-8">
       <router-outlet></router-outlet>
     </div>
   </div>
   <app-footer></app-footer>
+  <app-notifications-panel></app-notifications-panel>
   <app-sidebar></app-sidebar>
   <div class="layout-mask animate-fadein"></div>
 </div>

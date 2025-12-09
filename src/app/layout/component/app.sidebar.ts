@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/chat-bubble.service';
 import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
+import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -39,10 +40,18 @@ export class AppSidebar {
     { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
   ];
 
+  get sidebarClass() {
+    return {
+      '!top-[calc(6rem+(100vh-10rem)/3+1rem)]': this.layoutService.isNotificationPanelActive(),
+      '!h-[calc(((100vh-10rem)*2/3)-1rem)]': this.layoutService.isNotificationPanelActive()
+    };
+  }
+
   constructor(
     public el: ElementRef,
     private chatService: ChatBubbleService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    public layoutService: LayoutService
   ) {
     // Suscribirse a los mensajes
     this.chatService.messages$.subscribe(messages => {

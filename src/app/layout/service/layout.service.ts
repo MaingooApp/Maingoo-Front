@@ -15,6 +15,7 @@ interface LayoutState {
   configSidebarVisible?: boolean;
   staticMenuMobileActive?: boolean;
   menuHoverActive?: boolean;
+  notificationPanelActive?: boolean;
 }
 
 interface MenuChangeEvent {
@@ -39,7 +40,8 @@ export class LayoutService {
     overlayMenuActive: false,
     configSidebarVisible: false,
     staticMenuMobileActive: false,
-    menuHoverActive: false
+    menuHoverActive: false,
+    notificationPanelActive: false
   };
 
   layoutConfig = signal<layoutConfig>(this._config);
@@ -159,6 +161,17 @@ export class LayoutService {
         this.overlayOpen.next(null);
       }
     }
+  }
+  
+  toggleNotificationPanel() {
+    this.layoutState.update((prev) => ({ 
+      ...prev, 
+      notificationPanelActive: !this.layoutState().notificationPanelActive 
+    }));
+  }
+  
+  isNotificationPanelActive() {
+    return this.layoutState().notificationPanelActive;
   }
 
   isDesktop() {

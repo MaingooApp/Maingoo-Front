@@ -54,6 +54,12 @@
                     margin-right: 0;
                     padding-right: 2rem;
                 }
+
+                &.layout-notification-active {
+                    .layout-main-container {
+                        margin-right: 26rem;
+                    }
+                }
             }
         }
 
