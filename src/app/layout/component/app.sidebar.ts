@@ -27,6 +27,7 @@ export class AppSidebar {
   isRecording = false;
   readonly maxMessageLength = 500;
   showAttachmentMenu = false;
+  currentYear = new Date().getFullYear();
   
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];

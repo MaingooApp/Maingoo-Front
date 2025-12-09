@@ -4,14 +4,13 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './app.sidebar';
-import { AppFooter } from './app.footer';
 import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
 import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, NotificationsPanelComponent],
+  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent],
   templateUrl: './app.layout.html',
   styleUrls: ['./app.layout.scss']
 })
