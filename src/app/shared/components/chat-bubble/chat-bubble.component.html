@@ -102,14 +102,63 @@
       </div>
 
       <!-- Input de mensaje (Área de Input flotante) -->
-      <div class="mb-2 mx-2 bg-white dark:bg-surface-900 rounded-xl shadow-md border border-gray-100 dark:border-surface-700 p-2 flex gap-2">
+      <div class="mb-2 mx-2 bg-white dark:bg-surface-900 rounded-xl shadow-md border border-gray-100 dark:border-surface-700 p-2 flex items-center gap-2">
+        <!-- Icono de micrófono -->
+        <button
+          (click)="handleVoiceInput()"
+          disabled
+          class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-colors opacity-50 cursor-not-allowed"
+          aria-label="Grabar nota de voz (próximamente)"
+        >
+          <i class="pi pi-microphone text-gray-400 dark:text-gray-500 text-base"></i>
+        </button>
+        
+        <!-- Icono de cámara (captura directa) -->
+        <button
+          (click)="handleCameraCapture()"
+          [disabled]="isTyping"
+          class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Capturar foto con cámara"
+        >
+          <i class="pi pi-camera text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
+        </button>
+        
+        <!-- Icono de subir archivo -->
+        <button
+          (click)="handleFileUpload()"
+          [disabled]="isTyping"
+          class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Subir archivo"
+        >
+          <i class="pi pi-paperclip text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
+        </button>
+        
+        <!-- Input de archivo oculto para cámara -->
         <input 
-          type="text" 
+          #cameraInput
+          type="file" 
+          accept="image/*" 
+          capture="environment"
+          (change)="onCameraCapture($event)"
+          class="hidden" />
+        
+        <!-- Input de archivo oculto para subir archivos -->
+        <input 
+          #fileInput
+          type="file" 
+          accept="image/*,application/pdf"
+          (change)="onFileSelected($event)"
+          class="hidden" />
+        
+        <textarea
+          #messageInput
           [(ngModel)]="messageText"
-          (keypress)="handleKeyPress($event)"
+          (keydown)="handleKeyDown($event)"
+          (input)="autoResize()"
           placeholder="Escribe un mensaje..."
-          pInputText
-          class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-surface-0" />
+          rows="1"
+          class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-surface-0 resize-none overflow-hidden max-h-32"
+        ></textarea>
         <p-button 
           [rounded]="false"
           icon="pi pi-send"
