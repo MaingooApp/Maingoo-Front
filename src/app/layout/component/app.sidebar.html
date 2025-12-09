@@ -1,3 +1,183 @@
-<div class="layout-sidebar">
-  <app-menu></app-menu>
+<!-- Chat lateral permanente -->
+<div class="layout-sidebar !flex !flex-col !overflow-hidden !p-0" style="height: calc(100vh - 10rem) !important;">
+  <!-- Header -->
+  <div class="flex-shrink-0 bg-[#1A3C34] dark:bg-[#6B9E86] p-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-white dark:bg-[#1A3C34] flex items-center justify-center p-1.5">
+        <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain translate-x-[1px]" />
+      </div>
+      <h3 class="m-0 text-lg font-semibold text-white dark:text-[#1A3C34]">Maingoo Assistant</h3>
+    </div>
+  </div>
+
+  <!-- Área de mensajes expandida -->
+  <div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
+    <!-- Mensajes dinámicos -->
+    @for (message of messages; track message.id; let idx = $index) {
+      @if (message.sender === 'bot') {
+        <!-- Mensaje del BOT -->
+        <div class="flex items-start space-x-2 mb-3 animate-[fadeIn_0.3s_ease-out]">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+            <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
+          </div>
+          <div class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3">
+            <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+            
+            <!-- Acciones rápidas (solo en el primer mensaje) -->
+            @if (isFirstBotMessage(idx)) {
+              <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100 dark:border-surface-600">
+                <button 
+                  (click)="handleQuickAction('Subir factura')"
+                  class="px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-600 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 flex items-center gap-1.5"
+                >
+                  <i class="pi pi-upload text-xs"></i>
+                  <span>Subir factura</span>
+                </button>
+                <button 
+                  (click)="handleQuickAction('Informe de compras')"
+                  class="px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-600 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 flex items-center gap-1.5"
+                >
+                  <i class="pi pi-chart-bar text-xs"></i>
+                  <span>Informe de compras</span>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- Mensaje del USUARIO -->
+        <div class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
+          <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3">
+            <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+          </div>
+          <div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
+            <i class="pi pi-user text-white text-xs"></i>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Indicador de escritura -->
+    @if (isTyping) {
+      <div class="flex items-start space-x-2 mb-3">
+        <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+          <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
+        </div>
+        <div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
+          <div class="flex space-x-1">
+            <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce"></div>
+            <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]"></div>
+            <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]"></div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Píldoras de navegación rápida -->
+  <div class="flex-shrink-0 px-4 py-3 bg-white dark:bg-surface-900 border-t border-gray-200 dark:border-surface-700 overflow-x-auto scrollbar-thin">
+    <div class="flex gap-2 min-w-max">
+      @for (link of quickLinks; track link.route) {
+        <a 
+          [routerLink]="link.route"
+          class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-700 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 whitespace-nowrap cursor-pointer"
+        >
+          <i [class]="link.icon + ' text-xs'"></i>
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </div>
+  </div>
+
+  <!-- Input de mensaje expandido -->
+  <div class="flex-shrink-0 p-4 bg-[#F0F7F4] dark:bg-surface-800 border-t border-gray-200 dark:border-surface-700">
+    <div class="bg-white dark:bg-surface-900 rounded-xl shadow-md border border-gray-100 dark:border-surface-700 p-2 flex items-center gap-2">
+      <!-- Icono de micrófono -->
+      <button
+        (click)="handleVoiceInput()"
+        disabled
+        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-colors opacity-50 cursor-not-allowed"
+        aria-label="Grabar nota de voz (próximamente)"
+      >
+        <i class="pi pi-microphone text-gray-400 dark:text-gray-500 text-base"></i>
+      </button>
+      
+      <!-- Icono de cámara (captura directa) -->
+      <button
+        (click)="handleCameraCapture()"
+        [disabled]="isTyping"
+        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Capturar foto con cámara"
+      >
+        <i class="pi pi-camera text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
+      </button>
+      
+      <!-- Icono de subir archivo -->
+      <button
+        (click)="handleFileUpload()"
+        [disabled]="isTyping"
+        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Subir archivo"
+      >
+        <i class="pi pi-paperclip text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
+      </button>
+      
+      <!-- Input de archivo oculto para cámara -->
+      <input 
+        #cameraInput
+        type="file" 
+        accept="image/*" 
+        capture="environment"
+        (change)="onCameraCapture($event)"
+        class="hidden" />
+      
+      <!-- Input de archivo oculto para subir archivos -->
+      <input 
+        #fileInput
+        type="file" 
+        accept="image/*,application/pdf"
+        (change)="onFileSelected($event)"
+        class="hidden" />
+      
+      <textarea
+        #messageInput
+        [(ngModel)]="messageText"
+        (keydown)="handleKeyDown($event)"
+        (input)="autoResize()"
+        placeholder="Escribe un mensaje..."
+        rows="1"
+        class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-surface-0 resize-none overflow-hidden max-h-32"
+      ></textarea>
+      <p-button 
+        [rounded]="false"
+        icon="pi pi-send"
+        (onClick)="sendMessage()"
+        [disabled]="!messageText.trim() || isTyping"
+        styleClass="!bg-[#1A3C34] !text-white !border-0 rounded-lg !px-4 !py-2 hover:!bg-[#6B9E86] transition-colors dark:!bg-[#6B9E86] dark:!text-[#1A3C34] dark:hover:!bg-[#8BC4A8] disabled:!opacity-50 disabled:!cursor-not-allowed" />
+    </div>
+  </div>
 </div>
+
+<style>
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
