@@ -18,6 +18,29 @@
     animation: slideInRight 0.3s ease-out;
 }
 
+// Scrollbar personalizado para las píldoras de navegación
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #6B9E86 transparent;
+    
+    &::-webkit-scrollbar {
+        height: 4px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: #6B9E86;
+        border-radius: 4px;
+        
+        &:hover {
+            background-color: #1A3C34;
+        }
+    }
+}
+
 @keyframes slideInRight {
     from {
         opacity: 0;

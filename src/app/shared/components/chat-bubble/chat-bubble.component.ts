@@ -1,5 +1,6 @@
 import { Component, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +11,7 @@ import { AddInvoiceModalComponent } from '@features/invoices/components/add-invo
 @Component({
   selector: 'app-chat-bubble',
   standalone: true,
-  imports: [CommonModule, ButtonModule, InputTextModule, FormsModule],
+  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule],
   templateUrl: './chat-bubble.component.html',
   styleUrl: './chat-bubble.component.scss'
 })
@@ -28,6 +29,16 @@ export class ChatBubbleComponent {
   
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
+
+  quickLinks = [
+    { label: 'Panel de control', icon: 'pi pi-home', route: '/' },
+    { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
+    { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
+    { label: 'Productos', icon: 'pi pi-tags', route: '/productos' },
+    { label: 'Generador', icon: 'pi pi-file-edit', route: '/docgenerator' },
+    { label: 'Horarios', icon: 'pi pi-calendar', route: '/horarios' },
+    { label: 'Configuración', icon: 'pi pi-cog', route: '/configuracion' }
+  ];
 
   constructor(
     private chatService: ChatBubbleService,
