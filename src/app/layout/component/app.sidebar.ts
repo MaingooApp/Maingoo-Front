@@ -1,4 +1,4 @@
-import { Component, ElementRef, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, signal, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +25,7 @@ export class AppSidebar {
   isTyping = false;
   isRecording = false;
   readonly maxMessageLength = 500;
+  showAttachmentMenu = false;
   
   private mediaRecorder: MediaRecorder | null = null;
   private audioChunks: Blob[] = [];
@@ -56,6 +57,15 @@ export class AppSidebar {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const container = document.getElementById('attachment-menu-container');
+    if (container && !container.contains(target)) {
+      this.showAttachmentMenu = false;
+    }
   }
 
   async sendMessage() {

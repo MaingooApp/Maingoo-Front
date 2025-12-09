@@ -70,19 +70,19 @@
   </div>
 
   <!-- Acciones rápidas -->
-  <div class="flex-shrink-0 px-4 py-3 bg-white dark:bg-surface-900 border-t border-gray-200 dark:border-surface-700">
-    <h4 class="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Acciones Sugeridas</h4>
+  <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
+    <h4 class="text-sm font-medium text-[#1A3C34] dark:text-[#6B9E86] mb-3">¿Qué quieres hacer hoy?</h4>
     <div class="flex flex-wrap gap-2">
       <button 
         (click)="handleQuickAction('Subir factura')"
-        class="px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-600 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 flex items-center gap-1.5"
+        class="px-4 py-2 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-[13px] font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center gap-2"
       >
         <i class="pi pi-upload text-xs"></i>
         <span>Subir factura</span>
       </button>
       <button 
         (click)="handleQuickAction('Informe de compras')"
-        class="px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-600 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 flex items-center gap-1.5"
+        class="px-4 py-2 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-[13px] font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center gap-2"
       >
         <i class="pi pi-chart-bar text-xs"></i>
         <span>Informe de compras</span>
@@ -91,37 +91,49 @@
   </div>
 
   <!-- Input de mensaje expandido -->
-  <div class="flex-shrink-0 p-4 bg-[#F0F7F4] dark:bg-surface-800 border-t border-gray-200 dark:border-surface-700">
-    <div class="bg-white dark:bg-surface-900 rounded-xl shadow-md border border-gray-100 dark:border-surface-700 p-2 flex items-center gap-2">
+  <div class="flex-shrink-0 p-4 bg-[#F0F7F4] dark:bg-surface-800">
+    <div class="flex items-center gap-3">
       <!-- Icono de micrófono -->
       <button
         (click)="handleVoiceInput()"
         disabled
-        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-colors opacity-50 cursor-not-allowed"
+        class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all opacity-50 cursor-not-allowed"
         aria-label="Grabar nota de voz (próximamente)"
       >
         <i class="pi pi-microphone text-gray-400 dark:text-gray-500 text-base"></i>
       </button>
       
-      <!-- Icono de cámara (captura directa) -->
-      <button
-        (click)="handleCameraCapture()"
-        [disabled]="isTyping"
-        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Capturar foto con cámara"
-      >
-        <i class="pi pi-camera text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
-      </button>
-      
-      <!-- Icono de subir archivo -->
-      <button
-        (click)="handleFileUpload()"
-        [disabled]="isTyping"
-        class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Subir archivo"
-      >
-        <i class="pi pi-paperclip text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
-      </button>
+      <!-- Botón de adjuntar con menú desplegable -->
+      <div class="relative" id="attachment-menu-container">
+        <button
+          (click)="showAttachmentMenu = !showAttachmentMenu"
+          [disabled]="isTyping"
+          class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/50 dark:hover:bg-surface-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Adjuntar archivo"
+        >
+          <i class="pi pi-paperclip text-[#6B9E86] dark:text-[#8BC4A8] text-base"></i>
+        </button>
+        
+        <!-- Menú desplegable -->
+        @if (showAttachmentMenu) {
+          <div class="absolute bottom-full left-0 mb-2 bg-white dark:bg-surface-900 rounded-xl shadow-lg border border-gray-200 dark:border-surface-700 py-2 min-w-[160px] z-50">
+            <button
+              (click)="handleCameraCapture(); showAttachmentMenu = false"
+              class="w-full px-4 py-2 text-left text-sm text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors"
+            >
+              <i class="pi pi-camera text-[#6B9E86] dark:text-[#8BC4A8]"></i>
+              <span>Tomar foto</span>
+            </button>
+            <button
+              (click)="handleFileUpload(); showAttachmentMenu = false"
+              class="w-full px-4 py-2 text-left text-sm text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors"
+            >
+              <i class="pi pi-file text-[#6B9E86] dark:text-[#8BC4A8]"></i>
+              <span>Subir archivo</span>
+            </button>
+          </div>
+        }
+      </div>
       
       <!-- Input de archivo oculto para cámara -->
       <input 
@@ -148,17 +160,21 @@
         placeholder="Escribe un mensaje..."
         [maxlength]="maxMessageLength"
         rows="1"
-        class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-surface-0 resize-none overflow-hidden max-h-32"
+        class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-white/50 dark:bg-surface-700/50 rounded-2xl placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[#1A3C34] dark:text-surface-0 resize-none overflow-hidden max-h-32"
       ></textarea>
-      <p-button 
-        [rounded]="false"
-        icon="pi pi-send"
-        (onClick)="sendMessage()"
+      
+      <!-- Botón de enviar circular -->
+      <button
+        (click)="sendMessage()"
         [disabled]="!messageText.trim() || isTyping"
-        styleClass="!bg-[#1A3C34] !text-white !border-0 rounded-lg !px-4 !py-2 hover:!bg-[#6B9E86] transition-colors dark:!bg-[#6B9E86] dark:!text-[#1A3C34] dark:hover:!bg-[#8BC4A8] disabled:!opacity-50 disabled:!cursor-not-allowed" />
+        class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Enviar mensaje"
+      >
+        <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm"></i>
+      </button>
     </div>
     @if (messageText.length > 0) {
-      <div class="text-xs text-right mt-1 px-2" [class.text-red-500]="messageText.length >= maxMessageLength" [class.text-gray-500]="messageText.length < maxMessageLength">
+      <div class="text-xs text-right mt-2 px-2 text-gray-600 dark:text-gray-400" [class.!text-red-500]="messageText.length >= maxMessageLength">
         {{ messageText.length }} / {{ maxMessageLength }}
       </div>
     }
