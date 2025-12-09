@@ -11,7 +11,9 @@
     right: 2rem;
     transition:
         transform var(--layout-section-transition-duration),
-        right var(--layout-section-transition-duration);
+        right var(--layout-section-transition-duration),
+        top 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99),
+        height 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);
     background-color: var(--surface-overlay);
     border-radius: var(--content-border-radius);
     padding: 0.5rem 1.5rem;
