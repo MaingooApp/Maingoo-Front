@@ -269,6 +269,21 @@
       }
     </div>
 
+    <!-- Píldoras de navegación rápida -->
+    <div class="px-4 py-3 bg-white dark:bg-surface-900 border-t border-gray-200 dark:border-surface-700 overflow-x-auto scrollbar-thin">
+      <div class="flex gap-2 min-w-max">
+        @for (link of quickLinks; track link.route) {
+          <a 
+            [routerLink]="link.route"
+            class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-700 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 whitespace-nowrap cursor-pointer"
+          >
+            <i [class]="link.icon + ' text-xs'"></i>
+            <span>{{ link.label }}</span>
+          </a>
+        }
+      </div>
+    </div>
+
     <!-- Input de mensaje expandido -->
     <div class="p-4 bg-[#F0F7F4] dark:bg-surface-800 border-t border-gray-200 dark:border-surface-700 rounded-b-[var(--content-border-radius)]">
       <div class="bg-white dark:bg-surface-900 rounded-xl shadow-md border border-gray-100 dark:border-surface-700 p-2 flex items-center gap-2">
