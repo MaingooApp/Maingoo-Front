@@ -44,8 +44,8 @@ export class AppSidebar {
   get sidebarClass() {
     const isNotificationActive = this.layoutService.isNotificationPanelActiveOrAnimating();
     return {
-      '!top-[calc(6rem+(100vh-10rem)/3+1rem)]': isNotificationActive,
-      '!h-[calc(100vh-6rem-(100vh-10rem)/3-1rem-2rem)]': isNotificationActive
+      '!top-[calc(6rem+(100vh-10rem)/4+1rem)]': isNotificationActive,
+      '!h-[calc(100vh-6rem-(100vh-10rem)/4-1rem-2rem)]': isNotificationActive
     };
   }
 
