@@ -12,11 +12,11 @@
 
   <!-- Píldoras de navegación rápida -->
   <div class="flex-shrink-0 px-4 py-3 bg-white dark:bg-surface-900 border-b border-gray-200 dark:border-surface-700">
-    <div class="flex flex-wrap gap-2">
+    <div class="grid grid-cols-3 gap-2">
       @for (link of quickLinks; track link.route) {
         <a 
           [routerLink]="link.route"
-          class="flex items-center gap-1.5 px-3 py-1.5 bg-[#F0F7F4] dark:bg-surface-700 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 whitespace-nowrap cursor-pointer"
+          class="flex items-center justify-center gap-1.5 px-2 py-1.5 bg-[#F0F7F4] dark:bg-surface-700 text-[#1A3C34] dark:text-[#6B9E86] text-xs font-medium rounded-full border border-[#6B9E86] dark:border-[#1A3C34] hover:bg-[#6B9E86] hover:text-white dark:hover:bg-[#1A3C34] dark:hover:text-white transition-all duration-200 whitespace-nowrap cursor-pointer"
         >
           <i [class]="link.icon + ' text-xs'"></i>
           <span>{{ link.label }}</span>

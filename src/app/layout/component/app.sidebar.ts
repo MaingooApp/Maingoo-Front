@@ -29,12 +29,12 @@ export class AppSidebar {
   private audioChunks: Blob[] = [];
 
   quickLinks = [
-    { label: 'Panel de control', icon: 'pi pi-home', route: '/' },
+    { label: 'Dashboard', icon: 'pi pi-home', route: '/' },
     { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
     { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
     { label: 'Productos', icon: 'pi pi-tags', route: '/productos' },
-    { label: 'Generador', icon: 'pi pi-file-edit', route: '/docgenerator' },
-    { label: 'Horarios', icon: 'pi pi-calendar', route: '/horarios' }
+    { label: 'Recetas', icon: 'pi pi-tags', route: '/recetas' },
+    { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
   ];
 
   constructor(
