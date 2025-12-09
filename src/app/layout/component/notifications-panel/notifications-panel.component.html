@@ -1,8 +1,7 @@
 <!-- Panel de notificaciones deslizable desde la derecha -->
-@if (layoutService.isNotificationPanelActive()) {
-  <div 
-    class="absolute bg-white dark:bg-surface-800 rounded-l-2xl shadow-lg border border-gray-200 dark:border-surface-700 z-[997] w-96 overflow-hidden flex flex-col transition-all duration-300 ease-in-out right-[2rem]"
-    style="top: 6rem; height: calc((100vh - 10rem) / 3);">
+<div 
+  [class]="'fixed bg-white dark:bg-surface-800 rounded-l-2xl shadow-lg border border-gray-200 dark:border-surface-700 z-[997] w-96 overflow-hidden flex flex-col transition-transform duration-[400ms] ease-[cubic-bezier(0.05,0.74,0.2,0.99)] ' + (layoutService.isNotificationPanelActive() ? 'translate-x-0' : 'translate-x-[calc(100%+2rem)]')"
+  style="right: 2rem; top: 6rem; height: calc((100vh - 10rem) / 3);">
   <!-- Header del panel -->
   <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-surface-700 bg-[#F0F7F4] dark:bg-surface-900">
     <h3 class="text-sm font-semibold text-[#1A3C34] dark:text-surface-0">Notificaciones</h3>
@@ -43,10 +42,9 @@
               }
               <p class="text-xs text-gray-400 dark:text-surface-400">{{ formatTime(notification.timestamp) }}</p>
             </div>
-            </div>
           </div>
-        }
+        </div>
       }
-    </div>
+    }
   </div>
-}
+</div>
