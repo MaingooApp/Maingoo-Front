@@ -4,6 +4,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { ChatBubbleService, ChatMessage } from './chat-bubble.service';
+import { ModalService } from '@shared/services/modal.service';
+import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
 
 @Component({
   selector: 'app-chat-bubble',
@@ -18,7 +20,10 @@ export class ChatBubbleComponent {
   messages: ChatMessage[] = [];
   isTyping = false;
 
-  constructor(private chatService: ChatBubbleService) {
+  constructor(
+    private chatService: ChatBubbleService,
+    private modalService: ModalService
+  ) {
     // Suscribirse a los mensajes
     this.chatService.messages$.subscribe(messages => {
       this.messages = messages;
@@ -52,6 +57,22 @@ export class ChatBubbleComponent {
     this.messageText = '';
 
     await this.chatService.sendMessage(message);
+  }
+
+  async handleQuickAction(action: string) {
+    if (action === 'Subir factura') {
+      this.modalService.open(AddInvoiceModalComponent, {
+        width: '960px',
+        header: 'Agregar documento',
+        dismissableMask: false
+      });
+    } else {
+      await this.chatService.sendMessage(action);
+    }
+  }
+
+  isFirstBotMessage(index: number): boolean {
+    return index === 0 && this.messages[0]?.sender === 'bot';
   }
 
   handleKeyPress(event: KeyboardEvent) {
