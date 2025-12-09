@@ -60,20 +60,12 @@ export class ChatBubbleComponent {
   }
 
   toggleChat() {
-    this.isOpen.set(!this.isOpen());
-    if (this.isOpen()) {
-      setTimeout(() => this.scrollToBottom(), 100);
-    }
-  }
-
-  expandChat() {
     this.isExpanded.set(true);
     setTimeout(() => this.scrollToBottom(), 100);
   }
 
   minimizeChat() {
-    this.isExpanded.set(false);
-    setTimeout(() => this.scrollToBottom(), 100);
+    // Eliminado - ya no se usa
   }
 
   closeChat() {
