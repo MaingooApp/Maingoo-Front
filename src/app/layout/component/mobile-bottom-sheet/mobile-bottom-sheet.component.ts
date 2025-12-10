@@ -35,7 +35,8 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   
   // Snap points en porcentajes de altura de viewport
   private readonly snapPoints = {
-    compact: 30,
+    compact: 25,
+    medium: 35,
     expanded: 90
   };
 
@@ -173,20 +174,26 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   private collapseState(current: SheetState) {
     if (current === 'expanded') {
+      this.bottomSheetService.setState('medium');
+    } else if (current === 'medium') {
       this.bottomSheetService.setState('compact');
     }
   }
 
   private expandState(current: SheetState) {
     if (current === 'compact') {
+      this.bottomSheetService.setState('medium');
+    } else if (current === 'medium') {
       this.bottomSheetService.setState('expanded');
     }
   }
 
   onHeaderClick() {
-    // Click en el header para expandir/colapsar rápidamente
+    // Click en el header para ciclar entre estados: compact → medium → expanded → compact
     const current = this.bottomSheetService.currentState();
     if (current === 'compact') {
+      this.bottomSheetService.setState('medium');
+    } else if (current === 'medium') {
       this.bottomSheetService.setState('expanded');
     } else {
       this.bottomSheetService.setState('compact');
@@ -241,9 +248,14 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       event.preventDefault();
     }
+    
+    // Si está en compacto, expandir a medium antes de navegar
+    const currentState = this.bottomSheetService.currentState();
+    if (currentState === 'compact') {
+      this.bottomSheetService.setState('medium');
+    }
+    
     this.router.navigate([route]);
-    // Collapse to compact after navigation
-    this.bottomSheetService.setState('compact');
   }
 
   async handleQuickAction(action: string): Promise<void> {
