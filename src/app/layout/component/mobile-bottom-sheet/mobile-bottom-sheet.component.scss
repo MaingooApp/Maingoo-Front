@@ -83,42 +83,8 @@ $maingoo-border: #E5E7EB;
   justify-content: flex-end;
   background-color: $maingoo-soft-mint;
 
-  .quick-chips {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-
-    &::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: #D1D5DB;
-      border-radius: 2px;
-    }
-
-    .chip {
-      padding: 8px 16px;
-      background-color: #F3F4F6;
-      border: none;
-      border-radius: 20px;
-      font-size: 14px;
-      white-space: nowrap;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: $maingoo-text-primary;
-
-      &:hover {
-        background-color: #E5E7EB;
-        transform: translateY(-1px);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-    }
-  }
+  // Los chips ahora usan clases de Tailwind directamente
+  // No necesitamos estilos adicionales aquí
 }
 
 // ========== ESTADO MEDIO ==========

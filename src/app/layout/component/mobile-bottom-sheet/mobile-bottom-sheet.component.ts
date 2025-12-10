@@ -1,13 +1,27 @@
 import { Component, ElementRef, HostListener, ViewChild, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { BottomSheetService, SheetState } from '../../../layout/service/bottom-sheet.service';
 import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
+
+interface QuickAction {
+  label: string;
+  icon: string;
+  action: string;
+}
+
+interface RouteContext {
+  title: string;
+  placeholder: string;
+  actions: QuickAction[];
+}
 
 @Component({
   selector: 'app-mobile-bottom-sheet',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './mobile-bottom-sheet.component.html',
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })
@@ -31,11 +45,66 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   isTyping = false;
   private messagesSubscription?: Subscription;
   private typingSubscription?: Subscription;
+  private routerSubscription?: Subscription;
+
+  // Quick actions y chips navegación
+  quickLinks = [
+    { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
+    { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
+    { label: 'Empresas', icon: 'pi pi-box', route: '/proveedores' }
+  ];
+
+  // Contextos por ruta
+  private routeContexts: { [key: string]: RouteContext } = {
+    '/': {
+      title: 'Accione',
+      placeholder: '¿Qué necesitas saber hoy?',
+      actions: [
+        { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
+        { label: 'Ver resumen', icon: 'pi pi-eye', action: 'Mostrar resumen general' },
+        { label: 'Análisis ventas', icon: 'pi pi-chart-bar', action: 'Análisis de ventas' },
+        { label: 'Estadísticas', icon: 'pi pi-chart-pie', action: 'Ver estadísticas generales' }
+      ]
+    },
+    '/facturas': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus facturas...',
+      actions: [
+        { label: 'Subir factura', icon: 'pi pi-upload', action: 'Subir factura' },
+        { label: 'Informe compras', icon: 'pi pi-chart-bar', action: 'Informe de compras' },
+        { label: 'Buscar factura', icon: 'pi pi-search', action: 'Buscar una factura' },
+        { label: 'Exportar datos', icon: 'pi pi-download', action: 'Exportar facturas' }
+      ]
+    },
+    '/proveedores': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus proveedores...',
+      actions: [
+        { label: 'Nuevo proveedor', icon: 'pi pi-plus', action: 'Agregar nuevo proveedor' },
+        { label: 'Análisis', icon: 'pi pi-chart-pie', action: 'Análisis de proveedores' },
+        { label: 'Comparar precios', icon: 'pi pi-dollar', action: 'Comparar precios de proveedores' },
+        { label: 'Contactos', icon: 'pi pi-users', action: 'Ver contactos de proveedores' }
+      ]
+    }
+  };
+
+  currentContext: RouteContext = this.routeContexts['/'];
 
   constructor(
     public bottomSheetService: BottomSheetService,
-    private chatService: ChatBubbleService
-  ) {}
+    private chatService: ChatBubbleService,
+    private router: Router
+  ) {
+    // Actualizar contexto en base a la ruta inicial
+    this.updateContextFromRoute(this.router.url);
+
+    // Escuchar cambios de ruta
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.updateContextFromRoute(event.urlAfterRedirects);
+      });
+  }
 
   get sheetHeight(): string {
     const state = this.bottomSheetService.currentState();
@@ -149,6 +218,38 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     // Limpiar suscripciones
     this.messagesSubscription?.unsubscribe();
     this.typingSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
+  }
+
+  private updateContextFromRoute(url: string): void {
+    // Limpiar query params y fragments
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    
+    // Buscar contexto exacto o por prefijo
+    if (this.routeContexts[cleanUrl]) {
+      this.currentContext = this.routeContexts[cleanUrl];
+    } else {
+      // Buscar por prefijo (ej: /facturas/1 -> /facturas)
+      const matchedRoute = Object.keys(this.routeContexts).find(route => 
+        route !== '/' && cleanUrl.startsWith(route)
+      );
+      this.currentContext = matchedRoute 
+        ? this.routeContexts[matchedRoute] 
+        : this.routeContexts['/'];
+    }
+  }
+
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+    // Collapse to compact after navigation
+    this.bottomSheetService.setState('compact');
+  }
+
+  async handleQuickAction(action: string): Promise<void> {
+    // Enviar la acción al chat
+    await this.chatService.sendMessage(action);
+    // Expandir al estado medium para mostrar la respuesta
+    this.bottomSheetService.setState('medium');
   }
 
   async sendMessage(input: HTMLInputElement) {
