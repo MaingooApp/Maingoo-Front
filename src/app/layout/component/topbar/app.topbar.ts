@@ -1,5 +1,5 @@
 // - Component: decorador para declarar un componente Angular
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 // - MenuItem: interfaz de PrimeNG para items de menú (no usada explícitamente en template
 //   pero preservada para posibles futuras ampliaciones)
 import { MenuItem } from 'primeng/api';
@@ -46,6 +46,9 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Lista de notificaciones
   notifications: any[] = [];
   
+  // Estado del menú móvil
+  isMobileMenuOpen = false;
+  
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
@@ -55,11 +58,13 @@ export class AppTopbar implements OnInit, OnDestroy {
   // - authService: provee métodos de autenticación, p.ej. logout()
   // - router: para navegar programáticamente (después del logout se redirige al login)
   // - toastService: para suscribirse a las notificaciones
+  // - elementRef: para detectar clicks fuera del menú móvil
   constructor(
     public layoutService: LayoutService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef
   ) {}
   
   ngOnInit() {
@@ -79,6 +84,15 @@ export class AppTopbar implements OnInit, OnDestroy {
     // Limpiar suscripciones
     this.notificationSubscription?.unsubscribe();
     this.notificationsListSubscription?.unsubscribe();
+  }
+
+  // HostListener para cerrar el menú móvil cuando se hace click fuera
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickedInside = this.elementRef.nativeElement.contains(event.target);
+    if (!clickedInside && this.isMobileMenuOpen) {
+      this.isMobileMenuOpen = false;
+    }
   }
 
   // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
@@ -139,6 +153,11 @@ export class AppTopbar implements OnInit, OnDestroy {
   // clearAllNotifications: limpia todas las notificaciones
   clearAllNotifications() {
     this.toastService.clearNotifications();
+  }
+
+  // toggleMobileMenu: alterna el menú desplegable móvil
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
 
   // openSettings: método para abrir el panel de configuración del sistema
