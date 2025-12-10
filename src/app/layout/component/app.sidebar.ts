@@ -53,7 +53,7 @@ export class AppSidebar {
   // Contextos por ruta
   private routeContexts: { [key: string]: RouteContext } = {
     '/': {
-      title: 'Acciones rápidas',
+      title: 'Accione',
       placeholder: '¿Qué necesitas saber hoy?',
       actions: [
         { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
