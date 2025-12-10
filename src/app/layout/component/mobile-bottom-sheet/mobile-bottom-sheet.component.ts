@@ -275,10 +275,11 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
     
     // Si está en compacto, expandir a medium antes de navegar
-    // Si ya está en medium o expanded, mantener el estado actual
+    // Si está en medium o expanded, mantener el estado actual (no expandir)
     if (this.isCompact) {
       this.bottomSheetService.setState('medium');
     }
+    // Si está en medium o expanded, solo navegar sin cambiar estado
     
     this.router.navigate([route]);
   }
