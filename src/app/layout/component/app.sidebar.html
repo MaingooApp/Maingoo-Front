@@ -88,7 +88,6 @@
 
   <!-- Acciones rápidas -->
   <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
-    <h4 class="text-sm font-medium text-[#1A3C34] dark:text-[#6B9E86] mb-3 italic">{{ currentContext.title }}</h4>
     <div class="grid grid-cols-2 gap-2">
       @for (action of currentContext.actions; track action.label) {
         <button 
@@ -166,7 +165,7 @@
         <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm"></i>
       </button>
     </div>
-    @if (messageText.length > 0) {
+    @if (messageText.length > 300) {
     <div
       class="text-xs text-right mt-2 px-2 text-gray-600 dark:text-gray-400"
       [class.!text-red-500]="messageText.length >= maxMessageLength">
