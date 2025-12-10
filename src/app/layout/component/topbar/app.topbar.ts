@@ -29,7 +29,7 @@ import { Subscription } from 'rxjs';
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, AppConfigurator],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html'
 })
