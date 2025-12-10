@@ -1,6 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -8,18 +17,33 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
 import { FluidModule } from 'primeng/fluid';
+import { PasswordModule } from 'primeng/password';
+import { PopoverModule } from 'primeng/popover';
+import { TabViewModule } from 'primeng/tabview';
 import { Enterprise, EnterpriseService } from '../../services/enterprise.service';
 import { AuthService } from '../../../auth/services/auth-service.service';
 
 @Component({
   selector: 'app-my-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, InputTextModule, InputMaskModule, ButtonModule, CardModule, FluidModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    InputMaskModule,
+    ButtonModule,
+    CardModule,
+    FluidModule,
+    PasswordModule,
+    PopoverModule,
+    TabViewModule
+  ],
   templateUrl: './my-profile.component.html',
   styleUrl: './my-profile.component.scss'
 })
 export class MyProfileComponent {
   perfilForm!: FormGroup;
+  passwordForm!: FormGroup;
   currentEnterprise?: Enterprise;
 
   constructor(
@@ -44,7 +68,66 @@ export class MyProfileComponent {
       secondPhoneNumber: [''],
       iban: ['']
     });
+
+    this.passwordForm = this.fb.group(
+      {
+        currentPassword: ['', Validators.required],
+        newPassword: ['', [Validators.required, this.passwordPolicyValidator()]],
+        confirmPassword: ['', Validators.required]
+      },
+      { validators: this.passwordMatchValidator() }
+    );
+
     this.cargarPerfil();
+  }
+
+  /**
+   * Validador de política de contraseña
+   * Requiere: mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número, 1 carácter especial
+   */
+  passwordPolicyValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+      if (!value) {
+        return null;
+      }
+
+      const hasMinLength = value.length >= 8;
+      const hasUpperCase = /[A-Z]/.test(value);
+      const hasLowerCase = /[a-z]/.test(value);
+      const hasNumber = /[0-9]/.test(value);
+      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+
+      const passwordValid = hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
+
+      return !passwordValid
+        ? {
+            passwordPolicy: {
+              hasMinLength,
+              hasUpperCase,
+              hasLowerCase,
+              hasNumber,
+              hasSpecialChar
+            }
+          }
+        : null;
+    };
+  }
+
+  /**
+   * Validador para verificar que las contraseñas coincidan
+   */
+  passwordMatchValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const newPassword = control.get('newPassword')?.value;
+      const confirmPassword = control.get('confirmPassword')?.value;
+
+      if (!newPassword || !confirmPassword) {
+        return null;
+      }
+
+      return newPassword === confirmPassword ? null : { passwordMismatch: true };
+    };
   }
 
   async guardarPerfil() {
@@ -72,6 +155,27 @@ export class MyProfileComponent {
         // También puedes mostrar un toast de error aquí
       }
     });
+  }
+
+  cambiarPassword() {
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      console.error('Formulario de contraseña inválido');
+      return;
+    }
+
+    // TODO: Implementar llamada al endpoint de cambio de contraseña
+    const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
+
+    if (newPassword !== confirmPassword) {
+      console.error('Las contraseñas no coinciden');
+      // TODO: Mostrar mensaje de error al usuario
+      return;
+    }
+
+    console.log('Cambio de contraseña pendiente de implementar');
+    // TODO: Llamar al servicio de autenticación para cambiar la contraseña
+    // this.authService.changePassword(currentPassword, newPassword).subscribe({...});
   }
 
   async cargarPerfil() {
