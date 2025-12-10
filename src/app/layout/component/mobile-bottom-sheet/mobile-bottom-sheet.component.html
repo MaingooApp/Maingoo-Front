@@ -13,7 +13,7 @@
   (touchmove)="onTouchMove($event)"
   (touchend)="onTouchEnd($event)">
   <!-- Handle / Drag Indicator -->
-  <div class="sheet-handle" (click)="onHeaderClick()">
+  <div class="sheet-handle" (click)="onHeaderClick($event)">
     <div class="handle-bar"></div>
   </div>
 
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Estado Medio: Menú, acciones e input -->
-    <div class="medium-view" *ngIf="bottomSheetService.currentState() === 'medium'">
+    <div class="medium-view" *ngIf="bottomSheetService.currentState() === 'medium'" (click)="$event.stopPropagation()">
       <!-- Contenido scrolleable -->
       <div class="medium-content">
         <!-- Etiqueta MENU -->
@@ -116,6 +116,7 @@
           type="text"
           [placeholder]="currentContext.placeholder"
           class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-800 dark:text-surface-0 rounded-full shadow-sm focus:shadow-md transition-all"
+          (focus)="onInputFocus()"
           (keydown.enter)="sendMessage(mediumInput)" />
         <button
           (click)="sendMessage(mediumInput)"

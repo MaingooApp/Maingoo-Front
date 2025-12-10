@@ -188,7 +188,12 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
   }
 
-  onHeaderClick() {
+  onHeaderClick(event?: Event) {
+    // Si el evento viene de un elemento hijo (como un chip), no hacer nada
+    if (event && event.target !== event.currentTarget) {
+      return;
+    }
+    
     // Click en el header para ciclar entre estados: compact → medium → expanded → compact
     const current = this.bottomSheetService.currentState();
     if (current === 'compact') {
@@ -250,12 +255,21 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
     
     // Si está en compacto, expandir a medium antes de navegar
+    // Si ya está en medium o expanded, mantener el estado actual
     const currentState = this.bottomSheetService.currentState();
     if (currentState === 'compact') {
       this.bottomSheetService.setState('medium');
     }
     
     this.router.navigate([route]);
+  }
+
+  onInputFocus(): void {
+    // Expandir a modo completo cuando se hace focus en el input en estado medium
+    const currentState = this.bottomSheetService.currentState();
+    if (currentState === 'medium') {
+      this.bottomSheetService.setState('expanded');
+    }
   }
 
   async handleQuickAction(action: string): Promise<void> {
