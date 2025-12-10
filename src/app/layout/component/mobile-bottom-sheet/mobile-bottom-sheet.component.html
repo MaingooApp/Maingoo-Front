@@ -48,7 +48,7 @@
         </div>
         
         <!-- Etiqueta CHAT -->
-        <div class="mb-2">
+        <div class="mb-5">
           <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">Maingoo AI</p>
           <div class="h-px bg-gray-300 dark:bg-gray-600 mt-1"></div>
         </div>
@@ -79,23 +79,26 @@
         <!-- Etiqueta MENU -->
         <div class="mb-2">
           <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">Menú</p>
-          <div class="h-px bg-gray-300 dark:bg-gray-600 mt-1"></div>
+          <!-- <div class="h-px bg-gray-300 dark:bg-gray-600 mt-1"></div> -->
         </div>
         
-        <div class="grid grid-cols-3 gap-2 mb-3">
-          <button 
-            *ngFor="let link of quickLinks"
-            (click)="navigateTo(link.route, $event)"
-            class="flex flex-col items-center justify-center p-3 bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 rounded-2xl border-0 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_6px_16px_rgba(26,60,52,0.1)] transition-all duration-200 cursor-pointer">
-            <i [class]="link.icon + ' text-base mb-1'"></i>
-            <span class="text-[9px] font-medium text-center leading-tight">{{ link.label }}</span>
-          </button>
+        <!-- Chips compactos en grid 3x2 -->
+        <div class="mb-3">
+          <div class="grid grid-cols-3 gap-2">
+            <button 
+              *ngFor="let link of quickLinks"
+              (click)="navigateTo(link.route, $event)"
+              class="flex items-center justify-center gap-1.5 px-2 py-2 bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 rounded-full border-0 shadow-[0_2px_8px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_4px_12px_rgba(26,60,52,0.1)] transition-all duration-200 cursor-pointer">
+              <i [class]="link.icon + ' text-sm'"></i>
+              <span class="text-[10px] font-medium whitespace-nowrap">{{ link.label }}</span>
+            </button>
+          </div>
         </div>
         
         <!-- Etiqueta CHAT -->
         <div class="mb-0">
           <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">Maingoo AI</p>
-          <div class="h-px bg-gray-300 dark:bg-gray-600 mt-1"></div>
+          <!-- <div class="h-px bg-gray-300 dark:bg-gray-600 mt-1"></div> -->
         </div>
       </div>
 
