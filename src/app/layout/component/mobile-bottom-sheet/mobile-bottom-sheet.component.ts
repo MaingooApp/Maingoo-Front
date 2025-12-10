@@ -35,8 +35,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   
   // Snap points en porcentajes de altura de viewport
   private readonly snapPoints = {
-    compact: 20,
-    medium: 50,
+    compact: 30,
     expanded: 90
   };
 
@@ -47,11 +46,14 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private typingSubscription?: Subscription;
   private routerSubscription?: Subscription;
 
-  // Quick actions y chips navegación
+  // Quick actions y chips navegación (6 chips para grid 3x2)
   quickLinks = [
     { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
     { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
-    { label: 'Empresas', icon: 'pi pi-box', route: '/proveedores' }
+    { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
+    { label: 'Productos', icon: 'pi pi-tags', route: '/productos' },
+    { label: 'Recetas', icon: 'pi pi-tags', route: '/recetas' },
+    { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
   ];
 
   // Contextos por ruta
@@ -171,16 +173,12 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   private collapseState(current: SheetState) {
     if (current === 'expanded') {
-      this.bottomSheetService.setState('medium');
-    } else if (current === 'medium') {
       this.bottomSheetService.setState('compact');
     }
   }
 
   private expandState(current: SheetState) {
     if (current === 'compact') {
-      this.bottomSheetService.setState('medium');
-    } else if (current === 'medium') {
       this.bottomSheetService.setState('expanded');
     }
   }
@@ -189,8 +187,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     // Click en el header para expandir/colapsar rápidamente
     const current = this.bottomSheetService.currentState();
     if (current === 'compact') {
-      this.bottomSheetService.setState('medium');
-    } else if (current === 'medium') {
       this.bottomSheetService.setState('expanded');
     } else {
       this.bottomSheetService.setState('compact');
@@ -239,7 +235,12 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
   }
 
-  navigateTo(route: string): void {
+  navigateTo(route: string, event?: Event): void {
+    // Prevenir que el evento burbujee y active el onHeaderClick
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
     this.router.navigate([route]);
     // Collapse to compact after navigation
     this.bottomSheetService.setState('compact');
@@ -248,8 +249,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   async handleQuickAction(action: string): Promise<void> {
     // Enviar la acción al chat
     await this.chatService.sendMessage(action);
-    // Expandir al estado medium para mostrar la respuesta
-    this.bottomSheetService.setState('medium');
+    // Mantener expandido para mostrar la respuesta
   }
 
   async sendMessage(input: HTMLInputElement) {
@@ -261,17 +261,17 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       // Enviar mensaje usando el servicio de chat (conecta a n8n)
       await this.chatService.sendMessage(message);
       
-      // Si está en estado compacto, expandir a medio para ver la respuesta
+      // Si está en estado compacto, expandir para ver la respuesta
       if (this.bottomSheetService.currentState() === 'compact') {
-        this.bottomSheetService.setState('medium');
+        this.bottomSheetService.setState('expanded');
       }
     }
   }
 
   onBackdropClick() {
-    // Si está expandido, colapsar a medio al hacer click en el backdrop
+    // Si está expandido, colapsar a compacto al hacer click en el backdrop
     if (this.bottomSheetService.currentState() === 'expanded') {
-      this.bottomSheetService.setState('medium');
+      this.bottomSheetService.setState('compact');
     }
   }
 
