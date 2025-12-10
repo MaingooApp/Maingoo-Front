@@ -22,6 +22,9 @@ import { ToastService } from '../../../shared/services/toast.service';
 // - Subscription: para manejar suscripciones a observables
 import { Subscription } from 'rxjs';
 
+// Importar BottomSheetService para controlar el bottom sheet en móvil
+import { BottomSheetService } from '../../service/bottom-sheet.service';
+
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
   // Selector del componente usado en plantillas: <app-topbar></app-topbar>
@@ -49,6 +52,11 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Estado del menú móvil
   isMobileMenuOpen = false;
   
+  // Detectar si es móvil
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+  
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
@@ -64,7 +72,8 @@ export class AppTopbar implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
-    private elementRef: ElementRef
+    private elementRef: ElementRef,
+    private bottomSheetService: BottomSheetService
   ) {}
   
   ngOnInit() {
@@ -155,9 +164,23 @@ export class AppTopbar implements OnInit, OnDestroy {
     this.toastService.clearNotifications();
   }
 
-  // toggleMobileMenu: alterna el menú desplegable móvil
+  // toggleMobileMenu: alterna el menú desplegable móvil en escritorio
+  // En móvil, controla el bottom sheet (abre a medium o cierra a compact)
   toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    if (this.isMobile) {
+      // En móvil: controlar el bottom sheet
+      const currentState = this.bottomSheetService.currentState();
+      if (currentState === 'compact') {
+        // Si está cerrado, abrir a medium
+        this.bottomSheetService.setState('medium');
+      } else {
+        // Si está en medium o expanded, cerrar a compact
+        this.bottomSheetService.setState('compact');
+      }
+    } else {
+      // En escritorio: toggle del menú desplegable
+      this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    }
   }
 
   // openSettings: método para abrir el panel de configuración del sistema

@@ -35,7 +35,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   
   // Snap points en porcentajes de altura de viewport
   private readonly snapPoints = {
-    compact: 25,
+    compact: 5,
     medium: 35,
     expanded: 90
   };
