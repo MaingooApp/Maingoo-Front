@@ -4,13 +4,13 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './app.sidebar';
-import { AppFooter } from './app.footer';
+import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
 import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent],
   templateUrl: './app.layout.html',
   styleUrls: ['./app.layout.scss']
 })
@@ -22,6 +22,10 @@ export class AppLayout {
   @ViewChild(AppSidebar) appSidebar!: AppSidebar;
 
   @ViewChild(AppTopbar) appTopBar!: AppTopbar;
+
+  get mainContainerClass() {
+    return {};
+  }
 
   constructor(
     public layoutService: LayoutService,
@@ -101,7 +105,8 @@ export class AppLayout {
         this.layoutService.layoutState().staticMenuDesktopInactive &&
         this.layoutService.layoutConfig().menuMode === 'static',
       'layout-overlay-active': this.layoutService.layoutState().overlayMenuActive,
-      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
+      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive,
+      'layout-notification-active': this.layoutService.isNotificationPanelActive()
     };
   }
 

@@ -1,10 +1,6 @@
-/* Utils */
-.clearfix:after {
-    content: ' ';
-    display: block;
-    clear: both;
-}
+/* Utils - Mantiene solo estilos específicos que no son fácilmente replicables con Tailwind */
 
+/* Clase .card usada en múltiples componentes del proyecto */
 .card {
     background: var(--surface-card);
     padding: 2rem;
@@ -16,6 +12,7 @@
     }
 }
 
+/* Ajuste de posición para toasts de PrimeNG considerando el topbar */
 .p-toast {
     &.p-toast-top-right,
     &.p-toast-top-left,
