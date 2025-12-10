@@ -1,17 +1,20 @@
 <!-- ==================== TOPBAR PRINCIPAL ==================== -->
-<div class="fixed top-0 left-0 right-0 z-[1000] w-full h-20 bg-transparent dark:bg-transparent flex justify-center items-center px-8">
-  <div class="w-full bg-white dark:bg-surface-900 rounded-[var(--content-border-radius)] shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between pl-10 pr-4 h-full">
+<div class="fixed top-0 left-0 right-0 z-[1000] w-full h-14 md:h-16 lg:h-20 flex items-center justify-center px-2 md:px-4 lg:px-8">
+  <div class="w-full bg-white dark:bg-surface-900 rounded-[var(--content-border-radius)] shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-2 sm:px-4 md:pl-10 md:pr-4 h-full">
     <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
-    <a routerLink="/" class="flex items-center gap-5">
-      <!-- Avatar con iniciales del usuario -->
-      <div class="w-12 h-12 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center shadow-[0_2px_8px_rgba(26,60,52,0.15)]">
-        <span class="text-white dark:text-[#1A3C34] font-bold text-base">NU</span>
+    <a routerLink="/" class="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
+      <!-- Logotipo de Maingoo -->
+      <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center flex-shrink-0">
+        <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain">
       </div>
-      <span class="text-lg font-semibold text-[#1A3C34] dark:text-surface-0 whitespace-nowrap">NOMBRE USUARIO | NOMBRE DE NEGOCIO</span>
+      <div class="flex flex-col min-w-0 hidden sm:flex">
+        <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate">Bienvenido, <span class="font-semibold">NOMBRE USUARIO</span></span>
+        <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">NOMBRE DE NEGOCIO</span>
+      </div>
     </a>
 
     <!-- ========== SECCIÓN DERECHA: Cápsula Flotante ========== -->
-    <div class="bg-[#F0F7F4] dark:bg-surface-700 rounded-2xl px-6 py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] flex items-center gap-10">
+    <div class="bg-[#F0F7F4] dark:bg-surface-700 rounded-xl md:rounded-2xl px-2 sm:px-4 md:px-6 py-1.5 md:py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] flex items-center gap-2 sm:gap-4 md:gap-10">
       <!-- Botón para abrir/cerrar el sidebar del chat -->
       <button 
         type="button" 
@@ -22,7 +25,7 @@
         tooltipPosition="bottom"
         [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-bars text-xl"></i>
+        <i class="pi pi-bars text-base sm:text-lg md:text-xl"></i>
       </button>
 
       
@@ -38,7 +41,7 @@
       [showDelay]="250"
       tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm"
       >
-      <i class="pi pi-bell text-xl"></i>
+      <i class="pi pi-bell text-base sm:text-lg md:text-xl"></i>
       <!-- Indicador de notificaciones no leídas -->
       @if (hasUnreadNotifications) {
         <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -49,35 +52,35 @@
     <button 
     type="button" 
     routerLink="/miperfil"
-    class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+    class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200 hidden sm:flex"
     aria-label="Mi perfil"
     pTooltip="Mi perfil" 
     tooltipPosition="bottom"
     [showDelay]="250"
     tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm"
     >
-    <i class="pi pi-user text-xl"></i>
+    <i class="pi pi-user text-base sm:text-lg md:text-xl"></i>
   </button>
   
   <!-- Configuración del sistema -->
   <button 
   type="button" 
   (click)="openSettings()"
-  class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+  class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200 hidden md:flex"
   aria-label="Configuración"
   pTooltip="Configuración" 
   tooltipPosition="bottom"
   [showDelay]="250"
   tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm"
   >
-  <i class="pi pi-cog text-xl"></i>
+  <i class="pi pi-cog text-base sm:text-lg md:text-xl"></i>
 </button>
 
 <!-- Botón para alternar entre tema oscuro/claro -->
 <button 
   type="button" 
   (click)="toggleDarkMode()"
-  class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+  class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200 hidden sm:flex"
   aria-label="Cambiar tema"
   pTooltip="Cambiar tema" 
   tooltipPosition="bottom"
@@ -85,7 +88,7 @@
   tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm"
 >
   <i
-    class="text-xl"
+    class="text-base sm:text-lg md:text-xl"
     [ngClass]="{ 
       'pi ': true, 
       'pi-moon': layoutService.isDarkTheme(), 
@@ -104,14 +107,9 @@ type="button"
         [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm"
       >
-        <i class="pi pi-sign-out text-xl"></i>
+        <i class="pi pi-sign-out text-base sm:text-lg md:text-xl"></i>
       </button>
     </div>
-  </div>
-
-  <!-- Componente de configuración visual (oculto) -->
-  <div class="hidden">
-    <app-configurator />
   </div>
 </div>
 <!-- ==================== FIN TOPBAR ==================== -->
