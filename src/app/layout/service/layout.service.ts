@@ -15,6 +15,8 @@ interface LayoutState {
   configSidebarVisible?: boolean;
   staticMenuMobileActive?: boolean;
   menuHoverActive?: boolean;
+  notificationPanelActive?: boolean;
+  notificationPanelAnimating?: boolean;
 }
 
 interface MenuChangeEvent {
@@ -39,7 +41,9 @@ export class LayoutService {
     overlayMenuActive: false,
     configSidebarVisible: false,
     staticMenuMobileActive: false,
-    menuHoverActive: false
+    menuHoverActive: false,
+    notificationPanelActive: false,
+    notificationPanelAnimating: false
   };
 
   layoutConfig = signal<layoutConfig>(this._config);
@@ -159,6 +163,42 @@ export class LayoutService {
         this.overlayOpen.next(null);
       }
     }
+  }
+  
+  toggleNotificationPanel() {
+    const isCurrentlyActive = this.layoutState().notificationPanelActive;
+    
+    if (isCurrentlyActive) {
+      // Si se está cerrando, marcar como animando primero
+      this.layoutState.update((prev) => ({
+        ...prev,
+        notificationPanelAnimating: true,
+        notificationPanelActive: false
+      }));
+      
+      // Esperar a que termine la animación (400ms) antes de permitir cambios en el sidebar
+      setTimeout(() => {
+        this.layoutState.update((prev) => ({
+          ...prev,
+          notificationPanelAnimating: false
+        }));
+      }, 400);
+    } else {
+      // Si se está abriendo, cambiar inmediatamente
+      this.layoutState.update((prev) => ({
+        ...prev,
+        notificationPanelActive: true,
+        notificationPanelAnimating: false
+      }));
+    }
+  }
+  
+  isNotificationPanelActive() {
+    return this.layoutState().notificationPanelActive;
+  }
+  
+  isNotificationPanelActiveOrAnimating() {
+    return this.layoutState().notificationPanelActive || this.layoutState().notificationPanelAnimating;
   }
 
   isDesktop() {
