@@ -27,21 +27,25 @@
     
     <!-- Estado Compacto: Solo input y chips -->
     <div class="compact-view" *ngIf="bottomSheetService.currentState() === 'compact'">
-      <div class="quick-chips">
-        <button class="chip">📊 Dashboard</button>
-        <button class="chip">📄 Facturas</button>
-        <button class="chip">🏢 Empresas</button>
-        <button class="chip">⚙️ Config</button>
+      <!-- Chips de navegación rápida (mismo estilo que sidebar) -->
+      <div class="grid grid-cols-3 gap-2 mb-3">
+        <button 
+          *ngFor="let link of quickLinks"
+          (click)="navigateTo(link.route)"
+          class="flex flex-col items-center justify-center p-3 bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 rounded-2xl border-0 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_6px_16px_rgba(26,60,52,0.1)] transition-all duration-200 cursor-pointer">
+          <i [class]="link.icon + ' text-lg mb-1'"></i>
+          <span class="text-[10px] font-medium text-center leading-tight">{{ link.label }}</span>
+        </button>
       </div>
       
       <div class="input-container">
         <input 
           #messageInput
           type="text" 
-          placeholder="Pregúntame algo..."
+          [placeholder]="currentContext.placeholder"
           class="chat-input"
           (keydown.enter)="sendMessage(messageInput)">
-        <button class="send-button" (click)="sendMessage(messageInput)">
+        <button class="send-button" (click)="sendMessage(messageInput)" [disabled]="isTyping">
           <i class="pi pi-send"></i>
         </button>
       </div>
@@ -95,6 +99,19 @@
               <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]"></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Acciones rápidas contextuales -->
+      <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
+        <div class="grid grid-cols-2 gap-2">
+          <button 
+            *ngFor="let action of currentContext.actions"
+            (click)="handleQuickAction(action.action)"
+            class="px-3 py-2.5 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-[11px] font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center justify-center gap-1.5 text-center">
+            <i [class]="action.icon + ' text-xs'"></i>
+            <span class="truncate">{{ action.label }}</span>
+          </button>
         </div>
       </div>
 
