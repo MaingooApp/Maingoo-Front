@@ -50,28 +50,66 @@
     <!-- Estado Medio: Respuestas breves + menú -->
     <div class="medium-view" *ngIf="bottomSheetService.currentState() === 'medium'">
       <div class="chat-header">
-        <h3>Maingoo Assistant</h3>
+        <h3>Maingoo AI</h3>
         <span class="status-indicator">🟢 En línea</span>
       </div>
 
-      <div class="chat-messages">
-        <div class="message bot-message">
-          <div class="message-avatar">🤖</div>
-          <div class="message-content">
-            <p>¡Hola! Soy tu asistente de Maingoo. ¿En qué puedo ayudarte hoy?</p>
+      <div #messagesContainer class="chat-messages">
+        <!-- Mensajes reales del chat -->
+        <div 
+          *ngFor="let message of messages; trackBy: trackByMessageId"
+          class="message-wrapper"
+          [class.bot-wrapper]="message.sender === 'bot'"
+          [class.user-wrapper]="message.sender === 'user'">
+          
+          <!-- Mensaje del BOT -->
+          <div *ngIf="message.sender === 'bot'" class="flex items-start space-x-2 mb-3 animate-[fadeIn_0.3s_ease-out]">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+              <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
+            </div>
+            <div class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3">
+              <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+            </div>
+          </div>
+
+          <!-- Mensaje del USUARIO -->
+          <div *ngIf="message.sender === 'user'" class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
+            <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3">
+              <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+            </div>
+            <div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="pi pi-user text-white text-xs"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador de escritura -->
+        <div class="flex items-start space-x-2 mb-3" *ngIf="isTyping">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+            <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
+          </div>
+          <div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
+            <div class="flex space-x-1">
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce"></div>
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]"></div>
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="input-container">
+      <div class="input-container-sidebar">
         <input 
           #mediumInput
           type="text" 
           placeholder="Escribe tu mensaje..."
-          class="chat-input"
+          class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-800 dark:text-surface-0 rounded-full shadow-sm focus:shadow-md transition-all"
           (keydown.enter)="sendMessage(mediumInput)">
-        <button class="send-button" (click)="sendMessage(mediumInput)">
-          <i class="pi pi-send"></i>
+        <button 
+          (click)="sendMessage(mediumInput)"
+          [disabled]="isTyping"
+          class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm"></i>
         </button>
       </div>
     </div>
@@ -83,7 +121,7 @@
           <i class="pi pi-arrow-left"></i>
         </button>
         <div class="header-info">
-          <h3>Chat con Maingoo</h3>
+          <h3>Chat con Maingoo AI</h3>
           <span class="subtitle">Asistente inteligente</span>
         </div>
         <button class="menu-button">
@@ -91,39 +129,51 @@
         </button>
       </div>
 
-      <div class="chat-messages-full">
-        <div class="message bot-message">
-          <div class="message-avatar">🤖</div>
-          <div class="message-content">
-            <p>¡Hola! Soy tu asistente de Maingoo.</p>
-            <span class="message-time">10:30 AM</span>
+      <div #messagesContainer class="chat-messages-full">
+        <!-- Mensajes reales del chat -->
+        <div 
+          *ngFor="let message of messages; trackBy: trackByMessageId"
+          class="message-wrapper"
+          [class.bot-wrapper]="message.sender === 'bot'"
+          [class.user-wrapper]="message.sender === 'user'">
+          
+          <!-- Mensaje del BOT -->
+          <div *ngIf="message.sender === 'bot'" class="flex items-start space-x-2 mb-3 animate-[fadeIn_0.3s_ease-out]">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+              <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
+            </div>
+            <div class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3">
+              <p class="m-0 text-sm leading-relaxed" [innerHTML]="message.text"></p>
+            </div>
+          </div>
+
+          <!-- Mensaje del USUARIO -->
+          <div *ngIf="message.sender === 'user'" class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
+            <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3">
+              <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+            </div>
+            <div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="pi pi-user text-white text-xs"></i>
+            </div>
           </div>
         </div>
 
-        <div class="message user-message">
-          <div class="message-content">
-            <p>Hola, necesito ayuda con mis facturas</p>
-            <span class="message-time">10:31 AM</span>
+        <!-- Indicador de escritura -->
+        <div class="flex items-start space-x-2 mb-3" *ngIf="isTyping">
+          <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
+            <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
           </div>
-          <div class="message-avatar user-avatar">TU</div>
-        </div>
-
-        <div class="message bot-message">
-          <div class="message-avatar">🤖</div>
-          <div class="message-content">
-            <p>Por supuesto, puedo ayudarte con eso. ¿Qué necesitas saber sobre tus facturas?</p>
-            <ul>
-              <li>Ver facturas pendientes</li>
-              <li>Generar nueva factura</li>
-              <li>Buscar factura específica</li>
-              <li>Estadísticas de facturación</li>
-            </ul>
-            <span class="message-time">10:31 AM</span>
+          <div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
+            <div class="flex space-x-1">
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce"></div>
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]"></div>
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="input-container-full">
+      <div class="input-container-full-sidebar">
         <button class="attach-button">
           <i class="pi pi-paperclip"></i>
         </button>
@@ -131,10 +181,13 @@
           #expandedInput
           type="text" 
           placeholder="Escribe tu mensaje..."
-          class="chat-input"
+          class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-800 dark:text-surface-0 rounded-full shadow-sm focus:shadow-md transition-all"
           (keydown.enter)="sendMessage(expandedInput)">
-        <button class="send-button" (click)="sendMessage(expandedInput)">
-          <i class="pi pi-send"></i>
+        <button 
+          (click)="sendMessage(expandedInput)"
+          [disabled]="isTyping"
+          class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm"></i>
         </button>
       </div>
     </div>

@@ -1,6 +1,8 @@
-import { Component, ElementRef, HostListener, ViewChild, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BottomSheetService, SheetState } from '../../../layout/service/bottom-sheet.service';
+import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-mobile-bottom-sheet',
@@ -9,8 +11,9 @@ import { BottomSheetService, SheetState } from '../../../layout/service/bottom-s
   templateUrl: './mobile-bottom-sheet.component.html',
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })
-export class MobileBottomSheetComponent {
+export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   @ViewChild('sheetContainer') sheetContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
 
   private startY = 0;
   private currentY = 0;
@@ -23,7 +26,16 @@ export class MobileBottomSheetComponent {
     expanded: 90
   };
 
-  constructor(public bottomSheetService: BottomSheetService) {}
+  // Chat properties
+  messages: ChatMessage[] = [];
+  isTyping = false;
+  private messagesSubscription?: Subscription;
+  private typingSubscription?: Subscription;
+
+  constructor(
+    public bottomSheetService: BottomSheetService,
+    private chatService: ChatBubbleService
+  ) {}
 
   get sheetHeight(): string {
     const state = this.bottomSheetService.currentState();
@@ -116,12 +128,42 @@ export class MobileBottomSheetComponent {
     }
   }
 
-  sendMessage(input: HTMLInputElement) {
+  ngOnInit() {
+    // Suscribirse a los mensajes del chat
+    this.messagesSubscription = this.chatService.messages$.subscribe(messages => {
+      this.messages = messages;
+      // Scroll automático al último mensaje después de que se renderice
+      setTimeout(() => this.scrollToBottom(), 100);
+    });
+
+    // Suscribirse al indicador de escritura
+    this.typingSubscription = this.chatService.typing$.subscribe(typing => {
+      this.isTyping = typing;
+      if (typing) {
+        setTimeout(() => this.scrollToBottom(), 100);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    // Limpiar suscripciones
+    this.messagesSubscription?.unsubscribe();
+    this.typingSubscription?.unsubscribe();
+  }
+
+  async sendMessage(input: HTMLInputElement) {
     const message = input.value.trim();
     if (message) {
-      // TODO: Integrar con servicio de chat
-      console.log('Mensaje enviado:', message);
+      // Limpiar input inmediatamente
       input.value = '';
+      
+      // Enviar mensaje usando el servicio de chat (conecta a n8n)
+      await this.chatService.sendMessage(message);
+      
+      // Si está en estado compacto, expandir a medio para ver la respuesta
+      if (this.bottomSheetService.currentState() === 'compact') {
+        this.bottomSheetService.setState('medium');
+      }
     }
   }
 
@@ -130,5 +172,24 @@ export class MobileBottomSheetComponent {
     if (this.bottomSheetService.currentState() === 'expanded') {
       this.bottomSheetService.setState('medium');
     }
+  }
+
+  private scrollToBottom() {
+    if (this.messagesContainer) {
+      const container = this.messagesContainer.nativeElement;
+      container.scrollTop = container.scrollHeight;
+    }
+  }
+
+  // Métodos de utilidad para el template
+  trackByMessageId(index: number, message: ChatMessage): string {
+    return message.id;
+  }
+
+  formatTime(timestamp: Date): string {
+    return new Date(timestamp).toLocaleTimeString('es-ES', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
   }
 }
