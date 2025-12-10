@@ -1,6 +1,6 @@
 import { Component, ElementRef, signal, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +8,19 @@ import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/c
 import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { LayoutService } from '../service/layout.service';
+import { filter } from 'rxjs/operators';
+
+interface QuickAction {
+  label: string;
+  icon: string;
+  action: string;
+}
+
+interface RouteContext {
+  title: string;
+  placeholder: string;
+  actions: QuickAction[];
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -24,13 +37,9 @@ export class AppSidebar {
   messageText = '';
   messages: ChatMessage[] = [];
   isTyping = false;
-  isRecording = false;
   readonly maxMessageLength = 500;
   showAttachmentMenu = false;
   currentYear = new Date().getFullYear();
-  
-  private mediaRecorder: MediaRecorder | null = null;
-  private audioChunks: Blob[] = [];
 
   quickLinks = [
     { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
@@ -40,6 +49,72 @@ export class AppSidebar {
     { label: 'Recetas', icon: 'pi pi-tags', route: '/recetas' },
     { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
   ];
+
+  // Contextos por ruta
+  private routeContexts: { [key: string]: RouteContext } = {
+    '/': {
+      title: 'Acciones rápidas',
+      placeholder: '¿Qué necesitas saber hoy?',
+      actions: [
+        { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
+        { label: 'Ver resumen', icon: 'pi pi-eye', action: 'Mostrar resumen general' },
+        { label: 'Análisis ventas', icon: 'pi pi-chart-bar', action: 'Análisis de ventas' },
+        { label: 'Estadísticas', icon: 'pi pi-chart-pie', action: 'Ver estadísticas generales' }
+      ]
+    },
+    '/facturas': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus facturas...',
+      actions: [
+        { label: 'Subir factura', icon: 'pi pi-upload', action: 'Subir factura' },
+        { label: 'Informe compras', icon: 'pi pi-chart-bar', action: 'Informe de compras' },
+        { label: 'Buscar factura', icon: 'pi pi-search', action: 'Buscar una factura' },
+        { label: 'Exportar datos', icon: 'pi pi-download', action: 'Exportar facturas' }
+      ]
+    },
+    '/proveedores': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus proveedores...',
+      actions: [
+        { label: 'Nuevo proveedor', icon: 'pi pi-plus', action: 'Agregar nuevo proveedor' },
+        { label: 'Análisis', icon: 'pi pi-chart-pie', action: 'Análisis de proveedores' },
+        { label: 'Comparar precios', icon: 'pi pi-dollar', action: 'Comparar precios de proveedores' },
+        { label: 'Contactos', icon: 'pi pi-users', action: 'Ver contactos de proveedores' }
+      ]
+    },
+    '/productos': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus productos...',
+      actions: [
+        { label: 'Nuevo producto', icon: 'pi pi-plus', action: 'Agregar nuevo producto' },
+        { label: 'Stock bajo', icon: 'pi pi-exclamation-triangle', action: 'Ver productos con stock bajo' },
+        { label: 'Actualizar precios', icon: 'pi pi-refresh', action: 'Actualizar precios de productos' },
+        { label: 'Categorías', icon: 'pi pi-tags', action: 'Gestionar categorías' }
+      ]
+    },
+    '/recetas': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus recetas...',
+      actions: [
+        { label: 'Crear receta', icon: 'pi pi-plus', action: 'Crear nueva receta' },
+        { label: 'Costeo', icon: 'pi pi-calculator', action: 'Análisis de costeo de recetas' },
+        { label: 'Ingredientes', icon: 'pi pi-list', action: 'Ver ingredientes disponibles' },
+        { label: 'Rentabilidad', icon: 'pi pi-percentage', action: 'Análisis de rentabilidad' }
+      ]
+    },
+    '/docgenerator': {
+      title: 'Acciones rápidas',
+      placeholder: 'Genera documentos...',
+      actions: [
+        { label: 'Nuevo documento', icon: 'pi pi-file-plus', action: 'Generar nuevo documento' },
+        { label: 'Plantillas', icon: 'pi pi-clone', action: 'Ver plantillas disponibles' },
+        { label: 'Mis documentos', icon: 'pi pi-folder', action: 'Ver mis documentos' },
+        { label: 'Compartir', icon: 'pi pi-share-alt', action: 'Compartir documento' }
+      ]
+    }
+  };
+
+  currentContext: RouteContext = this.routeContexts['/'];
 
   get sidebarClass() {
     const isNotificationActive = this.layoutService.isNotificationPanelActiveOrAnimating();
@@ -53,8 +128,19 @@ export class AppSidebar {
     public el: ElementRef,
     private chatService: ChatBubbleService,
     private modalService: ModalService,
-    public layoutService: LayoutService
+    public layoutService: LayoutService,
+    private router: Router
   ) {
+    // Actualizar contexto en base a la ruta inicial
+    this.updateContextFromRoute(this.router.url);
+
+    // Escuchar cambios de ruta
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        this.updateContextFromRoute(event.urlAfterRedirects);
+      });
+
     // Suscribirse a los mensajes
     this.chatService.messages$.subscribe(messages => {
       this.messages = messages;
@@ -68,6 +154,24 @@ export class AppSidebar {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+  }
+
+  private updateContextFromRoute(url: string): void {
+    // Limpiar query params y fragments
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    
+    // Buscar contexto exacto o por prefijo
+    if (this.routeContexts[cleanUrl]) {
+      this.currentContext = this.routeContexts[cleanUrl];
+    } else {
+      // Buscar por prefijo (ej: /facturas/1 -> /facturas)
+      const matchedRoute = Object.keys(this.routeContexts).find(route => 
+        route !== '/' && cleanUrl.startsWith(route)
+      );
+      this.currentContext = matchedRoute 
+        ? this.routeContexts[matchedRoute] 
+        : this.routeContexts['/'];
+    }
   }
 
   @HostListener('document:click', ['$event'])
@@ -102,42 +206,6 @@ export class AppSidebar {
 
   isFirstBotMessage(index: number): boolean {
     return index === 0 && this.messages[0]?.sender === 'bot';
-  }
-
-  async handleVoiceInput() {
-    if (!this.isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        this.mediaRecorder = new MediaRecorder(stream);
-        this.audioChunks = [];
-
-        this.mediaRecorder.ondataavailable = (event) => {
-          this.audioChunks.push(event.data);
-        };
-
-        this.mediaRecorder.onstop = async () => {
-          const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-          await this.sendVoiceMessage(audioBlob);
-          stream.getTracks().forEach(track => track.stop());
-        };
-
-        this.mediaRecorder.start();
-        this.isRecording = true;
-      } catch (error) {
-        console.error('Error al acceder al micrófono:', error);
-        alert('No se pudo acceder al micrófono. Por favor, verifica los permisos.');
-      }
-    } else {
-      if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
-        this.mediaRecorder.stop();
-        this.isRecording = false;
-      }
-    }
-  }
-
-  async sendVoiceMessage(audioBlob: Blob) {
-    await this.chatService.sendMessage('[Nota de voz recibida - Transcripción pendiente]');
-    console.log('Audio blob:', audioBlob);
   }
 
   handleCameraCapture() {
