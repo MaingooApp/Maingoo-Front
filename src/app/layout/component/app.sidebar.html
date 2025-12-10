@@ -88,35 +88,23 @@
 
   <!-- Acciones rápidas -->
   <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
-    <h4 class="text-sm font-medium text-[#1A3C34] dark:text-[#6B9E86] mb-3 italic">Acciones rápidas</h4>
-    <div class="flex flex-wrap gap-2">
-      <button
-        (click)="handleQuickAction('Subir factura')"
-        class="px-4 py-2 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-[13px] font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center gap-2">
-        <i class="pi pi-upload text-xs"></i>
-        <span>Subir factura</span>
-      </button>
-      <button
-        (click)="handleQuickAction('Informe de compras')"
-        class="px-4 py-2 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-[13px] font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center gap-2">
-        <i class="pi pi-chart-bar text-xs"></i>
-        <span>Informe de compras</span>
-      </button>
+    <h4 class="text-sm font-medium text-[#1A3C34] dark:text-[#6B9E86] mb-3 italic">{{ currentContext.title }}</h4>
+    <div class="grid grid-cols-2 gap-2">
+      @for (action of currentContext.actions; track action.label) {
+        <button 
+          (click)="handleQuickAction(action.action)"
+          class="px-3 py-2.5 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-[11px] font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center justify-center gap-1.5 text-center"
+        >
+          <i [class]="action.icon + ' text-[10px] flex-shrink-0'"></i>
+          <span class="truncate">{{ action.label }}</span>
+        </button>
+      }
     </div>
   </div>
 
   <!-- Input de mensaje expandido -->
   <div class="flex-shrink-0 p-4 bg-[#F0F7F4] dark:bg-surface-800">
     <div class="flex items-center gap-3">
-      <!-- Icono de micrófono -->
-      <button
-        (click)="handleVoiceInput()"
-        disabled
-        class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition-all opacity-50 cursor-not-allowed"
-        aria-label="Grabar nota de voz (próximamente)">
-        <i class="pi pi-microphone text-gray-400 dark:text-gray-500 text-base"></i>
-      </button>
-
       <!-- Botón de adjuntar con menú desplegable -->
       <div class="relative" id="attachment-menu-container">
         <button
@@ -164,7 +152,7 @@
         [(ngModel)]="messageText"
         (keydown)="handleKeyDown($event)"
         (input)="autoResize()"
-        placeholder="Escribe un mensaje..."
+        [placeholder]="currentContext.placeholder"
         [maxlength]="maxMessageLength"
         rows="1"
         class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-white/50 dark:bg-surface-700/50 rounded-2xl placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[#1A3C34] dark:text-surface-0 resize-none overflow-hidden max-h-32"></textarea>
