@@ -14,7 +14,8 @@ export interface ChatMessage {
 })
 export class ChatBubbleService {
   private n8nWebhookUrl = 'https://n8n.maingoo.tech/webhook/app-chat';
-  private sessionId: string;
+  private sessionId!: string;
+  private enterpriseId!: string;
   
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([
     {
@@ -31,24 +32,15 @@ export class ChatBubbleService {
   public typing$ = this.typingSubject.asObservable();
 
   constructor(private http: HttpClient) {
-    this.sessionId = this.generateSessionId();
+    this.getSessionId();
   }
 
-  private generateSessionId(): string {
-    // Intentar obtener sessionId existente del sessionStorage
-    let sessionId = sessionStorage.getItem('maingoo_chat_session_id');
-
-    if (!sessionId) {
-      // Si no existe, crear uno nuevo y guardarlo
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(2, 15);
-      sessionId = `chat_${timestamp}_${random}`;
-
-      // Guardar en sessionStorage para que persista durante toda la sesión del navegador
-      sessionStorage.setItem('maingoo_chat_session_id', sessionId);
-    }
-
-    return sessionId;
+  private getSessionId(): void {
+    // Intentar obtener sessionId existente del localStorage
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.sessionId = user.id;
+    this.enterpriseId = user.enterpriseId;
+    console.log('Session ID existente:', this.sessionId);
   }
 
   async sendMessage(message: string): Promise<void> {
@@ -117,10 +109,10 @@ export class ChatBubbleService {
   private async sendToN8n(message: string): Promise<any> {
     const payload = {
       message: message,
-      sessionId: this.sessionId,
+      userId: this.sessionId,
       timestamp: new Date().toISOString(),
-      source: 'app-chat',
       url: window.location.href,
+      enterpriseId: this.enterpriseId
     };
 
     const response = await this.http.post(this.n8nWebhookUrl, payload).toPromise();
@@ -134,8 +126,7 @@ export class ChatBubbleService {
         response.output ||
         response.reply ||
         response.text ||
-        response.response ||
-        '¡Gracias por contactarnos! Un representante se pondrá en contacto contigo pronto. 📧';
+        response.response
     }
     return '¡Perfecto! Tu mensaje ha sido recibido. Te contactaremos pronto. ✨';
   }
@@ -149,9 +140,5 @@ export class ChatBubbleService {
         timestamp: new Date()
       }
     ]);
-  }
-
-  setN8nWebhookUrl(url: string): void {
-    this.n8nWebhookUrl = url;
   }
 }

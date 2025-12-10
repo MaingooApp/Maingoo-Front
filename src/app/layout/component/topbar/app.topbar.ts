@@ -1,5 +1,5 @@
 // - Component: decorador para declarar un componente Angular
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 // - MenuItem: interfaz de PrimeNG para items de menú (no usada explícitamente en template
 //   pero preservada para posibles futuras ampliaciones)
 import { MenuItem } from 'primeng/api';
@@ -22,6 +22,9 @@ import { ToastService } from '../../../shared/services/toast.service';
 // - Subscription: para manejar suscripciones a observables
 import { Subscription } from 'rxjs';
 
+// Importar BottomSheetService para controlar el bottom sheet en móvil
+import { BottomSheetService } from '../../service/bottom-sheet.service';
+
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
   // Selector del componente usado en plantillas: <app-topbar></app-topbar>
@@ -29,7 +32,7 @@ import { Subscription } from 'rxjs';
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, AppConfigurator],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html'
 })
@@ -46,6 +49,14 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Lista de notificaciones
   notifications: any[] = [];
   
+  // Estado del menú móvil
+  isMobileMenuOpen = false;
+  
+  // Detectar si es móvil
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+  
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
@@ -55,11 +66,14 @@ export class AppTopbar implements OnInit, OnDestroy {
   // - authService: provee métodos de autenticación, p.ej. logout()
   // - router: para navegar programáticamente (después del logout se redirige al login)
   // - toastService: para suscribirse a las notificaciones
+  // - elementRef: para detectar clicks fuera del menú móvil
   constructor(
     public layoutService: LayoutService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private elementRef: ElementRef,
+    private bottomSheetService: BottomSheetService
   ) {}
   
   ngOnInit() {
@@ -79,6 +93,15 @@ export class AppTopbar implements OnInit, OnDestroy {
     // Limpiar suscripciones
     this.notificationSubscription?.unsubscribe();
     this.notificationsListSubscription?.unsubscribe();
+  }
+
+  // HostListener para cerrar el menú móvil cuando se hace click fuera
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickedInside = this.elementRef.nativeElement.contains(event.target);
+    if (!clickedInside && this.isMobileMenuOpen) {
+      this.isMobileMenuOpen = false;
+    }
   }
 
   // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
@@ -139,6 +162,25 @@ export class AppTopbar implements OnInit, OnDestroy {
   // clearAllNotifications: limpia todas las notificaciones
   clearAllNotifications() {
     this.toastService.clearNotifications();
+  }
+
+  // toggleMobileMenu: alterna el menú desplegable móvil en escritorio
+  // En móvil, controla el bottom sheet (abre a medium o cierra a compact)
+  toggleMobileMenu() {
+    if (this.isMobile) {
+      // En móvil: controlar el bottom sheet
+      const currentState = this.bottomSheetService.currentState();
+      if (currentState === 'compact') {
+        // Si está cerrado, abrir a medium
+        this.bottomSheetService.setState('medium');
+      } else {
+        // Si está en medium o expanded, cerrar a compact
+        this.bottomSheetService.setState('compact');
+      }
+    } else {
+      // En escritorio: toggle del menú desplegable
+      this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    }
   }
 
   // openSettings: método para abrir el panel de configuración del sistema
