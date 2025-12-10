@@ -5,12 +5,13 @@ import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './app.sidebar';
 import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
+import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
 import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent],
+  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent, MobileBottomSheetComponent],
   templateUrl: './app.layout.html',
   styleUrls: ['./app.layout.scss']
 })

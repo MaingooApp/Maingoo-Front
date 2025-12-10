@@ -1,0 +1,143 @@
+<!-- Backdrop oscuro (solo visible en estado expanded) -->
+<div 
+  class="bottom-sheet-backdrop"
+  [class.active]="isDarkOverlay"
+  (click)="onBackdropClick()">
+</div>
+
+<!-- Contenedor del Bottom Sheet -->
+<div 
+  #sheetContainer
+  class="bottom-sheet-container"
+  [class.compact]="bottomSheetService.currentState() === 'compact'"
+  [class.medium]="bottomSheetService.currentState() === 'medium'"
+  [class.expanded]="bottomSheetService.currentState() === 'expanded'"
+  [style.height]="sheetHeight"
+  (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)"
+  (touchend)="onTouchEnd($event)">
+  
+  <!-- Handle / Drag Indicator -->
+  <div class="sheet-handle" (click)="onHeaderClick()">
+    <div class="handle-bar"></div>
+  </div>
+
+  <!-- Contenido del Sheet -->
+  <div class="sheet-content">
+    
+    <!-- Estado Compacto: Solo input y chips -->
+    <div class="compact-view" *ngIf="bottomSheetService.currentState() === 'compact'">
+      <div class="quick-chips">
+        <button class="chip">📊 Dashboard</button>
+        <button class="chip">📄 Facturas</button>
+        <button class="chip">🏢 Empresas</button>
+        <button class="chip">⚙️ Config</button>
+      </div>
+      
+      <div class="input-container">
+        <input 
+          #messageInput
+          type="text" 
+          placeholder="Pregúntame algo..."
+          class="chat-input"
+          (keydown.enter)="sendMessage(messageInput)">
+        <button class="send-button" (click)="sendMessage(messageInput)">
+          <i class="pi pi-send"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado Medio: Respuestas breves + menú -->
+    <div class="medium-view" *ngIf="bottomSheetService.currentState() === 'medium'">
+      <div class="chat-header">
+        <h3>Maingoo Assistant</h3>
+        <span class="status-indicator">🟢 En línea</span>
+      </div>
+
+      <div class="chat-messages">
+        <div class="message bot-message">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <p>¡Hola! Soy tu asistente de Maingoo. ¿En qué puedo ayudarte hoy?</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-container">
+        <input 
+          #mediumInput
+          type="text" 
+          placeholder="Escribe tu mensaje..."
+          class="chat-input"
+          (keydown.enter)="sendMessage(mediumInput)">
+        <button class="send-button" (click)="sendMessage(mediumInput)">
+          <i class="pi pi-send"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado Expandido: Conversación completa -->
+    <div class="expanded-view" *ngIf="bottomSheetService.currentState() === 'expanded'">
+      <div class="chat-header-full">
+        <button class="back-button" (click)="bottomSheetService.setState('medium')">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+        <div class="header-info">
+          <h3>Chat con Maingoo</h3>
+          <span class="subtitle">Asistente inteligente</span>
+        </div>
+        <button class="menu-button">
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
+      </div>
+
+      <div class="chat-messages-full">
+        <div class="message bot-message">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <p>¡Hola! Soy tu asistente de Maingoo.</p>
+            <span class="message-time">10:30 AM</span>
+          </div>
+        </div>
+
+        <div class="message user-message">
+          <div class="message-content">
+            <p>Hola, necesito ayuda con mis facturas</p>
+            <span class="message-time">10:31 AM</span>
+          </div>
+          <div class="message-avatar user-avatar">TU</div>
+        </div>
+
+        <div class="message bot-message">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <p>Por supuesto, puedo ayudarte con eso. ¿Qué necesitas saber sobre tus facturas?</p>
+            <ul>
+              <li>Ver facturas pendientes</li>
+              <li>Generar nueva factura</li>
+              <li>Buscar factura específica</li>
+              <li>Estadísticas de facturación</li>
+            </ul>
+            <span class="message-time">10:31 AM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-container-full">
+        <button class="attach-button">
+          <i class="pi pi-paperclip"></i>
+        </button>
+        <input 
+          #expandedInput
+          type="text" 
+          placeholder="Escribe tu mensaje..."
+          class="chat-input"
+          (keydown.enter)="sendMessage(expandedInput)">
+        <button class="send-button" (click)="sendMessage(expandedInput)">
+          <i class="pi pi-send"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
