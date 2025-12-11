@@ -11,6 +11,9 @@ import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
 import { Supplier } from './interfaces/supplier.interface';
 
+import { InvoiceService } from '../invoices/services/invoice.service';
+import { Invoice } from '../../core/interfaces/Invoice.interfaces';
+
 @Component({
   selector: 'app-proveedores',
   standalone: true,
@@ -29,12 +32,15 @@ import { Supplier } from './interfaces/supplier.interface';
 })
 export class SupplierComponent {
   private supplierService = inject(SupplierService);
+  private invoiceService = inject(InvoiceService);
 
   supplier: Supplier[] = [];
+  supplierInvoices: Invoice[] = [];
   cargando = false;
   
-  visibleDialog: boolean = false;
+  // UI State
   selectedSupplier: Supplier | null = null;
+  showInvoices = false;
 
   columns = [
     { field: 'name', header: 'Nombre', type: 'text', filter: true },
@@ -105,13 +111,26 @@ export class SupplierComponent {
     }
   }
 
-  showDialog(supplier: Supplier) {
-    this.selectedSupplier = supplier;
-    this.visibleDialog = true;
+  showDialog(item: Supplier) {
+    this.selectedSupplier = item;
+    // Reset invoice state
+    this.supplierInvoices = [];
+    this.showInvoices = false; // Collapsed by default
+
+    // Fetch invoices for this supplier
+    if (item.id) {
+       this.invoiceService.getInvoices().subscribe({
+          next: (invoices: Invoice[]) => {
+            // Client-side filtering as per plan
+            this.supplierInvoices = invoices.filter((inv: Invoice) => inv.supplierId === item.id);
+          },
+          error: (err: any) => console.error('Error cargando facturas', err)
+       });
+    }
   }
 
   hideDialog() {
-    this.visibleDialog = false;
     this.selectedSupplier = null;
+    this.supplierInvoices = [];
   }
 }
