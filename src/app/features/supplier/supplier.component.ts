@@ -5,7 +5,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
@@ -24,8 +23,7 @@ import { Supplier } from './interfaces/supplier.interface';
     ButtonModule,
     InputIconModule,
     ButtonModule,
-    TablaDinamicaComponent,
-    DialogModule
+    TablaDinamicaComponent
   ],
   templateUrl: './supplier.component.html'
 })
