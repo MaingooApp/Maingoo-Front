@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
@@ -21,7 +22,10 @@ import { Supplier } from './interfaces/supplier.interface';
     IconFieldModule,
     InputIconModule,
     ButtonModule,
-    TablaDinamicaComponent
+    InputIconModule,
+    ButtonModule,
+    TablaDinamicaComponent,
+    DialogModule
   ],
   templateUrl: './supplier.component.html'
 })
@@ -30,6 +34,9 @@ export class SupplierComponent {
 
   supplier: Supplier[] = [];
   cargando = false;
+  
+  visibleDialog: boolean = false;
+  selectedSupplier: Supplier | null = null;
 
   columns = [
     { field: 'name', header: 'Nombre', type: 'text', filter: true },
@@ -98,5 +105,15 @@ export class SupplierComponent {
     if (action === 'eliminar') {
       this.confirmarEliminarProveedor(row);
     }
+  }
+
+  showDialog(supplier: Supplier) {
+    this.selectedSupplier = supplier;
+    this.visibleDialog = true;
+  }
+
+  hideDialog() {
+    this.visibleDialog = false;
+    this.selectedSupplier = null;
   }
 }
