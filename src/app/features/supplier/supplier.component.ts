@@ -8,6 +8,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -33,6 +34,7 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     TablaDinamicaComponent,
     InputSwitchModule,
     MultiSelectModule,
+    SelectButtonModule,
     FormsModule,
     ChartModule
   ],
@@ -53,6 +55,11 @@ export class SupplierComponent {
   showInvoices = false;
   showStats = false;
   showMenu = false;
+  viewMode: 'grid' | 'list' = 'grid';
+  viewOptions: any[] = [
+      { icon: 'pi pi-th-large', value: 'grid' },
+      { icon: 'pi pi-list', value: 'list' }
+  ];
   
   // Toggle Sections
   showContact = false;
@@ -162,28 +169,42 @@ export class SupplierComponent {
     }
   }
 
-  showDialog(item: Supplier) {
-    this.selectedSupplier = item;
+  onTableSelection(event: any) {
+    if (event.data) {
+      this.showDialog(event.data);
+    }
+  }
+
+  showDialog(supplier: Supplier) {
+    // If clicking the same supplier, deselect (collapse) it
+    if (this.selectedSupplier && this.selectedSupplier.id === supplier.id) {
+        this.selectedSupplier = null;
+        this.showInvoices = false; // Reset other states
+        this.showMenu = false;
+        return;
+    }
+    
+    this.selectedSupplier = supplier;
     // Reset states
     this.supplierInvoices = [];
     this.showInvoices = false;
     this.showMenu = false;
     
     // Init toggles based on data existence
-    this.showDelivery = !!(item.deliveryDays || item.minPriceDelivery);
-    this.showMinOrder = !!item.minPriceDelivery;
+    this.showDelivery = !!(supplier.deliveryDays || supplier.minPriceDelivery);
+    this.showMinOrder = !!supplier.minPriceDelivery;
     
     // Parse delivery days
-    this.selectedDays = item.deliveryDays ? item.deliveryDays.split(',').map(d => d.trim()) : [];
+    this.selectedDays = supplier.deliveryDays ? supplier.deliveryDays.split(',').map((d: string) => d.trim()) : [];
     
     // Logic for contact: check if phone exists. 'Email' and 'Contact Person' are not in interface yet, so check phone.
-    this.showContact = !!item.phoneNumber;
+    this.showContact = !!supplier.phoneNumber;
 
     // Fetch invoices for this supplier
-    if (item.id) {
+    if (supplier.id) {
        this.invoiceService.getInvoices().subscribe({
           next: (invoices: Invoice[]) => {
-            this.supplierInvoices = invoices.filter((inv: Invoice) => inv.supplierId === item.id);
+            this.supplierInvoices = invoices.filter((inv: Invoice) => inv.supplierId === supplier.id);
             this.updateChartData(this.supplierInvoices);
           },
           error: (err: any) => console.error('Error cargando facturas', err)
