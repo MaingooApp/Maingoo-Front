@@ -5,12 +5,15 @@
 </div>
 
 <ng-template #tablaSupplier>
-  <div class="card rounded-xl shadow-md p-6">
-    <h2 class="text-2xl font-semibold text-surface-900 mb-4 flex items-center gap-2">
-      <i class="pi pi-users" style="font-size: 1.5rem"></i>
-      Proveedores
-    </h2>
+  <div class="card rounded-xl shadow-md p-6 mb-8">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-semibold text-surface-900 flex items-center gap-2">
+        <i class="pi pi-users" style="font-size: 1.5rem"></i>
+        Proveedores
+      </h2>
+    </div>
 
+    <!-- Table View -->
     <app-tabla-dinamica
       [data]="supplier"
       [columns]="columns"
@@ -22,4 +25,113 @@
       (actionClick)="handleAccionProveedor($event)">
     </app-tabla-dinamica>
   </div>
+
+  <!-- Grid View -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div *ngFor="let item of supplier" 
+         class="bg-surface-900 dark:bg-surface-800 rounded-xl overflow-hidden shadow-lg border border-surface-700 hover:border-primary-500 transition-all duration-300 cursor-pointer group relative"
+         (click)="showDialog(item)">
+      <!-- Delete Action (Hover) -->
+      <button pButton icon="pi pi-trash" 
+              class="absolute top-2 right-2 p-button-rounded p-button-danger p-button-text opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              (click)="$event.stopPropagation(); handleAccionProveedor({action: 'eliminar', row: item})">
+      </button>
+
+      <!-- Card Banner / Image Placeholder -->
+      <div class="h-32 bg-gradient-to-br from-surface-800 to-surface-700 flex items-center justify-center p-4 relative">
+            <!-- Generating a pseudo-logo based on name initials -->
+            <span class="text-4xl font-bold text-surface-600 select-none">
+              {{ item.commercialName?.charAt(0) || item.name.charAt(0) | uppercase }}
+            </span>
+      </div>
+
+      <!-- Card Content -->
+      <div class="p-4 bg-surface-900 text-white">
+          <div class="flex items-center gap-3">
+              <i class="pi pi-box text-primary-400 text-xl"></i>
+              <div class="flex flex-col overflow-hidden">
+                  <span class="font-bold text-lg truncate" [title]="item.commercialName || item.name">
+                      {{ item.commercialName || item.name }}
+                  </span>
+                  <span class="text-sm text-surface-400 truncate" *ngIf="item.commercialName && item.name !== item.commercialName">
+                      {{ item.name }}
+                  </span>
+              </div>
+          </div>
+          <!-- Optional: Add more details if needed, e.g. phone -->
+          <div class="mt-2 text-sm text-surface-400 flex items-center gap-2" *ngIf="item.phoneNumber">
+              <i class="pi pi-phone text-xs"></i>
+              {{ item.phoneNumber }}
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog 
+    [(visible)]="visibleDialog" 
+    [modal]="true" 
+    [style]="{ width: '700px', maxWidth: '95vw', 'border-radius': '12px', 'overflow': 'hidden' }" 
+    [draggable]="false" 
+    [resizable]="false"
+    [showHeader]="false"
+    [dismissableMask]="true"
+    [contentStyle]="{'padding': '0', 'background': '#1e1e1e', 'border-radius': '12px'}"
+    styleClass="dark-dialog">
+    
+    <div *ngIf="selectedSupplier" class="text-surface-100 font-sans pb-8">
+      
+      <!-- Cover Image Area -->
+      <div class="h-40 bg-gradient-to-r from-blue-900 to-slate-900 w-full relative">
+        <div class="absolute top-4 right-4 flex gap-2">
+           <!-- Close Button -->
+           <button pButton icon="pi pi-times" class="p-button-rounded p-button-text text-white/70 hover:text-white" (click)="hideDialog()"></button>
+        </div>
+      </div>
+
+      <div class="px-8 md:px-12 relative -mt-12">
+        <!-- Icon -->
+        <div class="w-24 h-24 bg-surface-900 rounded-lg flex items-center justify-center shadow-lg mb-4 text-5xl">
+            <span>{{ selectedSupplier.commercialName?.charAt(0) || selectedSupplier.name.charAt(0) | uppercase }}</span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-4xl font-bold text-white mb-8">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
+
+        <!-- Properties List -->
+        <div class="flex flex-col gap-3 max-w-2xl">
+          
+          <!-- Helper for property row -->
+          <ng-template #propRow let-icon="icon" let-label="label" let-value="value" let-isTag="isTag" let-isLink="isLink">
+            <div class="grid grid-cols-[160px_1fr] items-center py-1 group" *ngIf="value">
+              <div class="flex items-center gap-2 text-surface-400 text-sm">
+                <i [class]="'pi ' + icon"></i>
+                <span>{{ label }}</span>
+              </div>
+              <div class="text-surface-200 text-sm font-medium">
+                <span *ngIf="!isTag && !isLink" class="border-b border-transparent group-hover:border-surface-600 transition-colors">{{ value }}</span>
+                <span *ngIf="isTag" class="bg-surface-700 text-surface-200 px-2 py-0.5 rounded text-xs inline-block">{{ value }}</span>
+                <a *ngIf="isLink" [href]="value" target="_blank" class="text-surface-200 hover:text-primary-400 underline decoration-surface-600 hover:decoration-primary-400 underline-offset-4">{{ value }}</a>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-id-card', label: 'NIF/CIF', value: selectedSupplier.cifNif, isTag: true}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-briefcase', label: 'Comercial', value: selectedSupplier.commercialName !== selectedSupplier.name ? selectedSupplier.name : null}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-phone', label: 'Teléfono', value: selectedSupplier.phoneNumber}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-mobile', label: 'Móvil', value: selectedSupplier.commercialPhoneNumber}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-truck', label: 'Reparto', value: selectedSupplier.deliveryDays ? 'Sí' : 'No', isTag: true}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-calendar', label: 'Días de reparto', value: selectedSupplier.deliveryDays, isTag: true}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-euro', label: 'Pedido mínimo', value: selectedSupplier.minPriceDelivery + '€', isTag: true}"></ng-container>
+          <!-- Using placeholder/static data for fields not in interface but in request image -->
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-tags', label: 'Familia', value: 'General', isTag: true}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-globe', label: 'Web', value: null}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-map-marker', label: 'Dirección', value: selectedSupplier.address}"></ng-container>
+          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-file', label: 'Nº Reg. Sanitario', value: selectedSupplier.sanitaryRegistrationNumber}"></ng-container>
+
+          <div class="grid grid-cols-[160px_1fr] items-start py-1 mt-4">
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
 </ng-template>
