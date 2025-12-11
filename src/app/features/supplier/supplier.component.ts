@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +11,7 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
@@ -33,6 +35,7 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     InputSwitchModule,
     MultiSelectModule,
     SelectButtonModule,
+    DropdownModule,
     FormsModule,
     ChartModule
   ],
@@ -41,6 +44,7 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 export class SupplierComponent {
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
+  private router = inject(Router);
 
   // Data
   supplier: Supplier[] = [];
@@ -58,6 +62,12 @@ export class SupplierComponent {
       { icon: 'pi pi-th-large', value: 'grid' },
       { icon: 'pi pi-list', value: 'list' }
   ];
+
+  viewInvoice(invoice: Invoice) {
+    if (invoice.id) {
+        this.router.navigate(['/facturas/detalle', invoice.id]);
+    }
+  }
   
   // Toggle Sections
   showContact = false;
@@ -253,46 +263,52 @@ export class SupplierComponent {
     };
   }
 
+  // Chart Data
+  availableYears: {label: string, value: number}[] = [];
+  selectedYear: number = new Date().getFullYear();
+
   updateChartData(invoices: Invoice[]) {
+    // 0. Calculate Available Years
     const currentYear = new Date().getFullYear();
-    const monthlyTotals = new Array(12).fill(0);
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
-    // 1. Monthly Data (Current Year)
-    invoices.forEach(inv => {
-      const date = new Date(inv.date);
-      if (date.getFullYear() === currentYear) {
-        monthlyTotals[date.getMonth()] += inv.amount || 0;
-      }
-    });
-
-    this.chartData = {
-      labels: months,
-      datasets: [
-        {
-          label: 'Gasto',
-          data: monthlyTotals,
-          backgroundColor: '#6B9E86', // maingoo-sage
-          hoverBackgroundColor: '#1A3C34', // maingoo-deep
-          borderRadius: 4,
-          barThickness: 12
+    
+    if (invoices.length > 0) {
+        const invoiceYears = invoices.map(inv => new Date(inv.date).getFullYear());
+        const minYear = Math.min(...invoiceYears);
+        
+        // Generate continuous range from minYear to currentYear
+        this.availableYears = [];
+        for (let year = currentYear; year >= minYear; year--) {
+             this.availableYears.push({ label: year.toString(), value: year });
         }
-      ]
-    };
+        
+        // If selectedYear is not in availableYears (not possible by logic unless < minYear, but safer to check)
+        const yearExists = this.availableYears.some(y => y.value === this.selectedYear);
+        if (!yearExists) {
+             this.selectedYear = currentYear;
+        }
+    } else {
+        this.availableYears = [{ label: currentYear.toString(), value: currentYear }];
+        this.selectedYear = currentYear;
+    }
+
+    // 1. Update Monthly Chart for Selected Year
+    this.updateMonthlyChart();
 
     // 2. Historical Data (Yearly)
     if (invoices.length > 0) {
         const years = invoices.map(inv => new Date(inv.date).getFullYear());
         const minYear = Math.min(...years);
+        const maxYear = new Date().getFullYear(); 
+        
         const yearlyLabels: string[] = [];
         const yearlyTotals: number[] = [];
 
-        for (let year = minYear; year <= currentYear; year++) {
+        for (let year = minYear; year <= maxYear; year++) {
             yearlyLabels.push(year.toString());
             const total = invoices
                 .filter(inv => new Date(inv.date).getFullYear() === year)
                 .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
-            yearlyTotals.push(total);
+            yearlyTotals.push(Number(total.toFixed(2)));
         }
 
         this.historyChartData = {
@@ -309,6 +325,39 @@ export class SupplierComponent {
             ]
         };
     }
+  }
+
+  updateMonthlyChart() {
+    const monthlyTotals = new Array(12).fill(0);
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    this.supplierInvoices.forEach(inv => {
+      const date = new Date(inv.date);
+      if (date.getFullYear() === Number(this.selectedYear)) {
+        monthlyTotals[date.getMonth()] += Number(inv.amount || 0);
+      }
+    });
+
+    // Fix floating point precision issues
+    const roundedMonthlyTotals = monthlyTotals.map(total => Number(total.toFixed(2)));
+
+    this.chartData = {
+      labels: months,
+      datasets: [
+        {
+          label: 'Gasto',
+          data: roundedMonthlyTotals,
+          backgroundColor: '#6B9E86', // maingoo-sage
+          hoverBackgroundColor: '#1A3C34', // maingoo-deep
+          borderRadius: 4,
+          barThickness: 12
+        }
+      ]
+    };
+  }
+
+  onYearChange() {
+    this.updateMonthlyChart();
   }
 
   hideDialog() {
