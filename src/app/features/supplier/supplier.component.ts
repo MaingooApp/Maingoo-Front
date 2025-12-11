@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
+import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -32,7 +33,8 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     TablaDinamicaComponent,
     InputSwitchModule,
     MultiSelectModule,
-    FormsModule
+    FormsModule,
+    ChartModule
   ],
   templateUrl: './supplier.component.html'
 })
@@ -40,13 +42,16 @@ export class SupplierComponent {
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
 
+  // Data
   supplier: Supplier[] = [];
+  filteredSupplier: Supplier[] = [];
   supplierInvoices: Invoice[] = [];
-  cargando = false;
+  selectedSupplier: Supplier | null = null;
+  cargando = true;
   
   // UI State
-  selectedSupplier: Supplier | null = null;
   showInvoices = false;
+  showStats = false;
   showMenu = false;
   
   // Toggle Sections
@@ -89,11 +94,19 @@ export class SupplierComponent {
     private toastService: ToastService
   ) {}
 
+  // Chart
+  chartData: any;
+  historyChartData: any;
+  chartOptions: any;
+
   async ngOnInit() {
     this.cargando = true;
+    this.initChartOptions();
+    
     this.supplierService.listSuppliers().subscribe({
       next: (suppliers: Supplier[]) => {
         this.supplier = suppliers;
+        this.filteredSupplier = suppliers;
         this.cargando = false;
       },
       error: (error: any) => {
@@ -121,6 +134,7 @@ export class SupplierComponent {
     this.supplierService.deleteSupplier(id).subscribe({
       next: () => {
         this.supplier = this.supplier.filter((p) => p.id !== id);
+        this.filteredSupplier = this.filteredSupplier.filter((p) => p.id !== id);
         this.toastService.success('Proveedor eliminado');
         if (this.selectedSupplier?.id === id) {
           this.hideDialog();
@@ -131,6 +145,15 @@ export class SupplierComponent {
         this.toastService.error('Error al eliminar', err.error.message || 'Intenta nuevamente más tarde.');
       }
     });
+  }
+
+  filterSuppliers(event: Event) {
+    const query = (event.target as HTMLInputElement).value.toLowerCase();
+    this.filteredSupplier = this.supplier.filter(s => 
+      s.name?.toLowerCase().includes(query) || 
+      s.commercialName?.toLowerCase().includes(query) ||
+      s.cifNif?.toLowerCase().includes(query)
+    );
   }
 
   handleAccionProveedor({ action, row }: { action: string; row: any }) {
@@ -161,9 +184,111 @@ export class SupplierComponent {
        this.invoiceService.getInvoices().subscribe({
           next: (invoices: Invoice[]) => {
             this.supplierInvoices = invoices.filter((inv: Invoice) => inv.supplierId === item.id);
+            this.updateChartData(this.supplierInvoices);
           },
           error: (err: any) => console.error('Error cargando facturas', err)
        });
+    }
+  }
+
+  initChartOptions() {
+    this.chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: '#1A3C34',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          cornerRadius: 4,
+          displayColors: false,
+          callbacks: {
+            label: function(context: any) {
+               return context.parsed.y + ' €';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+             display: false,
+             drawBorder: false
+          },
+          ticks: {
+             color: '#6b7280', // gray-500
+             font: { size: 10 }
+          }
+        },
+        y: {
+          display: false, // minimalist: hide y axis
+          grid: {
+            display: false,
+            drawBorder: false
+          }
+        }
+      }
+    };
+  }
+
+  updateChartData(invoices: Invoice[]) {
+    const currentYear = new Date().getFullYear();
+    const monthlyTotals = new Array(12).fill(0);
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    // 1. Monthly Data (Current Year)
+    invoices.forEach(inv => {
+      const date = new Date(inv.date);
+      if (date.getFullYear() === currentYear) {
+        monthlyTotals[date.getMonth()] += inv.amount || 0;
+      }
+    });
+
+    this.chartData = {
+      labels: months,
+      datasets: [
+        {
+          label: 'Gasto',
+          data: monthlyTotals,
+          backgroundColor: '#6B9E86', // maingoo-sage
+          hoverBackgroundColor: '#1A3C34', // maingoo-deep
+          borderRadius: 4,
+          barThickness: 12
+        }
+      ]
+    };
+
+    // 2. Historical Data (Yearly)
+    if (invoices.length > 0) {
+        const years = invoices.map(inv => new Date(inv.date).getFullYear());
+        const minYear = Math.min(...years);
+        const yearlyLabels: string[] = [];
+        const yearlyTotals: number[] = [];
+
+        for (let year = minYear; year <= currentYear; year++) {
+            yearlyLabels.push(year.toString());
+            const total = invoices
+                .filter(inv => new Date(inv.date).getFullYear() === year)
+                .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+            yearlyTotals.push(total);
+        }
+
+        this.historyChartData = {
+            labels: yearlyLabels,
+            datasets: [
+                {
+                    label: 'Gasto Anual',
+                    data: yearlyTotals,
+                    backgroundColor: '#1A3C34', // maingoo-deep
+                    hoverBackgroundColor: '#6B9E86', // maingoo-sage
+                    borderRadius: 4,
+                    barThickness: 20
+                }
+            ]
+        };
     }
   }
 
