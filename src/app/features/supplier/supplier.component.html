@@ -10,31 +10,21 @@
     </div>
 
     <ng-template #tablaSupplier>
-      <!-- <div class="card rounded-xl shadow-md p-6 mb-8">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-semibold text-surface-900 flex items-center gap-2">
-            <i class="pi pi-users" style="font-size: 1.5rem"></i>
-            Proveedores
-          </h2>
-        </div>
-
-       
-        <app-tabla-dinamica
-          [data]="supplier"
-          [columns]="columns"
-          [globalFilterFields]="['name', 'cifNif', 'commercialName']"
-          [loading]="false"
-          [exportPdf]="true"
-          [showRowIndex]="true"
-          [actions]="actions"
-          (actionClick)="handleAccionProveedor($event)">
-        </app-tabla-dinamica>
-      </div> -->
+      <!-- Header Card with Search -->
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 relative flex items-center justify-center border border-gray-100">
+          <h2 class="text-2xl font-bold text-maingoo-deep absolute left-6">Proveedores</h2>
+          
+          <input type="text" 
+                 pInputText 
+                 placeholder="Buscar proveedor..." 
+                 (input)="filterSuppliers($event)" 
+                 class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-64 placeholder:text-gray-400 placeholder:text-base text-left">
+      </div>
 
       <!-- Grid View -->
       <div class="grid gap-4 transition-all duration-300" 
            [ngClass]="selectedSupplier ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'">
-        <div *ngFor="let item of supplier" 
+        <div *ngFor="let item of filteredSupplier" 
              class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative"
              (click)="showDialog(item)">
 
@@ -313,6 +303,32 @@
                     </div>
                  </div>
 
+              </div>
+           </div>
+        </div>
+
+        <!-- Statistics Section -->
+        <div class="mt-8 border-t border-gray-200 pt-6">
+           <div (click)="showStats = !showStats" class="flex justify-between items-center cursor-pointer group select-none">
+              <h3 class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">Estadísticas</h3>
+              <i class="pi pi-chevron-down text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300" [ngClass]="{'rotate-180': showStats}"></i>
+           </div>
+           
+           <div class="overflow-hidden transition-all duration-300 ease-in-out" [style.max-height]="showStats ? '1000px' : '0'">
+              <div class="pt-4 px-3 pb-4">
+                 <!-- Monthly Expense Chart -->
+                 <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Año en curso</h4>
+                 <div class="h-48" *ngIf="supplierInvoices.length > 0">
+                     <p-chart type="bar" [data]="chartData" [options]="chartOptions" height="100%"></p-chart>
+                 </div>
+
+                 <!-- Historical Chart -->
+                 <div class="mt-6" *ngIf="supplierInvoices.length > 0">
+                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Histórico</h4>
+                     <div class="h-48">
+                         <p-chart type="bar" [data]="historyChartData" [options]="chartOptions" height="100%"></p-chart>
+                     </div>
+                 </div>
               </div>
            </div>
         </div>
