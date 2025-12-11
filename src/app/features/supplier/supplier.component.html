@@ -1,4 +1,4 @@
-<div class="flex gap-6 relative items-start">
+<div class="flex gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   
   <!-- Left Side: Main Content (Table + Grid) -->
   <div class="flex-1 min-w-0 transition-all duration-300">
@@ -35,38 +35,34 @@
       <div class="grid gap-4 transition-all duration-300" 
            [ngClass]="selectedSupplier ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'">
         <div *ngFor="let item of supplier" 
-             class="bg-surface-900 dark:bg-surface-800 rounded-xl overflow-hidden shadow-lg border border-surface-700 hover:border-primary-500 transition-all duration-300 cursor-pointer group relative"
+             class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative"
              (click)="showDialog(item)">
-          <!-- Delete Action (Hover) -->
-          <button pButton icon="pi pi-trash" 
-                  class="absolute top-2 right-2 p-button-rounded p-button-danger p-button-text opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                  (click)="$event.stopPropagation(); handleAccionProveedor({action: 'eliminar', row: item})">
-          </button>
+
 
           <!-- Card Banner / Image Placeholder -->
-          <div class="h-32 bg-gradient-to-br from-surface-800 to-surface-700 flex items-center justify-center p-4 relative">
+          <div class="h-32 bg-gradient-to-br from-maingoo-deep to-maingoo-sage flex items-center justify-center p-4 relative">
                 <!-- Generating a pseudo-logo based on name initials -->
-                <span class="text-4xl font-bold text-surface-600 select-none">
+                <span class="text-4xl font-bold text-white/90 select-none">
                   {{ item.commercialName?.charAt(0) || item.name.charAt(0) | uppercase }}
                 </span>
           </div>
 
           <!-- Card Content -->
-          <div class="p-4 bg-surface-900 text-white">
+          <div class="p-4 bg-white text-maingoo-deep">
               <div class="flex items-center gap-3">
-                  <i class="pi pi-box text-primary-400 text-xl"></i>
+                  <i class="pi pi-box text-maingoo-sage text-xl"></i>
                   <div class="flex flex-col overflow-hidden">
                       <span class="font-bold text-lg truncate" [title]="item.commercialName || item.name">
                           {{ item.commercialName || item.name }}
                       </span>
-                      <span class="text-sm text-surface-400 truncate" *ngIf="item.commercialName && item.name !== item.commercialName">
+                      <span class="text-sm text-gray-500 truncate" *ngIf="item.commercialName && item.name !== item.commercialName">
                           {{ item.name }}
                       </span>
                   </div>
               </div>
               <!-- Optional: Add more details if needed, e.g. phone -->
-              <div class="mt-2 text-sm text-surface-400 flex items-center gap-2" *ngIf="item.phoneNumber">
-                  <i class="pi pi-phone text-xs"></i>
+              <div class="mt-2 text-sm text-gray-500 flex items-center gap-2" *ngIf="item.phoneNumber">
+                  <i class="pi pi-phone text-xs text-maingoo-sage"></i>
                   {{ item.phoneNumber }}
               </div>
           </div>
@@ -78,107 +74,228 @@
 
   <!-- Right Side: Detail Panel (Sticky) -->
   <div *ngIf="selectedSupplier" 
-       class="w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-[#191919] border border-surface-700 transition-all duration-300 animate-slide-in-right z-20">
+       class="w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex flex-col">
     
       <!-- Cover Image Area -->
-      <div class="h-32 bg-gradient-to-r from-blue-900 to-slate-900 w-full relative">
-        <div class="absolute top-4 right-4 flex gap-2">
+      <div class="h-32 bg-gradient-to-r from-maingoo-deep to-maingoo-sage w-full relative shrink-0">
+        <div class="absolute top-4 right-4 flex gap-2 items-center">
+           
+           <!-- Hamburger Menu -->
+           <div class="relative">
+              <button pButton icon="pi pi-ellipsis-v" class="p-button-rounded p-button-text text-white/70 hover:text-white" (click)="toggleMenu($event)"></button>
+              
+              <!-- Dropdown Menu -->
+              <div *ngIf="showMenu" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100 overflow-hidden animate-fade-in origin-top-right">
+                  <button (click)="downloadSupplier()" class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-maingoo-mint hover:text-maingoo-deep flex items-center gap-2 transition-colors">
+                      <i class="pi pi-download"></i>
+                      Descargar información
+                  </button>
+                  <div class="h-px bg-gray-100 my-1"></div>
+                  <button (click)="handleAccionProveedor({action: 'eliminar', row: selectedSupplier})" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                      <i class="pi pi-trash"></i>
+                      Eliminar
+                  </button>
+              </div>
+           </div>
+
            <!-- Close Button -->
            <button pButton icon="pi pi-times" class="p-button-rounded p-button-text text-white/70 hover:text-white" (click)="hideDialog()"></button>
         </div>
       </div>
 
-      <div class="px-6 pb-8 relative pt-6">
+      <div class="px-6 pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
 
-        <!-- Title -->
-        <h1 class="text-3xl font-bold text-white mb-6 leading-tight break-words">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
+        <!-- Title & Basic Info -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-maingoo-deep leading-tight break-words">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
+            
+            <div class="mt-4 flex flex-col gap-2">
+                 <!-- Address -->
+                 <div class="flex items-center gap-2 group" *ngIf="selectedSupplier.address">
+                     <i class="pi pi-map-marker text-maingoo-sage"></i>
+                     <span class="text-maingoo-deep font-medium border-b border-transparent hover:border-maingoo-sage/30 transition-colors">{{ selectedSupplier.address }}</span>
+                 </div>
+                 
+                 <!-- Sanitary Registration -->
+                 <div class="flex items-center gap-2 group">
+                     <div class="w-6 flex justify-center"><i class="pi pi-file text-maingoo-sage"></i></div> <!-- Icon alignment fix -->
+                     <span class="text-gray-400 text-sm">Nº Reg. Sanitario:</span>
+                     <input type="text"
+                            [value]="selectedSupplier.sanitaryRegistrationNumber || ''"
+                            placeholder="Añadir registro..."
+                            class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm flex-1">
+                 </div>
+            </div>
+        </div>
 
-        <!-- Properties List -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
-          
-          <!-- Helper for property row -->
-          <ng-template #propRow let-icon="icon" let-label="label" let-value="value" let-isTag="isTag" let-isLink="isLink" let-isEditable="isEditable">
+        <!-- Helper for inline input -->
+        <ng-template #inlineInput let-label="label" let-value="value" let-icon="icon">
             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-              <div class="flex items-center gap-2 text-surface-400 text-sm">
-                <i [class]="'pi ' + icon + ' text-surface-500'"></i>
+              <div class="flex items-center gap-2 text-gray-400 text-sm">
+                <i [class]="'pi ' + icon + ' text-maingoo-sage'"></i>
                 <span>{{ label }}</span>
               </div>
-              <div class="text-surface-200 text-sm font-medium break-all flex items-center">
-                <!-- Read Only -->
-                <ng-container *ngIf="!isEditable">
-                    <span *ngIf="!isTag && !isLink" class="border-b border-transparent group-hover:border-surface-600 transition-colors">{{ value || 'Vacío' }}</span>
-                    <span *ngIf="isTag && value" class="bg-surface-700 text-surface-200 px-2 py-0.5 rounded text-xs inline-block">{{ value }}</span>
-                    <a *ngIf="isLink && value" [href]="value" target="_blank" class="text-surface-200 hover:text-primary-400 underline decoration-surface-600 hover:decoration-primary-400 underline-offset-4">{{ value }}</a>
-                    <span *ngIf="(isTag || isLink) && !value" class="text-surface-500 italic">Vacío</span>
-                </ng-container>
-
-                <!-- Editable -->
-                <input *ngIf="isEditable" 
-                       type="text" 
+              <div class="flex items-center">
+                <input type="text" 
                        [value]="value || ''" 
                        placeholder="Vacío"
-                       class="bg-transparent border-none text-surface-200 focus:outline-none focus:ring-1 focus:ring-primary-500 rounded px-2 py-0.5 w-full -ml-2 transition-all placeholder:text-surface-600 placeholder:italic">
+                       class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep focus:outline-none rounded px-2 py-0.5 w-full -ml-2 transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm">
               </div>
             </div>
-          </ng-template>
+        </ng-template>
 
-          <!-- Left Column: Read Only -->
-          <div class="flex flex-col gap-3">
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-briefcase', label: 'Comercial', value: selectedSupplier.commercialName !== selectedSupplier.name ? selectedSupplier.name : null}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-id-card', label: 'NIF/CIF', value: selectedSupplier.cifNif, isTag: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-phone', label: 'Teléfono', value: selectedSupplier.phoneNumber}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-mobile', label: 'Móvil', value: selectedSupplier.commercialPhoneNumber}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-truck', label: 'Reparto', value: selectedSupplier.deliveryDays ? 'Sí' : 'No', isTag: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-calendar', label: 'Días reparto', value: selectedSupplier.deliveryDays, isTag: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-euro', label: 'Pedido mín', value: selectedSupplier.minPriceDelivery ? selectedSupplier.minPriceDelivery + '€' : null, isTag: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-map-marker', label: 'Dirección', value: selectedSupplier.address}"></ng-container>
-          </div>
-          
-          <!-- Right Column: Editable / Extra Fields -->
-          <div class="flex flex-col gap-3">
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-tags', label: 'Familia', value: '', isEditable: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-globe', label: 'Web', value: '', isEditable: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-envelope', label: 'Email', value: '', isEditable: true}"></ng-container>
-             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-file', label: 'Nº Reg. Sanitario', value: selectedSupplier.sanitaryRegistrationNumber}"></ng-container>
-          </div>
+        <!-- SECTIONS -->
+        <div class="flex flex-col gap-2">
+
+             <!-- Contacto Comercial SECTION -->
+             <div class="group">
+                <!-- Inline Toggle Header -->
+                <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer" (click)="showContact = !showContact">
+                     <div class="flex items-center gap-2 text-gray-400 text-sm">
+                         <i class="pi pi-briefcase text-maingoo-sage"></i>
+                         <span>Contacto</span>
+                     </div>
+                     <div class="flex items-center">
+                        <p-inputSwitch [(ngModel)]="showContact" (click)="$event.stopPropagation()" styleClass="scale-75"></p-inputSwitch>
+                     </div>
+                </div>
+
+                <div class="overflow-hidden transition-all duration-300 ease-in-out" 
+                     [style.max-height]="showContact ? '500px' : '0'"
+                     [style.opacity]="showContact ? '1' : '0'">
+                     <div class="flex flex-col gap-1 py-1">
+                         <!-- Persona de contacto -->
+                         <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Persona', icon: 'pi-user', value: ''}"></ng-container>
+                         
+                         <!-- Telefono -->
+                         <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Teléfono', icon: 'pi-phone', value: selectedSupplier.phoneNumber}"></ng-container>
+                         
+                         <!-- Email -->
+                         <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Email', icon: 'pi-envelope', value: ''}"></ng-container>
+                     </div>
+                </div>
+             </div>
+
+
+             <!-- Reparto SECTION -->
+             <div class="group">
+                <!-- Inline Toggle Header -->
+                <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer" (click)="showDelivery = !showDelivery">
+                     <div class="flex items-center gap-2 text-gray-400 text-sm">
+                         <i class="pi pi-truck text-maingoo-sage"></i>
+                         <span>Reparto</span>
+                     </div>
+                     <div class="flex items-center">
+                        <p-inputSwitch [(ngModel)]="showDelivery" (click)="$event.stopPropagation()" styleClass="scale-75"></p-inputSwitch>
+                     </div>
+                </div>
+
+                <div class="overflow-hidden transition-all duration-300 ease-in-out" 
+                     [style.max-height]="showDelivery ? '500px' : '0'"
+                     [style.opacity]="showDelivery ? '1' : '0'">
+                     <div class="flex flex-col gap-1 py-1">
+                       <!-- Ultimo dia de pedido MultiSelect -->
+                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                          <div class="flex items-center gap-2 text-gray-400 text-sm">
+                              <i class="pi pi-clock text-maingoo-sage"></i>
+                              <span>Día de pedido</span>
+                          </div>
+                          <div class="flex items-center -ml-2">
+                              <p-multiSelect 
+                                  [options]="daysOptions" 
+                                  [(ngModel)]="selectedLastOrderDays" 
+                                  defaultLabel="Vacío" 
+                                  optionLabel="label" 
+                                  optionValue="value"
+                                  appendTo="body"
+                                  [style]="{'width':'100%', 'border':'none', 'background':'transparent', 'padding':'0'}"
+                                  styleClass="w-full text-maingoo-deep text-sm p-0 m-0 border-none bg-transparent shadow-none focus:shadow-none hover:bg-transparent"
+                                  placeholder="Vacío">
+                              </p-multiSelect>
+                          </div>
+                       </div>
+                         <!-- Dias de reparto MultiSelect -->
+                         <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                            <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                <i class="pi pi-calendar text-maingoo-sage"></i>
+                                <span>Día de reparto</span>
+                            </div>
+                            <div class="flex items-center -ml-2">
+                                <p-multiSelect 
+                                    [options]="daysOptions" 
+                                    [(ngModel)]="selectedDays" 
+                                    defaultLabel="Vacío" 
+                                    optionLabel="label" 
+                                    optionValue="value"
+                                    appendTo="body"
+                                    [style]="{'width':'100%', 'border':'none', 'background':'transparent', 'padding':'0'}"
+                                    styleClass="w-full text-maingoo-deep text-sm p-0 m-0 border-none bg-transparent shadow-none focus:shadow-none hover:bg-transparent"
+                                    placeholder="Vacío">
+                                </p-multiSelect>
+                            </div>
+                         </div>
+
+                         
+                         <!-- Pedido minimo Nested Toggle -->
+                         <div class="group">
+                            <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer" (click)="showMinOrder = !showMinOrder">
+                                 <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                     <i class="pi pi-euro text-maingoo-sage"></i>
+                                     <span>Pedido mín.</span>
+                                 </div>
+                                 <div class="flex items-center">
+                                    <p-inputSwitch [(ngModel)]="showMinOrder" (click)="$event.stopPropagation()" styleClass="scale-75"></p-inputSwitch>
+                                 </div>
+                            </div>
+
+                            <div class="overflow-hidden transition-all duration-300 ease-in-out" 
+                                 [style.max-height]="showMinOrder ? '500px' : '0'"
+                                 [style.opacity]="showMinOrder ? '1' : '0'">
+                                 <div class="flex flex-col gap-1 py-1">
+                                     <!-- Cantidad Input -->
+                                     <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Cantidad', icon: 'pi-tag', value: selectedSupplier.minPriceDelivery ? selectedSupplier.minPriceDelivery + '€' : ''}"></ng-container>
+                                 </div>
+                            </div>
+                         </div>
+                     </div>
+                </div>
+             </div>
+
         </div>
 
         <!-- Invoices Section -->
-        <div class="mt-8 border-t border-surface-700 pt-6">
+        <div class="mt-8 border-t border-gray-200 pt-6">
            <div (click)="showInvoices = !showInvoices" class="flex justify-between items-center cursor-pointer group select-none">
-              <h3 class="text-xs text-surface-500 uppercase tracking-wider font-semibold group-hover:text-surface-300 transition-colors">Facturas Asociadas</h3>
-              <i class="pi pi-chevron-down text-surface-500 transition-transform duration-300" [ngClass]="{'rotate-180': showInvoices}"></i>
+              <h3 class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">Facturas Asociadas</h3>
+              <i class="pi pi-chevron-down text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300" [ngClass]="{'rotate-180': showInvoices}"></i>
            </div>
            
            <div class="overflow-hidden transition-all duration-300 ease-in-out" [style.max-height]="showInvoices ? '500px' : '0'">
               <div class="pt-4 flex flex-col gap-2">
                  
                  <!-- Loading State -->
-                 <div *ngIf="supplierInvoices.length === 0 && !selectedSupplier" class="text-center py-4 text-surface-500 text-sm">
+                 <div *ngIf="supplierInvoices.length === 0 && !selectedSupplier" class="text-center py-4 text-gray-400 text-sm">
                     Cargando facturas...
                  </div>
 
                  <!-- No Invoices -->
-                 <div *ngIf="supplierInvoices.length === 0" class="text-surface-500 text-sm italic py-2">
+                 <div *ngIf="supplierInvoices.length === 0" class="text-gray-400 text-sm italic py-2">
                     No hay facturas registradas.
                  </div>
 
                  <!-- Invoice List -->
-                 <div *ngFor="let invoice of supplierInvoices" class="flex items-center justify-between p-3 bg-surface-800 rounded-lg border border-surface-700 hover:border-surface-600 transition-colors cursor-pointer group">
+                 <div *ngFor="let invoice of supplierInvoices" class="flex items-center justify-between p-3 bg-maingoo-mint rounded-lg border border-transparent hover:border-maingoo-sage transition-colors cursor-pointer group">
                     <div class="flex items-center gap-3">
-                       <div class="w-8 h-8 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center">
+                       <div class="w-8 h-8 rounded-full bg-white text-maingoo-sage flex items-center justify-center border border-maingoo-sage/10">
                           <i class="pi pi-file text-sm"></i>
                        </div>
                        <div class="flex flex-col">
-                          <span class="text-surface-200 text-sm font-medium group-hover:text-white transition-colors">{{ invoice.invoiceNumber || 'Sin número' }}</span>
-                          <span class="text-surface-500 text-xs">{{ invoice.date | date:'dd/MM/yyyy' }}</span>
+                          <span class="text-maingoo-deep text-sm font-medium group-hover:text-maingoo-sage transition-colors">{{ invoice.invoiceNumber || 'Sin número' }}</span>
+                          <span class="text-gray-500 text-xs">{{ invoice.date | date:'dd/MM/yyyy' }}</span>
                        </div>
                     </div>
                     <div class="text-right">
-                       <span class="text-white font-bold text-sm block">{{ invoice.amount | currency:'EUR' }}</span>
-                       <!-- Optional Status Badge
-                       <span class="text-[10px] uppercase bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">Pagada</span>
-                       -->
+                       <span class="text-maingoo-deep font-bold text-sm block">{{ invoice.amount | currency:'EUR' }}</span>
                     </div>
                  </div>
 
