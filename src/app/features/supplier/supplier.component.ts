@@ -1,9 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { ButtonModule } from 'primeng/button';
 import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -26,7 +29,10 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     ButtonModule,
     InputIconModule,
     ButtonModule,
-    TablaDinamicaComponent
+    TablaDinamicaComponent,
+    InputSwitchModule,
+    MultiSelectModule,
+    FormsModule
   ],
   templateUrl: './supplier.component.html'
 })
@@ -41,6 +47,25 @@ export class SupplierComponent {
   // UI State
   selectedSupplier: Supplier | null = null;
   showInvoices = false;
+  showMenu = false;
+  
+  // Toggle Sections
+  showContact = false;
+  showDelivery = false;
+  showMinOrder = false;
+  
+  // Delivery Days
+  selectedDays: string[] = [];
+  selectedLastOrderDays: string[] = [];
+  daysOptions = [
+    { label: 'Lunes', value: 'Lunes' },
+    { label: 'Martes', value: 'Martes' },
+    { label: 'Miércoles', value: 'Miércoles' },
+    { label: 'Jueves', value: 'Jueves' },
+    { label: 'Viernes', value: 'Viernes' },
+    { label: 'Sábado', value: 'Sábado' },
+    { label: 'Domingo', value: 'Domingo' }
+  ];
 
   columns = [
     { field: 'name', header: 'Nombre', type: 'text', filter: true },
@@ -97,6 +122,9 @@ export class SupplierComponent {
       next: () => {
         this.supplier = this.supplier.filter((p) => p.id !== id);
         this.toastService.success('Proveedor eliminado');
+        if (this.selectedSupplier?.id === id) {
+          this.hideDialog();
+        }
       },
       error: (err) => {
         console.error(err);
@@ -113,15 +141,25 @@ export class SupplierComponent {
 
   showDialog(item: Supplier) {
     this.selectedSupplier = item;
-    // Reset invoice state
+    // Reset states
     this.supplierInvoices = [];
-    this.showInvoices = false; // Collapsed by default
+    this.showInvoices = false;
+    this.showMenu = false;
+    
+    // Init toggles based on data existence
+    this.showDelivery = !!(item.deliveryDays || item.minPriceDelivery);
+    this.showMinOrder = !!item.minPriceDelivery;
+    
+    // Parse delivery days
+    this.selectedDays = item.deliveryDays ? item.deliveryDays.split(',').map(d => d.trim()) : [];
+    
+    // Logic for contact: check if phone exists. 'Email' and 'Contact Person' are not in interface yet, so check phone.
+    this.showContact = !!item.phoneNumber;
 
     // Fetch invoices for this supplier
     if (item.id) {
        this.invoiceService.getInvoices().subscribe({
           next: (invoices: Invoice[]) => {
-            // Client-side filtering as per plan
             this.supplierInvoices = invoices.filter((inv: Invoice) => inv.supplierId === item.id);
           },
           error: (err: any) => console.error('Error cargando facturas', err)
@@ -132,5 +170,29 @@ export class SupplierComponent {
   hideDialog() {
     this.selectedSupplier = null;
     this.supplierInvoices = [];
+    this.showMenu = false;
+    this.showContact = false;
+    this.showDelivery = false;
+    this.showMinOrder = false;
+    this.selectedDays = [];
+    this.selectedLastOrderDays = [];
+  }
+
+  toggleMenu(event?: Event) {
+    if(event) event.stopPropagation();
+    this.showMenu = !this.showMenu;
+  }
+
+  downloadSupplier() {
+    if (!this.selectedSupplier) return;
+    const dataStr = JSON.stringify(this.selectedSupplier, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `proveedor_${this.selectedSupplier.name.replace(/\s+/g, '_')}.json`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    this.showMenu = false;
   }
 }
