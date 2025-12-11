@@ -16,10 +16,10 @@
             <i class="pi pi-users" style="font-size: 1.5rem"></i>
             Proveedores
           </h2>
-        </div> -->
+        </div>
 
-        <!-- Table View -->
-        <!-- <app-tabla-dinamica
+       
+        <app-tabla-dinamica
           [data]="supplier"
           [columns]="columns"
           [globalFilterFields]="['name', 'cifNif', 'commercialName']"
@@ -78,7 +78,7 @@
 
   <!-- Right Side: Detail Panel (Sticky) -->
   <div *ngIf="selectedSupplier" 
-       class="w-full md:w-[400px] lg:w-[450px] shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-[#191919] border border-surface-700 transition-all duration-300 animate-slide-in-right z-20">
+       class="w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-[#191919] border border-surface-700 transition-all duration-300 animate-slide-in-right z-20">
     
       <!-- Cover Image Area -->
       <div class="h-32 bg-gradient-to-r from-blue-900 to-slate-900 w-full relative">
@@ -88,41 +88,104 @@
         </div>
       </div>
 
-      <div class="px-6 pb-8 relative -mt-10">
-        <!-- Icon -->
-        <div class="w-20 h-20 bg-surface-900 rounded-lg flex items-center justify-center shadow-lg mb-4 text-4xl border border-surface-700">
-            <span>{{ selectedSupplier.commercialName?.charAt(0) || selectedSupplier.name.charAt(0) | uppercase }}</span>
-        </div>
+      <div class="px-6 pb-8 relative pt-6">
 
         <!-- Title -->
         <h1 class="text-3xl font-bold text-white mb-6 leading-tight break-words">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
 
         <!-- Properties List -->
-        <div class="flex flex-col gap-3">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-12">
           
           <!-- Helper for property row -->
-          <ng-template #propRow let-icon="icon" let-label="label" let-value="value" let-isTag="isTag" let-isLink="isLink">
-            <div class="grid grid-cols-[130px_1fr] items-center py-1 group" *ngIf="value">
+          <ng-template #propRow let-icon="icon" let-label="label" let-value="value" let-isTag="isTag" let-isLink="isLink" let-isEditable="isEditable">
+            <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
               <div class="flex items-center gap-2 text-surface-400 text-sm">
                 <i [class]="'pi ' + icon + ' text-surface-500'"></i>
                 <span>{{ label }}</span>
               </div>
-              <div class="text-surface-200 text-sm font-medium break-all">
-                <span *ngIf="!isTag && !isLink" class="border-b border-transparent group-hover:border-surface-600 transition-colors">{{ value }}</span>
-                <span *ngIf="isTag" class="bg-surface-700 text-surface-200 px-2 py-0.5 rounded text-xs inline-block">{{ value }}</span>
-                <a *ngIf="isLink" [href]="value" target="_blank" class="text-surface-200 hover:text-primary-400 underline decoration-surface-600 hover:decoration-primary-400 underline-offset-4">{{ value }}</a>
+              <div class="text-surface-200 text-sm font-medium break-all flex items-center">
+                <!-- Read Only -->
+                <ng-container *ngIf="!isEditable">
+                    <span *ngIf="!isTag && !isLink" class="border-b border-transparent group-hover:border-surface-600 transition-colors">{{ value || 'Vacío' }}</span>
+                    <span *ngIf="isTag && value" class="bg-surface-700 text-surface-200 px-2 py-0.5 rounded text-xs inline-block">{{ value }}</span>
+                    <a *ngIf="isLink && value" [href]="value" target="_blank" class="text-surface-200 hover:text-primary-400 underline decoration-surface-600 hover:decoration-primary-400 underline-offset-4">{{ value }}</a>
+                    <span *ngIf="(isTag || isLink) && !value" class="text-surface-500 italic">Vacío</span>
+                </ng-container>
+
+                <!-- Editable -->
+                <input *ngIf="isEditable" 
+                       type="text" 
+                       [value]="value || ''" 
+                       placeholder="Vacío"
+                       class="bg-transparent border-none text-surface-200 focus:outline-none focus:ring-1 focus:ring-primary-500 rounded px-2 py-0.5 w-full -ml-2 transition-all placeholder:text-surface-600 placeholder:italic">
               </div>
             </div>
           </ng-template>
 
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-briefcase', label: 'Comercial', value: selectedSupplier.commercialName !== selectedSupplier.name ? selectedSupplier.name : null}"></ng-container>
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-id-card', label: 'NIF/CIF', value: selectedSupplier.cifNif, isTag: true}"></ng-container>
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-phone', label: 'Teléfono', value: selectedSupplier.phoneNumber}"></ng-container>
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-truck', label: 'Reparto', value: selectedSupplier.deliveryDays ? 'Sí' : 'No', isTag: true}"></ng-container>
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-calendar', label: 'Días reparto', value: selectedSupplier.deliveryDays, isTag: true}"></ng-container>
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-euro', label: 'Pedido mín', value: selectedSupplier.minPriceDelivery ? selectedSupplier.minPriceDelivery + '€' : null, isTag: true}"></ng-container>
-          <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-map-marker', label: 'Dirección', value: selectedSupplier.address}"></ng-container>
+          <!-- Left Column: Read Only -->
+          <div class="flex flex-col gap-3">
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-briefcase', label: 'Comercial', value: selectedSupplier.commercialName !== selectedSupplier.name ? selectedSupplier.name : null}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-id-card', label: 'NIF/CIF', value: selectedSupplier.cifNif, isTag: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-phone', label: 'Teléfono', value: selectedSupplier.phoneNumber}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-mobile', label: 'Móvil', value: selectedSupplier.commercialPhoneNumber}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-truck', label: 'Reparto', value: selectedSupplier.deliveryDays ? 'Sí' : 'No', isTag: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-calendar', label: 'Días reparto', value: selectedSupplier.deliveryDays, isTag: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-euro', label: 'Pedido mín', value: selectedSupplier.minPriceDelivery ? selectedSupplier.minPriceDelivery + '€' : null, isTag: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-map-marker', label: 'Dirección', value: selectedSupplier.address}"></ng-container>
+          </div>
+          
+          <!-- Right Column: Editable / Extra Fields -->
+          <div class="flex flex-col gap-3">
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-tags', label: 'Familia', value: '', isEditable: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-globe', label: 'Web', value: '', isEditable: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-envelope', label: 'Email', value: '', isEditable: true}"></ng-container>
+             <ng-container *ngTemplateOutlet="propRow; context: {icon: 'pi-file', label: 'Nº Reg. Sanitario', value: selectedSupplier.sanitaryRegistrationNumber}"></ng-container>
+          </div>
         </div>
+
+        <!-- Invoices Section -->
+        <div class="mt-8 border-t border-surface-700 pt-6">
+           <div (click)="showInvoices = !showInvoices" class="flex justify-between items-center cursor-pointer group select-none">
+              <h3 class="text-xs text-surface-500 uppercase tracking-wider font-semibold group-hover:text-surface-300 transition-colors">Facturas Asociadas</h3>
+              <i class="pi pi-chevron-down text-surface-500 transition-transform duration-300" [ngClass]="{'rotate-180': showInvoices}"></i>
+           </div>
+           
+           <div class="overflow-hidden transition-all duration-300 ease-in-out" [style.max-height]="showInvoices ? '500px' : '0'">
+              <div class="pt-4 flex flex-col gap-2">
+                 
+                 <!-- Loading State -->
+                 <div *ngIf="supplierInvoices.length === 0 && !selectedSupplier" class="text-center py-4 text-surface-500 text-sm">
+                    Cargando facturas...
+                 </div>
+
+                 <!-- No Invoices -->
+                 <div *ngIf="supplierInvoices.length === 0" class="text-surface-500 text-sm italic py-2">
+                    No hay facturas registradas.
+                 </div>
+
+                 <!-- Invoice List -->
+                 <div *ngFor="let invoice of supplierInvoices" class="flex items-center justify-between p-3 bg-surface-800 rounded-lg border border-surface-700 hover:border-surface-600 transition-colors cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                       <div class="w-8 h-8 rounded-full bg-primary-500/20 text-primary-400 flex items-center justify-center">
+                          <i class="pi pi-file text-sm"></i>
+                       </div>
+                       <div class="flex flex-col">
+                          <span class="text-surface-200 text-sm font-medium group-hover:text-white transition-colors">{{ invoice.invoiceNumber || 'Sin número' }}</span>
+                          <span class="text-surface-500 text-xs">{{ invoice.date | date:'dd/MM/yyyy' }}</span>
+                       </div>
+                    </div>
+                    <div class="text-right">
+                       <span class="text-white font-bold text-sm block">{{ invoice.amount | currency:'EUR' }}</span>
+                       <!-- Optional Status Badge
+                       <span class="text-[10px] uppercase bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">Pagada</span>
+                       -->
+                    </div>
+                 </div>
+
+              </div>
+           </div>
+        </div>
+
       </div>
   </div>
 
