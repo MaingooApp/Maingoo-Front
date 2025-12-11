@@ -4,59 +4,127 @@
   <div class="flex-1 min-w-0 transition-all duration-300">
     
     <div *ngIf="supplier.length === 0; else tablaSupplier" class="card rounded-xl p-10 shadow-md text-center">
-      <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem"></i>
+      <i class="pi pi-truck text-gray-300 mb-6" style="font-size: 6rem"></i>
       <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay proveedores registrados</h2>
       <p class="text-gray-500">Cuando registres un proveedor, aparecerá aquí.</p>
     </div>
 
     <ng-template #tablaSupplier>
       <!-- Header Card with Search -->
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 relative flex items-center justify-center border border-gray-100">
-          <h2 class="text-2xl font-bold text-maingoo-deep absolute left-6">Proveedores</h2>
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-1 sm:grid-cols-[auto_auto_1fr] items-center gap-4">
+          <div class="flex items-center gap-4">
+              <h2 class="text-2xl font-bold text-maingoo-deep m-0">Proveedores</h2>
+          </div>
+
+          <!-- View Switcher (Custom Segmented Control) -->
+          <div class="flex justify-center">
+            <div class="bg-gray-100 p-1 rounded-lg flex items-center gap-1">
+                <button (click)="viewMode = 'grid'" 
+                        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-6 h-6"
+                        [ngClass]="viewMode === 'grid' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+                    <i class="pi pi-th-large text-lg"></i>
+                </button>
+                <button (click)="viewMode = 'list'" 
+                        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-6 h-6"
+                        [ngClass]="viewMode === 'list' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+                    <i class="pi pi-list text-lg"></i>
+                </button>
+            </div>
+          </div>
           
-          <input type="text" 
-                 pInputText 
-                 placeholder="Buscar proveedor..." 
-                 (input)="filterSuppliers($event)" 
-                 class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-64 placeholder:text-gray-400 placeholder:text-base text-left">
+          <div class="flex justify-center sm:justify-end w-full">
+            <input type="text" 
+                   pInputText 
+                   placeholder="Buscar por nombre..." 
+                   (input)="filterSuppliers($event)" 
+                   class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-full max-w-[32rem] placeholder:text-gray-400 placeholder:text-base text-left">
+          </div>
       </div>
 
       <!-- Grid View -->
-      <div class="grid gap-4 transition-all duration-300" 
-           [ngClass]="selectedSupplier ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'">
-        <div *ngFor="let item of filteredSupplier" 
-             class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative"
-             (click)="showDialog(item)">
+      <ng-container *ngIf="viewMode === 'grid'">
+          <div class="grid gap-4 transition-all duration-300" 
+               [ngClass]="selectedSupplier ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'">
+            <div *ngFor="let item of filteredSupplier" 
+                 class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative"
+                 (click)="showDialog(item)">
 
 
-          <!-- Card Banner / Image Placeholder -->
-          <div class="h-32 bg-gradient-to-br from-maingoo-deep to-maingoo-sage flex items-center justify-center p-4 relative">
-                <!-- Generating a pseudo-logo based on name initials -->
-                <span class="text-4xl font-bold text-white/90 select-none">
-                  {{ item.commercialName?.charAt(0) || item.name.charAt(0) | uppercase }}
-                </span>
-          </div>
+              <!-- Card Banner / Image Placeholder -->
+              <div class="h-32 bg-gradient-to-br from-maingoo-deep to-maingoo-sage flex items-center justify-center p-4 relative">
+                    <!-- Generating a pseudo-logo based on name initials -->
+                    <span class="text-4xl font-bold text-white/90 select-none">
+                      {{ item.commercialName?.charAt(0) || item.name.charAt(0) | uppercase }}
+                    </span>
+              </div>
 
-          <!-- Card Content -->
-          <div class="p-4 bg-white text-maingoo-deep">
-              <div class="flex items-center gap-3">
-                  <i class="pi pi-box text-maingoo-sage text-xl"></i>
-                  <div class="flex flex-col overflow-hidden">
-                      <span class="font-bold text-lg truncate" [title]="item.commercialName || item.name">
-                          {{ item.commercialName || item.name }}
-                      </span>
-                      <span class="text-sm text-gray-500 truncate" *ngIf="item.commercialName && item.name !== item.commercialName">
-                          {{ item.name }}
-                      </span>
+              <!-- Card Content -->
+              <div class="p-4 bg-white text-maingoo-deep">
+                  <div class="flex items-center gap-3">
+                      <i class="pi pi-box text-maingoo-sage text-xl"></i>
+                      <div class="flex flex-col overflow-hidden">
+                          <span class="font-bold text-lg truncate" [title]="item.commercialName || item.name">
+                              {{ item.commercialName || item.name }}
+                          </span>
+                          <span class="text-sm text-gray-500 truncate" *ngIf="item.commercialName && item.name !== item.commercialName">
+                              {{ item.name }}
+                          </span>
+                      </div>
+                  </div>
+                  <!-- Optional: Add more details if needed, e.g. phone -->
+                  <div class="mt-2 text-sm text-gray-500 flex items-center gap-2" *ngIf="item.phoneNumber">
+                      <i class="pi pi-phone text-xs text-maingoo-sage"></i>
+                      {{ item.phoneNumber }}
                   </div>
               </div>
-              <!-- Optional: Add more details if needed, e.g. phone -->
-              <div class="mt-2 text-sm text-gray-500 flex items-center gap-2" *ngIf="item.phoneNumber">
-                  <i class="pi pi-phone text-xs text-maingoo-sage"></i>
-                  {{ item.phoneNumber }}
-              </div>
+            </div>
           </div>
-        </div>
+      </ng-container>
+
+      <!-- List View -->
+      <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <p-table [value]="filteredSupplier" [rowHover]="true" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                  <tr>
+                      <th class="text-maingoo-deep font-bold text-sm">Proveedor</th>
+                      <th class="text-maingoo-deep font-bold text-sm">NIF/CIF</th>
+                      <th class="text-maingoo-deep font-bold text-sm">Reg. Sanitario</th>
+                      <th class="w-20"></th>
+                  </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                  <tr class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors border-l-4 border-transparent" 
+                      [ngClass]="{'bg-maingoo-mint/10 !border-maingoo-sage': selectedSupplier?.id === item.id}"
+                      (click)="showDialog(item)">
+                      <td>
+                          <div class="flex flex-col">
+                              <span class="font-bold text-maingoo-deep">{{ item.commercialName || item.name }}</span>
+                              <span class="text-xs text-gray-500" *ngIf="item.commercialName && item.name !== item.commercialName">{{ item.name }}</span>
+                          </div>
+                      </td>
+                      <td>
+                          <span class="text-gray-600 text-sm">{{ item.cifNif || '-' }}</span>
+                      </td>
+                      <td>
+                        <span class="text-gray-600 text-sm">{{ item.sanitaryRegistrationNumber || '-' }}</span>
+                      </td>
+                      <td class="text-right">
+                          <button pButton icon="pi pi-chevron-left" 
+                                  class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
+                                  [ngClass]="{'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id}">
+                          </button>
+                      </td>
+                  </tr>
+              </ng-template>
+              <!-- Empty State in Table -->
+              <ng-template pTemplate="emptymessage">
+                  <tr>
+                      <td colspan="4" class="text-center py-8 text-gray-500">
+                          No se encontraron proveedores.
+                      </td>
+                  </tr>
+              </ng-template>
+          </p-table>
       </div>
     </ng-template>
 
