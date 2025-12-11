@@ -10,7 +10,6 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
-import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
@@ -31,7 +30,6 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     ButtonModule,
     InputIconModule,
     ButtonModule,
-    TablaDinamicaComponent,
     InputSwitchModule,
     MultiSelectModule,
     SelectButtonModule,

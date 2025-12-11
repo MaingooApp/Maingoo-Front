@@ -11,13 +11,13 @@
 
     <ng-template #tablaSupplier>
       <!-- Header Card with Search -->
-      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-1 sm:grid-cols-[auto_auto_1fr] items-center gap-4">
+      <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-2 sm:grid-cols-[auto_auto_1fr] items-center gap-4">
           <div class="flex items-center gap-4">
               <h2 class="text-2xl font-bold text-maingoo-deep m-0">Proveedores</h2>
           </div>
 
-          <!-- View Switcher (Custom Segmented Control) -->
-          <div class="flex justify-center">
+          <!-- View Switcher (Right aligned on mobile) -->
+          <div class="flex justify-end sm:justify-center">
             <div class="bg-gray-100 p-1 rounded-lg flex items-center gap-1">
                 <button (click)="viewMode = 'grid'" 
                         class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-6 h-6"
@@ -32,12 +32,12 @@
             </div>
           </div>
           
-          <div class="flex justify-center sm:justify-end w-full">
+          <div class="flex justify-center sm:justify-end w-full col-span-2 sm:col-span-1">
             <input type="text" 
                    pInputText 
                    placeholder="Buscar por nombre..." 
                    (input)="filterSuppliers($event)" 
-                   class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-full max-w-[32rem] placeholder:text-gray-400 placeholder:text-base text-left">
+                   class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-full max-w-full sm:max-w-[32rem] placeholder:text-gray-400 placeholder:text-base text-left">
           </div>
       </div>
 
@@ -130,10 +130,39 @@
 
   </div>
 
-  <!-- Right Side: Detail Panel (Sticky) -->
-  <div *ngIf="selectedSupplier" 
-       class="w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex flex-col">
+
+
+  <!-- Responsive Detail Container -->
+  <ng-container *ngIf="selectedSupplier">
     
+    <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
+    <div class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
+        <ng-container *ngTemplateOutlet="detailContent"></ng-container>
+    </div>
+
+    <!-- MOBILE: Bottom Sheet (Fixed, Overlay) -->
+    <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
+        
+        <!-- Sheet -->
+        <div class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+            <!-- Drag Handle Area -->
+            <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing" (click)="hideDialog()"> <!-- Click on handle acts as close for simplicity or add swipe logic later -->
+                <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+            </div>
+            
+            <!-- Content Wrapper -->
+            <div class="flex-1 overflow-hidden relative flex flex-col">
+                <ng-container *ngTemplateOutlet="detailContent"></ng-container>
+            </div>
+        </div>
+    </div>
+
+  </ng-container>
+
+  <!-- SHARED CONTENT TEMPLATE -->
+  <ng-template #detailContent>
       <!-- Cover Image Area -->
       <div class="h-32 bg-gradient-to-r from-maingoo-deep to-maingoo-sage w-full relative shrink-0">
         <div class="absolute top-4 right-4 flex gap-2 items-center">
@@ -161,11 +190,11 @@
         </div>
       </div>
 
-      <div class="px-6 pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
+      <div class="px-6 pb-24 md:pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
 
          <!-- Title -->
          <div class="mb-6">
-             <h1 class="text-3xl font-bold text-maingoo-deep leading-tight break-words">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
+             <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">{{ selectedSupplier?.commercialName || selectedSupplier?.name }}</h1>
          </div>
 
          <!-- Helper for inline input -->
@@ -187,13 +216,13 @@
          <!-- Unified Properties List -->
          <div class="flex flex-col gap-2">
              <!-- Address -->
-             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]" *ngIf="selectedSupplier.address">
+             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]" *ngIf="selectedSupplier?.address">
                  <div class="flex items-center gap-2 text-gray-400 text-sm">
                      <i class="pi pi-map-marker text-maingoo-sage"></i>
                      <span>Dirección</span>
                  </div>
                  <div class="flex items-center -ml-2">
-                     <span class="text-maingoo-deep font-medium border-b border-transparent hover:border-maingoo-sage/30 transition-colors px-2 py-0.5 text-sm w-full truncate">{{ selectedSupplier.address }}</span>
+                     <span class="text-maingoo-deep font-medium border-b border-transparent hover:border-maingoo-sage/30 transition-colors px-2 py-0.5 text-sm w-full truncate">{{ selectedSupplier?.address }}</span>
                  </div>
              </div>
              
@@ -205,7 +234,7 @@
                  </div>
                  <div class="flex items-center -ml-2">
                      <input type="text"
-                            [value]="selectedSupplier.sanitaryRegistrationNumber || ''"
+                            [value]="selectedSupplier?.sanitaryRegistrationNumber || ''"
                             placeholder="Vacío"
                             class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm">
                  </div>
@@ -218,7 +247,7 @@
                      <span>CIF/NIF</span>
                  </div>
                  <div class="flex items-center -ml-2">
-                     <span class="text-maingoo-deep font-medium text-sm px-2 py-0.5">{{ selectedSupplier.cifNif || 'Vacío' }}</span>
+                     <span class="text-maingoo-deep font-medium text-sm px-2 py-0.5">{{ selectedSupplier?.cifNif || 'Vacío' }}</span>
                  </div>
              </div>
 
@@ -243,7 +272,7 @@
                          <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Persona', icon: 'pi-user', value: ''}"></ng-container>
                          
                          <!-- Telefono -->
-                         <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Teléfono', icon: 'pi-phone', value: selectedSupplier.phoneNumber}"></ng-container>
+                         <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Teléfono', icon: 'pi-phone', value: selectedSupplier?.phoneNumber}"></ng-container>
                          
                          <!-- Email -->
                          <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Email', icon: 'pi-envelope', value: ''}"></ng-container>
@@ -325,7 +354,7 @@
                                  [style.opacity]="showMinOrder ? '1' : '0'">
                                  <div class="flex flex-col gap-1 py-1">
                                      <!-- Cantidad Input -->
-                                     <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Cantidad', icon: 'pi-tag', value: selectedSupplier.minPriceDelivery ? selectedSupplier.minPriceDelivery + '€' : ''}"></ng-container>
+                                     <ng-container *ngTemplateOutlet="inlineInput; context: {label: 'Cantidad', icon: 'pi-tag', value: selectedSupplier?.minPriceDelivery ? selectedSupplier?.minPriceDelivery + '€' : ''}"></ng-container>
                                  </div>
                             </div>
                          </div>
@@ -402,7 +431,7 @@
         </div>
 
       </div>
-  </div>
+  </ng-template>
 
 </div>
 
@@ -413,5 +442,13 @@
 }
 .animate-slide-in-right {
   animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0.5; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 </style>
