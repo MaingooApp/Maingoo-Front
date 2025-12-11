@@ -105,47 +105,64 @@
 
       <div class="px-6 pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
 
-        <!-- Title & Basic Info -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-maingoo-deep leading-tight break-words">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
-            
-            <div class="mt-4 flex flex-col gap-2">
-                 <!-- Address -->
-                 <div class="flex items-center gap-2 group" *ngIf="selectedSupplier.address">
+         <!-- Title -->
+         <div class="mb-6">
+             <h1 class="text-3xl font-bold text-maingoo-deep leading-tight break-words">{{ selectedSupplier.commercialName || selectedSupplier.name }}</h1>
+         </div>
+
+         <!-- Helper for inline input -->
+         <ng-template #inlineInput let-label="label" let-value="value" let-icon="icon">
+             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+               <div class="flex items-center gap-2 text-gray-400 text-sm">
+                 <i [class]="'pi ' + icon + ' text-maingoo-sage'"></i>
+                 <span>{{ label }}</span>
+               </div>
+               <div class="flex items-center">
+                 <input type="text" 
+                        [value]="value || ''" 
+                        placeholder="Vacío"
+                        class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep focus:outline-none rounded px-2 py-0.5 w-full -ml-2 transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm">
+               </div>
+             </div>
+         </ng-template>
+
+         <!-- Unified Properties List -->
+         <div class="flex flex-col gap-2">
+             <!-- Address -->
+             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]" *ngIf="selectedSupplier.address">
+                 <div class="flex items-center gap-2 text-gray-400 text-sm">
                      <i class="pi pi-map-marker text-maingoo-sage"></i>
-                     <span class="text-maingoo-deep font-medium border-b border-transparent hover:border-maingoo-sage/30 transition-colors">{{ selectedSupplier.address }}</span>
+                     <span>Dirección</span>
                  </div>
-                 
-                 <!-- Sanitary Registration -->
-                 <div class="flex items-center gap-2 group">
-                     <div class="w-6 flex justify-center"><i class="pi pi-file text-maingoo-sage"></i></div> <!-- Icon alignment fix -->
-                     <span class="text-gray-400 text-sm">Nº Reg. Sanitario:</span>
+                 <div class="flex items-center -ml-2">
+                     <span class="text-maingoo-deep font-medium border-b border-transparent hover:border-maingoo-sage/30 transition-colors px-2 py-0.5 text-sm w-full truncate">{{ selectedSupplier.address }}</span>
+                 </div>
+             </div>
+             
+             <!-- Sanitary Registration -->
+             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                 <div class="flex items-center gap-2 text-gray-400 text-sm">
+                     <i class="pi pi-file text-maingoo-sage"></i>
+                     <span>Reg. Sanitario</span>
+                 </div>
+                 <div class="flex items-center -ml-2">
                      <input type="text"
                             [value]="selectedSupplier.sanitaryRegistrationNumber || ''"
-                            placeholder="Añadir registro..."
-                            class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm flex-1">
+                            placeholder="Vacío"
+                            class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm">
                  </div>
-            </div>
-        </div>
+             </div>
 
-        <!-- Helper for inline input -->
-        <ng-template #inlineInput let-label="label" let-value="value" let-icon="icon">
-            <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-              <div class="flex items-center gap-2 text-gray-400 text-sm">
-                <i [class]="'pi ' + icon + ' text-maingoo-sage'"></i>
-                <span>{{ label }}</span>
-              </div>
-              <div class="flex items-center">
-                <input type="text" 
-                       [value]="value || ''" 
-                       placeholder="Vacío"
-                       class="bg-transparent border border-transparent hover:border-maingoo-sage/30 focus:border-maingoo-sage text-maingoo-deep focus:outline-none rounded px-2 py-0.5 w-full -ml-2 transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm">
-              </div>
-            </div>
-        </ng-template>
-
-        <!-- SECTIONS -->
-        <div class="flex flex-col gap-2">
+             <!-- CIF/NIF -->
+             <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                 <div class="flex items-center gap-2 text-gray-400 text-sm">
+                     <i class="pi pi-id-card text-maingoo-sage"></i>
+                     <span>CIF/NIF</span>
+                 </div>
+                 <div class="flex items-center -ml-2">
+                     <span class="text-maingoo-deep font-medium text-sm px-2 py-0.5">{{ selectedSupplier.cifNif || 'Vacío' }}</span>
+                 </div>
+             </div>
 
              <!-- Contacto Comercial SECTION -->
              <div class="group">
@@ -194,46 +211,43 @@
                      [style.max-height]="showDelivery ? '500px' : '0'"
                      [style.opacity]="showDelivery ? '1' : '0'">
                      <div class="flex flex-col gap-1 py-1">
-                       <!-- Ultimo dia de pedido MultiSelect -->
-                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                          <div class="flex items-center gap-2 text-gray-400 text-sm">
+                       <!-- Ultimo dia de pedido Chips -->
+                       <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
+                          <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
                               <i class="pi pi-clock text-maingoo-sage"></i>
                               <span>Día de pedido</span>
                           </div>
-                          <div class="flex items-center -ml-2">
-                              <p-multiSelect 
-                                  [options]="daysOptions" 
-                                  [(ngModel)]="selectedLastOrderDays" 
-                                  defaultLabel="Vacío" 
-                                  optionLabel="label" 
-                                  optionValue="value"
-                                  appendTo="body"
-                                  [style]="{'width':'100%', 'border':'none', 'background':'transparent', 'padding':'0'}"
-                                  styleClass="w-full text-maingoo-deep text-sm p-0 m-0 border-none bg-transparent shadow-none focus:shadow-none hover:bg-transparent"
-                                  placeholder="Vacío">
-                              </p-multiSelect>
+                          <div class="flex flex-wrap gap-1 items-center -ml-2">
+                              <div *ngFor="let day of daysOptions" 
+                                   (click)="toggleDay('lastOrder', day.value)"
+                                   class="px-2 py-1 rounded text-xs cursor-pointer transition-colors border select-none"
+                                   [ngClass]="{
+                                      'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('lastOrder', day.value),
+                                      'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200': !isDaySelected('lastOrder', day.value)
+                                   }">
+                                  {{ day.short }}
+                              </div>
                           </div>
                        </div>
-                         <!-- Dias de reparto MultiSelect -->
-                         <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                            <div class="flex items-center gap-2 text-gray-400 text-sm">
-                                <i class="pi pi-calendar text-maingoo-sage"></i>
-                                <span>Día de reparto</span>
-                            </div>
-                            <div class="flex items-center -ml-2">
-                                <p-multiSelect 
-                                    [options]="daysOptions" 
-                                    [(ngModel)]="selectedDays" 
-                                    defaultLabel="Vacío" 
-                                    optionLabel="label" 
-                                    optionValue="value"
-                                    appendTo="body"
-                                    [style]="{'width':'100%', 'border':'none', 'background':'transparent', 'padding':'0'}"
-                                    styleClass="w-full text-maingoo-deep text-sm p-0 m-0 border-none bg-transparent shadow-none focus:shadow-none hover:bg-transparent"
-                                    placeholder="Vacío">
-                                </p-multiSelect>
-                            </div>
-                         </div>
+
+                       <!-- Dias de reparto Chips -->
+                       <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
+                          <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
+                              <i class="pi pi-calendar text-maingoo-sage"></i>
+                              <span>Día de reparto</span>
+                          </div>
+                          <div class="flex flex-wrap gap-1 items-center -ml-2">
+                              <div *ngFor="let day of daysOptions" 
+                                   (click)="toggleDay('delivery', day.value)"
+                                   class="px-2 py-1 rounded text-xs cursor-pointer transition-colors border select-none"
+                                   [ngClass]="{
+                                      'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('delivery', day.value),
+                                      'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200': !isDaySelected('delivery', day.value)
+                                   }">
+                                  {{ day.short }}
+                              </div>
+                          </div>
+                       </div>
 
                          
                          <!-- Pedido minimo Nested Toggle -->

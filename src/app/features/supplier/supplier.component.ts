@@ -58,13 +58,13 @@ export class SupplierComponent {
   selectedDays: string[] = [];
   selectedLastOrderDays: string[] = [];
   daysOptions = [
-    { label: 'Lunes', value: 'Lunes' },
-    { label: 'Martes', value: 'Martes' },
-    { label: 'Miércoles', value: 'Miércoles' },
-    { label: 'Jueves', value: 'Jueves' },
-    { label: 'Viernes', value: 'Viernes' },
-    { label: 'Sábado', value: 'Sábado' },
-    { label: 'Domingo', value: 'Domingo' }
+    { label: 'Lunes', value: 'Lunes', short: 'Lun' },
+    { label: 'Martes', value: 'Martes', short: 'Mar' },
+    { label: 'Miércoles', value: 'Miércoles', short: 'Mié' },
+    { label: 'Jueves', value: 'Jueves', short: 'Jue' },
+    { label: 'Viernes', value: 'Viernes', short: 'Vie' },
+    { label: 'Sábado', value: 'Sábado', short: 'Sáb' },
+    { label: 'Domingo', value: 'Domingo', short: 'Dom' }
   ];
 
   columns = [
@@ -176,6 +176,22 @@ export class SupplierComponent {
     this.showMinOrder = false;
     this.selectedDays = [];
     this.selectedLastOrderDays = [];
+  }
+
+  toggleDay(type: 'delivery' | 'lastOrder', day: string) {
+    const targetArray = type === 'delivery' ? this.selectedDays : this.selectedLastOrderDays;
+    const index = targetArray.indexOf(day);
+    
+    if (index === -1) {
+      targetArray.push(day);
+    } else {
+      targetArray.splice(index, 1);
+    }
+  }
+
+  isDaySelected(type: 'delivery' | 'lastOrder', day: string): boolean {
+    const targetArray = type === 'delivery' ? this.selectedDays : this.selectedLastOrderDays;
+    return targetArray.includes(day);
   }
 
   toggleMenu(event?: Event) {
