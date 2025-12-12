@@ -51,6 +51,9 @@ export class AppTopbar implements OnInit, OnDestroy {
   
   // Estado del menú móvil
   isMobileMenuOpen = false;
+
+  // Estado del menú de perfil expandible
+  isProfileExpanded = false;
   
   // Detectar si es móvil
   get isMobile(): boolean {
@@ -99,9 +102,18 @@ export class AppTopbar implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const clickedInside = this.elementRef.nativeElement.contains(event.target);
-    if (!clickedInside && this.isMobileMenuOpen) {
-      this.isMobileMenuOpen = false;
+    if (!clickedInside) {
+      if (this.isMobileMenuOpen) {
+        this.isMobileMenuOpen = false;
+      }
+      if (this.isProfileExpanded) {
+        this.isProfileExpanded = false;
+      }
     }
+  }
+
+  toggleProfile() {
+    this.isProfileExpanded = !this.isProfileExpanded;
   }
 
   // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
