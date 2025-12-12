@@ -1,5 +1,5 @@
 <!-- Chat lateral permanente -->
-<div class="layout-sidebar !flex !flex-col !overflow-hidden !p-0" [ngClass]="sidebarClass">
+<div class="layout-sidebar !flex !flex-col !overflow-hidden !p-0" [ngStyle]="sidebarStyle">
   <!-- Píldoras de navegación rápida -->
   <div class="flex-shrink-0 px-4 pt-4 pb-3 bg-[#F0F7F4] dark:bg-surface-900">
     <!-- Etiqueta MENU -->
@@ -7,8 +7,8 @@
       <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">Menú</p>
       <div class="h-px bg-gray-300 dark:bg-gray-600 mt-2"></div>
     </div>
-    @if (layoutService.isNotificationPanelActiveOrAnimating()) {
-    <!-- Chips compactos cuando el panel de notificaciones está activo -->
+    @if (layoutService.isNotificationPanelActiveOrAnimating() || layoutService.isProfilePanelActiveOrAnimating()) {
+    <!-- Chips compactos cuando el panel de notificaciones o perfil está activo -->
     <div class="grid grid-cols-3 gap-2">
       @for (link of quickLinks; track link.route) {
       <a
@@ -44,7 +44,7 @@
   </div>
 
   <!-- Área de mensajes expandida -->
-  <div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
+  <div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800" [class.hidden]="isCompactMode">
     <!-- Mensajes dinámicos -->
     @for (message of messages; track message.id; let idx = $index) { @if (message.sender === 'bot') {
     <!-- Mensaje del BOT -->
@@ -85,6 +85,9 @@
     </div>
     }
   </div>
+
+  <!-- Spacer para modo compacto -->
+  <div class="flex-1 bg-[#F0F7F4] dark:bg-surface-800" [class.hidden]="!isCompactMode"></div>
 
   <!-- Acciones rápidas -->
   <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
@@ -151,6 +154,7 @@
         [(ngModel)]="messageText"
         (keydown)="handleKeyDown($event)"
         (input)="autoResize()"
+        (focus)="onChatInputFocus()"
         [placeholder]="currentContext.placeholder"
         [maxlength]="maxMessageLength"
         rows="1"
