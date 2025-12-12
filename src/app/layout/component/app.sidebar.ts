@@ -116,12 +116,34 @@ export class AppSidebar {
 
   currentContext: RouteContext = this.routeContexts['/'];
 
-  get sidebarClass() {
+  get sidebarStyle() {
     const isNotificationActive = this.layoutService.isNotificationPanelActiveOrAnimating();
-    return {
-      '!top-[calc(6rem+(100vh-10rem)/4+1rem)]': isNotificationActive,
-      '!h-[calc(100vh-6rem-(100vh-10rem)/4-1rem-2rem)]': isNotificationActive
-    };
+    const isProfileActive = this.layoutService.isProfilePanelActiveOrAnimating();
+    
+    // Si ambos están activos
+    if (isNotificationActive && isProfileActive) {
+      return {
+        top: 'calc(6rem + 2 * ((100vh - 10rem) / 3.5) + 2rem)',
+        height: 'auto',
+        bottom: '2rem'
+      };
+    }
+    
+    // Si alguno de los dos está activo
+    if (isNotificationActive || isProfileActive) {
+      return {
+        top: 'calc(6rem + ((100vh - 10rem) / 3.5) + 1rem)',
+        height: 'auto',
+        bottom: '2rem'
+      };
+    }
+
+    // Ninguno activo (default)
+    return {};
+  }
+
+  get isCompactMode() {
+    return this.layoutService.isNotificationPanelActiveOrAnimating() && this.layoutService.isProfilePanelActiveOrAnimating();
   }
 
   constructor(
@@ -193,6 +215,9 @@ export class AppSidebar {
   }
 
   async handleQuickAction(action: string) {
+    // Expandir chat si está en modo compacto
+    this.onChatInputFocus();
+
     if (action === 'Subir factura') {
       this.modalService.open(AddInvoiceModalComponent, {
         width: '960px',
@@ -256,6 +281,17 @@ export class AppSidebar {
     const messagesContainer = document.getElementById('chat-messages-expanded');
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  onChatInputFocus() {
+    // Si hay paneles abiertos, cerrarlos para dar espacio al chat
+    if (this.layoutService.isNotificationPanelActive()) {
+      this.layoutService.toggleNotificationPanel();
+    }
+    
+    if (this.layoutService.isProfilePanelActive()) {
+      this.layoutService.toggleProfilePanel();
     }
   }
 }

@@ -55,7 +55,8 @@
                     padding-right: 2rem;
                 }
 
-                &.layout-notification-active {
+                &.layout-notification-active,
+                &.layout-profile-active {
                     .layout-main-container {
                         margin-right: 26rem;
                     }
