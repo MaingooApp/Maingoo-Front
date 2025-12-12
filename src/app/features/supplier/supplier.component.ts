@@ -308,7 +308,7 @@ export class SupplierComponent {
             const total = invoices
                 .filter(inv => new Date(inv.date).getFullYear() === year)
                 .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
-            yearlyTotals.push(Number(total.toFixed(2)));
+            yearlyTotals.push(total);
         }
 
         this.historyChartData = {
@@ -338,15 +338,12 @@ export class SupplierComponent {
       }
     });
 
-    // Fix floating point precision issues
-    const roundedMonthlyTotals = monthlyTotals.map(total => Number(total.toFixed(2)));
-
     this.chartData = {
       labels: months,
       datasets: [
         {
           label: 'Gasto',
-          data: roundedMonthlyTotals,
+          data: monthlyTotals,
           backgroundColor: '#6B9E86', // maingoo-sage
           hoverBackgroundColor: '#1A3C34', // maingoo-deep
           borderRadius: 4,
