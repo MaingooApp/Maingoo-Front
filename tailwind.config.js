@@ -12,6 +12,15 @@ export default {
       lg: '992px',
       xl: '1200px',
       '2xl': '1920px'
+    },
+    extend: {
+      colors: {
+        maingoo: {
+          deep: '#1A3C34',
+          sage: '#6B9E86',
+          mint: '#F0F7F4'
+        }
+      }
     }
   }
 };
