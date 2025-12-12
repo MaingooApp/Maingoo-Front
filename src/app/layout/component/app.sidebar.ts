@@ -4,7 +4,7 @@ import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
-import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/chat-bubble.service';
+import { ChatBubbleService, ChatMessage } from '@app/core/services/chat-bubble.service';
 import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { LayoutService } from '../service/layout.service';

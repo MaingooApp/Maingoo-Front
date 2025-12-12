@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BottomSheetService, SheetState } from '../../../layout/service/bottom-sheet.service';
-import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
+import { ChatBubbleService, ChatMessage } from '../../../core/services/chat-bubble.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
