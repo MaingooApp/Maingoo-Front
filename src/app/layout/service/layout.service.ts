@@ -17,6 +17,8 @@ interface LayoutState {
   menuHoverActive?: boolean;
   notificationPanelActive?: boolean;
   notificationPanelAnimating?: boolean;
+  profilePanelActive?: boolean;
+  profilePanelAnimating?: boolean;
 }
 
 interface MenuChangeEvent {
@@ -43,7 +45,9 @@ export class LayoutService {
     staticMenuMobileActive: false,
     menuHoverActive: false,
     notificationPanelActive: false,
-    notificationPanelAnimating: false
+    notificationPanelAnimating: false,
+    profilePanelActive: false,
+    profilePanelAnimating: false
   };
 
   layoutConfig = signal<layoutConfig>(this._config);
@@ -199,6 +203,39 @@ export class LayoutService {
   
   isNotificationPanelActiveOrAnimating() {
     return this.layoutState().notificationPanelActive || this.layoutState().notificationPanelAnimating;
+  }
+
+  toggleProfilePanel() {
+    const isCurrentlyActive = this.layoutState().profilePanelActive;
+    
+    if (isCurrentlyActive) {
+      this.layoutState.update((prev) => ({
+        ...prev,
+        profilePanelAnimating: true,
+        profilePanelActive: false
+      }));
+      
+      setTimeout(() => {
+        this.layoutState.update((prev) => ({
+          ...prev,
+          profilePanelAnimating: false
+        }));
+      }, 400);
+    } else {
+      this.layoutState.update((prev) => ({
+        ...prev,
+        profilePanelActive: true,
+        profilePanelAnimating: false
+      }));
+    }
+  }
+
+  isProfilePanelActive() {
+    return this.layoutState().profilePanelActive;
+  }
+
+  isProfilePanelActiveOrAnimating() {
+    return this.layoutState().profilePanelActive || this.layoutState().profilePanelAnimating;
   }
 
   isDesktop() {

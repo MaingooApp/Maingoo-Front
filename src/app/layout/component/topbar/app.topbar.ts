@@ -52,9 +52,6 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Estado del menú móvil
   isMobileMenuOpen = false;
 
-  // Estado del menú de perfil expandible
-  isProfileExpanded = false;
-  
   // Detectar si es móvil
   get isMobile(): boolean {
     return window.innerWidth < 768;
@@ -106,14 +103,14 @@ export class AppTopbar implements OnInit, OnDestroy {
       if (this.isMobileMenuOpen) {
         this.isMobileMenuOpen = false;
       }
-      if (this.isProfileExpanded) {
-        this.isProfileExpanded = false;
+      if (this.layoutService.isProfilePanelActive()) {
+        this.layoutService.toggleProfilePanel();
       }
     }
   }
 
   toggleProfile() {
-    this.isProfileExpanded = !this.isProfileExpanded;
+    this.layoutService.toggleProfilePanel();
   }
 
   // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
