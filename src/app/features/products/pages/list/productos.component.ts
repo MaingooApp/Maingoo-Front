@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { Table, TableModule } from 'primeng/table';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth-service.service';
-import { Product } from '@app/core/interfaces/Invoice.interfaces';
+import { Product, Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { TooltipModule } from 'primeng/tooltip';
@@ -104,14 +104,61 @@ export class ProductosComponent implements OnInit {
     this.showDialog(producto);
   }
 
+  invoices: Invoice[] = [];
+  invoicesLoaded = false;
+  relatedInvoices: Invoice[] = [];
+
   showDialog(product: Product) {
-    this.selectedProduct = product;
-    // Prevent body scroll if needed, or handle layout via CSS classes
+    if (this.selectedProduct?.id === product.id) {
+      this.hideDialog();
+    } else {
+      this.selectedProduct = product;
+      this.findRelatedInvoices(product);
+    }
   }
 
   hideDialog() {
     this.selectedProduct = null;
+    this.relatedInvoices = [];
     this.showMenu = false;
+  }
+
+  private findRelatedInvoices(product: Product) {
+    this.relatedInvoices = [];
+    
+    if (this.invoicesLoaded) {
+      this.filterInvoices(product);
+    } else {
+      this.invoiceService.getInvoices().subscribe({
+        next: (invoices) => {
+          this.invoices = invoices;
+          this.invoicesLoaded = true;
+          this.filterInvoices(product);
+        },
+        error: (err) => console.error('Error loading invoices', err)
+      });
+    }
+  }
+
+  private filterInvoices(product: Product) {
+    console.log('Filtering invoices for product:', product.name, product.id);
+    console.log('Total invoices available:', this.invoices.length);
+
+    this.relatedInvoices = this.invoices.filter(invoice => {
+      const match = invoice.invoiceLines.some(line => {
+        // Debug individual line matching if needed
+        // console.log('Checking line:', line.description, line.suppliersProductId);
+        return (line.suppliersProductId && line.suppliersProductId === product.id) ||
+               (line.description && line.description.toLowerCase().includes(product.name.toLowerCase()));
+      });
+      return match;
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    console.log('Found related invoices:', this.relatedInvoices.length);
+  }
+
+  verFactura(invoice: Invoice) {
+    this.router.navigate(['/facturas/detalle', invoice.id]);
   }
 
   toggleMenu(event: Event) {
