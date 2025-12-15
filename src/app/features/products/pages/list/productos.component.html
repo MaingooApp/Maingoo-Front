@@ -144,13 +144,13 @@
   <!-- SHARED CONTENT TEMPLATE -->
   <ng-template #detailContent>
     <!-- ... existing detail content ... -->
-    <!-- Cover Image Area -->
-    <div class="h-32 bg-gradient-to-r from-maingoo-deep to-maingoo-sage w-full relative shrink-0">
-      <div class="absolute top-4 right-4 flex gap-2 items-center">
+    <div class="px-6 pb-24 md:pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
+      <!-- Actions Row -->
+      <div class="flex justify-end gap-2 mb-4">
         <!-- Hamburger Menu -->
         <div class="relative">
           <button
-            class="p-button-rounded text-white/70 hover:bg-white hover:text-maingoo-deep w-10 h-10 items-center justify-center flex transition-all duration-200"
+            class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-maingoo-deep w-10 h-10 items-center justify-center flex transition-all duration-200"
             (click)="toggleMenu($event)">
             <i class="pi pi-ellipsis-v"></i>
           </button>
@@ -170,19 +170,31 @@
 
         <!-- Close Button -->
         <button
-          class="p-button-rounded text-white/70 hover:bg-white hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
+          class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
           (click)="hideDialog()">
           <i class="pi pi-times"></i>
         </button>
       </div>
-    </div>
 
-    <div class="px-6 pb-24 md:pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
-      <!-- Title -->
-      <div class="mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
-          {{ selectedProduct?.name }}
-        </h1>
+      <!-- Title and Image -->
+      <div class="mb-6 flex justify-between items-start gap-6">
+        <div class="flex-1 pt-2 flex flex-col gap-2">
+          <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
+            {{ selectedProduct?.name }}
+          </h1>
+          <div *ngIf="selectedProduct?.category?.name">
+            <p-tag 
+              [value]="selectedProduct!.category.name" 
+              [style]="getCategoryStyle(selectedProduct!.category.name)" 
+              [rounded]="true" 
+              styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
+          </div>
+        </div>
+        
+        <!-- Image Placeholder -->
+        <div class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+          <i class="pi pi-image text-gray-300 text-5xl"></i>
+        </div>
       </div>
 
       <!-- Information Sections (Adapted from Product Detail) -->
@@ -198,20 +210,6 @@
             <p><strong class="text-maingoo-deep">EAN / Código:</strong> {{ selectedProduct?.eanCode || 'No disponible' }}</p>
             <p><strong class="text-maingoo-deep">Unidad de medida:</strong> {{ selectedProduct?.unit }}</p>
             <p><strong class="text-maingoo-deep">Stock:</strong> {{ selectedProduct?.stock }}</p>
-          </div>
-        </div>
-
-        <!-- Classification -->
-        <div class="space-y-3">
-          <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
-            <i class="pi pi-bookmark text-maingoo-sage"></i>
-            Clasificación
-          </h3>
-          <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 text-sm text-gray-700">
-            <p><strong class="text-maingoo-deep">Categoría:</strong> {{ selectedProduct?.category?.name || 'Sin categoría' }}</p>
-            <p *ngIf="selectedProduct?.category?.description" class="text-gray-500 italic">
-              {{ selectedProduct?.category?.description }}
-            </p>
           </div>
         </div>
 
@@ -249,14 +247,44 @@
           </h3>
           <div class="flex gap-4 text-xs text-gray-500">
             <div>
-              <p class="font-medium text-maingoo-deep">Creado</p>
+              <p class="font-medium text-maingoo-deep">Añadido el</p>
               <p>{{ selectedProduct?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
             </div>
             <div>
-              <p class="font-medium text-maingoo-deep">Actualizado</p>
+              <p class="font-medium text-maingoo-deep">Actualizado el</p>
               <p>{{ selectedProduct?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
             </div>
           </div>
+        </div>
+
+        <!-- Related Invoices -->
+        <div class="space-y-3 pt-4 border-t border-gray-100">
+          <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+            <i class="pi pi-file text-maingoo-sage"></i>
+            Facturas asociadas ({{ relatedInvoices.length }})
+          </h3>
+          
+          <div *ngIf="relatedInvoices.length > 0; else noInvoices" class="space-y-2">
+            <div 
+              *ngFor="let invoice of relatedInvoices" 
+              class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
+              (click)="verFactura(invoice)">
+              <div class="flex flex-col">
+                <span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier?.name || 'Proveedor desconocido' }}</span>
+                <span class="text-xs text-gray-500">{{ invoice.date | date:'dd MMM yyyy' }} • {{ invoice.invoiceNumber }}</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-maingoo-deep text-sm">{{ invoice.amount | currency:'EUR' }}</span>
+                <i class="pi pi-chevron-right text-gray-300 group-hover:text-maingoo-sage"></i>
+              </div>
+            </div>
+          </div>
+          
+          <ng-template #noInvoices>
+            <div class="p-4 rounded-xl bg-gray-50 text-gray-500 text-sm text-center italic border border-dashed border-gray-200">
+              No se han encontrado facturas para este producto.
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>
