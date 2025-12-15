@@ -101,4 +101,12 @@ export class InvoiceService extends BaseHttpService {
   getProductById(id: string): Observable<Product> {
     return this.get<Product>(`${this.PRODUCTS_URL}/${id}`);
   }
+
+  /**
+   * Elimina un producto por su ID
+   * DELETE /api/products/:id
+   */
+  deleteProduct(id: string): Observable<void> {
+    return this.delete<void>(`${this.PRODUCTS_URL}/${id}`);
+  }
 }
