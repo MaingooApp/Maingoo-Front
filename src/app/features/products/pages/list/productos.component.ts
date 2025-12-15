@@ -16,10 +16,11 @@ import { ConfirmationService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ChartModule } from 'primeng/chart';
 
 @Component({
   selector: 'app-productos',
-  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, FormsModule, TooltipModule, ButtonModule, ConfirmDialogModule, TagModule, SkeletonModule],
+  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, FormsModule, TooltipModule, ButtonModule, ConfirmDialogModule, TagModule, SkeletonModule, ChartModule],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss',
   providers: [ConfirmationService]
@@ -276,6 +277,111 @@ export class ProductosComponent implements OnInit {
             return productWords.every((word: string) => lineDesc.includes(word));
         });
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    // Update chart after filtering
+    this.updatePriceChart(this.relatedInvoices, product);
+  }
+
+  // Chart Data
+  priceChartData: any;
+  priceChartOptions: any;
+
+  private updatePriceChart(invoices: Invoice[], product: Product) {
+    if (!invoices.length) {
+        this.priceChartData = null;
+        return;
+    }
+
+    // Sort ascending for the chart (Time ->)
+    const sortedForChart = [...invoices].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const normalizedProductName = this.normalizeText(product.name);
+
+    const labels: string[] = [];
+    const prices: number[] = [];
+
+    sortedForChart.forEach(inv => {
+        if (!inv.invoiceLines) return;
+        
+        // Find the specific line for this product to get the price
+        const line = inv.invoiceLines.find(l => {
+             // Reuse matching logic (simplified)
+             if (l.suppliersProductId === product.id) return true;
+             if (product.eanCode && l.suppliersProductId === product.eanCode) return true;
+             if (!l.description) return false;
+             
+             const lineDesc = this.normalizeText(l.description);
+             if (lineDesc.includes(normalizedProductName)) return true;
+             
+             const productWords = normalizedProductName.split(' ').filter((w: string) => w.length > 2);
+             if (productWords.length === 0) return false;
+             return productWords.every((word: string) => lineDesc.includes(word));
+        });
+
+        if (line) {
+             labels.push(new Date(inv.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
+             // Ensure price is a number
+             const priceVal = typeof line.price === 'number' ? line.price : parseFloat(String(line.price || 0));
+             prices.push(priceVal);
+        }
+    });
+
+    this.priceChartData = {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Precio Unitario',
+                data: prices,
+                fill: true,
+                borderColor: '#6366f1', // maingoo-indigo equivalent
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                tension: 0.4,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#6366f1',
+                pointHoverBackgroundColor: '#6366f1',
+                pointHoverBorderColor: '#ffffff'
+            }
+        ]
+    };
+
+    this.priceChartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                 callbacks: {
+                    label: function(context: any) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        if (context.parsed.y !== null) {
+                            label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
+                        }
+                        return label;
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                display: true,
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                display: true,
+                beginAtZero: false,
+                grid: {
+                    color: '#f3f4f6'
+                }
+            }
+        }
+    };
   }
 
   hideDialog() {
