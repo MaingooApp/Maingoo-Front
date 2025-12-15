@@ -82,12 +82,23 @@
                 <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
               </td>
               <td>
-                <!-- Placeholder for Supplier -->
-                <span class="text-gray-400 text-sm italic">-</span>
+                <ng-container *ngIf="loadingStats; else supplierData">
+                    <p-skeleton width="80%" height="1rem"></p-skeleton>
+                </ng-container>
+                <ng-template #supplierData>
+                    <span class="text-gray-600 text-sm font-medium">{{ productStats.get(item.id)?.supplierName || '-' }}</span>
+                </ng-template>
               </td>
               <td>
-                <!-- Placeholder for Price -->
-                <span class="text-gray-400 text-sm italic">-</span>
+                <ng-container *ngIf="loadingStats; else priceData">
+                    <p-skeleton width="60%" height="1rem"></p-skeleton>
+                </ng-container>
+                <ng-template #priceData>
+                    <span *ngIf="productStats.get(item.id)?.lastPrice" class="text-maingoo-deep font-bold text-sm">
+                        {{ productStats.get(item.id)?.lastPrice | currency:'EUR' }}
+                    </span>
+                    <span *ngIf="!productStats.get(item.id)?.lastPrice" class="text-gray-400 text-sm italic">-</span>
+                </ng-template>
               </td>
               <td class="text-right">
                 <button

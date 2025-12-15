@@ -15,10 +15,11 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
 import { TagModule } from 'primeng/tag';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-productos',
-  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, FormsModule, TooltipModule, ButtonModule, ConfirmDialogModule, TagModule],
+  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, FormsModule, TooltipModule, ButtonModule, ConfirmDialogModule, TagModule, SkeletonModule],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss',
   providers: [ConfirmationService]
@@ -46,6 +47,7 @@ export class ProductosComponent implements OnInit {
         this.productos = productos;
         this.cargando = false;
         console.log('Productos cargados:', this.productos);
+        this.loadInvoiceData(); // Load stats after products
       },
       error: (error: any) => {
         console.error('Error al cargar productos:', error);
@@ -104,6 +106,10 @@ export class ProductosComponent implements OnInit {
   invoices: Invoice[] = [];
   relatedInvoices: Invoice[] = [];
   loadingInvoices = false;
+  
+  // Cache for product statistics (Price & Supplier)
+  productStats: Map<string, { lastPrice: number, supplierName: string, date: Date }> = new Map();
+  loadingStats = false;
 
   verDetalleProducto(producto: Product) {
     this.showDialog(producto);
@@ -112,13 +118,101 @@ export class ProductosComponent implements OnInit {
   private normalizeText(text: string): string {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
+  
+  private loadInvoiceData() {
+    this.loadingStats = true;
+    this.invoiceService.getInvoices().subscribe({
+        next: (summaryInvoices) => {
+            if (summaryInvoices.length === 0) {
+                this.loadingStats = false;
+                return;
+            }
+
+            const detailObservables = summaryInvoices.map(inv => this.invoiceService.getInvoiceById(inv.id));
+            
+            forkJoin(detailObservables).subscribe({
+                next: (detailedInvoices) => {
+                    this.invoices = detailedInvoices; // Store for valid related invoices usage later
+                    this.processProductStats(detailedInvoices);
+                    this.loadingStats = false;
+                },
+                error: (err) => {
+                    console.error('Error loading invoice stats:', err);
+                    this.loadingStats = false;
+                }
+            });
+        },
+        error: (err) => {
+             console.error('Error fetching invoices list for stats:', err);
+             this.loadingStats = false;
+        }
+    });
+  }
+
+  private processProductStats(invoices: Invoice[]) {
+    // Sort invoices by date descending (newest first)
+    const sortedInvoices = [...invoices].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    sortedInvoices.forEach(invoice => {
+        if (!invoice.invoiceLines) return;
+
+        invoice.invoiceLines.forEach(line => {
+            // We need to match this line to a product in our list
+            // 1. Try ID Match
+            let productId = line.suppliersProductId; // This might be the Product ID or EAN or arbitrary string
+            
+            // We need to find the REAL product ID in our this.productos list that matches this line
+            // This is the reverse of filterInvoices logic.
+            // Since we have this.productos loaded, we can look it up.
+            
+            // Optimization: Create a lookup map for products if this is slow, but for now loop is fine for N < 1000
+            const product = this.findProductForLine(line, this.productos);
+            
+            if (product) {
+                // If we haven't found a newer entry for this product, store it.
+                // Since we traverse newest invoices first, the first time we see a product, it's the latest.
+                if (!this.productStats.has(product.id)) {
+                    this.productStats.set(product.id, {
+                        lastPrice: typeof line.price === 'number' ? line.price : parseFloat(String(line.price || 0)),
+                        supplierName: invoice.supplier?.name || 'Desconocido',
+                        date: new Date(invoice.date)
+                    });
+                }
+            }
+        });
+    });
+  }
+
+  private findProductForLine(line: any, products: Product[]): Product | undefined {
+      // 1. Direct ID match
+      const pById = products.find(p => p.id === line.suppliersProductId);
+      if (pById) return pById;
+      
+      // 2. EAN match (if suppliersProductId holds EAN)
+      const pByEan = products.find(p => p.eanCode && p.eanCode === line.suppliersProductId);
+      if (pByEan) return pByEan;
+      
+      // 3. Name match
+      if (!line.description) return undefined;
+      const lineDesc = this.normalizeText(line.description);
+      
+      return products.find(p => {
+          const pName = this.normalizeText(p.name);
+          return lineDesc.includes(pName); // Simplified for performance here
+      });
+  }
 
   showDialog(product: Product) {
     if (this.selectedProduct?.id === product.id) {
        this.hideDialog();
     } else {
        this.selectedProduct = product;
-       this.findRelatedInvoices(product);
+       // We can reuse the already loaded invoices if available, or filter again
+       if (this.invoices.length > 0) {
+           this.filterInvoices(this.invoices, product);
+       } else {
+           this.findRelatedInvoices(product); // Fallback if stats haven't loaded
+       }
     }
   }
 
