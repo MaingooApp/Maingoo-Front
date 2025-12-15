@@ -12,6 +12,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
@@ -37,7 +38,8 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     SelectButtonModule,
     DropdownModule,
     FormsModule,
-    ChartModule
+    ChartModule,
+    TagModule
   ],
   templateUrl: './supplier.component.html'
 })
@@ -143,6 +145,15 @@ export class SupplierComponent {
         this.eliminarProveedor(prov.id!);
       }
     });
+  }
+
+  // Wrappers for Template calls
+  confirmDelete(supplier: Supplier) {
+    this.confirmarEliminarProveedor(supplier);
+  }
+
+  editSupplier(supplier: Supplier) {
+    this.toastService.info('Próximamente', 'La edición de proveedores estará disponible pronto.');
   }
 
   eliminarProveedor(id: string) {
