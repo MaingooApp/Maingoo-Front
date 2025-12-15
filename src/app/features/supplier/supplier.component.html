@@ -179,12 +179,12 @@
   <!-- SHARED CONTENT TEMPLATE -->
   <ng-template #detailContent>
     <!-- Cover Image Area -->
-    <div class="h-32 bg-gradient-to-r from-maingoo-deep to-maingoo-sage w-full relative shrink-0">
+    <div class="h-16 w-full relative shrink-0">
       <div class="absolute top-4 right-4 flex gap-2 items-center">
         <!-- Hamburger Menu -->
         <div class="relative">
           <button
-            class="p-button-rounded text-white/70 hover:bg-white hover:text-maingoo-deep w-10 h-10 items-center justify-center flex transition-all duration-200"
+            class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-maingoo-deep w-10 h-10 items-center justify-center flex transition-all duration-200"
             (click)="toggleMenu($event)">
             <i class="pi pi-ellipsis-v"></i>
           </button>
@@ -201,7 +201,13 @@
             </button>
             <div class="h-px bg-gray-100 my-1"></div>
             <button
-              (click)="handleAccionProveedor({ action: 'eliminar', row: selectedSupplier })"
+              (click)="editSupplier(selectedSupplier!)"
+              class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-maingoo-mint hover:text-maingoo-deep flex items-center gap-2 transition-colors">
+              <i class="pi pi-pencil"></i>
+              Editar
+            </button>
+            <button
+              (click)="confirmDelete(selectedSupplier!)"
               class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
               <i class="pi pi-trash"></i>
               Eliminar
@@ -211,21 +217,35 @@
 
         <!-- Close Button -->
         <button
-          class="p-button-rounded text-white/70 hover:bg-white hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
+          class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
           (click)="hideDialog()">
           <i class="pi pi-times"></i>
         </button>
       </div>
     </div>
 
-    <div class="px-6 pb-24 md:pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
-      <!-- Title -->
-      <div class="mb-6">
-        <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
-          {{ selectedSupplier?.commercialName || selectedSupplier?.name }}
-        </h1>
+    <div class="px-6 pb-24 md:pb-8 relative flex-1 overflow-y-auto" (click)="showMenu = false">
+      
+      <!-- Title and Image -->
+      <div class="mb-6 flex justify-between items-start gap-6">
+        <div class="flex-1 pt-2 flex flex-col gap-2">
+          <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
+            {{ selectedSupplier?.name }}
+          </h1>
+          <div class="flex gap-2" *ngIf="selectedSupplier?.commercialName">
+             <p-tag 
+              [value]="selectedSupplier!.commercialName!" 
+              severity="info"
+              [rounded]="true" 
+              styleClass="text-sm font-normal border-0 px-3 py-1 bg-maingoo-mint/30 text-maingoo-deep"></p-tag>
+          </div>
+        </div>
+        
+        <!-- Image Placeholder -->
+        <div class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+          <i class="pi pi-image text-gray-300 text-5xl"></i>
+        </div>
       </div>
-
       <!-- Helper for inline input -->
       <ng-template #inlineInput let-label="label" let-value="value" let-icon="icon">
         <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
