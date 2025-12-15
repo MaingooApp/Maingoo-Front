@@ -264,18 +264,24 @@
             Facturas asociadas ({{ relatedInvoices.length }})
           </h3>
           
-          <div *ngIf="relatedInvoices.length > 0; else noInvoices" class="space-y-2">
-            <div 
-              *ngFor="let invoice of relatedInvoices" 
-              class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
-              (click)="verFactura(invoice)">
-              <div class="flex flex-col">
-                <span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier?.name || 'Proveedor desconocido' }}</span>
-                <span class="text-xs text-gray-500">{{ invoice.date | date:'dd MMM yyyy' }} • {{ invoice.invoiceNumber }}</span>
-              </div>
-              <div class="flex items-center gap-3">
-                <span class="font-bold text-maingoo-deep text-sm">{{ invoice.amount | currency:'EUR' }}</span>
-                <i class="pi pi-chevron-right text-gray-300 group-hover:text-maingoo-sage"></i>
+          <div *ngIf="loadingInvoices" class="flex justify-center py-8">
+            <i class="pi pi-spin pi-spinner text-maingoo-sage text-2xl"></i>
+          </div>
+
+          <div *ngIf="!loadingInvoices">
+            <div *ngIf="relatedInvoices.length > 0; else noInvoices" class="space-y-2">
+              <div 
+                *ngFor="let invoice of relatedInvoices" 
+                class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
+                (click)="verFactura(invoice)">
+                <div class="flex flex-col">
+                  <span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier?.name || 'Proveedor desconocido' }}</span>
+                  <span class="text-xs text-gray-500">{{ invoice.date | date:'dd MMM yyyy' }} • {{ invoice.invoiceNumber }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="font-bold text-maingoo-deep text-sm">{{ invoice.amount | currency:'EUR' }}</span>
+                  <i class="pi pi-chevron-right text-gray-300 group-hover:text-maingoo-sage"></i>
+                </div>
               </div>
             </div>
           </div>
@@ -286,6 +292,8 @@
             </div>
           </ng-template>
         </div>
+
+
       </div>
     </div>
   </ng-template>

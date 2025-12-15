@@ -100,61 +100,93 @@ export class ProductosComponent implements OnInit {
     });
   }
 
+  // New Implementation for Invoice Logic
+  invoices: Invoice[] = [];
+  relatedInvoices: Invoice[] = [];
+  loadingInvoices = false;
+
   verDetalleProducto(producto: Product) {
     this.showDialog(producto);
   }
 
-  invoices: Invoice[] = [];
-  invoicesLoaded = false;
-  relatedInvoices: Invoice[] = [];
+  private normalizeText(text: string): string {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
 
   showDialog(product: Product) {
     if (this.selectedProduct?.id === product.id) {
-      this.hideDialog();
+       this.hideDialog();
     } else {
-      this.selectedProduct = product;
-      this.findRelatedInvoices(product);
+       this.selectedProduct = product;
+       this.findRelatedInvoices(product);
     }
-  }
-
-  hideDialog() {
-    this.selectedProduct = null;
-    this.relatedInvoices = [];
-    this.showMenu = false;
   }
 
   private findRelatedInvoices(product: Product) {
     this.relatedInvoices = [];
+    this.loadingInvoices = true;
     
-    if (this.invoicesLoaded) {
-      this.filterInvoices(product);
-    } else {
-      this.invoiceService.getInvoices().subscribe({
-        next: (invoices) => {
-          this.invoices = invoices;
-          this.invoicesLoaded = true;
-          this.filterInvoices(product);
+    // 1. Get List of Invoices (Summary)
+    this.invoiceService.getInvoices().subscribe({
+        next: (summaryInvoices) => {
+            if (summaryInvoices.length === 0) {
+                this.loadingInvoices = false;
+                return;
+            }
+
+            // 2. Fetch Details for ALL invoices to get the lines
+            // Optimization: In a real large-scale app, this should be paginated or done via a dedicated backend endpoint search.
+            const detailObservables = summaryInvoices.map(inv => this.invoiceService.getInvoiceById(inv.id));
+            
+            forkJoin(detailObservables).subscribe({
+                next: (detailedInvoices) => {
+                    this.loadingInvoices = false;
+                    this.filterInvoices(detailedInvoices, product);
+                },
+                error: (err) => {
+                    console.error('Error fetching invoice details:', err);
+                    this.loadingInvoices = false;
+                    this.toastService.error('Error', 'No se pudieron cargar los detalles de las facturas.');
+                }
+            });
         },
-        error: (err) => console.error('Error loading invoices', err)
-      });
-    }
+        error: (err) => {
+            console.error('Error fetching invoices list:', err);
+            this.loadingInvoices = false;
+        }
+    });
   }
 
-  private filterInvoices(product: Product) {
-    console.log('Filtering invoices for product:', product.name, product.id);
-    console.log('Total invoices available:', this.invoices.length);
+  private filterInvoices(invoices: Invoice[], product: Product) {
+    const normalizedProductName = this.normalizeText(product.name);
 
-    this.relatedInvoices = this.invoices.filter(invoice => {
-      const match = invoice.invoiceLines.some(line => {
-        // Debug individual line matching if needed
-        // console.log('Checking line:', line.description, line.suppliersProductId);
-        return (line.suppliersProductId && line.suppliersProductId === product.id) ||
-               (line.description && line.description.toLowerCase().includes(product.name.toLowerCase()));
-      });
-      return match;
+    this.relatedInvoices = invoices.filter(invoice => {
+        if (!invoice.invoiceLines || !Array.isArray(invoice.invoiceLines)) return false;
+
+        return invoice.invoiceLines.some(line => {
+            // 1. Strong Match: ID or EAN
+            if (line.suppliersProductId === product.id) return true;
+            if (product.eanCode && line.suppliersProductId === product.eanCode) return true;
+
+            // 2. Text Match
+            if (!line.description) return false;
+            const lineDesc = this.normalizeText(line.description);
+            
+            // Inclusion
+            if (lineDesc.includes(normalizedProductName)) return true;
+
+            // Fuzzy Word Match
+            const productWords = normalizedProductName.split(' ').filter((w: string) => w.length > 2);
+            if (productWords.length === 0) return lineDesc.includes(normalizedProductName);
+            
+            return productWords.every((word: string) => lineDesc.includes(word));
+        });
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
-    console.log('Found related invoices:', this.relatedInvoices.length);
+  }
+
+  hideDialog() {
+    this.selectedProduct = null;
+    this.showMenu = false;
   }
 
   verFactura(invoice: Invoice) {
