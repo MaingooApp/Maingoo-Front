@@ -169,12 +169,20 @@ export class ProductosComponent implements OnInit {
             // Optimization: Create a lookup map for products if this is slow, but for now loop is fine for N < 1000
             const product = this.findProductForLine(line, this.productos);
             
-            if (product) {
+             if (product) {
                 // If we haven't found a newer entry for this product, store it.
                 // Since we traverse newest invoices first, the first time we see a product, it's the latest.
                 if (!this.productStats.has(product.id)) {
+                    // Use unitPrice if available, fall back to price (total) / quantity or just price
+                    let finalPrice = 0;
+                    if (line.unitPrice) {
+                         finalPrice = typeof line.unitPrice === 'number' ? line.unitPrice : parseFloat(String(line.unitPrice).replace(',','.') || '0');
+                    } else if (line.price) {
+                         finalPrice = typeof line.price === 'number' ? line.price : parseFloat(String(line.price).replace(',','.') || '0');
+                    }
+
                     this.productStats.set(product.id, {
-                        lastPrice: typeof line.price === 'number' ? line.price : parseFloat(String(line.price || 0)),
+                        lastPrice: finalPrice,
                         supplierName: invoice.supplier?.name || 'Desconocido',
                         date: new Date(invoice.date)
                     });
@@ -271,9 +279,11 @@ export class ProductosComponent implements OnInit {
             if (lineDesc.includes(normalizedProductName)) return true;
 
             // Fuzzy Word Match
+            // Explicit type annotation to fix TS implicit any error
             const productWords = normalizedProductName.split(' ').filter((w: string) => w.length > 2);
             if (productWords.length === 0) return lineDesc.includes(normalizedProductName);
             
+            // Explicit type annotation to fix TS implicit any error
             return productWords.every((word: string) => lineDesc.includes(word));
         });
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -319,8 +329,14 @@ export class ProductosComponent implements OnInit {
 
         if (line) {
              labels.push(new Date(inv.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
-             // Ensure price is a number
-             const priceVal = typeof line.price === 'number' ? line.price : parseFloat(String(line.price || 0));
+             // Ensure price is a number and use unitPrice if available
+             let priceVal = 0;
+             if (line.unitPrice) {
+                 priceVal = typeof line.unitPrice === 'number' ? line.unitPrice : parseFloat(String(line.unitPrice).replace(',','.') || '0');
+             } else if (line.price) {
+                 priceVal = typeof line.price === 'number' ? line.price : parseFloat(String(line.price).replace(',','.') || '0');
+             }
+             
              prices.push(priceVal);
         }
     });
