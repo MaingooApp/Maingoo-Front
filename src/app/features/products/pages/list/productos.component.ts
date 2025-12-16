@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -12,18 +12,67 @@ import { ToastService } from '../../../../shared/services/toast.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { forkJoin } from 'rxjs';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ChartModule } from 'primeng/chart';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { animate, style, transition, trigger } from '@angular/animations';
+
+interface InventoryItem extends Product {
+  idealStock: number | null;
+  manualInventory: number | null;
+}
 
 @Component({
   selector: 'app-productos',
-  imports: [CommonModule, TableModule, InputTextModule, IconFieldModule, FormsModule, TooltipModule, ButtonModule, ConfirmDialogModule, TagModule, SkeletonModule, ChartModule],
+  standalone: true,
+  imports: [
+    CommonModule, 
+    TableModule, 
+    ButtonModule, 
+    InputTextModule, 
+    FormsModule, 
+    DialogModule, 
+    ToastModule, 
+    ConfirmDialogModule, 
+    TagModule, 
+    NgClass, 
+    ChartModule, 
+    SkeletonModule,
+    TooltipModule
+  ],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './productos.component.html',
   styleUrl: './productos.component.scss',
-  providers: [ConfirmationService]
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-out', style({ opacity: 1 }))
+      ])
+    ]),
+    trigger('slideInRight', [
+      transition(':enter', [
+        style({ transform: 'translateX(100%)', opacity: 0 }),
+        animate('400ms cubic-bezier(0.16, 1, 0.3, 1)', style({ transform: 'translateX(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
+      ])
+    ]),
+    trigger('slideUp', [
+      transition(':enter', [
+        style({ transform: 'translateY(100%)' }),
+        animate('400ms cubic-bezier(0.16, 1, 0.3, 1)', style({ transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('300ms ease-in', style({ transform: 'translateY(100%)' }))
+      ])
+    ])
+  ]
 })
 export class ProductosComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
@@ -35,29 +84,29 @@ export class ProductosComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
   productos: Product[] = [];
+  inventoryItems: InventoryItem[] = []; // Local inventory state
   filtroGlobal: string = '';
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
   
   // View State
-  viewMode: 'list' | 'cards' = 'list';
+  viewMode: 'list' | 'cards' | 'inventory' = 'list';
   selectedCategory: string | null = null;
 
   get uniqueCategories(): { name: string, count: number }[] {
-    const categoryMap = new Map<string, number>();
+    const categoryCounts = new Map<string, number>();
     
     this.productos.forEach(p => {
         if (p.category?.name) {
-            const count = categoryMap.get(p.category.name) || 0;
-            categoryMap.set(p.category.name, count + 1);
+            categoryCounts.set(p.category.name, (categoryCounts.get(p.category.name) || 0) + 1);
         }
     });
 
-    return Array.from(categoryMap.entries()).map(([name, count]) => ({
+    return Array.from(categoryCounts.entries()).map(([name, count]) => ({
         name,
         count
-    })).sort((a, b) => b.count - a.count); // Sort by count descending
+    }));
   }
 
   get categoryProducts(): Product[] {
@@ -65,18 +114,22 @@ export class ProductosComponent implements OnInit {
     return this.productos.filter(p => p.category?.name === this.selectedCategory);
   }
 
-  setViewMode(mode: 'list' | 'cards') {
+  setViewMode(mode: 'list' | 'cards' | 'inventory') {
     this.viewMode = mode;
     if (mode === 'list') {
         this.selectedCategory = null;
-    } else {
+    } else if (mode === 'cards') {
         this.selectedProduct = null;
     }
   }
 
   elaborarInventario() {
-    // TODO: Implement inventory logic
-    console.log('Elaborar inventario clicked');
+    this.inventoryItems = this.productos.map(p => ({
+        ...p,
+        idealStock: null,
+        manualInventory: null
+    }));
+    this.setViewMode('inventory');
   }
 
   selectCategory(categoryName: string) {
