@@ -27,7 +27,6 @@ interface RouteContext {
   standalone: true,
   imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule],
   templateUrl: './app.sidebar.html',
-  styleUrls: ['./app.sidebar.scss']
 })
 export class AppSidebar {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
