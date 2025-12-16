@@ -74,6 +74,11 @@ export class ProductosComponent implements OnInit {
     }
   }
 
+  elaborarInventario() {
+    // TODO: Implement inventory logic
+    console.log('Elaborar inventario clicked');
+  }
+
   selectCategory(categoryName: string) {
     this.selectedProduct = null; // Close product detail if open
     this.selectedCategory = categoryName;
