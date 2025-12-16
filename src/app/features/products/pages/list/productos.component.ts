@@ -20,6 +20,7 @@ import { ChartModule } from 'primeng/chart';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { DropdownModule } from 'primeng/dropdown';
 
 interface InventoryItem extends Product {
   idealStock: number | null;
@@ -42,7 +43,8 @@ interface InventoryItem extends Product {
     NgClass, 
     ChartModule, 
     SkeletonModule,
-    TooltipModule
+    TooltipModule,
+    DropdownModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './productos.component.html',
@@ -93,6 +95,8 @@ export class ProductosComponent implements OnInit {
   // View State
   viewMode: 'list' | 'cards' | 'inventory' = 'list';
   selectedCategory: string | null = null;
+  selectedInventoryCategory: string | null = null;
+  currentDate = new Date();
 
   get uniqueCategories(): { name: string, count: number }[] {
     const categoryCounts = new Map<string, number>();
@@ -107,6 +111,18 @@ export class ProductosComponent implements OnInit {
         name,
         count
     }));
+  }
+  
+  get inventoryCategoryOptions() {
+      const options = this.uniqueCategories.map(c => ({ label: c.name, value: c.name }));
+      return [{ label: 'Todos los productos', value: null }, ...options];
+  }
+
+  get filteredInventoryItems(): InventoryItem[] {
+      if (!this.selectedInventoryCategory) {
+          return this.inventoryItems;
+      }
+      return this.inventoryItems.filter(item => item.category?.name === this.selectedInventoryCategory);
   }
 
   get categoryProducts(): Product[] {
