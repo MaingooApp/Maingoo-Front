@@ -1,5 +1,5 @@
-<div class="flex gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
-  <div class="flex-1 min-w-0 transition-all duration-300">
+<div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
+  <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <!-- Empty State -->
     <div
       *ngIf="!cargando && productos.length === 0; else tablaProductos"
@@ -38,11 +38,10 @@
 
         <div class="flex flex-col sm:flex-row justify-center sm:justify-end w-full gap-3">
           <!-- View Toggle -->
-
-
+           
           <button
             pButton
-            label="Eliminar todo"
+            label=""
             icon="pi pi-trash"
             class="p-button-danger p-button-outlined w-full sm:w-auto order-2 sm:order-2"
             (click)="eliminarTodo()"
@@ -58,6 +57,8 @@
       </div>
 
       <!-- List View (similar to Suppliers) -->
+      <div class="flex gap-6 relative items-start">
+        <div class="flex-1 min-w-0">
       <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <p-table
           #dt
@@ -175,68 +176,78 @@
             </div>
         </div>
       </div>
+    </div>
+
+    <!-- Responsive Detail Container (Now inside layout row) -->
+    <ng-container *ngIf="selectedProduct">
+        <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
+        <div
+        class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
+        <ng-container *ngTemplateOutlet="detailContent"></ng-container>
+        </div>
+
+        <!-- MOBILE: Bottom Sheet (Fixed, Overlay) -->
+        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
+
+        <!-- Sheet -->
+        <div
+            class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+            <!-- Drag Handle Area -->
+            <div
+            class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+            (click)="hideDialog()">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="flex-1 overflow-hidden relative flex flex-col">
+            <ng-container *ngTemplateOutlet="detailContent"></ng-container>
+            </div>
+        </div>
+        </div>
+    </ng-container>
+
+    <!-- CATEGORY SIDEBAR (Now inside layout row) -->
+    <ng-container *ngIf="selectedCategory">
+        <!-- DESKTOP: Side Panel -->
+        <div class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
+            <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
+        </div>
+
+        <!-- MOBILE: Bottom Sheet -->
+        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCategoryDetail()"></div>
+
+        <!-- Sheet -->
+        <div class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+            <!-- Drag Handle Area -->
+            <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing" (click)="closeCategoryDetail()">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+            </div>
+
+            <!-- Content Wrapper -->
+            <div class="flex-1 overflow-hidden relative flex flex-col">
+            <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
+            </div>
+        </div>
+        </div>
+    </ng-container>
+      </div> <!-- End of Row Wrapper -->
+
     </ng-template>
   </div>
+</div>
+<!-- End of Main Container -->
 
-  <!-- Responsive Detail Container -->
-  <ng-container *ngIf="selectedProduct">
-    <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
-    <div
-      class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
-      <ng-container *ngTemplateOutlet="detailContent"></ng-container>
-    </div>
+<p-confirmDialog
+  header="Confirmación"
+  icon="pi pi-exclamation-triangle"
+  [style]="{ width: '400px' }"></p-confirmDialog>
 
-    <!-- MOBILE: Bottom Sheet (Fixed, Overlay) -->
-    <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
-
-      <!-- Sheet -->
-      <div
-        class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-        <!-- Drag Handle Area -->
-        <div
-          class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
-          (click)="hideDialog()">
-          <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
-        </div>
-
-        <!-- Content Wrapper -->
-        <div class="flex-1 overflow-hidden relative flex flex-col">
-          <ng-container *ngTemplateOutlet="detailContent"></ng-container>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- CATEGORY SIDEBAR -->
-  <ng-container *ngIf="selectedCategory">
-    <!-- DESKTOP: Side Panel -->
-    <div class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
-        <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
-    </div>
-
-    <!-- MOBILE: Bottom Sheet -->
-    <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
-      <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCategoryDetail()"></div>
-
-      <!-- Sheet -->
-      <div class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-        <!-- Drag Handle Area -->
-        <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing" (click)="closeCategoryDetail()">
-          <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
-        </div>
-
-        <!-- Content Wrapper -->
-        <div class="flex-1 overflow-hidden relative flex flex-col">
-          <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- CATEGORY CONTENT TEMPLATE -->
+<!-- CATEGORY CONTENT TEMPLATE -->
   <ng-template #categoryDetailContent>
         <!-- Header -->
         <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
@@ -473,7 +484,6 @@
       </div>
     </div>
   </ng-template>
-</div>
 
 <p-confirmDialog
   header="Confirmación"
