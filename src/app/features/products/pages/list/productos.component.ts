@@ -39,6 +39,25 @@ export class ProductosComponent implements OnInit {
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
+  
+  // View State
+  viewMode: 'list' | 'cards' = 'list';
+
+  get uniqueCategories(): { name: string, count: number }[] {
+    const categoryMap = new Map<string, number>();
+    
+    this.productos.forEach(p => {
+        if (p.category?.name) {
+            const count = categoryMap.get(p.category.name) || 0;
+            categoryMap.set(p.category.name, count + 1);
+        }
+    });
+
+    return Array.from(categoryMap.entries()).map(([name, count]) => ({
+        name,
+        count
+    })).sort((a, b) => b.count - a.count); // Sort by count descending
+  }
 
   async ngOnInit(): Promise<void> {
     this.cargando = true;
