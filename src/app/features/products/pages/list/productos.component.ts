@@ -69,6 +69,8 @@ export class ProductosComponent implements OnInit {
     this.viewMode = mode;
     if (mode === 'list') {
         this.selectedCategory = null;
+    } else {
+        this.selectedProduct = null;
     }
   }
 
