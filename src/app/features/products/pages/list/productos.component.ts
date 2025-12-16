@@ -42,6 +42,7 @@ export class ProductosComponent implements OnInit {
   
   // View State
   viewMode: 'list' | 'cards' = 'list';
+  selectedCategory: string | null = null;
 
   get uniqueCategories(): { name: string, count: number }[] {
     const categoryMap = new Map<string, number>();
@@ -57,6 +58,27 @@ export class ProductosComponent implements OnInit {
         name,
         count
     })).sort((a, b) => b.count - a.count); // Sort by count descending
+  }
+
+  get categoryProducts(): Product[] {
+    if (!this.selectedCategory) return [];
+    return this.productos.filter(p => p.category?.name === this.selectedCategory);
+  }
+
+  setViewMode(mode: 'list' | 'cards') {
+    this.viewMode = mode;
+    if (mode === 'list') {
+        this.selectedCategory = null;
+    }
+  }
+
+  selectCategory(categoryName: string) {
+    this.selectedProduct = null; // Close product detail if open
+    this.selectedCategory = categoryName;
+  }
+
+  closeCategoryDetail() {
+    this.selectedCategory = null;
   }
 
   async ngOnInit(): Promise<void> {
