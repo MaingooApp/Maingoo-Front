@@ -148,6 +148,10 @@ export class ProductosComponent implements OnInit {
     this.setViewMode('inventory');
   }
 
+  verHistorialInventarios() {
+      this.toastService.info('Próximamente', 'Esta funcionalidad estará disponible pronto.');
+  }
+
   selectCategory(categoryName: string) {
     this.selectedProduct = null; // Close product detail if open
     this.selectedCategory = categoryName;
