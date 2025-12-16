@@ -182,6 +182,15 @@
             <div class="flex items-center gap-4">
                 <h2 class="text-2xl font-bold text-maingoo-deep m-0 flex items-center gap-2">
                     Inventario de 
+                    <p-dropdown 
+                        [options]="inventoryCategoryOptions" 
+                        [(ngModel)]="selectedInventoryCategory" 
+                        optionLabel="label" 
+                        optionValue="value" 
+                        class="ml-2"
+                        styleClass="border-0 bg-transparent text-xl font-bold text-maingoo-sage hover:bg-gray-50 focus:ring-0 shadow-none p-0 inline-flex items-center"
+                        [panelStyle]="{'min-width': '200px'}"></p-dropdown>
+                    <span class="text-base font-normal text-gray-500 ml-4">Fecha: {{ currentDate | date:'dd/MM/yyyy' }}</span>
                 </h2>
             </div>
             
@@ -207,7 +216,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <p-table
           #dtInventario
-          [value]="inventoryItems"
+          [value]="filteredInventoryItems"
           [rowHover]="true"
           styleClass="p-datatable-sm"
           [paginator]="true"
