@@ -13,6 +13,7 @@
     <ng-template #tablaProductos>
       <!-- Header Card with Search -->
       <div
+        *ngIf="viewMode === 'list' || viewMode === 'cards'"
         class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-1 sm:grid-cols-[auto_1fr] items-center gap-4">
         <div class="flex items-center gap-4">
           <h2 class="text-2xl font-bold text-maingoo-deep m-0 flex items-center gap-2">
@@ -183,15 +184,14 @@
       </div>
 
       <!-- History View (Mis Inventarios) -->
-      <div *ngIf="viewMode === 'history'" class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in fade-in h-full">
+      <div *ngIf="viewMode === 'history'" class="flex flex-col md:flex-row gap-6 animate-fade-in fade-in h-full items-start">
         
         <!-- Left Side: History List -->
-        <div class="flex flex-col h-full">
+        <div class="flex-1 w-full min-w-0 flex flex-col h-full transition-all duration-300">
             <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 flex items-center gap-4">
                 <button pButton icon="pi pi-arrow-left" class="p-button-danger p-button-text p-button-rounded" (click)="setViewMode('list')"></button>
                 <div class="flex flex-col">
                     <h2 class="text-2xl font-bold text-maingoo-deep m-0">Mis Inventarios</h2>
-                    <p class="text-gray-500 text-sm">Histórico de inventarios realizados</p>
                 </div>
             </div>
              
@@ -222,7 +222,7 @@
                         <span class="text-xs text-gray-400 font-medium bg-gray-50 px-2 py-1 rounded">{{ record.date | date:'shortTime' }}</span>
                     </div>
                     
-                    <h3 class="font-bold text-maingoo-deep text-lg mb-1">{{ record.date | date:'dd MMM yyyy' }}</h3>
+                    <h3 class="font-bold text-maingoo-deep text-lg mb-1">{{ record.date | date:'dd/MM/yyyy' }}</h3>
                     <p class="text-sm text-gray-500 mb-4">{{ record.itemsCount }} productos registrados</p>
                     
                     <div class="flex gap-2 w-full">
@@ -234,7 +234,7 @@
         </div>
 
         <!-- Right Side: Detail Sidebar -->
-        <div *ngIf="selectedInventoryRecord" class="w-full md:w-1/2 bg-white rounded-xl shadow-lg border border-gray-100 flex flex-col animate-slide-in-right sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <div *ngIf="selectedInventoryRecord" class="w-full md:w-1/2 shrink-0 bg-white rounded-xl shadow-lg border border-gray-100 flex flex-col animate-slide-in-right sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
              <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center sticky top-0 bg-gray-50 z-10">
                  <div>
                     <h3 class="font-bold text-maingoo-deep text-lg">Inventario de {{ (selectedInventoryRecord.categoryNames && selectedInventoryRecord.categoryNames.length > 0) ? selectedInventoryRecord.categoryNames.join(', ') : 'General' }}</h3>
@@ -290,45 +290,37 @@
       <!-- Inventory View -->
       <div *ngIf="viewMode === 'inventory'" class="animate-fade-in text-left">
         <!-- Inventory Header Card -->
-        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-1 sm:grid-cols-[auto_1fr] items-center gap-4">
-            <div class="flex items-center gap-4">
-                <h2 class="text-2xl font-bold text-maingoo-deep m-0 flex items-center gap-2">
-                    Inventario de 
-                    <p-multiSelect 
-                        [options]="inventoryCategoryOptions" 
-                        [(ngModel)]="selectedInventoryCategory" 
-                        optionLabel="label" 
-                        optionValue="value" 
-                        class="ml-2"
-                        styleClass="border-0 bg-transparent text-xl font-bold text-maingoo-sage hover:bg-gray-50 focus:ring-0 shadow-none p-0 inline-flex items-center min-w-[200px]"
-                        [showToggleAll]="true"
-                        [showHeader]="false"
-                        display="chip"
-                        [panelStyle]="{'min-width': '250px'}"
-                        placeholder="Todos los productos"
-                        emptyFilterMessage="No se encontraron categorías"></p-multiSelect>
-                    <span class="text-base font-normal text-gray-500 ml-4">Fecha: {{ currentDate | date:'dd/MM/yyyy' }}</span>
-                </h2>
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4 w-full sm:w-auto">
+                <button pButton icon="pi pi-arrow-left" class="p-button-danger p-button-text p-button-rounded" (click)="cancelarEdicionInventario()"></button>
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h2 class="text-2xl font-bold text-maingoo-deep m-0">Inventario de</h2>
+                        <p-multiSelect 
+                            [options]="inventoryCategoryOptions" 
+                            [(ngModel)]="selectedInventoryCategory" 
+                            optionLabel="label" 
+                            optionValue="value" 
+                            styleClass="border-0 bg-transparent text-xl font-bold text-maingoo-sage hover:bg-gray-50 focus:ring-0 shadow-none p-0 inline-flex items-center min-w-[200px]"
+                            [showToggleAll]="true"
+                            [showHeader]="false"
+                            display="chip"
+                            [panelStyle]="{'min-width': '250px'}"
+                            placeholder="Todos los productos"
+                            emptyFilterMessage="No se encontraron categorías"></p-multiSelect>
+                        <span class="text-gray-500 text-sm ml-2">Fecha: {{ currentDate | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="flex flex-col sm:flex-row justify-center sm:justify-end w-full gap-3">
-
-                 
-                 <div class="flex gap-2">
-                    <button 
-                        pButton 
-                        [label]="selectedInventoryRecord ? 'Volver' : 'Cancelar'" 
-                        icon="pi pi-times" 
-                        class="p-button-outlined p-button-secondary" 
-                        (click)="cancelarEdicionInventario()"></button>
-                    <button 
-                        *ngIf="!selectedInventoryRecord"
-                        pButton 
-                        label="Guardar" 
-                        icon="pi pi-check" 
-                        class="p-button-success"
-                        (click)="guardarInventario()"></button>
-                 </div>
+            <div class="flex gap-3">
+                 <button 
+                    *ngIf="!selectedInventoryRecord"
+                    pButton 
+                    label="Guardar" 
+                    icon="pi pi-check" 
+                    class="p-button-success"
+                    (click)="guardarInventario()"></button>
             </div>
         </div>
 
