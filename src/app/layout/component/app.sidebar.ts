@@ -42,11 +42,11 @@ export class AppSidebar {
   currentYear = new Date().getFullYear();
 
   quickLinks = [
-    { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
+    { label: 'Métricas', icon: 'pi pi-chart-line', route: '/' },
     { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
-    { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
+    { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
     { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
-    { label: 'Recetas', icon: 'pi pi-tags', route: '/recetas' },
+    { label: 'Artículos', icon: 'pi pi-clipboard', route: '/articulos' },
     { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
   ];
 
