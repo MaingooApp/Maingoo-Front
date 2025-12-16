@@ -44,7 +44,7 @@ export class AppSidebar {
   quickLinks = [
     { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
     { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
-    { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
+    { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
     { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
     { label: 'Recetas', icon: 'pi pi-tags', route: '/recetas' },
     { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
@@ -53,7 +53,7 @@ export class AppSidebar {
   // Contextos por ruta
   private routeContexts: { [key: string]: RouteContext } = {
     '/': {
-      title: 'Accione',
+      title: 'Acciones rápidas',
       placeholder: '¿Qué necesitas saber hoy?',
       actions: [
         { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
