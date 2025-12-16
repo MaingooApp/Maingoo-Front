@@ -156,7 +156,7 @@ export class ProductosComponent implements OnInit {
   loadingStats = false;
 
   verDetalleProducto(producto: Product) {
-    this.showDialog(producto);
+    this.selectedProduct = producto;
   }
 
   private normalizeText(text: string): string {
