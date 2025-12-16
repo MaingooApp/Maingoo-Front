@@ -16,31 +16,49 @@
         class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-1 sm:grid-cols-[auto_1fr] items-center gap-4">
         <div class="flex items-center gap-4">
           <h2 class="text-2xl font-bold text-maingoo-deep m-0 flex items-center gap-2">
-            <i class="pi pi-tags" style="font-size: 1.5rem"></i>
             Mi almacén
           </h2>
+
+        
+        <div class="flex bg-gray-100 rounded-lg p-1 gap-1">
+            <button 
+                (click)="viewMode = 'cards'"
+                class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-6 h-6"
+                [ngClass]="viewMode === 'cards' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+                <i class="pi pi-th-large text-lg"></i>
+            </button>
+            <button 
+                (click)="viewMode = 'list'"
+                class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-6 h-6"
+                [ngClass]="viewMode === 'list' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+                <i class="pi pi-list text-lg"></i>
+            </button>
+        </div>
         </div>
 
         <div class="flex flex-col sm:flex-row justify-center sm:justify-end w-full gap-3">
+          <!-- View Toggle -->
+
+
           <button
             pButton
             label="Eliminar todo"
             icon="pi pi-trash"
-            class="p-button-danger p-button-outlined w-full sm:w-auto order-2 sm:order-1"
+            class="p-button-danger p-button-outlined w-full sm:w-auto order-2 sm:order-2"
             (click)="eliminarTodo()"
             [disabled]="productos.length === 0 || cargando"></button>
 
           <input
             type="text"
             pInputText
-            placeholder="Buscar por nombre, código, categoría..."
+            placeholder="Buscar..."
             (input)="filterProductos($event)"
-            class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-full max-w-full sm:max-w-[24rem] placeholder:text-gray-400 placeholder:text-base text-left order-1 sm:order-2" />
+            class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-full max-w-full sm:max-w-[20rem] placeholder:text-gray-400 placeholder:text-base text-left order-1 sm:order-3" />
         </div>
       </div>
 
       <!-- List View (similar to Suppliers) -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <p-table
           #dt
           [value]="productos"
@@ -116,6 +134,45 @@
             </tr>
           </ng-template>
         </p-table>
+      </div>
+      
+      <!-- Category Cards Grid -->
+      <div *ngIf="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
+        <div 
+            *ngFor="let category of uniqueCategories" 
+            class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-full">
+            
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-12 h-12 rounded-full bg-maingoo-mint/20 flex items-center justify-center text-maingoo-sage group-hover:bg-maingoo-sage group-hover:text-white transition-colors duration-300">
+                    <i class="pi pi-tags text-xl"></i>
+                </div>
+                <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md">
+                    {{ category.count }} prod.
+                </div>
+            </div>
+            
+            <h3 class="text-lg font-bold text-maingoo-deep mb-2 group-hover:text-maingoo-sage transition-colors line-clamp-2">
+                {{ category.name }}
+            </h3>
+            
+            <div class="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center text-xs text-gray-400">
+                <span>Categoría</span>
+                <span class="text-maingoo-sage font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                    Ver <i class="pi pi-arrow-right text-[10px]"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Empty State for Categories -->
+        <div *ngIf="uniqueCategories.length === 0" class="col-span-full">
+            <div class="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
+                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="pi pi-inbox text-3xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-700">No hay categorías</h3>
+                <p class="text-gray-500 mt-1">No se encontraron productos con categoría asignada.</p>
+            </div>
+        </div>
       </div>
     </ng-template>
   </div>
