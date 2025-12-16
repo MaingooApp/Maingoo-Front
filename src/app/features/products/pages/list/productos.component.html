@@ -145,23 +145,13 @@
             class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-full">
             
             <div class="flex items-start justify-between mb-4">
-                <div class="w-12 h-12 rounded-full bg-maingoo-mint/20 flex items-center justify-center text-maingoo-sage group-hover:bg-maingoo-sage group-hover:text-white transition-colors duration-300">
-                    <i class="pi pi-tags text-xl"></i>
-                </div>
-                <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md">
-                    {{ category.count }} prod.
-                </div>
+              <h3 class="text-lg font-bold text-maingoo-deep mb-2 group-hover:text-maingoo-sage transition-colors line-clamp-2">
+                  {{ category.name }}
+              </h3>
             </div>
             
-            <h3 class="text-lg font-bold text-maingoo-deep mb-2 group-hover:text-maingoo-sage transition-colors line-clamp-2">
-                {{ category.name }}
-            </h3>
-            
-            <div class="mt-auto pt-4 border-t border-gray-50 flex justify-between items-center text-xs text-gray-400">
-                <span>Categoría</span>
-                <span class="text-maingoo-sage font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                    Ver <i class="pi pi-arrow-right text-[10px]"></i>
-                </span>
+            <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
+                {{ category.count }} prod.
             </div>
         </div>
 
@@ -178,63 +168,55 @@
       </div>
     </div>
 
-    <!-- Responsive Detail Container (Now inside layout row) -->
-    <ng-container *ngIf="selectedProduct">
-        <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
-        <div
-        class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
-        <ng-container *ngTemplateOutlet="detailContent"></ng-container>
+    <!-- UNIFIED DESKTOP SIDEBAR CONTAINER -->
+    <div
+    *ngIf="selectedCategory || selectedProduct"
+    class="hidden md:block w-full md:w-1/2 shrink-0 sticky top-4 h-[calc(100vh-2rem)] relative">
+        
+        <!-- Category Layer (Z-10) -->
+        <div *ngIf="selectedCategory" class="absolute inset-0 z-10 w-full h-full rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 flex flex-col transition-all duration-300 animate-slide-in-right">
+            <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
         </div>
 
-        <!-- MOBILE: Bottom Sheet (Fixed, Overlay) -->
-        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
-
-        <!-- Sheet -->
-        <div
-            class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-            <!-- Drag Handle Area -->
-            <div
-            class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
-            (click)="hideDialog()">
-            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
-            </div>
-
-            <!-- Content Wrapper -->
-            <div class="flex-1 overflow-hidden relative flex flex-col">
+        <!-- Product Layer (Z-20) -->
+        <div *ngIf="selectedProduct" class="absolute inset-0 z-20 w-full h-full rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 flex flex-col transition-all duration-300 animate-slide-in-right">
             <ng-container *ngTemplateOutlet="detailContent"></ng-container>
-            </div>
         </div>
-        </div>
-    </ng-container>
+    </div>
 
-    <!-- CATEGORY SIDEBAR (Now inside layout row) -->
+
+    <!-- MOBILE: Bottom Sheets (Keep Separate) -->
+    
+    <!-- Category Mobile Sheet -->
     <ng-container *ngIf="selectedCategory">
-        <!-- DESKTOP: Side Panel -->
-        <div class="hidden md:flex w-full md:w-1/2 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl bg-white border border-gray-100 transition-all duration-300 animate-slide-in-right z-20 h-[calc(100vh-2rem)] flex-col">
-            <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
-        </div>
-
-        <!-- MOBILE: Bottom Sheet -->
-        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCategoryDetail()"></div>
-
-        <!-- Sheet -->
-        <div class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-            <!-- Drag Handle Area -->
-            <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing" (click)="closeCategoryDetail()">
-            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        <div class="md:hidden fixed inset-0 z-40 flex items-end justify-center">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCategoryDetail()"></div>
+            <div class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+                <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing" (click)="closeCategoryDetail()">
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                </div>
+                <div class="flex-1 overflow-hidden relative flex flex-col">
+                    <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
+                </div>
             </div>
-
-            <!-- Content Wrapper -->
-            <div class="flex-1 overflow-hidden relative flex flex-col">
-            <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
-            </div>
-        </div>
         </div>
     </ng-container>
+
+    <!-- Product Mobile Sheet -->
+    <ng-container *ngIf="selectedProduct">
+        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
+            <div class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+                <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing" (click)="hideDialog()">
+                    <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+                </div>
+                <div class="flex-1 overflow-hidden relative flex flex-col">
+                    <ng-container *ngTemplateOutlet="detailContent"></ng-container>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
       </div> <!-- End of Row Wrapper -->
 
     </ng-template>
