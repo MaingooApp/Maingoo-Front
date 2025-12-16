@@ -21,10 +21,19 @@ import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { DropdownModule } from 'primeng/dropdown';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 interface InventoryItem extends Product {
   idealStock: number | null;
   manualInventory: number | null;
+}
+
+interface InventoryRecord {
+  id: string;
+  date: Date;
+  itemsCount: number;
+  items: InventoryItem[];
+  categoryNames: string[];
 }
 
 @Component({
@@ -44,7 +53,9 @@ interface InventoryItem extends Product {
     ChartModule, 
     SkeletonModule,
     TooltipModule,
-    DropdownModule
+    TooltipModule,
+    DropdownModule,
+    MultiSelectModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './productos.component.html',
@@ -93,9 +104,11 @@ export class ProductosComponent implements OnInit {
   showMenu = false;
   
   // View State
-  viewMode: 'list' | 'cards' | 'inventory' = 'list';
+  viewMode: 'list' | 'cards' | 'inventory' | 'history' = 'list';
+  savedInventories: InventoryRecord[] = [];
   selectedCategory: string | null = null;
-  selectedInventoryCategory: string | null = null;
+  selectedInventoryCategory: string[] = [];
+  selectedInventoryRecord: InventoryRecord | null = null;
   currentDate = new Date();
 
   get uniqueCategories(): { name: string, count: number }[] {
@@ -114,15 +127,14 @@ export class ProductosComponent implements OnInit {
   }
   
   get inventoryCategoryOptions() {
-      const options = this.uniqueCategories.map(c => ({ label: c.name, value: c.name }));
-      return [{ label: 'Todos los productos', value: null }, ...options];
+      return this.uniqueCategories.map(c => ({ label: c.name, value: c.name }));
   }
 
   get filteredInventoryItems(): InventoryItem[] {
-      if (!this.selectedInventoryCategory) {
+      if (!this.selectedInventoryCategory || this.selectedInventoryCategory.length === 0) {
           return this.inventoryItems;
       }
-      return this.inventoryItems.filter(item => item.category?.name === this.selectedInventoryCategory);
+      return this.inventoryItems.filter(item => item.category?.name && this.selectedInventoryCategory.includes(item.category.name));
   }
 
   get categoryProducts(): Product[] {
@@ -130,7 +142,7 @@ export class ProductosComponent implements OnInit {
     return this.productos.filter(p => p.category?.name === this.selectedCategory);
   }
 
-  setViewMode(mode: 'list' | 'cards' | 'inventory') {
+  setViewMode(mode: 'list' | 'cards' | 'inventory' | 'history') {
     this.viewMode = mode;
     if (mode === 'list') {
         this.selectedCategory = null;
@@ -140,16 +152,69 @@ export class ProductosComponent implements OnInit {
   }
 
   elaborarInventario() {
+    this.selectedInventoryRecord = null;
+    this.currentDate = new Date();
     this.inventoryItems = this.productos.map(p => ({
         ...p,
         idealStock: null,
         manualInventory: null
     }));
+    this.selectedInventoryCategory = []; // Reset selection
     this.setViewMode('inventory');
   }
 
+  guardarInventario() {
+      const newRecord: InventoryRecord = {
+          id: crypto.randomUUID(),
+          date: new Date(),
+          itemsCount: this.inventoryItems.length,
+          items: [...this.inventoryItems], // Copy current state
+          categoryNames: this.selectedInventoryCategory
+      };
+      
+      this.savedInventories.unshift(newRecord); // Add to beginning
+      this.toastService.success('Inventario Guardado', 'Se ha generado correctamente la ficha de inventario.');
+      this.setViewMode('history');
+  }
+
   verHistorialInventarios() {
-      this.toastService.info('Próximamente', 'Esta funcionalidad estará disponible pronto.');
+      this.setViewMode('history');
+  }
+
+  verDetalleInventario(record: InventoryRecord) {
+      this.selectedInventoryRecord = record;
+      this.inventoryItems = [...record.items];
+      this.currentDate = record.date;
+      // Stay in 'history' view to show master-detail layout
+  }
+
+  cancelarEdicionInventario() {
+      if (this.selectedInventoryRecord) {
+          this.selectedInventoryRecord = null; // Just close sidebar
+      } else {
+          this.setViewMode('list');
+      }
+  }
+
+  cerrarDetalleInventario() {
+      this.selectedInventoryRecord = null;
+  }
+
+  eliminarInventario(record: InventoryRecord) {
+      this.confirmationService.confirm({
+          message: '¿Estás seguro de que quieres eliminar este histórico de inventario?',
+          header: 'Confirmar eliminación',
+          icon: 'pi pi-exclamation-triangle',
+          acceptLabel: 'Sí, eliminar',
+          rejectLabel: 'Cancelar',
+          acceptButtonStyleClass: 'p-button-danger',
+          rejectButtonStyleClass: 'p-button-secondary p-button-text',
+          accept: () => {
+              this.savedInventories = this.savedInventories.filter(r => r !== record);
+              this.selectedInventoryRecord = null;
+              this.toastService.success('Inventario eliminado', 'El registro ha sido eliminado correctamente.');
+          }
+      });
   }
 
   selectCategory(categoryName: string) {

@@ -182,6 +182,111 @@
         </div>
       </div>
 
+      <!-- History View (Mis Inventarios) -->
+      <div *ngIf="viewMode === 'history'" class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in fade-in h-full">
+        
+        <!-- Left Side: History List -->
+        <div class="flex flex-col h-full">
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 flex items-center gap-4">
+                <button pButton icon="pi pi-arrow-left" class="p-button-danger p-button-text p-button-rounded" (click)="setViewMode('list')"></button>
+                <div class="flex flex-col">
+                    <h2 class="text-2xl font-bold text-maingoo-deep m-0">Mis Inventarios</h2>
+                    <p class="text-gray-500 text-sm">Histórico de inventarios realizados</p>
+                </div>
+            </div>
+             
+             <div class="grid grid-cols-1 gap-3 overflow-y-auto max-h-[calc(100vh-12rem)] pr-2">
+            <!-- Empty State -->
+            <div *ngIf="savedInventories.length === 0" class="col-span-full">
+                <div class="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="pi pi-history text-3xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-700">No hay históricos</h3>
+                    <p class="text-gray-500 mt-1">Aún no has guardado ningún inventario.</p>
+                    <button pButton label="Crear uno ahora" class="p-button-text mt-4 text-maingoo-sage" (click)="elaborarInventario()"></button>
+                </div>
+            </div>
+
+            <!-- History Grid -->
+            <!-- Use conditional grid columns based on width -->
+            <div [class]="selectedInventoryRecord ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'">
+                <div *ngFor="let record of savedInventories" 
+                     class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-all cursor-pointer group"
+                     [ngClass]="{'ring-2 ring-maingoo-sage border-transparent': selectedInventoryRecord === record}"
+                     (click)="verDetalleInventario(record)">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center text-maingoo-sage group-hover:bg-maingoo-sage group-hover:text-white transition-colors">
+                            <i class="pi pi-file text-xl"></i>
+                        </div>
+                        <span class="text-xs text-gray-400 font-medium bg-gray-50 px-2 py-1 rounded">{{ record.date | date:'shortTime' }}</span>
+                    </div>
+                    
+                    <h3 class="font-bold text-maingoo-deep text-lg mb-1">{{ record.date | date:'dd MMM yyyy' }}</h3>
+                    <p class="text-sm text-gray-500 mb-4">{{ record.itemsCount }} productos registrados</p>
+                    
+                    <div class="flex gap-2 w-full">
+                         <button pButton label="Ver detalle" class="p-button-outlined p-button-sm w-full text-xs" [class.p-button-secondary]="selectedInventoryRecord !== record"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Right Side: Detail Sidebar -->
+        <div *ngIf="selectedInventoryRecord" class="w-full md:w-1/2 bg-white rounded-xl shadow-lg border border-gray-100 flex flex-col animate-slide-in-right sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+             <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center sticky top-0 bg-gray-50 z-10">
+                 <div>
+                    <h3 class="font-bold text-maingoo-deep text-lg">Inventario de {{ (selectedInventoryRecord.categoryNames && selectedInventoryRecord.categoryNames.length > 0) ? selectedInventoryRecord.categoryNames.join(', ') : 'General' }}</h3>
+                    <p class="text-sm text-gray-500">{{ currentDate | date:'dd/MM/yyyy HH:mm' }}</p>
+                 </div>
+                 <div class="flex gap-2">
+                    <button 
+                        pButton 
+                        icon="pi pi-trash" 
+                        class="p-button-rounded p-button-text p-button-danger" 
+                        (click)="eliminarInventario(selectedInventoryRecord!)"
+                        pTooltip="Eliminar inventario"
+                        tooltipPosition="bottom"></button>
+                    <button pButton icon="pi pi-times" class="p-button-rounded p-button-text p-button-secondary" (click)="cerrarDetalleInventario()"></button>
+                 </div>
+             </div>
+             
+             <div class="p-0">
+                <p-table
+                  [value]="inventoryItems"
+                  [rowHover]="true"
+                  styleClass="p-datatable-sm"
+                  [paginator]="true"
+                  [rows]="10"
+                  [globalFilterFields]="['name']">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th class="text-maingoo-deep font-bold text-xs">Producto</th>
+                      <th class="text-maingoo-deep font-bold text-xs w-24 bg-maingoo-mint/10">Inventario</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td class="text-sm">
+                        <div class="flex flex-col">
+                          <span class="font-bold text-maingoo-deep">{{ item.name }}</span>
+                          <div *ngIf="item.category?.name" class="mt-0.5">
+                            <p-tag [value]="item.category.name" [style]="getCategoryStyle(item.category.name)" [rounded]="true" styleClass="text-[10px] font-normal border-0"></p-tag>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-sm text-right bg-maingoo-mint/5">
+                        <span class="font-bold text-maingoo-deep px-2">{{ item.manualInventory !== null ? item.manualInventory : '-' }}</span>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+             </div>
+        </div>
+
+      </div>
+
       <!-- Inventory View -->
       <div *ngIf="viewMode === 'inventory'" class="animate-fade-in text-left">
         <!-- Inventory Header Card -->
@@ -189,14 +294,19 @@
             <div class="flex items-center gap-4">
                 <h2 class="text-2xl font-bold text-maingoo-deep m-0 flex items-center gap-2">
                     Inventario de 
-                    <p-dropdown 
+                    <p-multiSelect 
                         [options]="inventoryCategoryOptions" 
                         [(ngModel)]="selectedInventoryCategory" 
                         optionLabel="label" 
                         optionValue="value" 
                         class="ml-2"
-                        styleClass="border-0 bg-transparent text-xl font-bold text-maingoo-sage hover:bg-gray-50 focus:ring-0 shadow-none p-0 inline-flex items-center"
-                        [panelStyle]="{'min-width': '200px'}"></p-dropdown>
+                        styleClass="border-0 bg-transparent text-xl font-bold text-maingoo-sage hover:bg-gray-50 focus:ring-0 shadow-none p-0 inline-flex items-center min-w-[200px]"
+                        [showToggleAll]="true"
+                        [showHeader]="false"
+                        display="chip"
+                        [panelStyle]="{'min-width': '250px'}"
+                        placeholder="Todos los productos"
+                        emptyFilterMessage="No se encontraron categorías"></p-multiSelect>
                     <span class="text-base font-normal text-gray-500 ml-4">Fecha: {{ currentDate | date:'dd/MM/yyyy' }}</span>
                 </h2>
             </div>
@@ -207,15 +317,17 @@
                  <div class="flex gap-2">
                     <button 
                         pButton 
-                        label="Cancelar" 
+                        [label]="selectedInventoryRecord ? 'Volver' : 'Cancelar'" 
                         icon="pi pi-times" 
                         class="p-button-outlined p-button-secondary" 
-                        (click)="setViewMode('list')"></button>
+                        (click)="cancelarEdicionInventario()"></button>
                     <button 
+                        *ngIf="!selectedInventoryRecord"
                         pButton 
                         label="Guardar" 
                         icon="pi pi-check" 
-                        class="p-button-success"></button>
+                        class="p-button-success"
+                        (click)="guardarInventario()"></button>
                  </div>
             </div>
         </div>
@@ -256,20 +368,30 @@
                 <span class="text-gray-600 font-medium">{{ item.stock | number: '1.2-2' }} {{ item.unit }}</span>
               </td>
               <td>
-                <input 
-                    type="number" 
-                    pInputText 
-                    [(ngModel)]="item.idealStock" 
-                    class="w-full text-right p-inputtext-sm" 
-                    placeholder="0">
+                <ng-container *ngIf="!selectedInventoryRecord; else readOnlyIdeal">
+                    <input 
+                        type="number" 
+                        pInputText 
+                        [(ngModel)]="item.idealStock" 
+                        class="w-full text-right p-inputtext-sm" 
+                        placeholder="0">
+                </ng-container>
+                <ng-template #readOnlyIdeal>
+                    <div class="text-right w-full px-3 py-2 text-gray-700">{{ item.idealStock !== null ? item.idealStock : '-' }}</div>
+                </ng-template>
               </td>
               <td class="bg-maingoo-mint/5">
-                 <input 
-                    type="number" 
-                    pInputText 
-                    [(ngModel)]="item.manualInventory" 
-                    class="w-full text-right p-inputtext-sm font-bold text-maingoo-deep" 
-                    placeholder="0">
+                 <ng-container *ngIf="!selectedInventoryRecord; else readOnlyReal">
+                     <input 
+                        type="number" 
+                        pInputText 
+                        [(ngModel)]="item.manualInventory" 
+                        class="w-full text-right p-inputtext-sm font-bold text-maingoo-deep" 
+                        placeholder="0">
+                 </ng-container>
+                 <ng-template #readOnlyReal>
+                    <div class="text-right w-full px-3 py-2 font-bold text-maingoo-deep">{{ item.manualInventory !== null ? item.manualInventory : '-' }}</div>
+                 </ng-template>
               </td>
             </tr>
           </ng-template>
