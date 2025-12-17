@@ -59,7 +59,7 @@ interface InventoryRecord {
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './productos.component.html',
-  styleUrl: './productos.component.scss',
+
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
