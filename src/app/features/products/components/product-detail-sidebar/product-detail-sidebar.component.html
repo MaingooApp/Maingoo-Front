@@ -1,0 +1,155 @@
+<div class="px-6 pb-24 md:pb-8 relative pt-6 flex-1 overflow-y-auto" (click)="showMenu = false">
+  <!-- Actions Row -->
+  <div class="flex justify-end gap-2 mb-4">
+    <!-- Hamburger Menu -->
+    <div class="relative">
+      <button
+        class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-maingoo-deep w-10 h-10 items-center justify-center flex transition-all duration-200"
+        (click)="toggleMenu($event)">
+        <i class="pi pi-ellipsis-v"></i>
+      </button>
+
+      <!-- Dropdown Menu -->
+      <div
+        *ngIf="showMenu"
+        class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100 overflow-hidden animate-fade-in origin-top-right">
+        <button
+          (click)="onDelete()"
+          class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+          <i class="pi pi-trash"></i>
+          Eliminar
+        </button>
+      </div>
+    </div>
+
+    <!-- Close Button -->
+    <button
+      class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
+      (click)="close.emit()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Title and Image -->
+  <div class="mb-6 flex justify-between items-start gap-6">
+    <div class="flex-1 pt-2 flex flex-col gap-2">
+      <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
+        {{ product?.name }}
+      </h1>
+      <!-- Category -->
+      <div *ngIf="product?.category?.name" class="flex flex-col gap-1.5">
+        <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
+        <div>
+            <p-tag 
+            [value]="product!.category.name" 
+            [style]="getCategoryStyle(product!.category.name)" 
+            [rounded]="true" 
+            styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
+        </div>
+      </div>
+      
+      <!-- Allergens Tags -->
+       <div class="flex flex-col gap-1.5 mt-3" *ngIf="product?.allergens && product!.allergens.length > 0">
+         <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Alérgenos</span>
+         <div class="flex flex-wrap gap-2">
+             <p-tag 
+            *ngFor="let alergeno of product?.allergens" 
+            [value]="alergeno.name" 
+            severity="warn" 
+            [rounded]="true"
+            icon="pi pi-exclamation-triangle"
+            [pTooltip]="alergeno.description"
+            tooltipPosition="top"
+            styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800"></p-tag>
+         </div>
+       </div>
+    </div>
+    
+    <!-- Image Placeholder -->
+    <div class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+      <i class="pi pi-image text-gray-300 text-5xl"></i>
+    </div>
+  </div>
+
+  <!-- Information Sections -->
+  <div class="flex flex-col gap-6">
+    <!-- Main Info -->
+    <div class="space-y-3">
+      <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+        <i class="pi pi-info-circle text-maingoo-sage"></i>
+        Detalles del producto
+      </h3>
+      <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 text-sm text-gray-700">
+        <p><strong class="text-maingoo-deep">Descripción:</strong> {{ product?.description || 'Sin descripción' }}</p>
+        <p><strong class="text-maingoo-deep">Unidad de medida:</strong> {{ product?.unit }}</p>
+        <p><strong class="text-maingoo-deep">Stock:</strong> {{ product?.stock }}</p>
+      </div>
+    </div>
+
+    <!-- Audit -->
+    <div class="space-y-3">
+      <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+        <i class="pi pi-clock text-maingoo-sage"></i>
+        Auditoría
+      </h3>
+      <div class="flex gap-4 text-xs text-gray-500">
+        <div>
+          <p class="font-medium text-maingoo-deep">Añadido el</p>
+          <p>{{ product?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+        <div>
+          <p class="font-medium text-maingoo-deep">Actualizado el</p>
+          <p>{{ product?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Evolution Chart -->
+    <div *ngIf="priceChartData && !loadingInvoices" class="space-y-3 pt-4 border-t border-gray-100">
+       <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+        <i class="pi pi-chart-line text-maingoo-sage"></i>
+        Evolución de precio
+      </h3>
+      <div class="h-48 w-full bg-gray-50/50 rounded-xl p-2 border border-dashed border-gray-100">
+        <p-chart type="line" [data]="priceChartData" [options]="priceChartOptions" height="100%" width="100%"></p-chart>
+      </div>
+    </div>
+
+    <!-- Related Invoices -->
+    <div class="space-y-3 pt-4 border-t border-gray-100">
+      <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+        <i class="pi pi-file text-maingoo-sage"></i>
+        Facturas asociadas ({{ relatedInvoices.length }})
+      </h3>
+      
+      <div *ngIf="loadingInvoices" class="flex justify-center py-8">
+        <i class="pi pi-spin pi-spinner text-maingoo-sage text-2xl"></i>
+      </div>
+
+      <div *ngIf="!loadingInvoices">
+        <div *ngIf="relatedInvoices.length > 0; else noInvoices" class="space-y-2">
+          <div 
+            *ngFor="let invoice of relatedInvoices" 
+            class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
+            (click)="verFactura.emit(invoice)">
+            <div class="flex flex-col">
+              <span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier?.name || 'Proveedor desconocido' }}</span>
+              <span class="text-xs text-gray-500">{{ invoice.date | date:'dd MMM yyyy' }} • {{ invoice.invoiceNumber }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-bold text-maingoo-deep text-sm">{{ invoice.amount | currency:'EUR' }}</span>
+              <i class="pi pi-chevron-right text-gray-300 group-hover:text-maingoo-sage"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noInvoices>
+        <div class="p-4 rounded-xl bg-gray-50 text-gray-500 text-sm text-center italic border border-dashed border-gray-200">
+          No se han encontrado facturas para este producto.
+        </div>
+      </ng-template>
+    </div>
+
+  </div>
+</div>

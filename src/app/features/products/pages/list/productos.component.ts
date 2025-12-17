@@ -22,13 +22,15 @@ import { ToastModule } from 'primeng/toast';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
+import { InventoryHistoryComponent } from '../../components/inventory-history/inventory-history.component';
 
-interface InventoryItem extends Product {
+export interface InventoryItem extends Product {
   idealStock: number | null;
   manualInventory: number | null;
 }
 
-interface InventoryRecord {
+export interface InventoryRecord {
   id: string;
   date: Date;
   itemsCount: number;
@@ -55,7 +57,9 @@ interface InventoryRecord {
     TooltipModule,
     TooltipModule,
     DropdownModule,
-    MultiSelectModule
+    MultiSelectModule,
+    ProductDetailSidebarComponent,
+    InventoryHistoryComponent
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './productos.component.html',
@@ -441,6 +445,7 @@ export class ProductosComponent implements OnInit {
             forkJoin(detailObservables).subscribe({
                 next: (detailedInvoices) => {
                     this.loadingInvoices = false;
+                    this.invoices = detailedInvoices; // Cache for next time
                     this.filterInvoices(detailedInvoices, product);
                 },
                 error: (err) => {
@@ -472,16 +477,28 @@ export class ProductosComponent implements OnInit {
             if (!line.description) return false;
             const lineDesc = this.normalizeText(line.description);
             
-            // Inclusion
+            // Inclusion (Product search term inside Invoice Line)
             if (lineDesc.includes(normalizedProductName)) return true;
+
+            // Reverse Inclusion (Invoice Line inside Product search term - e.g. "Tomate" inside "Tomate Frito")
+            // Use length check to avoid matching "Sal" inside "Salsas" or similar short noise
+            if (lineDesc.length > 3 && normalizedProductName.includes(lineDesc)) return true;
 
             // Fuzzy Word Match
             // Explicit type annotation to fix TS implicit any error
             const productWords = normalizedProductName.split(' ').filter((w: string) => w.length > 2);
             if (productWords.length === 0) return lineDesc.includes(normalizedProductName);
             
-            // Explicit type annotation to fix TS implicit any error
-            return productWords.every((word: string) => lineDesc.includes(word));
+            // Allow match if ALL words match (existing logic)
+            if (productWords.every((word: string) => lineDesc.includes(word))) return true;
+
+            // Relaxed match: If 3 or more words, allow 1 missing
+            if (productWords.length >= 3) {
+                 const matches = productWords.filter((word: string) => lineDesc.includes(word)).length;
+                 if (matches >= productWords.length - 1) return true;
+            }
+
+            return false;
         });
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
