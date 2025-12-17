@@ -12,6 +12,7 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   stock: number;
+  idealStock?: number | null;
 }
 
 export interface ProductCategory {
