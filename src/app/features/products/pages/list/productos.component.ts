@@ -164,11 +164,14 @@ export class ProductosComponent implements OnInit {
   }
 
   guardarInventario() {
+      // Use the filtered items logic to ensure we only save what is selected
+      const itemsToSave = this.filteredInventoryItems;
+      
       const newRecord: InventoryRecord = {
           id: crypto.randomUUID(),
           date: new Date(),
-          itemsCount: this.inventoryItems.length,
-          items: [...this.inventoryItems], // Copy current state
+          itemsCount: itemsToSave.length,
+          items: [...itemsToSave], // Copy filtered state
           categoryNames: this.selectedInventoryCategory
       };
       
@@ -215,6 +218,14 @@ export class ProductosComponent implements OnInit {
               this.toastService.success('Inventario eliminado', 'El registro ha sido eliminado correctamente.');
           }
       });
+  }
+
+  getFormattedCategoryNames(names: string[] | undefined | null): string {
+      if (!names || names.length === 0) return 'todos los productos';
+      if (names.length === 1) return names[0];
+      const last = names[names.length - 1];
+      const others = names.slice(0, -1).join(', ');
+      return `${others} y ${last}`;
   }
 
   selectCategory(categoryName: string) {
