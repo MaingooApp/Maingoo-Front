@@ -165,6 +165,7 @@ export class ProductosComponent implements OnInit {
     }));
     this.selectedInventoryCategory = []; // Reset selection
     this.setViewMode('inventory');
+    this.hideDialog();
   }
 
   guardarInventario() {
@@ -314,7 +315,7 @@ export class ProductosComponent implements OnInit {
   loadingStats = false;
 
   verDetalleProducto(producto: Product) {
-    this.selectedProduct = producto;
+    this.showDialog(producto);
   }
 
   private normalizeText(text: string): string {
