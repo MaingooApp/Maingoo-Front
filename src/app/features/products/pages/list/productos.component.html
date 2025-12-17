@@ -90,6 +90,7 @@
             <tr>
               <th class="text-maingoo-deep font-bold text-sm">Producto</th>
               <th class="text-maingoo-deep font-bold text-sm">Stock</th>
+              <th class="text-maingoo-deep font-bold text-sm">Stock Ideal</th>
               <th class="text-maingoo-deep font-bold text-sm">Proveedor</th>
               <th class="text-maingoo-deep font-bold text-sm">Precio</th>
               <th class="w-20"></th>
@@ -115,6 +116,9 @@
               <td>
                 <span class="text-gray-600 text-sm font-medium">{{ item.stock | number: '1.2-2' }}</span>
                 <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
+              </td>
+              <td>
+                <span class="text-gray-600 text-sm font-medium">{{ item.idealStock ? (item.idealStock | number: '1.0-2') : '-' }}</span>
               </td>
               <td>
                 <ng-container *ngIf="loadingStats; else supplierData">
@@ -248,7 +252,7 @@
             <tr>
               <th class="text-maingoo-deep font-bold text-sm">Producto</th>
               <th class="text-maingoo-deep font-bold text-sm w-32">Stock App</th>
-              <th class="text-maingoo-deep font-bold text-sm w-40">Stock Ideal</th>
+
               <th class="text-maingoo-deep font-bold text-sm w-40 bg-maingoo-mint/10">Inventario Real</th>
             </tr>
           </ng-template>
@@ -269,19 +273,7 @@
               <td>
                 <span class="text-gray-600 font-medium">{{ item.stock | number: '1.2-2' }} {{ item.unit }}</span>
               </td>
-              <td>
-                <ng-container *ngIf="!selectedInventoryRecord; else readOnlyIdeal">
-                    <input 
-                        type="number" 
-                        pInputText 
-                        [(ngModel)]="item.idealStock" 
-                        class="w-full text-right p-inputtext-sm" 
-                        placeholder="0">
-                </ng-container>
-                <ng-template #readOnlyIdeal>
-                    <div class="text-right w-full px-3 py-2 text-gray-700">{{ item.idealStock !== null ? item.idealStock : '-' }}</div>
-                </ng-template>
-              </td>
+
               <td class="bg-maingoo-mint/5">
                  <ng-container *ngIf="!selectedInventoryRecord; else readOnlyReal">
                      <input 
