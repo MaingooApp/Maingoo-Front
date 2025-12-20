@@ -31,6 +31,22 @@ export class ProductDetailSidebarComponent {
 
   showMenu: boolean = false;
 
+  setStorageType(type: 'seco' | 'fresco' | 'congelado') {
+      if (this.product) {
+          this.product.storageType = type;
+          // In a real app, you would emit an update event here or call a service
+          // this.update.emit(this.product);
+      }
+  }
+
+  setProductType(type: 'simple' | 'elaborado') {
+      if (this.product) {
+          this.product.productType = type;
+          // In a real app, you would emit an update event here or call a service
+          // this.update.emit(this.product);
+      }
+  }
+
   toggleMenu(event: Event) {
     event.stopPropagation();
     this.showMenu = !this.showMenu;
