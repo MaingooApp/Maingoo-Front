@@ -1,29 +1,26 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputTextModule } from 'primeng/inputtext';
-import { Table, TableModule } from 'primeng/table';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../auth/services/auth-service.service';
-import { Product, Invoice } from '@app/core/interfaces/Invoice.interfaces';
-import { InvoiceService } from '../../../invoices/services/invoice.service';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { TooltipModule } from 'primeng/tooltip';
+import { Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { forkJoin } from 'rxjs';
-import { TagModule } from 'primeng/tag';
-import { SkeletonModule } from 'primeng/skeleton';
 import { ChartModule } from 'primeng/chart';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { animate, style, transition, trigger } from '@angular/animations';
 import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
+import { SkeletonModule } from 'primeng/skeleton';
+import { Table, TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
+import { forkJoin } from 'rxjs';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { InventoryHistoryComponent } from '../../components/inventory-history/inventory-history.component';
+import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
+import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
 
 export interface InventoryItem extends Product {
   idealStock: number | null;
@@ -61,42 +58,15 @@ export interface InventoryRecord {
     ProductDetailSidebarComponent,
     InventoryHistoryComponent
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [],
   templateUrl: './productos.component.html',
 
-  animations: [
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('300ms ease-out', style({ opacity: 1 }))
-      ])
-    ]),
-    trigger('slideInRight', [
-      transition(':enter', [
-        style({ transform: 'translateX(100%)', opacity: 0 }),
-        animate('400ms cubic-bezier(0.16, 1, 0.3, 1)', style({ transform: 'translateX(0)', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-in', style({ transform: 'translateX(100%)', opacity: 0 }))
-      ])
-    ]),
-    trigger('slideUp', [
-      transition(':enter', [
-        style({ transform: 'translateY(100%)' }),
-        animate('400ms cubic-bezier(0.16, 1, 0.3, 1)', style({ transform: 'translateY(0)' }))
-      ]),
-      transition(':leave', [
-        animate('300ms ease-in', style({ transform: 'translateY(100%)' }))
-      ])
-    ])
-  ]
 })
 export class ProductosComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
-  private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
-  private confirmationService = inject(ConfirmationService);
+  private confirmationService = inject(ConfirmDialogService);
   
   @ViewChild('dt') dt!: Table;
 
@@ -217,7 +187,7 @@ export class ProductosComponent implements OnInit {
           rejectLabel: 'Cancelar',
           acceptButtonStyleClass: 'p-button-danger',
           rejectButtonStyleClass: 'p-button-secondary p-button-text',
-          accept: () => {
+          onAccept: () => {
               this.savedInventories = this.savedInventories.filter(r => r !== record);
               this.selectedInventoryRecord = null;
               this.toastService.success('Inventario eliminado', 'El registro ha sido eliminado correctamente.');
@@ -281,7 +251,7 @@ export class ProductosComponent implements OnInit {
       rejectLabel: 'Cancelar',
       acceptButtonStyleClass: 'p-button-danger',
       rejectButtonStyleClass: 'p-button-secondary p-button-text',
-      accept: () => {
+      onAccept: () => {
         if (this.productos.length === 0) return;
         
         this.cargando = true;
