@@ -221,9 +221,9 @@ export class SupplierComponent {
 
     // Fetch invoices for this supplier
     if (supplier.id) {
-       this.invoiceService.getInvoices().subscribe({
+       this.invoiceService.getInvoices({supplierId: supplier.id}).subscribe({
           next: (invoices: Invoice[]) => {
-            this.supplierInvoices = invoices.filter((inv: Invoice) => inv.supplierId === supplier.id);
+            this.supplierInvoices = invoices;
             this.updateChartData(this.supplierInvoices);
           },
           error: (err: any) => console.error('Error cargando facturas', err)
