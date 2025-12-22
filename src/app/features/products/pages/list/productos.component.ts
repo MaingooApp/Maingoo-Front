@@ -282,7 +282,6 @@ export class ProductosComponent implements OnInit {
   
   // Cache for product statistics (Price & Supplier)
   productStats: Map<string, { lastPrice: number, supplierName: string, date: Date }> = new Map();
-  loadingStats = false;
 
   private normalizeText(text: string): string {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
