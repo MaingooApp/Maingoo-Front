@@ -90,7 +90,8 @@ export class ProductDetailSidebarComponent {
       'ES': 'Estuche',
       'MA': 'Malla',
       'AE': 'Aerosol',
-      'KG': 'Kilogramo'
+      'KG': 'Kilogramo',
+      'BD': 'Bidón'
     };
     return formats[code.toUpperCase()] || code;
   }
