@@ -67,6 +67,9 @@ export class ProductosComponent implements OnInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
+
+  priceChartData: any;
+  priceChartOptions: any;
   
   @ViewChild('dt') dt!: Table;
 
@@ -220,7 +223,6 @@ export class ProductosComponent implements OnInit {
         this.productos = productos;
         this.cargando = false;
         console.log('Productos cargados:', this.productos);
-        this.loadInvoiceData(); // Load stats after products
       },
       error: (error: any) => {
         console.error('Error al cargar productos:', error);
@@ -277,110 +279,13 @@ export class ProductosComponent implements OnInit {
 
   // New Implementation for Invoice Logic
   invoices: Invoice[] = [];
-  relatedInvoices: Invoice[] = [];
-  loadingInvoices = false;
   
   // Cache for product statistics (Price & Supplier)
   productStats: Map<string, { lastPrice: number, supplierName: string, date: Date }> = new Map();
   loadingStats = false;
 
-  verDetalleProducto(producto: Product) {
-    this.showDialog(producto);
-  }
-
   private normalizeText(text: string): string {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  }
-  
-  private loadInvoiceData() {
-    this.loadingStats = true;
-    this.invoiceService.getInvoices().subscribe({
-        next: (summaryInvoices) => {
-            if (summaryInvoices.length === 0) {
-                this.loadingStats = false;
-                return;
-            }
-
-            const detailObservables = summaryInvoices.map(inv => this.invoiceService.getInvoiceById(inv.id));
-            
-            forkJoin(detailObservables).subscribe({
-                next: (detailedInvoices) => {
-                    this.invoices = detailedInvoices; // Store for valid related invoices usage later
-                    this.processProductStats(detailedInvoices);
-                    this.loadingStats = false;
-                },
-                error: (err) => {
-                    console.error('Error loading invoice stats:', err);
-                    this.loadingStats = false;
-                }
-            });
-        },
-        error: (err) => {
-             console.error('Error fetching invoices list for stats:', err);
-             this.loadingStats = false;
-        }
-    });
-  }
-
-  private processProductStats(invoices: Invoice[]) {
-    // Sort invoices by date descending (newest first)
-    const sortedInvoices = [...invoices].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    sortedInvoices.forEach(invoice => {
-        if (!invoice.invoiceLines) return;
-
-        invoice.invoiceLines.forEach(line => {
-            // We need to match this line to a product in our list
-            // 1. Try ID Match
-            let productId = line.suppliersProductId; // This might be the Product ID or EAN or arbitrary string
-            
-            // We need to find the REAL product ID in our this.productos list that matches this line
-            // This is the reverse of filterInvoices logic.
-            // Since we have this.productos loaded, we can look it up.
-            
-            // Optimization: Create a lookup map for products if this is slow, but for now loop is fine for N < 1000
-            const product = this.findProductForLine(line, this.productos);
-            
-             if (product) {
-                // If we haven't found a newer entry for this product, store it.
-                // Since we traverse newest invoices first, the first time we see a product, it's the latest.
-                if (!this.productStats.has(product.id)) {
-                    // Use unitPrice if available, fall back to price (total) / quantity or just price
-                    let finalPrice = 0;
-                    if (line.unitPrice) {
-                         finalPrice = typeof line.unitPrice === 'number' ? line.unitPrice : parseFloat(String(line.unitPrice).replace(',','.') || '0');
-                    } else if (line.price) {
-                         finalPrice = typeof line.price === 'number' ? line.price : parseFloat(String(line.price).replace(',','.') || '0');
-                    }
-
-                    this.productStats.set(product.id, {
-                        lastPrice: finalPrice,
-                        supplierName: invoice.supplier?.name || 'Desconocido',
-                        date: new Date(invoice.date)
-                    });
-                }
-            }
-        });
-    });
-  }
-
-  private findProductForLine(line: any, products: Product[]): Product | undefined {
-      // 1. Direct ID match
-      const pById = products.find(p => p.id === line.suppliersProductId);
-      if (pById) return pById;
-      
-      // 2. EAN match (if suppliersProductId holds EAN)
-      const pByEan = products.find(p => p.eanCode && p.eanCode === line.suppliersProductId);
-      if (pByEan) return pByEan;
-      
-      // 3. Name match
-      if (!line.description) return undefined;
-      const lineDesc = this.normalizeText(line.description);
-      
-      return products.find(p => {
-          const pName = this.normalizeText(p.name);
-          return lineDesc.includes(pName); // Simplified for performance here
-      });
   }
 
   showDialog(product: Product) {
@@ -388,98 +293,19 @@ export class ProductosComponent implements OnInit {
        this.hideDialog();
     } else {
        this.selectedProduct = product;
-       // We can reuse the already loaded invoices if available, or filter again
-       if (this.invoices.length > 0) {
-           this.filterInvoices(this.invoices, product);
-       } else {
-           this.findRelatedInvoices(product); // Fallback if stats haven't loaded
-       }
+       this.invoiceService.getInvoices({productId: product.id}).subscribe({
+        next: (invoices: Invoice[]) => {
+            this.invoices = invoices;
+            console.log('Facturas cargadas:', this.invoices);
+            this.updatePriceChart(invoices, product);
+        },
+        error: (error: any) => {
+            console.error('Error al cargar facturas:', error);
+            this.toastService.error('Error', 'No se pudieron cargar las facturas.');
+        }
+       })
     }
   }
-
-  private findRelatedInvoices(product: Product) {
-    this.relatedInvoices = [];
-    this.loadingInvoices = true;
-    
-    // 1. Get List of Invoices (Summary)
-    this.invoiceService.getInvoices().subscribe({
-        next: (summaryInvoices) => {
-            if (summaryInvoices.length === 0) {
-                this.loadingInvoices = false;
-                return;
-            }
-
-            // 2. Fetch Details for ALL invoices to get the lines
-            // Optimization: In a real large-scale app, this should be paginated or done via a dedicated backend endpoint search.
-            const detailObservables = summaryInvoices.map(inv => this.invoiceService.getInvoiceById(inv.id));
-            
-            forkJoin(detailObservables).subscribe({
-                next: (detailedInvoices) => {
-                    this.loadingInvoices = false;
-                    this.invoices = detailedInvoices; // Cache for next time
-                    this.filterInvoices(detailedInvoices, product);
-                },
-                error: (err) => {
-                    console.error('Error fetching invoice details:', err);
-                    this.loadingInvoices = false;
-                    this.toastService.error('Error', 'No se pudieron cargar los detalles de las facturas.');
-                }
-            });
-        },
-        error: (err) => {
-            console.error('Error fetching invoices list:', err);
-            this.loadingInvoices = false;
-        }
-    });
-  }
-
-  private filterInvoices(invoices: Invoice[], product: Product) {
-    const normalizedProductName = this.normalizeText(product.name);
-
-    this.relatedInvoices = invoices.filter(invoice => {
-        if (!invoice.invoiceLines || !Array.isArray(invoice.invoiceLines)) return false;
-
-        return invoice.invoiceLines.some(line => {
-            // 1. Strong Match: ID or EAN
-            if (line.suppliersProductId === product.id) return true;
-            if (product.eanCode && line.suppliersProductId === product.eanCode) return true;
-
-            // 2. Text Match
-            if (!line.description) return false;
-            const lineDesc = this.normalizeText(line.description);
-            
-            // Inclusion (Product search term inside Invoice Line)
-            if (lineDesc.includes(normalizedProductName)) return true;
-
-            // Reverse Inclusion (Invoice Line inside Product search term - e.g. "Tomate" inside "Tomate Frito")
-            // Use length check to avoid matching "Sal" inside "Salsas" or similar short noise
-            if (lineDesc.length > 3 && normalizedProductName.includes(lineDesc)) return true;
-
-            // Fuzzy Word Match
-            // Explicit type annotation to fix TS implicit any error
-            const productWords = normalizedProductName.split(' ').filter((w: string) => w.length > 2);
-            if (productWords.length === 0) return lineDesc.includes(normalizedProductName);
-            
-            // Allow match if ALL words match (existing logic)
-            if (productWords.every((word: string) => lineDesc.includes(word))) return true;
-
-            // Relaxed match: If 3 or more words, allow 1 missing
-            if (productWords.length >= 3) {
-                 const matches = productWords.filter((word: string) => lineDesc.includes(word)).length;
-                 if (matches >= productWords.length - 1) return true;
-            }
-
-            return false;
-        });
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    
-    // Update chart after filtering
-    this.updatePriceChart(this.relatedInvoices, product);
-  }
-
-  // Chart Data
-  priceChartData: any;
-  priceChartOptions: any;
 
   private updatePriceChart(invoices: Invoice[], product: Product) {
     if (!invoices.length) {
@@ -487,44 +313,11 @@ export class ProductosComponent implements OnInit {
         return;
     }
 
-    // Sort ascending for the chart (Time ->)
-    const sortedForChart = [...invoices].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const normalizedProductName = this.normalizeText(product.name);
-
     const labels: string[] = [];
     const prices: number[] = [];
 
-    sortedForChart.forEach(inv => {
-        if (!inv.invoiceLines) return;
-        
-        // Find the specific line for this product to get the price
-        const line = inv.invoiceLines.find(l => {
-             // Reuse matching logic (simplified)
-             if (l.suppliersProductId === product.id) return true;
-             if (product.eanCode && l.suppliersProductId === product.eanCode) return true;
-             if (!l.description) return false;
-             
-             const lineDesc = this.normalizeText(l.description);
-             if (lineDesc.includes(normalizedProductName)) return true;
-             
-             const productWords = normalizedProductName.split(' ').filter((w: string) => w.length > 2);
-             if (productWords.length === 0) return false;
-             return productWords.every((word: string) => lineDesc.includes(word));
-        });
-
-        if (line) {
-             labels.push(new Date(inv.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }));
-             // Ensure price is a number and use unitPrice if available
-             let priceVal = 0;
-             if (line.unitPrice) {
-                 priceVal = typeof line.unitPrice === 'number' ? line.unitPrice : parseFloat(String(line.unitPrice).replace(',','.') || '0');
-             } else if (line.price) {
-                 priceVal = typeof line.price === 'number' ? line.price : parseFloat(String(line.price).replace(',','.') || '0');
-             }
-             
-             prices.push(priceVal);
-        }
-    });
+    console.log('labels', labels);
+    console.log('prices', prices);
 
     this.priceChartData = {
         labels: labels,

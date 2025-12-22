@@ -36,89 +36,77 @@
       <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
         {{ product?.name }}
       </h1>
-      <!-- Category -->
-      <div *ngIf="product?.category?.name" class="flex flex-col gap-1.5">
-        <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
-        <div>
-            <p-tag 
-            [value]="product!.category.name" 
-            [style]="getCategoryStyle(product!.category.name)" 
-            [rounded]="true" 
-            styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
-        </div>
-      </div>
+      <div class="grid grid-cols-2 gap-4 mt-2">
+          <!-- Category -->
+          <div *ngIf="product?.category?.name" class="flex flex-col gap-1.5">
+            <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
+            <div>
+                <p-tag 
+                [value]="product!.category.name" 
+                [style]="getCategoryStyle(product!.category.name)" 
+                [rounded]="true" 
+                styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
+            </div>
+          </div>
 
-      <!-- Format -->
-      <div *ngIf="product?.unit" class="flex flex-col gap-1.5 mt-3">
-        <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Formato</span>
-        <div>
-            <p-tag 
-            [value]="product!.unit" 
-            severity="info"
-            [rounded]="true" 
-            styleClass="text-sm font-normal border-0 px-3 py-1 bg-gray-100 text-gray-700"></p-tag>
-        </div>
-      </div>
+          <!-- Format -->
+          <div *ngIf="product?.unit" class="flex flex-col gap-1.5">
+            <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Formato</span>
+            <div>
+                <p-tag 
+                [value]="getFormatName(product!.unit)" 
+                severity="secondary"
+                [rounded]="true" 
+                styleClass="text-sm font-normal border-0 px-3 py-1 bg-gray-100 text-gray-700"></p-tag>
+            </div>
+          </div>
 
-      <!-- Storage (Almacenaje) -->
-      <div class="flex flex-col gap-1.5 mt-3">
-        <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Almacenaje</span>
-        <div class="flex flex-wrap gap-2">
-            <p-tag 
-                value="Seco" 
-                [rounded]="true" 
-                (click)="setStorageType('seco')"
-                [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'seco' ? 'bg-orange-100 text-orange-700 ring-2 ring-orange-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-            <p-tag 
-                value="Fresco" 
-                [rounded]="true" 
-                (click)="setStorageType('fresco')"
-                [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'fresco' ? 'bg-maingoo-mint text-maingoo-deep ring-2 ring-maingoo-sage' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-            <p-tag 
-                value="Congelado" 
-                [rounded]="true" 
-                (click)="setStorageType('congelado')"
-                [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'congelado' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-        </div>
+          <!-- Storage (Almacenaje) -->
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Almacenaje</span>
+            <div class="flex flex-wrap gap-2">
+                <p-tag 
+                    value="Seco" 
+                    [rounded]="true" 
+                    (click)="setStorageType('seco')"
+                    [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'seco' ? 'bg-orange-100 text-orange-700 ring-2 ring-orange-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
+                </p-tag>
+                <p-tag 
+                    value="Fresco" 
+                    [rounded]="true" 
+                    (click)="setStorageType('fresco')"
+                    [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'fresco' ? 'bg-maingoo-mint text-maingoo-deep ring-2 ring-maingoo-sage' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
+                </p-tag>
+                <p-tag 
+                    value="Congelado" 
+                    [rounded]="true" 
+                    (click)="setStorageType('congelado')"
+                    [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'congelado' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
+                </p-tag>
+            </div>
+          </div>
+          
+           <!-- Allergens Tags -->
+           <div class="flex flex-col gap-1.5">
+             <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Alérgenos</span>
+             <div class="flex flex-wrap gap-2">
+                 <ng-container *ngIf="product?.allergens && product!.allergens.length > 0; else noAllergens">
+                     <p-tag 
+                    *ngFor="let alergeno of product?.allergens" 
+                    [value]="alergeno.name" 
+                    severity="warn" 
+                    [rounded]="true"
+                    icon="pi pi-exclamation-triangle"
+                    [pTooltip]="alergeno.description"
+                    tooltipPosition="top"
+                    styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800"></p-tag>
+                 </ng-container>
+                 <ng-template #noAllergens>
+                    <span class="text-sm text-gray-400 italic">Sin alérgenos</span>
+                 </ng-template>
+             </div>
+           </div>
       </div>
-
-      <!-- Product Type (Tipo de producto) -->
-      <div class="flex flex-col gap-1.5 mt-3">
-        <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Tipo de producto</span>
-        <div class="flex flex-wrap gap-2">
-            <p-tag 
-                value="Simple" 
-                [rounded]="true" 
-                (click)="setProductType('simple')"
-                [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.productType === 'simple' ? 'bg-purple-100 text-purple-700 ring-2 ring-purple-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-            <p-tag 
-                value="Elaborado" 
-                [rounded]="true" 
-                (click)="setProductType('elaborado')"
-                [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.productType === 'elaborado' ? 'bg-pink-100 text-pink-700 ring-2 ring-pink-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-        </div>
-      </div>
-      
-      <!-- Allergens Tags -->
-       <div class="flex flex-col gap-1.5 mt-3" *ngIf="product?.allergens && product!.allergens.length > 0">
-         <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Alérgenos</span>
-         <div class="flex flex-wrap gap-2">
-             <p-tag 
-            *ngFor="let alergeno of product?.allergens" 
-            [value]="alergeno.name" 
-            severity="warn" 
-            [rounded]="true"
-            icon="pi pi-exclamation-triangle"
-            [pTooltip]="alergeno.description"
-            tooltipPosition="top"
-            styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800"></p-tag>
-         </div>
-       </div>
     </div>
     
     <!-- Image Placeholder -->
@@ -137,31 +125,16 @@
       </h3>
       <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 text-sm text-gray-700">
         <p><strong class="text-maingoo-deep">Descripción:</strong> {{ product?.description || 'Sin descripción' }}</p>
-        <p><strong class="text-maingoo-deep">Unidad de medida:</strong> {{ product?.unit }}</p>
-        <p><strong class="text-maingoo-deep">Stock:</strong> {{ product?.stock }}</p>
+        <p><strong class="text-maingoo-deep">Añadido el:</strong> {{ product?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+        <p><strong class="text-maingoo-deep">Actualizado el:</strong> {{ product?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
       </div>
     </div>
 
     <!-- Audit -->
-    <div class="space-y-3">
-      <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
-        <i class="pi pi-clock text-maingoo-sage"></i>
-        Auditoría
-      </h3>
-      <div class="flex gap-4 text-xs text-gray-500">
-        <div>
-          <p class="font-medium text-maingoo-deep">Añadido el</p>
-          <p>{{ product?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>
-        </div>
-        <div>
-          <p class="font-medium text-maingoo-deep">Actualizado el</p>
-          <p>{{ product?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</p>
-        </div>
-      </div>
-    </div>
+
 
     <!-- Price Evolution Chart -->
-    <div *ngIf="priceChartData && !loadingInvoices" class="space-y-3 pt-4 border-t border-gray-100">
+    <div *ngIf="priceChartData" class="space-y-3 pt-4 border-t border-gray-100">
        <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
         <i class="pi pi-chart-line text-maingoo-sage"></i>
         Evolución de precio
@@ -177,12 +150,7 @@
         <i class="pi pi-file text-maingoo-sage"></i>
         Facturas asociadas ({{ relatedInvoices.length }})
       </h3>
-      
-      <div *ngIf="loadingInvoices" class="flex justify-center py-8">
-        <i class="pi pi-spin pi-spinner text-maingoo-sage text-2xl"></i>
-      </div>
 
-      <div *ngIf="!loadingInvoices">
         <div *ngIf="relatedInvoices.length > 0; else noInvoices" class="space-y-2">
           <div 
             *ngFor="let invoice of relatedInvoices" 
@@ -197,7 +165,6 @@
               <i class="pi pi-chevron-right text-gray-300 group-hover:text-maingoo-sage"></i>
             </div>
           </div>
-        </div>
       </div>
       
       <ng-template #noInvoices>
