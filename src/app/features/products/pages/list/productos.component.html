@@ -100,7 +100,7 @@
             <tr
               class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors border-l-4 border-transparent"
               [ngClass]="{ 'bg-maingoo-mint/10 !border-maingoo-sage': selectedProduct?.id === item.id }"
-              (click)="verDetalleProducto(item)">
+              (click)="showDialog(item)">
               <td>
                 <div class="flex flex-col">
                   <span class="font-bold text-maingoo-deep">{{ item.name }}</span>
@@ -309,8 +309,7 @@
             <app-product-detail-sidebar
                 class="w-full h-full"
                 [product]="selectedProduct"
-                [relatedInvoices]="relatedInvoices"
-                [loadingInvoices]="loadingInvoices"
+                [relatedInvoices]="invoices"
                 [priceChartData]="priceChartData"
                 [priceChartOptions]="priceChartOptions"
                 (close)="hideDialog()"
@@ -350,8 +349,7 @@
                     <app-product-detail-sidebar
                         class="w-full h-full"
                         [product]="selectedProduct"
-                        [relatedInvoices]="relatedInvoices"
-                        [loadingInvoices]="loadingInvoices"
+                        [relatedInvoices]="invoices"
                         [priceChartData]="priceChartData"
                         [priceChartOptions]="priceChartOptions"
                         (close)="hideDialog()"
@@ -409,7 +407,7 @@
                     <tr
                       class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors border-l-4 border-transparent"
                       [ngClass]="{ 'bg-maingoo-mint/10 !border-maingoo-sage': selectedProduct?.id === item.id }"
-                      (click)="verDetalleProducto(item)">
+                      (click)="showDialog(item)">
                       <td class="border-gray-100">
                         <div class="flex flex-col">
                           <span class="font-bold text-maingoo-deep text-sm">{{ item.name }}</span>

@@ -21,7 +21,6 @@ import { Product, Invoice } from '@app/core/interfaces/Invoice.interfaces';
 export class ProductDetailSidebarComponent {
   @Input() product: Product | null = null;
   @Input() relatedInvoices: Invoice[] = [];
-  @Input() loadingInvoices: boolean = false;
   @Input() priceChartData: any;
   @Input() priceChartOptions: any;
 
@@ -39,13 +38,7 @@ export class ProductDetailSidebarComponent {
       }
   }
 
-  setProductType(type: 'simple' | 'elaborado') {
-      if (this.product) {
-          this.product.productType = type;
-          // In a real app, you would emit an update event here or call a service
-          // this.update.emit(this.product);
-      }
-  }
+
 
   toggleMenu(event: Event) {
     event.stopPropagation();
@@ -76,5 +69,29 @@ export class ProductDetailSidebarComponent {
       default:
         return { backgroundColor: '#f3f4f6', color: '#374151' };
     }
+  }
+
+  getFormatName(code: string | undefined): string {
+    if (!code) return 'Desconocido';
+    const formats: { [key: string]: string } = {
+      'BT': 'Botella',
+      'PQ': 'Paquete',
+      'CJ': 'Caja',
+      'UD': 'Unidad',
+      'BL': 'Bolsa',
+      'BJ': 'Bandeja',
+      'LT': 'Lata',
+      'CB': 'Cubo',
+      'FR': 'Frasco',
+      'TA': 'Tarro',
+      'SC': 'Saco',
+      'RT': 'Retráctil',
+      'BS': 'Blister',
+      'ES': 'Estuche',
+      'MA': 'Malla',
+      'AE': 'Aerosol',
+      'KG': 'Kilogramo'
+    };
+    return formats[code.toUpperCase()] || code;
   }
 }
