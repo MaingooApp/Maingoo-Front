@@ -104,16 +104,110 @@
     <!-- Scrollable Body -->
     <div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
         
-        <!-- MONEY VIEW -->
+        <!-- MONEY VIEW: Enhanced Analysis -->
         <div *ngIf="selectedMetric?.type === 'money'">
-            <div class="bg-white rounded-xl border border-gray-100 p-1 shadow-sm mb-6">
-                 <div class="bg-gray-50 rounded-lg p-4">
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Evolución del Gasto</h3>
-                    <div class="h-64">
-                        <p-chart type="bar" [data]="detailChartData" [options]="detailChartOptions" height="100%"></p-chart>
+            
+            <!-- Time Range Filters -->
+            <div class="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+                <button 
+                    *ngFor="let range of timeFilterOptions"
+                    (click)="updateSpendAnalysis(range)"
+                    class="px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap"
+                    [ngClass]="timeRange === range 
+                        ? 'bg-maingoo-deep text-white shadow-md transform scale-105' 
+                        : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700'">
+                    {{ range === 'ALL' ? 'Histórico Completo' : 'Últimos ' + range }}
+                </button>
+            </div>
+
+            <!-- KPI Cards Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <!-- Total -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Gasto Total</span>
+                    <span class="text-lg font-bold text-maingoo-deep">{{ moneyKPIs.total | currency:'EUR':'symbol':'1.0-0' }}</span>
+                    <span class="text-[10px] text-gray-400">En periodo seleccionado</span>
+                </div>
+                 <!-- Average -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Media Mensual</span>
+                    <span class="text-lg font-bold text-maingoo-deep">{{ moneyKPIs.average | currency:'EUR':'symbol':'1.0-0' }}</span>
+                    <span class="text-[10px] text-green-600 font-medium">Estabilidad en gasto</span>
+                </div>
+                 <!-- Max -->
+                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Pico de Gasto</span>
+                    <span class="text-lg font-bold text-maingoo-deep">{{ moneyKPIs.max | currency:'EUR':'symbol':'1.0-0' }}</span>
+                    <span class="text-[10px] text-gray-400">{{ moneyKPIs.maxMonth }}</span>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="space-y-6">
+                <!-- Main Chart: Evolution -->
+                <div class="bg-white rounded-xl border border-gray-100 p-1 shadow-sm">
+                     <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 text-center">Tendencia de Gasto</h3>
+                        <div class="h-60">
+                            <p-chart type="bar" [data]="detailChartData" [options]="detailChartOptions" height="100%"></p-chart>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Secondary Chart: Distribution -->
+                 <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                    <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-4">Reparto por Proveedor</h3>
+                    <div class="h-96 flex justify-center">
+                        <p-chart type="doughnut" [data]="distributionChartData" [options]="distributionChartOptions" height="100%" width="100%"></p-chart>
                     </div>
                  </div>
             </div>
+
+        </div>
+
+        <!-- CATEGORY VIEW -->
+        <div *ngIf="selectedMetric?.type === 'category'">
+             <!-- Time Filter -->
+            <div class="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide">
+                <button 
+                    *ngFor="let range of timeFilterOptions"
+                    (click)="updateCategoryAnalysis(range)"
+                    class="px-4 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap"
+                    [ngClass]="timeRange === range 
+                        ? 'bg-maingoo-deep text-white shadow-md transform scale-105' 
+                        : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700'">
+                    {{ range === 'ALL' ? 'Histórico Completo' : 'Últimos ' + range }}
+                </button>
+            </div>
+            
+             <!-- KPI Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                 <!-- Top Cat -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Categoría Top</span>
+                    <span class="text-sm font-bold text-maingoo-deep line-clamp-1" [title]="categoryKPIs.topCategory">{{ categoryKPIs.topCategory }}</span>
+                    <span class="text-[10px] text-gray-400">Mayor gasto</span>
+                </div>
+                 <!-- Amount -->
+                <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Inversión Top</span>
+                    <span class="text-lg font-bold text-maingoo-deep">{{ categoryKPIs.topCategoryAmount | currency:'EUR':'symbol':'1.0-0' }}</span>
+                </div>
+                 <!-- Percentage -->
+                 <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">% Categorizado</span>
+                    <span class="text-lg font-bold text-maingoo-deep">{{ categoryKPIs.categorizedPercentage | number:'1.0-1' }}%</span>
+                    <span class="text-[10px] text-gray-400">Del gasto total</span>
+                </div>
+            </div>
+
+             <!-- Main Chart -->
+             <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-4">Desglose por Categoría</h3>
+                <div class="h-96">
+                    <p-chart type="bar" [data]="categoryChartData" [options]="categoryChartOptions" height="100%"></p-chart>
+                </div>
+             </div>
         </div>
 
         <!-- SUPPLIER VIEW -->
