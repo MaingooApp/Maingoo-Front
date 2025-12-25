@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { forkJoin } from 'rxjs';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
+import { ChartHelper } from '@app/shared/helpers/chart.helper';
 
 interface MetricContext {
   id: string;
@@ -26,6 +27,7 @@ interface MetricContext {
 })
 export class Dashboard implements OnInit {
   private invoiceService = inject(InvoiceService);
+  private chartHelper = inject(ChartHelper);
 
   // Data State
   invoices: Invoice[] = [];
@@ -381,21 +383,20 @@ export class Dashboard implements OnInit {
               {
                   label: 'Gasto por Categoría (€)',
                   data: topCats.map(c => c.value),
-                  backgroundColor: '#8b5cf6',
+                  backgroundColor: this.chartHelper.getColor('--p-purple-500'),
+                  borderColor: this.chartHelper.getColor('--p-purple-500'),
                   borderRadius: 4,
                   barThickness: 24
               }
           ]
     };
     
-    this.categoryChartOptions = {
-          indexAxis: 'y',
-          plugins: {
-              legend: { display: false }
-          },
-          responsive: true,
-          maintainAspectRatio: false
-      };
+    this.categoryChartOptions = this.chartHelper.getCommonOptions({
+        indexAxis: 'y',
+        plugins: {
+            legend: { display: false }
+        }
+    });
   }
 
   updateSpendAnalysis(range: '3M' | '6M' | '1Y' | 'ALL') {
@@ -461,7 +462,8 @@ export class Dashboard implements OnInit {
       datasets: [{
         label: 'Gasto (€)',
         data: Array.from(monthlySpend.values()),
-        backgroundColor: '#10b981',
+        backgroundColor: this.chartHelper.getColor('--p-green-500'),
+        borderColor: this.chartHelper.getColor('--p-green-500'),
         borderRadius: 6
       }]
     };
@@ -477,32 +479,28 @@ export class Dashboard implements OnInit {
         labels: topSuppliers.map(s => s[0]),
         datasets: [{
             data: topSuppliers.map(s => s[1]),
-            backgroundColor: [
-                '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#9ca3af'
-            ]
+            backgroundColor: this.chartHelper.getThemePalette(),
+            borderColor: this.chartHelper.getColor('--p-content-border-color')
         }]
     };
 
-    this.distributionChartOptions = {
+    this.distributionChartOptions = this.chartHelper.getCommonOptions({
         plugins: {
             legend: {
-                position: 'bottom',
+                position: 'right',
                 align: 'center',
                 labels: { 
                     usePointStyle: true, 
-                    boxWidth: 8, 
+                    boxWidth: 12, 
                     padding: 10,
-                    font: { size: 11 }
                 }
             }
         },
+        scales: {},
         layout: {
-            padding: { left: 10, right: 10, top: 0, bottom: 0 }
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '70%'
-    };
+            padding: 20
+        }
+    });
   }
 
   private prepareSupplierRanking() {
@@ -531,16 +529,15 @@ export class Dashboard implements OnInit {
   }
 
   private initChartOptions() {
-    this.detailChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
-      },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: '#f3f4f6' } }
-      }
-    };
+    this.detailChartOptions = this.chartHelper.getCommonOptions({
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+             x: {
+                 grid: { display: false }
+             }
+        }
+    });
   }
 }
