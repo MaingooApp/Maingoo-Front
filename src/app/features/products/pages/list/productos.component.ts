@@ -21,6 +21,7 @@ import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { InventoryHistoryComponent } from '../../components/inventory-history/inventory-history.component';
 import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
+import { SupplierService } from '@app/features/supplier/services/supplier.service';
 
 export interface InventoryItem extends Product {
   idealStock: number | null;
@@ -64,6 +65,7 @@ export interface InventoryRecord {
 })
 export class ProductosComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
+  private supplierService = inject(SupplierService);
   private toastService = inject(ToastService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
@@ -279,9 +281,6 @@ export class ProductosComponent implements OnInit {
 
   // New Implementation for Invoice Logic
   invoices: Invoice[] = [];
-  
-  // Cache for product statistics (Price & Supplier)
-  productStats: Map<string, { lastPrice: number, supplierName: string, date: Date }> = new Map();
 
   private normalizeText(text: string): string {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -296,7 +295,7 @@ export class ProductosComponent implements OnInit {
         next: (invoices: Invoice[]) => {
             this.invoices = invoices;
             console.log('Facturas cargadas:', this.invoices);
-            this.updatePriceChart(invoices, product);
+            this.updatePriceChart(product);
         },
         error: (error: any) => {
             console.error('Error al cargar facturas:', error);
@@ -306,17 +305,23 @@ export class ProductosComponent implements OnInit {
     }
   }
 
-  private updatePriceChart(invoices: Invoice[], product: Product) {
-    if (!invoices.length) {
-        this.priceChartData = null;
-        return;
-    }
+  private updatePriceChart(product: Product) {
 
     const labels: string[] = [];
     const prices: number[] = [];
-
-    console.log('labels', labels);
-    console.log('prices', prices);
+    
+    this.supplierService.getPriceHistory(product.id).subscribe({
+      next: (priceHistory: any) => {
+        console.log('Historial de precios:', priceHistory);
+        priceHistory.reverse().forEach((price: any) => {
+          labels.push(new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+          prices.push(price.price);
+        });
+      },
+      error: (error: any) => {
+        this.toastService.error('Error', 'No se pudieron cargar los precios.');
+      }
+    });
 
     this.priceChartData = {
         labels: labels,
