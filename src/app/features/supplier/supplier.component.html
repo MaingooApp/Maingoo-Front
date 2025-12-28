@@ -329,7 +329,7 @@
             class="overflow-hidden transition-all duration-300 ease-in-out"
             [style.max-height]="showContact ? '500px' : '0'"
             [style.opacity]="showContact ? '1' : '0'">
-            <div class="flex flex-col gap-1 py-1">
+            <div class="flex flex-col gap-1 py-1 pl-6">
               <!-- Persona de contacto -->
               <ng-container
                 *ngTemplateOutlet="
@@ -377,84 +377,75 @@
             [style.max-height]="showDelivery ? '500px' : '0'"
             [style.opacity]="showDelivery ? '1' : '0'">
             <div class="flex flex-col gap-1 py-1">
-              <!-- Ultimo dia de pedido Chips -->
-              <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
-                <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                  <i class="pi pi-clock text-maingoo-sage"></i>
-                  <span>Día de pedido</span>
-                </div>
-                <div class="flex flex-wrap gap-1 items-center -ml-2">
-                  <div
-                    *ngFor="let day of daysOptions"
-                    (click)="toggleDay('lastOrder', day.value)"
-                    class="px-2 py-1 rounded text-xs cursor-pointer transition-colors border select-none"
-                    [ngClass]="{
-                      'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('lastOrder', day.value),
-                      'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200': !isDaySelected(
-                        'lastOrder',
-                        day.value
-                      )
-                    }">
-                    {{ day.short }}
+              <div class="flex flex-col gap-1 pl-6">
+                 <!-- Ultimo dia de pedido Chips -->
+                <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
+                    <i class="pi pi-clock text-maingoo-sage"></i>
+                    <span>Día de pedido</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1 items-center -ml-2">
+                    <div
+                      *ngFor="let day of daysOptions"
+                      (click)="toggleDay('lastOrder', day.value)"
+                      class="px-2 py-1 rounded text-xs cursor-pointer transition-colors border select-none"
+                      [ngClass]="{
+                        'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('lastOrder', day.value),
+                        'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200': !isDaySelected(
+                          'lastOrder',
+                          day.value
+                        )
+                      }">
+                      {{ day.short }}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Dias de reparto Chips -->
-              <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
-                <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                  <i class="pi pi-calendar text-maingoo-sage"></i>
-                  <span>Día de reparto</span>
-                </div>
-                <div class="flex flex-wrap gap-1 items-center -ml-2">
-                  <div
-                    *ngFor="let day of daysOptions"
-                    (click)="toggleDay('delivery', day.value)"
-                    class="px-2 py-1 rounded text-xs cursor-pointer transition-colors border select-none"
-                    [ngClass]="{
-                      'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('delivery', day.value),
-                      'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200': !isDaySelected(
-                        'delivery',
-                        day.value
-                      )
-                    }">
-                    {{ day.short }}
+                <!-- Dias de reparto Chips -->
+                <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
+                    <i class="pi pi-calendar text-maingoo-sage"></i>
+                    <span>Día de reparto</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1 items-center -ml-2">
+                    <div
+                      *ngFor="let day of daysOptions"
+                      (click)="toggleDay('delivery', day.value)"
+                      class="px-2 py-1 rounded text-xs cursor-pointer transition-colors border select-none"
+                      [ngClass]="{
+                        'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('delivery', day.value),
+                        'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200': !isDaySelected(
+                          'delivery',
+                          day.value
+                        )
+                      }">
+                      {{ day.short }}
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <!-- Pedido minimo Nested Toggle -->
-              <div class="group">
-                <div
-                  class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
-                  (click)="showMinOrder = !showMinOrder">
-                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                <!-- Pedido minimo Inline -->
+                <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                  <div
+                    class="flex items-center gap-2 text-gray-400 text-sm cursor-pointer"
+                    (click)="showMinOrder = !showMinOrder">
                     <i class="pi pi-euro text-maingoo-sage"></i>
                     <span>Pedido mín.</span>
                   </div>
-                  <div class="flex items-center">
+                  <div class="flex items-center gap-3 -ml-2">
                     <p-inputSwitch
                       [(ngModel)]="showMinOrder"
-                      (click)="$event.stopPropagation()"
                       styleClass="scale-75"></p-inputSwitch>
-                  </div>
-                </div>
 
-                <div
-                  class="overflow-hidden transition-all duration-300 ease-in-out"
-                  [style.max-height]="showMinOrder ? '500px' : '0'"
-                  [style.opacity]="showMinOrder ? '1' : '0'">
-                  <div class="flex flex-col gap-1 py-1">
-                    <!-- Cantidad Input -->
-                    <ng-container
-                      *ngTemplateOutlet="
-                        inlineInput;
-                        context: {
-                          label: 'Cantidad',
-                          icon: 'pi-tag',
-                          value: selectedSupplier?.minPriceDelivery ? selectedSupplier?.minPriceDelivery + '€' : ''
-                        }
-                      "></ng-container>
+                    <!-- Inline Input when active -->
+                    <div
+                      *ngIf="showMinOrder"
+                      class="flex items-center animate-fade-in origin-left">
+                      <input
+                        type="text"
+                        [value]="selectedSupplier?.minPriceDelivery ? selectedSupplier?.minPriceDelivery + '€' : ''"
+                        placeholder="0.00€"
+                        class="bg-transparent border-b border-gray-200 hover:border-maingoo-sage focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none px-1 py-0.5 w-20 transition-all placeholder:text-gray-300 text-sm" />
+                    </div>
                   </div>
                 </div>
               </div>
