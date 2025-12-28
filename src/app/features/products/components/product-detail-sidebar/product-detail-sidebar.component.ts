@@ -23,15 +23,15 @@ export class ProductDetailSidebarComponent {
   @Input() relatedInvoices: Invoice[] = [];
   @Input() priceChartData: any;
   @Input() priceChartOptions: any;
-
+  
   @Output() close = new EventEmitter<void>();
   @Output() verFactura = new EventEmitter<Invoice>();
   @Output() delete = new EventEmitter<Product>();
-
+  
   showMenu: boolean = false;
 
   setStorageType(type: 'seco' | 'fresco' | 'congelado') {
-      if (this.product) {
+    if (this.product) {
           this.product.storageType = type;
           // In a real app, you would emit an update event here or call a service
           // this.update.emit(this.product);

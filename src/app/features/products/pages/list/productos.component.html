@@ -121,17 +121,13 @@
                 <span class="text-gray-600 text-sm font-medium">{{ item.idealStock ? (item.idealStock | number: '1.0-2') : '-' }}</span>
               </td>
               <td>
-                <ng-template #supplierData>
-                    <span class="text-gray-600 text-sm font-medium">{{ productStats.get(item.id)?.supplierName || '-' }}</span>
-                </ng-template>
+                <span class="text-gray-600 text-sm font-medium">{{ item.supplier?.name || '-' }}</span>
               </td>
               <td>
-                <ng-template #priceData>
-                    <span *ngIf="productStats.get(item.id)?.lastPrice" class="text-maingoo-deep font-bold text-sm">
-                        {{ productStats.get(item.id)?.lastPrice | currency:'EUR' }}
+                    <span class="text-maingoo-deep font-bold text-sm">
+                        {{ item.lastUnitPrice | currency:'EUR' }}
                     </span>
-                    <span *ngIf="!productStats.get(item.id)?.lastPrice" class="text-gray-400 text-sm italic">-</span>
-                </ng-template>
+
               </td>
               <td class="text-right">
                 <button
@@ -413,13 +409,12 @@
                         <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
                       </td>
                       <td class="border-gray-100">
-                        <span class="text-gray-600 text-sm font-medium">{{ productStats.get(item.id)?.supplierName || '-' }}</span>
+                        <span class="text-gray-600 text-sm font-medium">{{ item.supplier.name || '-' }}</span>
                       </td>
                       <td class="border-gray-100">
-                         <span *ngIf="productStats.get(item.id)?.lastPrice" class="text-maingoo-deep font-bold text-sm">
-                            {{ productStats.get(item.id)?.lastPrice | currency:'EUR' }}
+                         <span class="text-maingoo-deep font-bold text-sm">
+                            {{ item.lastUnitPrice | currency:'EUR' }}
                          </span>
-                         <span *ngIf="!productStats.get(item.id)?.lastPrice" class="text-gray-400 text-sm italic">-</span>
                       </td>
                       <td class="text-right border-gray-100 px-2">
                         <i class="pi pi-chevron-right text-gray-300 text-xs"></i>
