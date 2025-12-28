@@ -15,7 +15,7 @@ import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { InventoryHistoryComponent } from '../../components/inventory-history/inventory-history.component';
@@ -40,17 +40,17 @@ export interface InventoryRecord {
   selector: 'app-productos',
   standalone: true,
   imports: [
-    CommonModule, 
-    TableModule, 
-    ButtonModule, 
-    InputTextModule, 
-    FormsModule, 
-    DialogModule, 
-    ToastModule, 
-    ConfirmDialogModule, 
-    TagModule, 
-    NgClass, 
-    ChartModule, 
+    CommonModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    FormsModule,
+    DialogModule,
+    ToastModule,
+    ConfirmDialogModule,
+    TagModule,
+    NgClass,
+    ChartModule,
     SkeletonModule,
     TooltipModule,
     TooltipModule,
@@ -72,7 +72,7 @@ export class ProductosComponent implements OnInit {
 
   priceChartData: any;
   priceChartOptions: any;
-  
+
   @ViewChild('dt') dt!: Table;
 
   productos: Product[] = [];
@@ -81,7 +81,7 @@ export class ProductosComponent implements OnInit {
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
-  
+
   // View State
   viewMode: 'list' | 'cards' | 'inventory' | 'history' = 'list';
   savedInventories: InventoryRecord[] = [];
@@ -92,28 +92,28 @@ export class ProductosComponent implements OnInit {
 
   get uniqueCategories(): { name: string, count: number }[] {
     const categoryCounts = new Map<string, number>();
-    
+
     this.productos.forEach(p => {
-        if (p.category?.name) {
-            categoryCounts.set(p.category.name, (categoryCounts.get(p.category.name) || 0) + 1);
-        }
+      if (p.category?.name) {
+        categoryCounts.set(p.category.name, (categoryCounts.get(p.category.name) || 0) + 1);
+      }
     });
 
     return Array.from(categoryCounts.entries()).map(([name, count]) => ({
-        name,
-        count
+      name,
+      count
     }));
   }
-  
+
   get inventoryCategoryOptions() {
-      return this.uniqueCategories.map(c => ({ label: c.name, value: c.name }));
+    return this.uniqueCategories.map(c => ({ label: c.name, value: c.name }));
   }
 
   get filteredInventoryItems(): InventoryItem[] {
-      if (!this.selectedInventoryCategory || this.selectedInventoryCategory.length === 0) {
-          return this.inventoryItems;
-      }
-      return this.inventoryItems.filter(item => item.category?.name && this.selectedInventoryCategory.includes(item.category.name));
+    if (!this.selectedInventoryCategory || this.selectedInventoryCategory.length === 0) {
+      return this.inventoryItems;
+    }
+    return this.inventoryItems.filter(item => item.category?.name && this.selectedInventoryCategory.includes(item.category.name));
   }
 
   get categoryProducts(): Product[] {
@@ -124,9 +124,9 @@ export class ProductosComponent implements OnInit {
   setViewMode(mode: 'list' | 'cards' | 'inventory' | 'history') {
     this.viewMode = mode;
     if (mode === 'list') {
-        this.selectedCategory = null;
+      this.selectedCategory = null;
     } else if (mode === 'cards') {
-        this.selectedProduct = null;
+      this.selectedProduct = null;
     }
   }
 
@@ -134,9 +134,9 @@ export class ProductosComponent implements OnInit {
     this.selectedInventoryRecord = null;
     this.currentDate = new Date();
     this.inventoryItems = this.productos.map(p => ({
-        ...p,
-        idealStock: null,
-        manualInventory: null
+      ...p,
+      idealStock: null,
+      manualInventory: null
     }));
     this.selectedInventoryCategory = []; // Reset selection
     this.setViewMode('inventory');
@@ -144,68 +144,68 @@ export class ProductosComponent implements OnInit {
   }
 
   guardarInventario() {
-      // Use the filtered items logic to ensure we only save what is selected
-      const itemsToSave = this.filteredInventoryItems;
-      
-      const newRecord: InventoryRecord = {
-          id: crypto.randomUUID(),
-          date: new Date(),
-          itemsCount: itemsToSave.length,
-          items: [...itemsToSave], // Copy filtered state
-          categoryNames: this.selectedInventoryCategory
-      };
-      
-      this.savedInventories.unshift(newRecord); // Add to beginning
-      this.toastService.success('Inventario Guardado', 'Se ha generado correctamente la ficha de inventario.');
-      this.setViewMode('history');
+    // Use the filtered items logic to ensure we only save what is selected
+    const itemsToSave = this.filteredInventoryItems;
+
+    const newRecord: InventoryRecord = {
+      id: crypto.randomUUID(),
+      date: new Date(),
+      itemsCount: itemsToSave.length,
+      items: [...itemsToSave], // Copy filtered state
+      categoryNames: this.selectedInventoryCategory
+    };
+
+    this.savedInventories.unshift(newRecord); // Add to beginning
+    this.toastService.success('Inventario Guardado', 'Se ha generado correctamente la ficha de inventario.');
+    this.setViewMode('history');
   }
 
   verHistorialInventarios() {
-      this.setViewMode('history');
+    this.setViewMode('history');
   }
 
   verDetalleInventario(record: InventoryRecord) {
-      this.selectedInventoryRecord = record;
-      this.inventoryItems = [...record.items];
-      this.currentDate = record.date;
-      // Stay in 'history' view to show master-detail layout
+    this.selectedInventoryRecord = record;
+    this.inventoryItems = [...record.items];
+    this.currentDate = record.date;
+    // Stay in 'history' view to show master-detail layout
   }
 
   cancelarEdicionInventario() {
-      if (this.selectedInventoryRecord) {
-          this.selectedInventoryRecord = null; // Just close sidebar
-      } else {
-          this.setViewMode('list');
-      }
+    if (this.selectedInventoryRecord) {
+      this.selectedInventoryRecord = null; // Just close sidebar
+    } else {
+      this.setViewMode('list');
+    }
   }
 
   cerrarDetalleInventario() {
-      this.selectedInventoryRecord = null;
+    this.selectedInventoryRecord = null;
   }
 
   eliminarInventario(record: InventoryRecord) {
-      this.confirmationService.confirm({
-          message: '¿Estás seguro de que quieres eliminar este histórico de inventario?',
-          header: 'Confirmar eliminación',
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'Sí, eliminar',
-          rejectLabel: 'Cancelar',
-          acceptButtonStyleClass: 'p-button-danger',
-          rejectButtonStyleClass: 'p-button-secondary p-button-text',
-          onAccept: () => {
-              this.savedInventories = this.savedInventories.filter(r => r !== record);
-              this.selectedInventoryRecord = null;
-              this.toastService.success('Inventario eliminado', 'El registro ha sido eliminado correctamente.');
-          }
-      });
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que quieres eliminar este histórico de inventario?',
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary p-button-text',
+      onAccept: () => {
+        this.savedInventories = this.savedInventories.filter(r => r !== record);
+        this.selectedInventoryRecord = null;
+        this.toastService.success('Inventario eliminado', 'El registro ha sido eliminado correctamente.');
+      }
+    });
   }
 
   getFormattedCategoryNames(names: string[] | undefined | null): string {
-      if (!names || names.length === 0) return 'todos los productos';
-      if (names.length === 1) return names[0];
-      const last = names[names.length - 1];
-      const others = names.slice(0, -1).join(', ');
-      return `${others} y ${last}`;
+    if (!names || names.length === 0) return 'todos los productos';
+    if (names.length === 1) return names[0];
+    const last = names[names.length - 1];
+    const others = names.slice(0, -1).join(', ');
+    return `${others} y ${last}`;
   }
 
   selectCategory(categoryName: string) {
@@ -245,7 +245,7 @@ export class ProductosComponent implements OnInit {
       3000
     );
   }
-  
+
   eliminarTodo() {
     this.confirmationService.confirm({
       message: '¿Estás seguro de que deseas eliminar TODOS los productos? Esta acción no se puede deshacer.',
@@ -257,23 +257,23 @@ export class ProductosComponent implements OnInit {
       rejectButtonStyleClass: 'p-button-secondary p-button-text',
       onAccept: () => {
         if (this.productos.length === 0) return;
-        
+
         this.cargando = true;
         const deleteObservables = this.productos.map(p => this.invoiceService.deleteProduct(p.id));
-        
+
         forkJoin(deleteObservables).subscribe({
-            next: () => {
-                this.productos = [];
-                this.cargando = false;
-                this.toastService.success('Inventario vaciado', 'Todos los productos han sido eliminados correctamente.');
-            },
-            error: (err: any) => {
-                console.error('Error al eliminar productos:', err);
-                this.cargando = false;
-                this.toastService.error('Error', 'No se pudieron eliminar todos los productos.');
-                // Recargar productos para reflejar el estado real (algunos pueden haberse borrado)
-                this.ngOnInit();
-            }
+          next: () => {
+            this.productos = [];
+            this.cargando = false;
+            this.toastService.success('Inventario vaciado', 'Todos los productos han sido eliminados correctamente.');
+          },
+          error: (err: any) => {
+            console.error('Error al eliminar productos:', err);
+            this.cargando = false;
+            this.toastService.error('Error', 'No se pudieron eliminar todos los productos.');
+            // Recargar productos para reflejar el estado real (algunos pueden haberse borrado)
+            this.ngOnInit();
+          }
         });
       }
     });
@@ -288,97 +288,91 @@ export class ProductosComponent implements OnInit {
 
   showDialog(product: Product) {
     if (this.selectedProduct?.id === product.id) {
-       this.hideDialog();
+      this.hideDialog();
     } else {
-       this.selectedProduct = product;
-       this.invoiceService.getInvoices({productId: product.id}).subscribe({
+      this.selectedProduct = product;
+      this.invoiceService.getInvoices({ productId: product.id }).subscribe({
         next: (invoices: Invoice[]) => {
-            this.invoices = invoices;
-            console.log('Facturas cargadas:', this.invoices);
-            this.updatePriceChart(product);
+          this.invoices = invoices;
+          console.log('Facturas cargadas:', this.invoices);
+          this.updatePriceChart(product);
         },
         error: (error: any) => {
-            console.error('Error al cargar facturas:', error);
-            this.toastService.error('Error', 'No se pudieron cargar las facturas.');
+          console.error('Error al cargar facturas:', error);
+          this.toastService.error('Error', 'No se pudieron cargar las facturas.');
         }
-       })
+      })
     }
   }
 
-  private updatePriceChart(product: Product) {
+  private async updatePriceChart(product: Product) {
 
     const labels: string[] = [];
     const prices: number[] = [];
-    
-    this.supplierService.getPriceHistory(product.id).subscribe({
-      next: (priceHistory: any) => {
-        console.log('Historial de precios:', priceHistory);
-        priceHistory.reverse().forEach((price: any) => {
-          labels.push(new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
-          prices.push(price.price);
-        });
-      },
-      error: (error: any) => {
-        this.toastService.error('Error', 'No se pudieron cargar los precios.');
-      }
+
+    const result = await firstValueFrom(this.supplierService.getPriceHistory(product.id));
+    result.reverse().forEach((price: any) => {
+      labels.push(new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+      prices.push(price.price);
     });
 
+
     this.priceChartData = {
-        labels: labels,
-        datasets: [
-            {
-                label: 'Precio Unitario',
-                data: prices,
-                fill: true,
-                borderColor: '#6366f1', // maingoo-indigo equivalent
-                backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                tension: 0.4,
-                pointBackgroundColor: '#ffffff',
-                pointBorderColor: '#6366f1',
-                pointHoverBackgroundColor: '#6366f1',
-                pointHoverBorderColor: '#ffffff'
-            }
-        ]
+      labels: labels,
+      datasets: [
+        {
+          label: 'Precio Unitario',
+          data: prices,
+          fill: true,
+          borderColor: '#6366f1', // maingoo-indigo equivalent
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          tension: 0.4,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#6366f1',
+          pointHoverBackgroundColor: '#6366f1',
+          pointHoverBorderColor: '#ffffff'
+        }
+      ]
     };
 
     this.priceChartOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            },
-            tooltip: {
-                mode: 'index',
-                intersect: false,
-                 callbacks: {
-                    label: function(context: any) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': ';
-                        }
-                        if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
-                        }
-                        return label;
-                    }
-                }
-            }
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
         },
-        scales: {
-            x: {
-                display: true,
-                grid: {
-                    display: false
-                }
-            },
-            y: {
-                display: true,
-                beginAtZero: false,
-                grid: {
-                    color: '#f3f4f6'
-                }
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function (context: any) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
+              }
+              return label;
             }
+          }
         }
+      },
+      scales: {
+        x: {
+          display: true,
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          display: true,
+          beginAtZero: false,
+          grid: {
+            color: '#f3f4f6'
+          }
+        }
+      }
     };
   }
 
