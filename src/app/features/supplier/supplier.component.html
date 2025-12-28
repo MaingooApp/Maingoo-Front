@@ -425,26 +425,23 @@
                 </div>
                 <!-- Pedido minimo Inline -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                  <div
-                    class="flex items-center gap-2 text-gray-400 text-sm cursor-pointer"
-                    (click)="showMinOrder = !showMinOrder">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
                     <i class="pi pi-euro text-maingoo-sage"></i>
                     <span>Pedido mín.</span>
                   </div>
-                  <div class="flex items-center gap-3 -ml-2">
-                    <p-inputSwitch
-                      [(ngModel)]="showMinOrder"
-                      styleClass="scale-75"></p-inputSwitch>
-
-                    <!-- Inline Input when active -->
-                    <div
-                      *ngIf="showMinOrder"
-                      class="flex items-center animate-fade-in origin-left">
-                      <input
-                        type="text"
-                        [value]="selectedSupplier?.minPriceDelivery ? selectedSupplier?.minPriceDelivery + '€' : ''"
-                        placeholder="0.00€"
-                        class="bg-transparent border-b border-gray-200 hover:border-maingoo-sage focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none px-1 py-0.5 w-20 transition-all placeholder:text-gray-300 text-sm" />
+                  <div class="flex items-center -ml-2">
+                    <div class="flex items-center w-full">
+                      <p-inputNumber
+                        [(ngModel)]="selectedSupplier!.minPriceDelivery"
+                        mode="currency"
+                        currency="EUR"
+                        locale="es-ES"
+                        placeholder="0,00 €"
+                        [minFractionDigits]="2"
+                        [maxFractionDigits]="2"
+                        styleClass="w-24"
+                        inputStyleClass="bg-transparent border-b border-gray-200 hover:border-maingoo-sage focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none px-1 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm !shadow-none !rounded-none">
+                      </p-inputNumber>
                     </div>
                   </div>
                 </div>
