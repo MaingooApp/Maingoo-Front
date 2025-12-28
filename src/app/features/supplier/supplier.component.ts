@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputSwitchModule } from 'primeng/inputswitch';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
@@ -34,6 +35,7 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     InputIconModule,
     ButtonModule,
     InputSwitchModule,
+    InputNumberModule,
     MultiSelectModule,
     SelectButtonModule,
     DropdownModule,
@@ -54,28 +56,28 @@ export class SupplierComponent {
   supplierInvoices: Invoice[] = [];
   selectedSupplier: Supplier | null = null;
   cargando = true;
-  
+
   // UI State
   showInvoices = false;
   showStats = false;
   showMenu = false;
   viewMode: 'grid' | 'list' = 'grid';
   viewOptions: any[] = [
-      { icon: 'pi pi-th-large', value: 'grid' },
-      { icon: 'pi pi-list', value: 'list' }
+    { icon: 'pi pi-th-large', value: 'grid' },
+    { icon: 'pi pi-list', value: 'list' }
   ];
 
   viewInvoice(invoice: Invoice) {
     if (invoice.id) {
-        this.router.navigate(['/facturas/detalle', invoice.id]);
+      this.router.navigate(['/facturas/detalle', invoice.id]);
     }
   }
-  
+
   // Toggle Sections
   showContact = false;
   showDelivery = false;
   showMinOrder = false;
-  
+
   // Delivery Days
   selectedDays: string[] = [];
   selectedLastOrderDays: string[] = [];
@@ -109,7 +111,7 @@ export class SupplierComponent {
   constructor(
     private confirmDialog: ConfirmDialogService,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   // Chart
   chartData: any;
@@ -119,7 +121,7 @@ export class SupplierComponent {
   async ngOnInit() {
     this.cargando = true;
     this.initChartOptions();
-    
+
     this.supplierService.listSuppliers().subscribe({
       next: (suppliers: Supplier[]) => {
         this.supplier = suppliers;
@@ -175,8 +177,8 @@ export class SupplierComponent {
 
   filterSuppliers(event: Event) {
     const query = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredSupplier = this.supplier.filter(s => 
-      s.name?.toLowerCase().includes(query) || 
+    this.filteredSupplier = this.supplier.filter(s =>
+      s.name?.toLowerCase().includes(query) ||
       s.commercialName?.toLowerCase().includes(query) ||
       s.cifNif?.toLowerCase().includes(query)
     );
@@ -197,37 +199,37 @@ export class SupplierComponent {
   showDialog(supplier: Supplier) {
     // If clicking the same supplier, deselect (collapse) it
     if (this.selectedSupplier && this.selectedSupplier.id === supplier.id) {
-        this.selectedSupplier = null;
-        this.showInvoices = false; // Reset other states
-        this.showMenu = false;
-        return;
+      this.selectedSupplier = null;
+      this.showInvoices = false; // Reset other states
+      this.showMenu = false;
+      return;
     }
-    
+
     this.selectedSupplier = supplier;
     // Reset states
     this.supplierInvoices = [];
     this.showInvoices = false;
     this.showMenu = false;
-    
+
     // Init toggles based on data existence
     this.showDelivery = !!(supplier.deliveryDays || supplier.minPriceDelivery);
     this.showMinOrder = !!supplier.minPriceDelivery;
-    
+
     // Parse delivery days
     this.selectedDays = supplier.deliveryDays ? supplier.deliveryDays.split(',').map((d: string) => d.trim()) : [];
-    
+
     // Logic for contact: check if phone exists. 'Email' and 'Contact Person' are not in interface yet, so check phone.
     this.showContact = !!supplier.phoneNumber;
 
     // Fetch invoices for this supplier
     if (supplier.id) {
-       this.invoiceService.getInvoices({supplierId: supplier.id}).subscribe({
-          next: (invoices: Invoice[]) => {
-            this.supplierInvoices = invoices;
-            this.updateChartData(this.supplierInvoices);
-          },
-          error: (err: any) => console.error('Error cargando facturas', err)
-       });
+      this.invoiceService.getInvoices({ supplierId: supplier.id }).subscribe({
+        next: (invoices: Invoice[]) => {
+          this.supplierInvoices = invoices;
+          this.updateChartData(this.supplierInvoices);
+        },
+        error: (err: any) => console.error('Error cargando facturas', err)
+      });
     }
   }
 
@@ -246,8 +248,8 @@ export class SupplierComponent {
           cornerRadius: 4,
           displayColors: false,
           callbacks: {
-            label: function(context: any) {
-               return context.parsed.y + ' €';
+            label: function (context: any) {
+              return context.parsed.y + ' €';
             }
           }
         }
@@ -255,12 +257,12 @@ export class SupplierComponent {
       scales: {
         x: {
           grid: {
-             display: false,
-             drawBorder: false
+            display: false,
+            drawBorder: false
           },
           ticks: {
-             color: '#6b7280', // gray-500
-             font: { size: 10 }
+            color: '#6b7280', // gray-500
+            font: { size: 10 }
           }
         },
         y: {
@@ -275,31 +277,31 @@ export class SupplierComponent {
   }
 
   // Chart Data
-  availableYears: {label: string, value: number}[] = [];
+  availableYears: { label: string, value: number }[] = [];
   selectedYear: number = new Date().getFullYear();
 
   updateChartData(invoices: Invoice[]) {
     // 0. Calculate Available Years
     const currentYear = new Date().getFullYear();
-    
+
     if (invoices.length > 0) {
-        const invoiceYears = invoices.map(inv => new Date(inv.date).getFullYear());
-        const minYear = Math.min(...invoiceYears);
-        
-        // Generate continuous range from minYear to currentYear
-        this.availableYears = [];
-        for (let year = currentYear; year >= minYear; year--) {
-             this.availableYears.push({ label: year.toString(), value: year });
-        }
-        
-        // If selectedYear is not in availableYears (not possible by logic unless < minYear, but safer to check)
-        const yearExists = this.availableYears.some(y => y.value === this.selectedYear);
-        if (!yearExists) {
-             this.selectedYear = currentYear;
-        }
-    } else {
-        this.availableYears = [{ label: currentYear.toString(), value: currentYear }];
+      const invoiceYears = invoices.map(inv => new Date(inv.date).getFullYear());
+      const minYear = Math.min(...invoiceYears);
+
+      // Generate continuous range from minYear to currentYear
+      this.availableYears = [];
+      for (let year = currentYear; year >= minYear; year--) {
+        this.availableYears.push({ label: year.toString(), value: year });
+      }
+
+      // If selectedYear is not in availableYears (not possible by logic unless < minYear, but safer to check)
+      const yearExists = this.availableYears.some(y => y.value === this.selectedYear);
+      if (!yearExists) {
         this.selectedYear = currentYear;
+      }
+    } else {
+      this.availableYears = [{ label: currentYear.toString(), value: currentYear }];
+      this.selectedYear = currentYear;
     }
 
     // 1. Update Monthly Chart for Selected Year
@@ -307,34 +309,34 @@ export class SupplierComponent {
 
     // 2. Historical Data (Yearly)
     if (invoices.length > 0) {
-        const years = invoices.map(inv => new Date(inv.date).getFullYear());
-        const minYear = Math.min(...years);
-        const maxYear = new Date().getFullYear(); 
-        
-        const yearlyLabels: string[] = [];
-        const yearlyTotals: number[] = [];
+      const years = invoices.map(inv => new Date(inv.date).getFullYear());
+      const minYear = Math.min(...years);
+      const maxYear = new Date().getFullYear();
 
-        for (let year = minYear; year <= maxYear; year++) {
-            yearlyLabels.push(year.toString());
-            const total = invoices
-                .filter(inv => new Date(inv.date).getFullYear() === year)
-                .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
-            yearlyTotals.push(total);
-        }
+      const yearlyLabels: string[] = [];
+      const yearlyTotals: number[] = [];
 
-        this.historyChartData = {
-            labels: yearlyLabels,
-            datasets: [
-                {
-                    label: 'Gasto Anual',
-                    data: yearlyTotals,
-                    backgroundColor: '#1A3C34', // maingoo-deep
-                    hoverBackgroundColor: '#6B9E86', // maingoo-sage
-                    borderRadius: 4,
-                    barThickness: 20
-                }
-            ]
-        };
+      for (let year = minYear; year <= maxYear; year++) {
+        yearlyLabels.push(year.toString());
+        const total = invoices
+          .filter(inv => new Date(inv.date).getFullYear() === year)
+          .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+        yearlyTotals.push(total);
+      }
+
+      this.historyChartData = {
+        labels: yearlyLabels,
+        datasets: [
+          {
+            label: 'Gasto Anual',
+            data: yearlyTotals,
+            backgroundColor: '#1A3C34', // maingoo-deep
+            hoverBackgroundColor: '#6B9E86', // maingoo-sage
+            borderRadius: 4,
+            barThickness: 20
+          }
+        ]
+      };
     }
   }
 
@@ -382,7 +384,7 @@ export class SupplierComponent {
   toggleDay(type: 'delivery' | 'lastOrder', day: string) {
     const targetArray = type === 'delivery' ? this.selectedDays : this.selectedLastOrderDays;
     const index = targetArray.indexOf(day);
-    
+
     if (index === -1) {
       targetArray.push(day);
     } else {
@@ -396,7 +398,7 @@ export class SupplierComponent {
   }
 
   toggleMenu(event?: Event) {
-    if(event) event.stopPropagation();
+    if (event) event.stopPropagation();
     this.showMenu = !this.showMenu;
   }
 
