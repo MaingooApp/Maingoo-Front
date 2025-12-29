@@ -14,6 +14,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
+import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
@@ -41,7 +42,8 @@ import { Invoice } from '../../core/interfaces/Invoice.interfaces';
     DropdownModule,
     FormsModule,
     ChartModule,
-    TagModule
+    TagModule,
+    SectionHeaderComponent
   ],
   templateUrl: './supplier.component.html'
 })
