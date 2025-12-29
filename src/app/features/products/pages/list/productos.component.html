@@ -135,7 +135,9 @@
             class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-full">
             
             <div class="flex items-start justify-between mb-4">
-              <h3 class="text-lg font-bold text-maingoo-deep mb-2 group-hover:text-maingoo-sage transition-colors line-clamp-2">
+              <h3 
+                class="text-lg font-bold mb-2 transition-colors px-3 py-1 rounded-full w-auto inline-block bg-opacity-20"
+                [ngStyle]="getCategoryStyle(category.name)">
                   {{ category.name }}
               </h3>
             </div>
