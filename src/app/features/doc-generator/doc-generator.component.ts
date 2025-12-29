@@ -6,6 +6,8 @@ import { BadgeModule } from 'primeng/badge';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
+import { TooltipModule } from 'primeng/tooltip';
+import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FluidModule } from 'primeng/fluid';
@@ -30,6 +32,7 @@ import { Camera, DocumentCard, Fryer, QuickFilter } from './interfaces/doc-gener
     IconFieldModule,
     FluidModule,
     InputIconModule,
+    SectionHeaderComponent,
     ChipModule,
     DropdownModule
   ],
@@ -133,7 +136,7 @@ export class DocGeneratorComponent {
     }
   ];
 
-  constructor(private toastService: ToastService) {}
+  constructor(private toastService: ToastService) { }
 
   get filteredDocuments(): DocumentCard[] {
     let filtered = this.documentCards;
@@ -179,6 +182,12 @@ export class DocGeneratorComponent {
     } else {
       this.selectedTagFilters.push(tagName);
     }
+  }
+
+  onHeaderSearch(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.documentSearchQuery = input.value;
+    this.onDocumentSearch();
   }
 
   isTagFilterActive(tagName: string): boolean {

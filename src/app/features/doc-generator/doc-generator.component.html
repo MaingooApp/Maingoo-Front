@@ -1,33 +1,18 @@
-<!-- Rejilla de 12 -->
-<div class="card grid grid-cols-12 gap-8">
-  <!-- Buscador -->
-  <div class="col-span-12 lg:col-span-8">
-    <p-iconfield>
-      <p-inputicon class="pi pi-search" />
-      <input
-        pInputText
-        type="text"
-        placeholder="Buscar por nombre o etiqueta..."
-        [(ngModel)]="documentSearchQuery"
-        (keyup)="onDocumentSearch()"
-        class="w-full" />
-      <p-inputicon
-        class="pi pi-times cursor-pointer"
-        (click)="documentSearchQuery = ''; onDocumentSearch()"
-        *ngIf="documentSearchQuery" />
-    </p-iconfield>
-  </div>
-
-  <!-- Filtros por etiquetas-->
-  <div class="col-span-12 lg:col-span-4">
-    <!-- Etiquetas-->
-    <div class="flex justify-start items-center gap-2">
+<!-- Header -->
+<app-section-header
+  title="Documentos"
+  [showViewSwitcher]="false"
+  searchPlaceholder="Buscar por nombre o etiqueta..."
+  (search)="onHeaderSearch($event)">
+  
+  <div controls class="flex items-center gap-2">
+      <!-- Etiquetas -->
       <button
         *ngFor="let tag of availableTags"
         type="button"
         (click)="toggleTagFilter(tag.name)"
         [class]="
-          'text-xs font-semibold px-3 py-2 rounded-full border cursor-pointer ' +
+          'text-xs font-semibold px-3 py-2 rounded-full border cursor-pointer transition-all ' +
           tag.color +
           (isTagFilterActive(tag.name) ? ' ring-2 ring-offset-1 ring-indigo-400 shadow-md' : ' opacity-70') +
           ' flex items-center'
@@ -35,18 +20,18 @@
         <i [class]="'pi ' + (isTagFilterActive(tag.name) ? 'pi-check-circle' : 'pi-circle') + ' mr-1'"></i>
         {{ tag.name }}
       </button>
-      <!-- Boton para limpiar filtros de etiqetas -->
+
+      <!-- Boton para limpiar filtros -->
       <button
         *ngIf="selectedTagFilters.length > 0 || documentSearchQuery"
         pButton
         type="button"
         icon="pi pi-filter-slash"
         label="Limpiar"
-        class="p-button-text p-button-sm"
+        class="p-button-text p-button-sm text-gray-500"
         (click)="clearAllFilters()"></button>
-    </div>
   </div>
-</div>
+</app-section-header>
 
 <!-- Cards (p-card)-->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">

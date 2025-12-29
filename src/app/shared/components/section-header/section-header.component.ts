@@ -16,6 +16,9 @@ export class SectionHeaderComponent {
 	@Input() listValue: string = 'list';
 	@Input() searchPlaceholder: string = 'Buscar...';
 
+	@Input() showViewSwitcher: boolean = true;
+	@Input() showSearch: boolean = true;
+
 	@Output() viewModeChange = new EventEmitter<string>();
 	@Output() search = new EventEmitter<Event>();
 
