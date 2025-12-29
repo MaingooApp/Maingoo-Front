@@ -83,9 +83,10 @@ export class ProductosComponent implements OnInit {
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
+  searchTerm: string = '';
 
   // View State
-  viewMode: 'list' | 'cards' | 'inventory' | 'history' = 'list';
+  viewMode: 'list' | 'cards' | 'inventory' | 'history' = 'cards';
   savedInventories: InventoryRecord[] = [];
   selectedCategory: string | null = null;
   selectedInventoryCategory: string[] = [];
@@ -95,7 +96,8 @@ export class ProductosComponent implements OnInit {
   get uniqueCategories(): { name: string, count: number }[] {
     const categoryCounts = new Map<string, number>();
 
-    this.productos.forEach(p => {
+    // Use filtered products instead of all products
+    this.filteredProducts.forEach(p => {
       if (p.category?.name) {
         categoryCounts.set(p.category.name, (categoryCounts.get(p.category.name) || 0) + 1);
       }
@@ -104,7 +106,17 @@ export class ProductosComponent implements OnInit {
     return Array.from(categoryCounts.entries()).map(([name, count]) => ({
       name,
       count
-    }));
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get filteredProducts(): Product[] {
+    if (!this.searchTerm) return this.productos;
+    const lowerTerm = this.normalizeText(this.searchTerm);
+    return this.productos.filter(p =>
+      this.normalizeText(p.name).includes(lowerTerm) ||
+      (p.category?.name && this.normalizeText(p.category.name).includes(lowerTerm)) ||
+      (p.eanCode && p.eanCode.includes(lowerTerm))
+    );
   }
 
   get inventoryCategoryOptions() {
@@ -120,7 +132,7 @@ export class ProductosComponent implements OnInit {
 
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
-    return this.productos.filter(p => p.category?.name === this.selectedCategory);
+    return this.filteredProducts.filter(p => p.category?.name === this.selectedCategory);
   }
 
   setViewMode(mode: 'list' | 'cards' | 'inventory' | 'history') {
@@ -392,7 +404,7 @@ export class ProductosComponent implements OnInit {
     this.showMenu = !this.showMenu;
   }
 
-  getCategoryStyle(category: string | undefined): { [klass: string]: any } {
+  getCategoryStyle(category: string | undefined | null): { [klass: string]: any } {
     if (!category) return {};
 
     switch (category.toLowerCase()) {
@@ -420,6 +432,10 @@ export class ProductosComponent implements OnInit {
 
   filterProductos(event: Event) {
     const value = (event.target as HTMLInputElement).value;
-    this.dt.filterGlobal(value, 'contains');
+    this.searchTerm = value;
+
+    if (this.dt) {
+      this.dt.filterGlobal(value, 'contains');
+    }
   }
 }
