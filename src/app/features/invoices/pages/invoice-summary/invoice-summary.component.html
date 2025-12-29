@@ -17,17 +17,20 @@
 <ng-template #tablaFacturas>
   <div>
     <div class="card rounded-xl shadow-md p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold flex items-center gap-2">Facturas y albaranes</h2>
-
-        <!-- Botón a la derecha -->
-        <button
-          pButton
-          label="Subir documento"
-          icon="pi pi-receipt"
-          severity="primary"
-          (click)="openAddInvoiceModal()"></button>
-      </div>
+      <app-section-header
+        title="Facturas y albaranes"
+        [showViewSwitcher]="false"
+        [showSearch]="false">
+        <div actions>
+          <button
+            pButton
+            label="Subir documento"
+            icon="pi pi-receipt"
+            severity="primary"
+            (click)="openAddInvoiceModal()">
+          </button>
+        </div>
+      </app-section-header>
 
       <app-tabla-dinamica
         [data]="invoices()"

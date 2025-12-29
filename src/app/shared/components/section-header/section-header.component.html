@@ -4,7 +4,7 @@
     <h2 class="text-2xl font-bold text-maingoo-deep m-0 whitespace-nowrap">{{ title }}</h2>
     
     <!-- View Switcher -->
-    <div class="bg-gray-100 p-1 rounded-lg flex items-center gap-1 shrink-0">
+    <div *ngIf="showViewSwitcher" class="bg-gray-100 p-1 rounded-lg flex items-center gap-1 shrink-0">
         <button
             (click)="setViewMode(gridValue)"
             class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
@@ -29,6 +29,7 @@
       <ng-content select="[controls]"></ng-content>
 
       <input
+        *ngIf="showSearch"
         type="text"
         pInputText
         [placeholder]="searchPlaceholder"
