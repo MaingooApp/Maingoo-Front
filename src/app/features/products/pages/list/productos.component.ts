@@ -10,6 +10,7 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -57,6 +58,7 @@ export interface InventoryRecord {
     DropdownModule,
     MultiSelectModule,
     ProductDetailSidebarComponent,
+    SectionHeaderComponent,
     InventoryHistoryComponent
   ],
   providers: [],

@@ -12,65 +12,45 @@
     <!-- Table content -->
     <ng-template #tablaProductos>
       <!-- Header Card with Search -->
-      <div
+      <!-- Header Card with Search -->
+      <app-section-header
         *ngIf="viewMode === 'list' || viewMode === 'cards'"
-        class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100 grid grid-cols-1 sm:grid-cols-[auto_1fr] items-center gap-4">
-        <div class="flex items-center gap-4">
-          <h2 class="text-2xl font-bold text-maingoo-deep m-0 flex items-center gap-2">
-            Mi almacén
-          </h2>
-
+        title="Mi almacén"
+        [viewMode]="viewMode"
+        gridValue="cards"
+        searchPlaceholder="Buscar..."
+        (viewModeChange)="setViewMode($any($event))"
+        (search)="filterProductos($event)">
         
-        <div class="flex bg-gray-100 rounded-lg p-1 gap-1">
+        <!-- Actions (Left) -->
+        <div actions class="flex gap-2">
             <button 
-                (click)="setViewMode('cards')"
-                class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-                [ngClass]="viewMode === 'cards' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
-                <i class="pi pi-th-large text-lg"></i>
+                pButton 
+                label="Elaborar inventario" 
+                icon="pi pi-file-edit" 
+                class="p-button-outlined p-button-secondary p-button-sm h-10"
+                (click)="elaborarInventario()">
             </button>
             <button 
-                (click)="setViewMode('list')"
-                class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-                [ngClass]="viewMode === 'list' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
-                <i class="pi pi-list text-lg"></i>
+                pButton 
+                label="Mis inventarios" 
+                icon="pi pi-history" 
+                class="p-button-outlined p-button-secondary p-button-sm h-10"
+                (click)="verHistorialInventarios()">
             </button>
         </div>
-        
-        <button 
-            pButton 
-            label="Elaborar inventario" 
-            icon="pi pi-file-edit" 
-            class="p-button-outlined p-button-secondary p-button-sm h-10"
-            (click)="elaborarInventario()">
-        </button>
-        <button 
-            pButton 
-            label="Mis inventarios" 
-            icon="pi pi-history" 
-            class="p-button-outlined p-button-secondary p-button-sm h-10 mr-2"
-            (click)="verHistorialInventarios()">
-        </button>
-        </div>
 
-        <div class="flex flex-col sm:flex-row justify-center sm:justify-end w-full gap-3">
-          <!-- View Toggle -->
-           
+        <!-- Controls (Right) -->
+        <div controls>
           <button
             pButton
             label=""
             icon="pi pi-trash"
-            class="p-button-danger p-button-outlined w-full sm:w-auto order-2 sm:order-2"
+            class="p-button-danger p-button-outlined w-full sm:w-auto"
             (click)="eliminarTodo()"
             [disabled]="productos.length === 0 || cargando"></button>
-
-          <input
-            type="text"
-            pInputText
-            placeholder="Buscar..."
-            (input)="filterProductos($event)"
-            class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-full max-w-full sm:max-w-[20rem] placeholder:text-gray-400 placeholder:text-base text-left order-1 sm:order-3" />
         </div>
-      </div>
+      </app-section-header>
 
       <!-- List View (similar to Suppliers) -->
       <div class="flex gap-6 relative items-start">
