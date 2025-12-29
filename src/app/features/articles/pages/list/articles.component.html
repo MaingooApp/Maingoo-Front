@@ -1,19 +1,18 @@
-<div class="p-6">
-  <div class="mb-6">
-    <app-section-header
-      title="Artículos"
-      [showViewSwitcher]="false"
-      [showSearch]="false">
-    </app-section-header>
-  </div>
+<div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
+  <app-section-header
+    class="w-full"
+    title="Artículos"
+    [showViewSwitcher]="false"
+    [showSearch]="false">
+  </app-section-header>
   
-  <div class="bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center justify-center text-center">
+  <div class="bg-white rounded-xl border border-gray-200 p-8 flex flex-col items-center justify-center text-center w-full">
     <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
       <i class="pi pi-clipboard text-2xl text-gray-400"></i>
     </div>
     <h3 class="text-lg font-semibold text-gray-900">Próximamente</h3>
     <p class="text-gray-500 mt-1 max-w-sm">
-      Esta sección está en construcción. Aquí podrás gestionar todos los artículos de tu inventario.
+      Esta sección está en construcción. Aquí podrás gestionar todo lo relacionado con fichas técnicas, fichas de producción, escandallos, etc.
     </p>
   </div>
 </div>
