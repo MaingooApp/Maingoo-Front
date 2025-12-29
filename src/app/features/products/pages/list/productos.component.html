@@ -12,7 +12,6 @@
     <!-- Table content -->
     <ng-template #tablaProductos>
       <!-- Header Card with Search -->
-      <!-- Header Card with Search -->
       <app-section-header
         *ngIf="viewMode === 'list' || viewMode === 'cards'"
         title="Mi almacén"
@@ -70,7 +69,6 @@
             <tr>
               <th class="text-maingoo-deep font-bold text-sm">Producto</th>
               <th class="text-maingoo-deep font-bold text-sm">Stock</th>
-              <th class="text-maingoo-deep font-bold text-sm">Stock Ideal</th>
               <th class="text-maingoo-deep font-bold text-sm">Proveedor</th>
               <th class="text-maingoo-deep font-bold text-sm">Precio</th>
               <th class="w-20"></th>
@@ -96,9 +94,6 @@
               <td>
                 <span class="text-gray-600 text-sm font-medium">{{ item.stock | number: '1.2-2' }}</span>
                 <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
-              </td>
-              <td>
-                <span class="text-gray-600 text-sm font-medium">{{ item.idealStock ? (item.idealStock | number: '1.0-2') : '-' }}</span>
               </td>
               <td>
                 <span class="text-gray-600 text-sm font-medium">{{ item.supplier?.name || '-' }}</span>
@@ -344,8 +339,9 @@
   <ng-template #categoryDetailContent>
         <!-- Header -->
         <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-            <h2 class="text-xl font-bold text-maingoo-deep flex items-center gap-2">
-                <i class="pi pi-th-large text-maingoo-sage"></i>
+            <h2 
+                class="text-xl font-bold mb-0 transition-colors px-3 py-1 rounded-full bg-opacity-20 flex items-center gap-2"
+                [ngStyle]="getCategoryStyle(selectedCategory)">
                 {{ selectedCategory }}
             </h2>
             <button 
