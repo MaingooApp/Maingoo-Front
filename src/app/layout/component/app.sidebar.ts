@@ -32,7 +32,7 @@ export class AppSidebar {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
-  
+
   messageText = '';
   messages: ChatMessage[] = [];
   isTyping = false;
@@ -180,17 +180,17 @@ export class AppSidebar {
   private updateContextFromRoute(url: string): void {
     // Limpiar query params y fragments
     const cleanUrl = url.split('?')[0].split('#')[0];
-    
+
     // Buscar contexto exacto o por prefijo
     if (this.routeContexts[cleanUrl]) {
       this.currentContext = this.routeContexts[cleanUrl];
     } else {
       // Buscar por prefijo (ej: /facturas/1 -> /facturas)
-      const matchedRoute = Object.keys(this.routeContexts).find(route => 
+      const matchedRoute = Object.keys(this.routeContexts).find(route =>
         route !== '/' && cleanUrl.startsWith(route)
       );
-      this.currentContext = matchedRoute 
-        ? this.routeContexts[matchedRoute] 
+      this.currentContext = matchedRoute
+        ? this.routeContexts[matchedRoute]
         : this.routeContexts['/'];
     }
   }
@@ -288,7 +288,7 @@ export class AppSidebar {
     if (this.layoutService.isNotificationPanelActive()) {
       this.layoutService.toggleNotificationPanel();
     }
-    
+
     if (this.layoutService.isProfilePanelActive()) {
       this.layoutService.toggleProfilePanel();
     }
