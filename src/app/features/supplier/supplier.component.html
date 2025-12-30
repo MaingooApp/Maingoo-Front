@@ -1,7 +1,8 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
 
-    <!-- Header Card with Search (Full Width) -->
+
+    <!-- SECTION: Header & Actions -->
     <app-section-header class="w-full" title="Proveedores" [viewMode]="viewMode"
       [showViewSwitcher]="supplier.length > 0" [showSearch]="supplier.length > 0"
       searchPlaceholder="Buscar un proveedor..." (viewModeChange)="viewMode = $any($event)"
@@ -12,12 +13,14 @@
       </div>
     </app-section-header>
 
-    <!-- Main Content Wrapper (Row) -->
+    <!-- SECTION: Main Layout (Table/Grid) -->
     <div class="flex flex-row gap-6 w-full items-start">
 
-      <!-- Left Side: Main Content (Table + Grid) -->
+      <!-- Left Side: Main Content -->
       <div class="flex-1 min-w-0 transition-all duration-300">
-        <div *ngIf="supplier.length === 0; else tablaSupplier">
+
+        <!-- SECTION: Empty State -->
+        <div *ngIf="!cargando && supplier.length === 0; else tablaSupplier">
           <app-empty-state icon="pi-truck" title="No hay proveedores registrados"
             description="Cuando escanees o subas una factura, ese proveedor, aparecerá aquí.">
           </app-empty-state>
@@ -25,7 +28,7 @@
 
         <ng-template #tablaSupplier>
 
-          <!-- Grid View -->
+          <!-- VIEW: Grid Mode -->
           <ng-container *ngIf="viewMode === 'grid'">
             <div class="grid gap-6 transition-all duration-300" [ngClass]="
             selectedSupplier ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
@@ -66,7 +69,7 @@
             </div>
           </ng-container>
 
-          <!-- List View -->
+          <!-- VIEW: List Mode -->
           <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <p-table [value]="filteredSupplier" [rowHover]="true" styleClass="p-datatable-sm">
               <ng-template pTemplate="header">
@@ -112,7 +115,7 @@
         </ng-template>
       </div>
 
-      <!-- Responsive Detail Container -->
+      <!-- SECTION: Sidebar/Detail Panel -->
       <ng-container *ngIf="selectedSupplier">
         <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
         <div

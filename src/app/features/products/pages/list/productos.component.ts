@@ -70,6 +70,8 @@ export class ProductosComponent implements OnInit {
   private modalService = inject(ModalService);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
+  // --- State & Data Definitions ---
+
   priceChartData: any;
   priceChartOptions: any;
 
@@ -120,6 +122,8 @@ export class ProductosComponent implements OnInit {
     return this.filteredProducts.filter(p => p.category?.name === this.selectedCategory);
   }
 
+  // --- UI Handlers & Interactivity ---
+
   setViewMode(mode: 'list' | 'cards') {
     this.viewMode = mode;
     if (mode === 'list') {
@@ -156,6 +160,8 @@ export class ProductosComponent implements OnInit {
     });
   }
 
+  // --- Initialization & Lifecycle ---
+
   async ngOnInit(): Promise<void> {
     this.cargando = true;
 
@@ -173,6 +179,8 @@ export class ProductosComponent implements OnInit {
     });
   }
 
+  // --- Helpers & Utilities ---
+
   getInputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;
   }
@@ -184,6 +192,8 @@ export class ProductosComponent implements OnInit {
       3000
     );
   }
+
+  // --- Data Fetching & Operations ---
 
   eliminarTodo() {
     this.confirmationService.confirm({
