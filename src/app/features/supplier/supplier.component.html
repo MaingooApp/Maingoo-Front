@@ -3,7 +3,7 @@
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <!-- Header Card with Search (Full Width) -->
     <app-section-header class="w-full" title="Proveedores" [viewMode]="viewMode"
-      searchPlaceholder="Buscar por nombre..." (viewModeChange)="viewMode = $any($event)"
+      searchPlaceholder="Buscar un proveedor..." (viewModeChange)="viewMode = $any($event)"
       (search)="filterSuppliers($event)">
       <div actions>
         <button pButton label="Subir Factura" icon="pi pi-receipt" severity="primary" (click)="openAddInvoiceModal()">
