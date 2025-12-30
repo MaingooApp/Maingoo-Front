@@ -23,7 +23,11 @@ import { InvoiceService } from '../../../invoices/services/invoice.service';
 
 import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
+
 import { SupplierService } from '@app/features/supplier/services/supplier.service';
+import { ModalService } from '@app/shared/services/modal.service';
+import { AddInvoiceModalComponent } from '../../../invoices/components/add-invoice-modal/add-invoice-modal.component';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 
 
 
@@ -63,6 +67,8 @@ export class ProductosComponent implements OnInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
+  private modalService = inject(ModalService);
+  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   priceChartData: any;
   priceChartOptions: any;
@@ -140,6 +146,14 @@ export class ProductosComponent implements OnInit {
 
   closeCategoryDetail() {
     this.selectedCategory = null;
+  }
+
+  openAddInvoiceModal() {
+    this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
+      width: '960px',
+      header: 'Agregar documento',
+      dismissableMask: false
+    });
   }
 
   async ngOnInit(): Promise<void> {

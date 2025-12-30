@@ -1,15 +1,18 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
-    
+
     <!-- Header Card with Search -->
     <app-section-header *ngIf="viewMode === 'list' || viewMode === 'cards'" title="Mi almacén" [viewMode]="viewMode"
       gridValue="cards" searchPlaceholder="Buscar un producto..." (viewModeChange)="setViewMode($any($event))"
-      (search)="filterProductos($event)">
+      [showViewSwitcher]="productos.length > 0" [showSearch]="productos.length > 0" (search)="filterProductos($event)">
 
-
+      <div actions class="flex items-center gap-2">
+        <button pButton label="Subir Factura" icon="pi pi-receipt" severity="primary" (click)="openAddInvoiceModal()">
+        </button>
+      </div>
 
       <!-- Controls (Right) -->
-      <div controls>
+      <div controls *ngIf="productos.length > 0">
         <button pButton label="" icon="pi pi-trash" class="p-button-danger p-button-outlined w-full sm:w-auto"
           (click)="eliminarTodo()" [disabled]="productos.length === 0 || cargando"></button>
       </div>
