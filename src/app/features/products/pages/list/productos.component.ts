@@ -11,6 +11,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -47,7 +48,9 @@ import { SupplierService } from '@app/features/supplier/services/supplier.servic
     DropdownModule,
     MultiSelectModule,
     ProductDetailSidebarComponent,
+    ProductDetailSidebarComponent,
     SectionHeaderComponent,
+    EmptyStateComponent
 
   ],
   providers: [],

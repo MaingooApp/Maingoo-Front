@@ -15,11 +15,11 @@
     </app-section-header>
 
     <!-- Empty State -->
-    <div *ngIf="!cargando && productos.length === 0; else tablaProductos"
-      class="card rounded-xl p-10 shadow-md text-center">
-      <i class="pi pi-warehouse text-gray-300 mb-6" style="font-size: 6rem"></i>
-      <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay productos en tu almacén</h2>
-      <p class="text-gray-500">Cuando escanees o subas una factura, esos productos, aparecerá aquí.</p>
+    <!-- Empty State -->
+    <div *ngIf="!cargando && productos.length === 0; else tablaProductos">
+      <app-empty-state icon="pi-warehouse" title="No hay productos en tu almacén"
+        description="Cuando escanees o subas una factura, esos productos, aparecerá aquí.">
+      </app-empty-state>
     </div>
 
     <!-- Table content -->

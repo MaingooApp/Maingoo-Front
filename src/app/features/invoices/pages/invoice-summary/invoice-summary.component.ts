@@ -13,6 +13,7 @@ import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
 import { ModalService } from '@shared/services/modal.service';
 import { ToastService } from '@shared/services/toast.service';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -35,6 +36,7 @@ import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add
     InputIconModule,
     TablaDinamicaComponent,
     SectionHeaderComponent,
+    EmptyStateComponent,
     DialogModule,
     FormsModule,
     FileUploadModule

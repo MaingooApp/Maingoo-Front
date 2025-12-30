@@ -2,10 +2,7 @@
   <app-section-header class="w-full" title="Artículos" [showViewSwitcher]="false" [showSearch]="false">
   </app-section-header>
 
-  <div class="card rounded-xl p-10 shadow-md text-center bg-white w-full">
-    <i class="pi pi-clipboard text-gray-300 mb-6" style="font-size: 6rem"></i>
-    <h2 class="text-2xl font-semibold text-gray-700 mb-2">Próximamente</h2>
-    <p class="text-gray-500">Esta sección está en construcción. Aquí podrás gestionar todo lo relacionado con fichas
-      técnicas, fichas de producción, escandallos, etc.</p>
-  </div>
+  <app-empty-state class="w-full" icon="pi-clipboard" title="Próximamente"
+    description="Esta sección está en construcción. Aquí podrás gestionar todo lo relacionado con fichas técnicas, fichas de producción, escandallos, etc.">
+  </app-empty-state>
 </div>
