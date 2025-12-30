@@ -1,8 +1,10 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
-  <app-section-header class="w-full" title="Artículos" [showViewSwitcher]="false" [showSearch]="false">
-  </app-section-header>
+  <div class="flex-1 w-full min-w-0 transition-all duration-300">
+    <app-section-header class="w-full" title="Artículos" [showViewSwitcher]="false" [showSearch]="false">
+    </app-section-header>
 
-  <app-empty-state class="w-full" icon="pi-clipboard" title="Próximamente"
-    description="Esta sección está en construcción. Aquí podrás gestionar todo lo relacionado con fichas técnicas, fichas de producción, escandallos, etc.">
-  </app-empty-state>
+    <app-empty-state class="w-full" icon="pi-clipboard" title="No hay articulos creados"
+      description="Cuando escanees o subas una factura, podras crear una ficha técnica, de producción o un escandallo.">
+    </app-empty-state>
+  </div>
 </div>
