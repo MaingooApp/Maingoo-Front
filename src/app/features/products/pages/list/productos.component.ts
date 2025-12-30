@@ -19,23 +19,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
-import { InventoryHistoryComponent } from '../../components/inventory-history/inventory-history.component';
+
 import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
 import { SupplierService } from '@app/features/supplier/services/supplier.service';
 
-export interface InventoryItem extends Product {
-  idealStock: number | null;
-  manualInventory: number | null;
-}
 
-export interface InventoryRecord {
-  id: string;
-  date: Date;
-  itemsCount: number;
-  items: InventoryItem[];
-  categoryNames: string[];
-}
 
 @Component({
   selector: 'app-productos',
@@ -59,7 +48,7 @@ export interface InventoryRecord {
     MultiSelectModule,
     ProductDetailSidebarComponent,
     SectionHeaderComponent,
-    InventoryHistoryComponent
+
   ],
   providers: [],
   templateUrl: './productos.component.html',
@@ -78,7 +67,7 @@ export class ProductosComponent implements OnInit {
   @ViewChild('dt') dt!: Table;
 
   productos: Product[] = [];
-  inventoryItems: InventoryItem[] = []; // Local inventory state
+
   filtroGlobal: string = '';
   cargando = false;
   selectedProduct: Product | null = null;
@@ -86,12 +75,8 @@ export class ProductosComponent implements OnInit {
   searchTerm: string = '';
 
   // View State
-  viewMode: 'list' | 'cards' | 'inventory' | 'history' = 'cards';
-  savedInventories: InventoryRecord[] = [];
+  viewMode: 'list' | 'cards' = 'cards';
   selectedCategory: string | null = null;
-  selectedInventoryCategory: string[] = [];
-  selectedInventoryRecord: InventoryRecord | null = null;
-  currentDate = new Date();
 
   get uniqueCategories(): { name: string, count: number }[] {
     const categoryCounts = new Map<string, number>();
@@ -119,23 +104,14 @@ export class ProductosComponent implements OnInit {
     );
   }
 
-  get inventoryCategoryOptions() {
-    return this.uniqueCategories.map(c => ({ label: c.name, value: c.name }));
-  }
 
-  get filteredInventoryItems(): InventoryItem[] {
-    if (!this.selectedInventoryCategory || this.selectedInventoryCategory.length === 0) {
-      return this.inventoryItems;
-    }
-    return this.inventoryItems.filter(item => item.category?.name && this.selectedInventoryCategory.includes(item.category.name));
-  }
 
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
     return this.filteredProducts.filter(p => p.category?.name === this.selectedCategory);
   }
 
-  setViewMode(mode: 'list' | 'cards' | 'inventory' | 'history') {
+  setViewMode(mode: 'list' | 'cards') {
     this.viewMode = mode;
     if (mode === 'list') {
       this.selectedCategory = null;
@@ -145,73 +121,11 @@ export class ProductosComponent implements OnInit {
   }
 
   elaborarInventario() {
-    this.selectedInventoryRecord = null;
-    this.currentDate = new Date();
-    this.inventoryItems = this.productos.map(p => ({
-      ...p,
-      idealStock: null,
-      manualInventory: null
-    }));
-    this.selectedInventoryCategory = []; // Reset selection
-    this.setViewMode('inventory');
-    this.hideDialog();
-  }
-
-  guardarInventario() {
-    // Use the filtered items logic to ensure we only save what is selected
-    const itemsToSave = this.filteredInventoryItems;
-
-    const newRecord: InventoryRecord = {
-      id: crypto.randomUUID(),
-      date: new Date(),
-      itemsCount: itemsToSave.length,
-      items: [...itemsToSave], // Copy filtered state
-      categoryNames: this.selectedInventoryCategory
-    };
-
-    this.savedInventories.unshift(newRecord); // Add to beginning
-    this.toastService.success('Inventario Guardado', 'Se ha generado correctamente la ficha de inventario.');
-    this.setViewMode('history');
+    /* this.toastService.info('Funcionalidad deshabilitada', 'La elaboración de inventario no está disponible.'); */
   }
 
   verHistorialInventarios() {
-    this.setViewMode('history');
-  }
-
-  verDetalleInventario(record: InventoryRecord) {
-    this.selectedInventoryRecord = record;
-    this.inventoryItems = [...record.items];
-    this.currentDate = record.date;
-    // Stay in 'history' view to show master-detail layout
-  }
-
-  cancelarEdicionInventario() {
-    if (this.selectedInventoryRecord) {
-      this.selectedInventoryRecord = null; // Just close sidebar
-    } else {
-      this.setViewMode('list');
-    }
-  }
-
-  cerrarDetalleInventario() {
-    this.selectedInventoryRecord = null;
-  }
-
-  eliminarInventario(record: InventoryRecord) {
-    this.confirmationService.confirm({
-      message: '¿Estás seguro de que quieres eliminar este histórico de inventario?',
-      header: 'Confirmar eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, eliminar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-secondary p-button-text',
-      onAccept: () => {
-        this.savedInventories = this.savedInventories.filter(r => r !== record);
-        this.selectedInventoryRecord = null;
-        this.toastService.success('Inventario eliminado', 'El registro ha sido eliminado correctamente.');
-      }
-    });
+    /* this.toastService.info('Funcionalidad deshabilitada', 'El historial de inventarios no está disponible.'); */
   }
 
   getFormattedCategoryNames(names: string[] | undefined | null): string {
