@@ -1,7 +1,8 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
 
-    <!-- Header Card with Search -->
+
+    <!-- SECTION: Header & Actions -->
     <app-section-header *ngIf="viewMode === 'list' || viewMode === 'cards'" title="Mi almacén" [viewMode]="viewMode"
       gridValue="cards" searchPlaceholder="Buscar un producto..." (viewModeChange)="setViewMode($any($event))"
       [showViewSwitcher]="productos.length > 0" [showSearch]="productos.length > 0" (search)="filterProductos($event)">
@@ -18,23 +19,25 @@
       </div>
     </app-section-header>
 
-    <!-- Empty State -->
-    <div *ngIf="productos.length === 0; else tablaProductos">
+    <!-- SECTION: Empty State -->
+    <div *ngIf="!cargando && productos.length === 0; else tablaProductos">
       <app-empty-state icon="pi-warehouse" title="No hay productos en tu almacén"
         description="Cuando escanees o subas una factura, esos productos, aparecerá aquí.">
       </app-empty-state>
     </div>
 
-    <!-- Table content -->
+    <!-- SECTION: Main Layout (Table/Grid) -->
     <ng-template #tablaProductos>
 
 
-      <!-- List View (similar to Suppliers) -->
+      <!-- VIEW: List Mode & VIEW: Grid Mode Wrapper -->
       <div class="flex relative items-start transition-all duration-500"
         [class.gap-6]="!(selectedCategory && selectedProduct)" [class.gap-0]="selectedCategory && selectedProduct">
         <div
           [ngClass]="(selectedCategory && selectedProduct) ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'"
           class="transition-all duration-500 ease-in-out">
+
+          <!-- VIEW: List Mode -->
           <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <p-table #dt [value]="productos" [rowHover]="true" styleClass="p-datatable-sm" [paginator]="true"
               [rows]="20" [rowsPerPageOptions]="[10, 20, 50]"
@@ -90,7 +93,7 @@
             </p-table>
           </div>
 
-          <!-- Category Cards Grid -->
+          <!-- VIEW: Cards Mode (Categories) -->
           <div *ngIf="viewMode === 'cards'" class="grid gap-6 animate-fade-in"
             [ngClass]="(selectedCategory || selectedProduct) ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
             <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
@@ -113,7 +116,7 @@
 
         </div>
 
-        <!-- UNIFIED DESKTOP SIDEBAR (EXPANDING CARDS) -->
+        <!-- SECTION: Unified Sidebar (Expanding Cards) -->
         <div *ngIf="selectedCategory || selectedProduct" [ngClass]="{
         'w-0 overflow-hidden opacity-0': !selectedCategory && !selectedProduct, 
         'w-full md:w-1/2': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct), 

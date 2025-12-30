@@ -59,6 +59,7 @@ export class SupplierComponent {
   private modalService = inject(ModalService);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
+  // --- State & Data Definitions ---
   // Data
   supplier: Supplier[] = [];
   filteredSupplier: Supplier[] = [];
@@ -75,6 +76,8 @@ export class SupplierComponent {
     { icon: 'pi pi-th-large', value: 'grid' },
     { icon: 'pi pi-list', value: 'list' }
   ];
+
+  // --- UI Handlers & Interactivity ---
 
   openAddInvoiceModal() {
     this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
@@ -135,6 +138,8 @@ export class SupplierComponent {
   historyChartData: any;
   chartOptions: any;
 
+  // --- Initialization & Lifecycle ---
+
   async ngOnInit() {
     this.cargando = true;
     this.initChartOptions();
@@ -151,6 +156,8 @@ export class SupplierComponent {
       }
     });
   }
+
+  // --- Helpers & Utilities ---
 
   getInputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;
@@ -174,6 +181,8 @@ export class SupplierComponent {
   editSupplier(supplier: Supplier) {
     this.toastService.info('Próximamente', 'La edición de proveedores estará disponible pronto.');
   }
+
+  // --- Data Fetching & Operations ---
 
   eliminarProveedor(id: string) {
     this.supplierService.deleteSupplier(id).subscribe({
