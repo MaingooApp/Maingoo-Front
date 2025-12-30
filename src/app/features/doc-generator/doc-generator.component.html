@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
+<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
     <div class="flex-1 w-full min-w-0 transition-all duration-300">
         <app-section-header class="w-full sticky top-24 z-30" title="Documentos" [showViewSwitcher]="false"
             [searchPlaceholder]="'Buscar documentos...'" [showSearch]="true" (search)="onHeaderSearch($event)">
@@ -15,10 +15,10 @@
 
                     <!-- Invoice Card -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex flex-col items-center justify-center text-center"
-                        [ngClass]="view() === 'invoices' ? 'h-24 border-maingoo-sage bg-maingoo-mint/5 ring-2 ring-maingoo-sage ring-offset-2' : 'h-32'"
+                        [ngClass]="view() === 'invoices' ? 'h-24 border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : 'h-32'"
                         (click)="setView('invoices')">
                         <div class="rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-                            [ngClass]="view() === 'invoices' ? 'w-12 h-12 bg-white' : 'w-20 h-20 bg-maingoo-mint/30'">
+                            [ngClass]="view() === 'invoices' ? 'w-12 h-12 bg-white' : 'w-20 h-20 /30'">
                             <i class="pi pi-receipt text-maingoo-sage"
                                 [ngClass]="view() === 'invoices' ? 'text-2xl' : 'text-4xl'"></i>
                         </div>
