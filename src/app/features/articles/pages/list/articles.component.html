@@ -1,14 +1,60 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
-    <app-section-header class="w-full" title="Artículos" [showViewSwitcher]="false" [showSearch]="hasInvoices">
+    <app-section-header class="w-full" title="Artículos" [viewMode]="viewMode" gridValue="cards"
+      (viewModeChange)="setViewMode($any($event))" [showViewSwitcher]="articles().length > 0"
+      [showSearch]="hasInvoices">
       <div actions *ngIf="hasInvoices">
         <button pButton label="Crear artículo" icon="pi pi-plus" severity="primary"
           (click)="openCreateArticle()"></button>
       </div>
     </app-section-header>
 
-    <app-empty-state class="w-full" icon="pi-clipboard" title="No hay articulos creados"
-      [description]="hasInvoices ? 'Crea tu primer articulo con el boton superior \'Crear articulo\'' : 'Cuando escanees o subas una factura, podras crear articulos de venta.'">
+    <!-- Articles Grid -->
+    <div *ngIf="articles().length > 0 && viewMode === 'cards'"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+      <div *ngFor="let article of articles()"
+        class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+            <i class="pi pi-box text-xl"></i>
+          </div>
+          <h3 class="font-semibold text-gray-800 truncate">{{ article.name }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Articles List (Table) -->
+    <div *ngIf="articles().length > 0 && viewMode === 'list'"
+      class="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <p-table [value]="articles()" [rowHover]="true" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-maingoo-deep font-bold text-sm">Artículo</th>
+            <th class="w-20"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-article>
+          <tr class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                  <i class="pi pi-box"></i>
+                </div>
+                <span class="font-bold text-maingoo-deep">{{ article.name }}</span>
+              </div>
+            </td>
+            <td>
+              <button pButton icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded text-gray-400"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Empty State -->
+    <app-empty-state *ngIf="articles().length === 0 && !loading" class="w-full" icon="pi-clipboard"
+      title="No hay articulos creados"
+      [description]="hasInvoices ? 'Crea tu primer articulo de venta con el boton superior \'Crear articulo\'' : 'Cuando escanees o subas una factura, podras crear articulos de venta.'">
     </app-empty-state>
   </div>
 </div>
