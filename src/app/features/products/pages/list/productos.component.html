@@ -5,15 +5,7 @@
       gridValue="cards" searchPlaceholder="Buscar un producto..." (viewModeChange)="setViewMode($any($event))"
       (search)="filterProductos($event)">
 
-      <!-- Actions (Left) -->
-      <div actions class="flex gap-2">
-        <button pButton label="Elaborar inventario" icon="pi pi-file-edit"
-          class="p-button-outlined p-button-secondary p-button-sm h-10" (click)="elaborarInventario()">
-        </button>
-        <button pButton label="Mis inventarios" icon="pi pi-history"
-          class="p-button-outlined p-button-secondary p-button-sm h-10" (click)="verHistorialInventarios()">
-        </button>
-      </div>
+
 
       <!-- Controls (Right) -->
       <div controls>
@@ -111,17 +103,6 @@
 
               <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
                 {{ category.count }} prod.
-              </div>
-            </div>
-
-            <!-- Empty State for Categories -->
-            <div *ngIf="uniqueCategories.length === 0" class="col-span-full">
-              <div class="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
-                <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <i class="pi pi-inbox text-3xl text-gray-400"></i>
-                </div>
-                <h3 class="text-lg font-semibold text-gray-700">No hay categorías</h3>
-                <p class="text-gray-500 mt-1">No se encontraron productos con categoría asignada.</p>
               </div>
             </div>
           </div>
