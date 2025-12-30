@@ -9,6 +9,15 @@
     searchPlaceholder="Buscar por nombre..."
     (viewModeChange)="viewMode = $any($event)"
     (search)="filterSuppliers($event)">
+    <div actions>
+      <button
+        pButton
+        label="Subir Factura"
+        icon="pi pi-receipt"
+        severity="primary"
+        (click)="openAddInvoiceModal()">
+      </button>
+    </div>
   </app-section-header>
 
   <!-- Main Content Wrapper (Row) -->

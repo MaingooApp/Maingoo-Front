@@ -22,6 +22,9 @@ import { Supplier } from './interfaces/supplier.interface';
 
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
+import { ModalService } from '../../shared/services/modal.service';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 
 @Component({
   selector: 'app-proveedores',
@@ -51,6 +54,8 @@ export class SupplierComponent {
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
+  private modalService = inject(ModalService);
+  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // Data
   supplier: Supplier[] = [];
@@ -68,6 +73,14 @@ export class SupplierComponent {
     { icon: 'pi pi-th-large', value: 'grid' },
     { icon: 'pi pi-list', value: 'list' }
   ];
+
+  openAddInvoiceModal() {
+    this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
+      width: '960px',
+      header: 'Agregar documento',
+      dismissableMask: false
+    });
+  }
 
   viewInvoice(invoice: Invoice) {
     if (invoice.id) {
