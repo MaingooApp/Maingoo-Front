@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
+<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <app-section-header class="w-full" title="Artículos" [viewMode]="viewMode" gridValue="cards"
       (viewModeChange)="setViewMode($any($event))" [showViewSwitcher]="articles().length > 0"
@@ -34,7 +34,7 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-article>
-          <tr class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors">
+          <tr class="cursor-pointer hover:/20 transition-colors">
             <td>
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">

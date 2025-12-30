@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
+<div class="flex flex-col gap-6 relative items-start  p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
 
 
@@ -81,8 +81,8 @@
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-item>
-                <tr class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors border-l-4 border-transparent"
-                  [ngClass]="{ 'bg-maingoo-mint/10 !border-maingoo-sage': selectedSupplier?.id === item.id }"
+                <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+                  [ngClass]="{ '/10 !border-maingoo-sage': selectedSupplier?.id === item.id }"
                   (click)="showDialog(item)">
                   <td>
                     <div class="flex flex-col">
@@ -164,13 +164,13 @@
             <div *ngIf="showMenu"
               class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100 overflow-hidden animate-fade-in origin-top-right">
               <button (click)="downloadSupplier()"
-                class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-maingoo-mint hover:text-maingoo-deep flex items-center gap-2 transition-colors">
+                class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover: hover:text-maingoo-deep flex items-center gap-2 transition-colors">
                 <i class="pi pi-download"></i>
                 Descargar información
               </button>
               <div class="h-px bg-gray-100 my-1"></div>
               <button (click)="editSupplier(selectedSupplier!)"
-                class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-maingoo-mint hover:text-maingoo-deep flex items-center gap-2 transition-colors">
+                class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover: hover:text-maingoo-deep flex items-center gap-2 transition-colors">
                 <i class="pi pi-pencil"></i>
                 Editar
               </button>
@@ -201,7 +201,7 @@
             </h1>
             <div class="flex gap-2" *ngIf="selectedSupplier?.commercialName">
               <p-tag [value]="selectedSupplier!.commercialName!" severity="info" [rounded]="true"
-                styleClass="text-sm font-normal border-0 px-3 py-1 bg-maingoo-mint/30 text-maingoo-deep"></p-tag>
+                styleClass="text-sm font-normal border-0 px-3 py-1 /30 text-maingoo-deep"></p-tag>
             </div>
           </div>
 
@@ -452,7 +452,7 @@
 
               <!-- Invoice List -->
               <div *ngFor="let invoice of supplierInvoices"
-                class="flex items-center justify-between p-3 bg-maingoo-mint rounded-lg border border-transparent hover:border-maingoo-sage transition-colors cursor-pointer group relative"
+                class="flex items-center justify-between p-3  rounded-lg border border-transparent hover:border-maingoo-sage transition-colors cursor-pointer group relative"
                 (click)="viewInvoice(invoice)" pTooltip="Ver factura" tooltipPosition="top">
                 <div class="flex items-center gap-3">
                   <div

@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
+<div class="flex flex-col gap-6 relative items-start  p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
 
 
@@ -51,8 +51,8 @@
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-item>
-                <tr class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors border-l-4 border-transparent"
-                  [ngClass]="{ 'bg-maingoo-mint/10 !border-maingoo-sage': selectedProduct?.id === item.id }"
+                <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+                  [ngClass]="{ '/10 !border-maingoo-sage': selectedProduct?.id === item.id }"
                   (click)="showDialog(item)">
                   <td>
                     <div class="flex flex-col">
@@ -218,9 +218,8 @@
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-item>
-          <tr class="cursor-pointer hover:bg-maingoo-mint/20 transition-colors border-l-4 border-transparent"
-            [ngClass]="{ 'bg-maingoo-mint/10 !border-maingoo-sage': selectedProduct?.id === item.id }"
-            (click)="showDialog(item)">
+          <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+            [ngClass]="{ '/10 !border-maingoo-sage': selectedProduct?.id === item.id }" (click)="showDialog(item)">
             <td class="border-gray-100">
               <div class="flex flex-col">
                 <span class="font-bold text-maingoo-deep text-sm">{{ item.name }}</span>
