@@ -42,7 +42,7 @@ export class AppSidebar {
 
   quickLinks = [
     { label: 'Métricas', icon: 'pi pi-chart-line', route: '/' },
-    { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
+    // { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
     { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
     { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
     { label: 'Artículos', icon: 'pi pi-clipboard', route: '/articulos' },
