@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/chat-bubble.service';
 import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
-import { LayoutService } from '../service/layout.service';
+import { LayoutService } from '../../service/layout.service';
 import { filter } from 'rxjs/operators';
 
 interface QuickAction {
@@ -118,7 +118,7 @@ export class AppSidebar {
   get sidebarStyle() {
     const isNotificationActive = this.layoutService.isNotificationPanelActiveOrAnimating();
     const isProfileActive = this.layoutService.isProfilePanelActiveOrAnimating();
-    
+
     // Si ambos están activos
     if (isNotificationActive && isProfileActive) {
       return {
@@ -127,7 +127,7 @@ export class AppSidebar {
         bottom: '2rem'
       };
     }
-    
+
     // Si alguno de los dos está activo
     if (isNotificationActive || isProfileActive) {
       return {
