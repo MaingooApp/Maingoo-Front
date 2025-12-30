@@ -125,11 +125,13 @@
       </div>
       
       <!-- Category Cards Grid -->
-      <div *ngIf="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
+      <div *ngIf="viewMode === 'cards'" 
+           class="grid gap-6 animate-fade-in"
+           [ngClass]="(selectedCategory || selectedProduct) ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
         <div 
             *ngFor="let category of uniqueCategories" 
             (click)="selectCategory(category.name)"
-            class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-full">
+            class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
             
             <div class="flex items-start justify-between mb-4">
               <h3 
