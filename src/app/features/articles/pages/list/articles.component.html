@@ -1,10 +1,14 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
-    <app-section-header class="w-full" title="Artículos" [showViewSwitcher]="false" [showSearch]="false">
+    <app-section-header class="w-full" title="Artículos" [showViewSwitcher]="false" [showSearch]="hasInvoices">
+      <div actions *ngIf="hasInvoices">
+        <button pButton label="Crear artículo" icon="pi pi-plus" severity="primary"
+          (click)="openCreateArticle()"></button>
+      </div>
     </app-section-header>
 
     <app-empty-state class="w-full" icon="pi-clipboard" title="No hay articulos creados"
-      description="Cuando escanees o subas una factura, podras crear una ficha técnica, de producción o un escandallo.">
+      [description]="hasInvoices ? 'Crea tu primer articulo con el boton superior \'Crear articulo\'' : 'Cuando escanees o subas una factura, podras crear articulos de venta.'">
     </app-empty-state>
   </div>
 </div>
