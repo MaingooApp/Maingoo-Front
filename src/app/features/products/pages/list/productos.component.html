@@ -1,5 +1,27 @@
 <div class="flex flex-col gap-6 relative items-start bg-maingoo-mint min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
+    <!-- Header Card with Search -->
+    <app-section-header *ngIf="viewMode === 'list' || viewMode === 'cards'" title="Mi almacén" [viewMode]="viewMode"
+      gridValue="cards" searchPlaceholder="Buscar..." (viewModeChange)="setViewMode($any($event))"
+      (search)="filterProductos($event)">
+
+      <!-- Actions (Left) -->
+      <div actions class="flex gap-2">
+        <button pButton label="Elaborar inventario" icon="pi pi-file-edit"
+          class="p-button-outlined p-button-secondary p-button-sm h-10" (click)="elaborarInventario()">
+        </button>
+        <button pButton label="Mis inventarios" icon="pi pi-history"
+          class="p-button-outlined p-button-secondary p-button-sm h-10" (click)="verHistorialInventarios()">
+        </button>
+      </div>
+
+      <!-- Controls (Right) -->
+      <div controls>
+        <button pButton label="" icon="pi pi-trash" class="p-button-danger p-button-outlined w-full sm:w-auto"
+          (click)="eliminarTodo()" [disabled]="productos.length === 0 || cargando"></button>
+      </div>
+    </app-section-header>
+
     <!-- Empty State -->
     <div *ngIf="!cargando && productos.length === 0; else tablaProductos"
       class="card rounded-xl p-10 shadow-md text-center">
@@ -10,27 +32,7 @@
 
     <!-- Table content -->
     <ng-template #tablaProductos>
-      <!-- Header Card with Search -->
-      <app-section-header *ngIf="viewMode === 'list' || viewMode === 'cards'" title="Mi almacén" [viewMode]="viewMode"
-        gridValue="cards" searchPlaceholder="Buscar..." (viewModeChange)="setViewMode($any($event))"
-        (search)="filterProductos($event)">
 
-        <!-- Actions (Left) -->
-        <div actions class="flex gap-2">
-          <button pButton label="Elaborar inventario" icon="pi pi-file-edit"
-            class="p-button-outlined p-button-secondary p-button-sm h-10" (click)="elaborarInventario()">
-          </button>
-          <button pButton label="Mis inventarios" icon="pi pi-history"
-            class="p-button-outlined p-button-secondary p-button-sm h-10" (click)="verHistorialInventarios()">
-          </button>
-        </div>
-
-        <!-- Controls (Right) -->
-        <div controls>
-          <button pButton label="" icon="pi pi-trash" class="p-button-danger p-button-outlined w-full sm:w-auto"
-            (click)="eliminarTodo()" [disabled]="productos.length === 0 || cargando"></button>
-        </div>
-      </app-section-header>
 
       <!-- List View (similar to Suppliers) -->
       <div class="flex relative items-start transition-all duration-500"
