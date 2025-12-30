@@ -57,6 +57,10 @@ export class AppTopbar implements OnInit, OnDestroy {
     return window.innerWidth < 768;
   }
 
+  get userName(): string | undefined {
+    return this.authService.currentUser?.name;
+  }
+
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
