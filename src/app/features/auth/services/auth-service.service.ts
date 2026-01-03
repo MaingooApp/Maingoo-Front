@@ -134,4 +134,17 @@ export class AuthService extends BaseHttpService {
       })
     );
   }
+
+  /**
+   * Actualiza la contraseña del usuario autenticado
+   * @param currentPassword Contraseña actual
+   * @param newPassword Nueva contraseña
+   * @returns Observable<void>
+   */
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.put<void>(`${this.API_URL}/profile`, { 
+      currentPassword, 
+      password: newPassword 
+    });
+  }
 }
