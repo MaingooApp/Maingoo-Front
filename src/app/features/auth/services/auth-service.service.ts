@@ -147,20 +147,4 @@ export class AuthService extends BaseHttpService {
       password: newPassword 
     });
   }
-
-  /**
-   * Actualiza el perfil del usuario autenticado
-   * @param profileData Datos del perfil a actualizar
-   * @returns Observable<void>
-   */
-  updateProfile(profileData: {
-    email?: string;
-    name?: string;
-    phoneNumber?: string;
-    phonePrefix?: string;
-    password?: string;
-    currentPassword?: string;
-  }): Observable<void> {
-    return this.put<void>(`${this.API_URL}/profile`, profileData);
-  }
 }
