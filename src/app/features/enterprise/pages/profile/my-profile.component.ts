@@ -183,17 +183,7 @@ export class MyProfileComponent {
       return;
     }
 
-    const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
-
-    if (newPassword !== confirmPassword) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Contraseñas no coinciden',
-        detail: 'La nueva contraseña y su confirmación no son iguales',
-        life: 3000
-      });
-      return;
-    }
+    const { currentPassword, newPassword } = this.passwordForm.value;
 
     // Llamar al servicio de autenticación para cambiar la contraseña
     this.authService.changePassword(currentPassword, newPassword).subscribe({
