@@ -64,7 +64,9 @@
                     </div>
                   </td>
                   <td>
-                    <span class="text-gray-600 text-sm font-medium">{{ item.stock | number: '1.2-2' }}</span>
+                    <span class="text-gray-600 text-sm font-medium">{{ (item.unit?.toUpperCase() === 'KG' ?
+                      item.unitCount :
+                      item.stock) | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.2-2') }}</span>
                     <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
                   </td>
                   <td>
@@ -227,7 +229,9 @@
               </div>
             </td>
             <td class="border-gray-100">
-              <span class="text-gray-600 text-sm font-medium">{{ item.stock | number: '1.0-0' }}</span>
+              <span class="text-gray-600 text-sm font-medium">{{ (item.unit?.toUpperCase() === 'KG' ? item.unitCount :
+                item.stock) |
+                number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0') }}</span>
               <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
             </td>
             <td class="border-gray-100">

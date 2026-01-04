@@ -167,7 +167,17 @@ export class ProductosComponent implements OnInit {
 
     this.invoiceService.getProducts().subscribe({
       next: (productos: Product[]) => {
-        this.productos = productos;
+        // Map potential snake_case from backend and parse string numbers
+        this.productos = productos.map(p => {
+          let count = (p as any).unit_count ?? p.unitCount;
+          if (typeof count === 'string') {
+            count = parseFloat(count.replace(',', '.'));
+          }
+          return {
+            ...p,
+            unitCount: count
+          };
+        });
         this.cargando = false;
         console.log('Productos cargados:', this.productos);
       },
