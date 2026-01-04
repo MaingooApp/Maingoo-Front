@@ -14,12 +14,13 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
-import { Supplier } from './interfaces/supplier.interface';
+import { Supplier, UpdateSupplierDto } from './interfaces/supplier.interface';
 
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
@@ -47,6 +48,7 @@ import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-mod
     FormsModule,
     ChartModule,
     TagModule,
+    TooltipModule,
     SectionHeaderComponent,
     EmptyStateComponent
   ],
@@ -178,13 +180,52 @@ export class SupplierComponent {
     });
   }
 
+  // State for edit mode
+  isEditing = false;
+
   // Wrappers for Template calls
   confirmDelete(supplier: Supplier) {
     this.confirmarEliminarProveedor(supplier);
   }
 
   editSupplier(supplier: Supplier) {
-    this.toastService.info('Próximamente', 'La edición de proveedores estará disponible pronto.');
+    if (this.isEditing) {
+      // Save changes
+      const dto: UpdateSupplierDto = {
+        name: supplier.name,
+        cifNif: supplier.cifNif,
+        address: supplier.address || undefined,
+        phoneNumber: supplier.phoneNumber || undefined,
+        commercialName: supplier.commercialName || undefined,
+        commercialEmail: supplier.commercialEmail || undefined,
+        commercialPhoneNumber: supplier.commercialPhoneNumber || undefined,
+        orderDays: this.selectedLastOrderDays.length > 0 ? this.selectedLastOrderDays.join(',') : undefined,
+        deliveryDays: this.selectedDays.length > 0 ? this.selectedDays.join(',') : undefined,
+        minPriceDelivery: supplier.minPriceDelivery || undefined,
+        sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || undefined
+      };
+
+      this.supplierService.updateSupplier(supplier.id!, dto).subscribe({
+        next: (updated) => {
+          this.toastService.success('Proveedor actualizado', 'Los datos se han guardado correctamente.');
+          this.isEditing = false;
+          // Update local data
+          Object.assign(supplier, updated);
+        },
+        error: (err) => {
+          console.error('Error updating supplier:', err);
+          this.toastService.error('Error', 'No se pudieron guardar los cambios.');
+        }
+      });
+    } else {
+      // Start editing
+      this.isEditing = true;
+
+      // Auto-expand sections
+      this.showContact = true;
+      this.showDelivery = true;
+      this.showMinOrder = true;
+    }
   }
 
   // --- Data Fetching & Operations ---
@@ -238,18 +279,20 @@ export class SupplierComponent {
 
     this.selectedSupplier = supplier;
     // Reset states
+    this.isEditing = false;
     this.supplierInvoices = [];
     this.showInvoices = false;
     this.showMenu = false;
 
     // Init toggles based on data existence
-    this.showDelivery = !!(supplier.deliveryDays || supplier.minPriceDelivery);
-    this.showMinOrder = !!supplier.minPriceDelivery;
+    // Check if deliveryDays has text or minPriceDelivery is typically defined (not null/undefined)
+    this.showDelivery = !!supplier.deliveryDays || (supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined);
+    this.showMinOrder = (supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined);
 
     // Parse delivery days
     this.selectedDays = supplier.deliveryDays ? supplier.deliveryDays.split(',').map((d: string) => d.trim()) : [];
 
-    // Logic for contact: check if phone exists. 'Email' and 'Contact Person' are not in interface yet, so check phone.
+    // Logic for contact: check if phone exists
     this.showContact = !!supplier.phoneNumber;
 
     // Fetch invoices for this supplier
