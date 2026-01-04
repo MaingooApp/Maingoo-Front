@@ -46,6 +46,7 @@ import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-mod
 export class DocGeneratorComponent implements OnInit {
   // View Control
   view = signal<'hub' | 'invoices'>('hub');
+  viewMode = signal<'cards' | 'list'>('cards');
 
   // Invoice Data
   @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
@@ -91,6 +92,10 @@ export class DocGeneratorComponent implements OnInit {
     if (view === 'invoices' && this.invoices().length === 0) {
       this.loadInvoices();
     }
+  }
+
+  setViewMode(mode: string) {
+    this.viewMode.set(mode as 'cards' | 'list');
   }
 
   // Invoice Logic

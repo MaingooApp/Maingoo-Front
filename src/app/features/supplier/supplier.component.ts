@@ -79,6 +79,11 @@ export class SupplierComponent {
 
   // --- UI Handlers & Interactivity ---
 
+  setViewMode(mode: 'grid' | 'list') {
+    this.viewMode = mode;
+    this.hideDialog();
+  }
+
   openAddInvoiceModal() {
     this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
       width: '960px',

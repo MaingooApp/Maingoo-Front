@@ -44,8 +44,10 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th class="text-maingoo-deep font-bold text-sm">Producto</th>
-                  <th class="text-maingoo-deep font-bold text-sm">Stock</th>
-                  <th class="text-maingoo-deep font-bold text-sm">Proveedor</th>
+                  <th class="text-maingoo-deep font-bold text-sm" *ngIf="!selectedCategory && !selectedProduct">Stock
+                  </th>
+                  <th class="text-maingoo-deep font-bold text-sm" *ngIf="!selectedCategory && !selectedProduct">
+                    Proveedor</th>
                   <th class="text-maingoo-deep font-bold text-sm">Precio</th>
                   <th class="w-20"></th>
                 </tr>
@@ -63,13 +65,13 @@
                       </div>
                     </div>
                   </td>
-                  <td>
+                  <td *ngIf="!selectedCategory && !selectedProduct">
                     <span class="text-gray-600 text-sm font-medium">{{ (item.unit?.toUpperCase() === 'KG' ?
                       item.unitCount :
                       item.stock) | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.2-2') }}</span>
                     <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
                   </td>
-                  <td>
+                  <td *ngIf="!selectedCategory && !selectedProduct">
                     <span class="text-gray-600 text-sm font-medium">{{ item.supplier?.name || '-' }}</span>
                   </td>
                   <td>
@@ -96,7 +98,7 @@
 
           <!-- VIEW: Cards Mode (Categories) -->
           <div *ngIf="viewMode === 'cards'" class="grid gap-6 animate-fade-in"
-            [ngClass]="(selectedCategory || selectedProduct) ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+            [ngClass]="(selectedCategory || selectedProduct) ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
             <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
               class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
 
@@ -120,7 +122,7 @@
         <!-- SECTION: Unified Sidebar (Expanding Cards) -->
         <div *ngIf="selectedCategory || selectedProduct" [ngClass]="{
         'w-0 overflow-hidden opacity-0': !selectedCategory && !selectedProduct, 
-        'w-full md:w-1/2': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct), 
+        'w-full md:w-3/4': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct), 
         'w-full': selectedCategory && selectedProduct
     }" class="shrink-0 sticky top-4 h-[calc(100vh-2rem)] flex gap-6 z-20 transition-all duration-500 ease-in-out">
 
