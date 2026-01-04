@@ -33,4 +33,8 @@ export class SupplierService extends BaseHttpService {
   findByTaxId(taxId: string): Observable<Supplier | null> {
     return this.get<Supplier | null>(`${this.API_URL}/search?taxId=${taxId}`);
   }
+
+  getPriceHistory(id: string): Observable<any> {
+    return this.get<any>(`${this.API_URL}/products/${id}/price-history`);
+  }
 }

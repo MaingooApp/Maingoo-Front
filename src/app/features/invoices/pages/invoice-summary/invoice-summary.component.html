@@ -1,44 +1,25 @@
-<div *ngIf="invoices().length === 0; else tablaFacturas" class="card rounded-xl p-10 shadow-md">
-  <div class="flex justify-end mb-4">
-    <button
-      pButton
-      label="Subir documento"
-      icon="pi pi-receipt"
-      severity="primary"
-      (click)="openAddInvoiceModal()"></button>
-  </div>
-  <div class="text-center">
-    <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem"></i>
-    <h2 class="text-2xl font-semibold mb-2">No hay facturas registradas</h2>
-    <p class="text-gray-500">Cuando registres una factura, aparecerá aquí.</p>
+<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
+  <app-section-header class="w-full" title="Facturas y albaranes" [showViewSwitcher]="false" [showSearch]="false">
+    <div actions>
+      <button pButton label="Subir documento" icon="pi pi-receipt" severity="primary" (click)="openAddInvoiceModal()">
+      </button>
+    </div>
+  </app-section-header>
+
+  <div class="w-full">
+    <div *ngIf="invoices().length === 0; else tablaFacturas">
+      <app-empty-state icon="pi-inbox" title="No hay facturas registradas"
+        description="Cuando registres una factura, aparecerá aquí.">
+      </app-empty-state>
+    </div>
+
+    <ng-template #tablaFacturas>
+      <div class="card rounded-xl shadow-md p-6 bg-white">
+        <app-tabla-dinamica [data]="invoices()" [columns]="columns" [loading]="loading()"
+          [globalFilterFields]="['supplier.name', 'invoiceNumber']" [actions]="actions()"
+          (actionClick)="handleAccion($event)" [exportPdf]="true" [exportFilename]="'facturas'">
+        </app-tabla-dinamica>
+      </div>
+    </ng-template>
   </div>
 </div>
-
-<ng-template #tablaFacturas>
-  <div>
-    <div class="card rounded-xl shadow-md p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold flex items-center gap-2">Facturas y albaranes</h2>
-
-        <!-- Botón a la derecha -->
-        <button
-          pButton
-          label="Subir documento"
-          icon="pi pi-receipt"
-          severity="primary"
-          (click)="openAddInvoiceModal()"></button>
-      </div>
-
-      <app-tabla-dinamica
-        [data]="invoices()"
-        [columns]="columns"
-        [loading]="loading()"
-        [globalFilterFields]="['supplier.name', 'invoiceNumber']"
-        [actions]="actions()"
-        (actionClick)="handleAccion($event)"
-        [exportPdf]="true"
-        [exportFilename]="'facturas'">
-      </app-tabla-dinamica>
-    </div>
-  </div>
-</ng-template>

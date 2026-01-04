@@ -1,0 +1,18 @@
+<p-fluid>
+	<div class="flex flex-col gap-4">
+		<div class="flex flex-col gap-2">
+			<label for="name">Nombre del artículo</label>
+			<input pInputText id="name" [formControl]="nameControl" placeholder="Ej: Pizza Margarita" autofocus
+				class="w-full" />
+			<small class="text-red-500" *ngIf="nameControl.invalid && nameControl.touched">El nombre es
+				requerido</small>
+		</div>
+
+		<div class="flex justify-end gap-3 mt-4">
+			<button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" severity="secondary"
+				(click)="closeModal()"></button>
+			<button pButton label="Crear artículo" icon="pi pi-check" severity="primary" (click)="onSubmit()"
+				[disabled]="nameControl.invalid"></button>
+		</div>
+	</div>
+</p-fluid>

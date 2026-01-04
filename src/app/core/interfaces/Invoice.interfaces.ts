@@ -12,6 +12,10 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   stock: number;
+  idealStock?: number | null;
+  storageType?: 'seco' | 'fresco' | 'congelado' | null;
+  productType?: 'simple' | 'elaborado' | null;
+  unitCount?: number;
 }
 
 export interface ProductCategory {

@@ -13,6 +13,11 @@ import { primengEs } from '../assets/i18n/primeng-es';
 import { appRoutes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
+import { LOCALE_ID } from '@angular/core';
+
+registerLocaleData(localeEs, 'es');
 
 export function httpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -45,6 +50,7 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
-    })
+    }),
+    { provide: LOCALE_ID, useValue: 'es' }
   ]
 };
