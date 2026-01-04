@@ -190,25 +190,29 @@ export class SupplierComponent {
 
   editSupplier(supplier: Supplier) {
     if (this.isEditing) {
-      // Save changes
       const dto: UpdateSupplierDto = {
         name: supplier.name,
         cifNif: supplier.cifNif,
-        address: supplier.address || undefined,
-        phoneNumber: supplier.phoneNumber || undefined,
-        commercialName: supplier.commercialName || undefined,
-        commercialEmail: supplier.commercialEmail || undefined,
-        commercialPhoneNumber: supplier.commercialPhoneNumber || undefined,
-        orderDays: this.selectedLastOrderDays.length > 0 ? this.selectedLastOrderDays.join(',') : undefined,
-        deliveryDays: this.selectedDays.length > 0 ? this.selectedDays.join(',') : undefined,
-        minPriceDelivery: supplier.minPriceDelivery || undefined,
-        sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || undefined
+        address: supplier.address || null,
+        phoneNumber: supplier.phoneNumber || null,
+        commercialName: supplier.commercialName || null,
+        commercialEmail: supplier.commercialEmail || null,
+        commercialPhoneNumber: supplier.commercialPhoneNumber || null,
+        orderDays: this.selectedLastOrderDays.length > 0 ? this.selectedLastOrderDays.join(',') : null,
+        deliveryDays: this.selectedDays.length > 0 ? this.selectedDays.join(',') : null,
+        minPriceDelivery: (supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined) ? Number(supplier.minPriceDelivery) : null,
+        sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || null
       };
 
       this.supplierService.updateSupplier(supplier.id!, dto).subscribe({
         next: (updated) => {
           this.toastService.success('Proveedor actualizado', 'Los datos se han guardado correctamente.');
           this.isEditing = false;
+          // Reset toggles to collapse empty fields
+          this.showContact = false;
+          this.showDelivery = false;
+          this.showMinOrder = false; // although not a toggle anymore, good practice
+
           // Update local data
           Object.assign(supplier, updated);
         },
@@ -284,16 +288,14 @@ export class SupplierComponent {
     this.showInvoices = false;
     this.showMenu = false;
 
-    // Init toggles based on data existence
-    // Check if deliveryDays has text or minPriceDelivery is typically defined (not null/undefined)
-    this.showDelivery = !!supplier.deliveryDays || (supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined);
-    this.showMinOrder = (supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined);
+    // Init toggles to false (collapsed/show only filled)
+    this.showDelivery = false;
+    this.showContact = false;
+    this.showMinOrder = false;
 
     // Parse delivery days
     this.selectedDays = supplier.deliveryDays ? supplier.deliveryDays.split(',').map((d: string) => d.trim()) : [];
-
-    // Logic for contact: check if phone exists
-    this.showContact = !!supplier.phoneNumber;
+    this.selectedLastOrderDays = supplier.orderDays ? supplier.orderDays.split(',').map((d: string) => d.trim()) : [];
 
     // Fetch invoices for this supplier
     if (supplier.id) {
@@ -469,6 +471,23 @@ export class SupplierComponent {
   isDaySelected(type: 'delivery' | 'lastOrder', day: string): boolean {
     const targetArray = type === 'delivery' ? this.selectedDays : this.selectedLastOrderDays;
     return targetArray.includes(day);
+  }
+
+  get hasEmptyContactFields(): boolean {
+    if (!this.selectedSupplier) return false;
+    return !this.selectedSupplier.commercialName ||
+      !this.selectedSupplier.phoneNumber ||
+      !this.selectedSupplier.commercialEmail;
+  }
+
+  get hasEmptyDeliveryFields(): boolean {
+    if (!this.selectedSupplier) return false;
+    // Check key delivery fields. minPriceDelivery 0 is "filled", so check for null/undefined.
+    const minPriceEmpty = this.selectedSupplier.minPriceDelivery === null || this.selectedSupplier.minPriceDelivery === undefined;
+
+    return !this.selectedSupplier.orderDays ||
+      !this.selectedSupplier.deliveryDays ||
+      minPriceEmpty;
   }
 
   toggleMenu(event?: Event) {
