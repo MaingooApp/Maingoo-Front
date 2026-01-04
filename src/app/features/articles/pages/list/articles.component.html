@@ -54,7 +54,7 @@
     <!-- Empty State -->
     <app-empty-state *ngIf="articles().length === 0 && !loading" class="w-full" icon="pi-clipboard"
       title="No hay articulos creados"
-      [description]="hasInvoices ? 'Crea tu primer articulo de venta con el boton superior \'Crear articulo\'' : 'Cuando escanees o subas una factura, podras crear articulos de venta.'">
+      [description]="(hasInvoices ? 'Crea tu primer articulo de venta con el boton superior \'Crear articulo\'' : 'Cuando escanees o subas una factura, podras crear articulos de venta.') +  ' ⚠️ Sección en construcción'">
     </app-empty-state>
   </div>
 </div>

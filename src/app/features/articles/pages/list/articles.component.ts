@@ -9,6 +9,7 @@ import { ModalService } from '@app/shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AddArticleModalComponent } from '../../components/add-article-modal/add-article-modal.component';
 import { TableModule } from 'primeng/table';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-articles',
@@ -19,6 +20,7 @@ import { TableModule } from 'primeng/table';
 export class ArticlesComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
   private modalService = inject(ModalService);
+  private toastService = inject(ToastService);
 
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
@@ -43,6 +45,8 @@ export class ArticlesComponent implements OnInit {
   }
 
   openCreateArticle() {
+    this.toastService.info('Funcionalidad en construcción', 'La creación de artículos estará disponible próximamente.');
+    /*
     this._dynamicDialogRef = this.modalService.open(AddArticleModalComponent, {
       header: 'Crear nuevo artículo',
       width: '400px'
@@ -53,6 +57,7 @@ export class ArticlesComponent implements OnInit {
         this.articles.update(articles => [...articles, { name: result.name }]);
       }
     });
+    */
   }
 
   setViewMode(mode: string) {
