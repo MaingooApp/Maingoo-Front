@@ -16,6 +16,7 @@ import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
 
 @Component({
   selector: 'app-add-invoice-modal',
+  standalone: true,
   imports: [
     InputTextModule,
     FluidModule,

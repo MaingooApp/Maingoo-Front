@@ -3,17 +3,17 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
-import { AppSidebar } from './app.sidebar';
+import { AppSidebar } from './sidebar/app.sidebar';
 import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
+import { ProfilePanelComponent } from './profile-panel/profile-panel.component';
 import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent, MobileBottomSheetComponent],
+  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent, MobileBottomSheetComponent, ProfilePanelComponent],
   templateUrl: './app.layout.html',
-  styleUrls: ['./app.layout.scss']
 })
 export class AppLayout {
   overlayMenuOpenSubscription: Subscription;

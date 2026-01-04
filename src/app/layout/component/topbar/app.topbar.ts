@@ -12,7 +12,7 @@ import { StyleClassModule } from 'primeng/styleclass';
 // - TooltipModule: módulo de PrimeNG para mostrar tooltips en los botones
 import { TooltipModule } from 'primeng/tooltip';
 // - AppConfigurator: componente hijo que maneja la configuración visual (tema, colores)
-import { AppConfigurator } from '../app.configurator';
+import { AppConfigurator } from '../configurator/app.configurator';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../../service/layout.service';
 // - AuthService: servicio de autenticación que expone métodos como logout()
@@ -39,16 +39,16 @@ import { BottomSheetService } from '../../service/bottom-sheet.service';
 export class AppTopbar implements OnInit, OnDestroy {
   // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
   items!: MenuItem[];
-  
+
   // Indica si hay notificaciones sin leer
   hasUnreadNotifications = false;
-  
+
   // Contador de notificaciones
   notificationCount = 0;
-  
+
   // Lista de notificaciones
   notifications: any[] = [];
-  
+
   // Estado del menú móvil
   isMobileMenuOpen = false;
 
@@ -56,7 +56,11 @@ export class AppTopbar implements OnInit, OnDestroy {
   get isMobile(): boolean {
     return window.innerWidth < 768;
   }
-  
+
+  get userName(): string | undefined {
+    return this.authService.currentUser?.name;
+  }
+
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
@@ -74,21 +78,21 @@ export class AppTopbar implements OnInit, OnDestroy {
     private toastService: ToastService,
     private elementRef: ElementRef,
     private bottomSheetService: BottomSheetService
-  ) {}
-  
+  ) { }
+
   ngOnInit() {
     // Suscribirse a las notificaciones de toast
     this.notificationSubscription = this.toastService.notification$.subscribe(() => {
       this.hasUnreadNotifications = true;
       this.notificationCount++;
     });
-    
+
     // Suscribirse al historial de notificaciones
     this.notificationsListSubscription = this.toastService.notifications$.subscribe(notifications => {
       this.notifications = notifications;
     });
   }
-  
+
   ngOnDestroy() {
     // Limpiar suscripciones
     this.notificationSubscription?.unsubscribe();
@@ -124,14 +128,14 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Limpia el contador y el indicador visual cuando se abre
   toggleNotifications() {
     this.layoutService.toggleNotificationPanel();
-    
+
     if (this.layoutService.isNotificationPanelActive()) {
       // Limpiar notificaciones no leídas al abrir el panel
       this.hasUnreadNotifications = false;
       this.notificationCount = 0;
     }
   }
-  
+
   // getSeverityIcon: obtiene el icono según el tipo de notificación
   getSeverityIcon(severity: string): string {
     const icons: { [key: string]: string } = {
@@ -142,7 +146,7 @@ export class AppTopbar implements OnInit, OnDestroy {
     };
     return icons[severity] || 'pi-info-circle';
   }
-  
+
   // getSeverityColor: obtiene el color según el tipo de notificación
   getSeverityColor(severity: string): string {
     const colors: { [key: string]: string } = {
@@ -153,7 +157,7 @@ export class AppTopbar implements OnInit, OnDestroy {
     };
     return colors[severity] || 'text-gray-600';
   }
-  
+
   // formatTime: formatea el timestamp de la notificación
   formatTime(timestamp: Date): string {
     const now = new Date();
@@ -161,13 +165,13 @@ export class AppTopbar implements OnInit, OnDestroy {
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
-    
+
     if (minutes < 1) return 'Ahora';
     if (minutes < 60) return `Hace ${minutes}m`;
     if (hours < 24) return `Hace ${hours}h`;
     return `Hace ${days}d`;
   }
-  
+
   // clearAllNotifications: limpia todas las notificaciones
   clearAllNotifications() {
     this.toastService.clearNotifications();

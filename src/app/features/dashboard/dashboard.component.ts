@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { NotificationsWidget } from './components/notificationswidget';
-import { StatsWidget } from './components/statswidget';
-import { RecentSalesWidget } from './components/recentsaleswidget';
-import { BestSellingWidget } from './components/bestsellingwidget';
-import { RevenueStreamWidget } from './components/revenuestreamwidget';
+import { CommonModule } from '@angular/common';
+import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [StatsWidget, RecentSalesWidget, BestSellingWidget, RevenueStreamWidget, NotificationsWidget],
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  standalone: true,
+  imports: [CommonModule, SectionHeaderComponent],
+  templateUrl: './dashboard.component.html'
 })
-export class Dashboard {}
+export class Dashboard {
+
+}

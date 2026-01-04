@@ -1,32 +1,260 @@
-<!-- Si no hay productos -->
-<div
-  *ngIf="!cargando && productos.length === 0; else tablaProductos"
-  class="card rounded-xl p-10 shadow-md text-center">
-  <i class="pi pi-box text-gray-300 mb-6" style="font-size: 6rem"></i>
-  <h2 class="text-2xl font-semibold text-gray-700 mb-2">No hay productos escaneados</h2>
-  <p class="text-gray-500">Cuando escanees una factura con productos, aparecerán aquí.</p>
-</div>
+<div class="flex flex-col gap-6 relative items-start  p-6 -m-6">
+  <div class="flex-1 w-full min-w-0 transition-all duration-300">
 
-<!-- Tabla dinámica -->
-<ng-template #tablaProductos>
-  <div class="px-6 py-4">
-    <div class="card rounded-xl shadow-md p-6">
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-        <h2 class="text-2xl font-semibold text-surface-900 flex items-center gap-2">
-          <i class="pi pi-tags" style="font-size: 1.5rem"></i>
-          Inventario de productos
-        </h2>
-        <p class="text-gray-500 text-sm">Los registros provienen directamente de /api/products</p>
+
+    <!-- SECTION: Header & Actions -->
+    <app-section-header *ngIf="viewMode === 'list' || viewMode === 'cards'" title="Mi almacén" [viewMode]="viewMode"
+      gridValue="cards" searchPlaceholder="Buscar un producto..." (viewModeChange)="setViewMode($any($event))"
+      [showViewSwitcher]="productos.length > 0" [showSearch]="productos.length > 0" (search)="filterProductos($event)">
+
+      <div actions class="flex items-center gap-2">
+        <button pButton label="Subir Factura" icon="pi pi-receipt" severity="primary" (click)="openAddInvoiceModal()">
+        </button>
       </div>
 
-      <app-tabla-dinamica
-        [data]="productos"
-        [columns]="columnas"
-        [loading]="cargando"
-        [globalFilterFields]="['name', 'eanCode', 'category.name', 'unit']"
-        [actions]="acciones"
-        (actionClick)="handleAccion($event)"
-        [exportPdf]="true"></app-tabla-dinamica>
+      <!-- Controls (Right) -->
+      <div controls *ngIf="productos.length > 0">
+        <button pButton label="" icon="pi pi-trash" class="p-button-danger p-button-outlined w-full sm:w-auto"
+          (click)="eliminarTodo()" [disabled]="productos.length === 0 || cargando"></button>
+      </div>
+    </app-section-header>
+
+    <!-- SECTION: Empty State -->
+    <div *ngIf="!cargando && productos.length === 0; else tablaProductos">
+      <app-empty-state icon="pi-warehouse" title="No hay productos en tu almacén"
+        description="Cuando escanees o subas una factura, esos productos, aparecerá aquí.">
+      </app-empty-state>
+    </div>
+
+    <!-- SECTION: Main Layout (Table/Grid) -->
+    <ng-template #tablaProductos>
+
+
+      <!-- VIEW: List Mode & VIEW: Grid Mode Wrapper -->
+      <div class="flex relative items-start transition-all duration-500"
+        [class.gap-6]="!(selectedCategory && selectedProduct)" [class.gap-0]="selectedCategory && selectedProduct">
+        <div
+          [ngClass]="(selectedCategory && selectedProduct) ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'"
+          class="transition-all duration-500 ease-in-out">
+
+          <!-- VIEW: List Mode -->
+          <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <p-table #dt [value]="productos" [rowHover]="true" styleClass="p-datatable-sm"
+              [globalFilterFields]="['name', 'eanCode', 'category.name', 'unit']" [loading]="cargando">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th class="text-maingoo-deep font-bold text-sm">Producto</th>
+                  <th class="text-maingoo-deep font-bold text-sm" *ngIf="!selectedCategory && !selectedProduct">Stock
+                  </th>
+                  <th class="text-maingoo-deep font-bold text-sm" *ngIf="!selectedCategory && !selectedProduct">
+                    Proveedor</th>
+                  <th class="text-maingoo-deep font-bold text-sm">Precio</th>
+                  <th class="w-20"></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item>
+                <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+                  [ngClass]="{ '/10 !border-maingoo-sage': selectedProduct?.id === item.id }"
+                  (click)="showDialog(item)">
+                  <td>
+                    <div class="flex flex-col">
+                      <span class="font-bold text-maingoo-deep">{{ item.name }}</span>
+                      <div *ngIf="item.category?.name" class="mt-1">
+                        <p-tag [value]="item.category.name" [style]="getCategoryStyle(item.category.name)"
+                          [rounded]="true" styleClass="text-xs font-normal border-0"></p-tag>
+                      </div>
+                    </div>
+                  </td>
+                  <td *ngIf="!selectedCategory && !selectedProduct">
+                    <span class="text-gray-600 text-sm font-medium">{{ (item.unit?.toUpperCase() === 'KG' ?
+                      item.unitCount :
+                      item.stock) | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.2-2') }}</span>
+                    <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
+                  </td>
+                  <td *ngIf="!selectedCategory && !selectedProduct">
+                    <span class="text-gray-600 text-sm font-medium">{{ item.supplier?.name || '-' }}</span>
+                  </td>
+                  <td>
+                    <span class="text-maingoo-deep font-bold text-sm">
+                      {{ item.lastUnitPrice | currency:'EUR' }}
+                    </span>
+
+                  </td>
+                  <td class="text-right">
+                    <button pButton icon="pi pi-chevron-left"
+                      class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
+                      [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedProduct?.id === item.id }"></button>
+                  </td>
+                </tr>
+              </ng-template>
+              <!-- Empty State in Table -->
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="5" class="text-center py-8 text-gray-500">No se encontraron productos.</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- VIEW: Cards Mode (Categories) -->
+          <div *ngIf="viewMode === 'cards'" class="grid gap-6 animate-fade-in"
+            [ngClass]="(selectedCategory || selectedProduct) ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+            <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
+              class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
+
+              <div class="flex items-start justify-between mb-4">
+                <h3
+                  class="text-lg font-bold mb-2 transition-colors px-3 py-1 rounded-full w-auto inline-block bg-opacity-20"
+                  [ngStyle]="getCategoryStyle(category.name)">
+                  {{ category.name }}
+                </h3>
+              </div>
+
+              <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
+                {{ category.count }} prod.
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <!-- SECTION: Unified Sidebar (Expanding Cards) -->
+        <div *ngIf="selectedCategory || selectedProduct" [ngClass]="{
+        'w-0 overflow-hidden opacity-0': !selectedCategory && !selectedProduct, 
+        'w-full md:w-3/4': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct), 
+        'w-full': selectedCategory && selectedProduct
+    }" class="shrink-0 sticky top-4 h-[calc(100vh-2rem)] flex gap-6 z-20 transition-all duration-500 ease-in-out">
+
+          <!-- Category Layer (Product List Card) -->
+          <div *ngIf="selectedCategory" [ngClass]="selectedProduct ? 'flex-1 min-w-0' : 'w-full'"
+            class="h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col transition-all duration-500 relative shrink-0">
+            <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
+          </div>
+
+          <!-- Product Layer (Product Detail Card) -->
+          <div *ngIf="selectedProduct"
+            class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col transition-all duration-500 relative">
+            <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
+              [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
+              (verFactura)="verFactura($event)"
+              (delete)="confirmarEliminarProducto($event)"></app-product-detail-sidebar>
+          </div>
+        </div>
+
+
+        <!-- MOBILE: Bottom Sheets (Keep Separate) -->
+
+        <!-- Category Mobile Sheet -->
+        <ng-container *ngIf="selectedCategory">
+          <div class="md:hidden fixed inset-0 z-40 flex items-end justify-center">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              (click)="closeCategoryDetail()"></div>
+            <div
+              class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+              <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+                (click)="closeCategoryDetail()">
+                <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+              </div>
+              <div class="flex-1 overflow-hidden relative flex flex-col">
+                <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Product Mobile Sheet -->
+        <ng-container *ngIf="selectedProduct">
+          <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
+            <div
+              class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+              <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+                (click)="hideDialog()">
+                <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+              </div>
+              <div class="flex-1 overflow-hidden relative flex flex-col">
+                <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct"
+                  [relatedInvoices]="invoices" [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions"
+                  (close)="hideDialog()" (verFactura)="verFactura($event)"
+                  (delete)="confirmarEliminarProducto($event)"></app-product-detail-sidebar>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+      </div> <!-- End of Row Wrapper -->
+
+    </ng-template>
+  </div>
+</div>
+<!-- End of Main Container -->
+
+<!-- CATEGORY CONTENT TEMPLATE -->
+<ng-template #categoryDetailContent>
+  <!-- Header -->
+  <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
+    <h2 class="text-xl font-bold mb-0 transition-colors px-3 py-1 rounded-full bg-opacity-20 flex items-center gap-2"
+      [ngStyle]="getCategoryStyle(selectedCategory)">
+      {{ selectedCategory }}
+    </h2>
+    <button (click)="closeCategoryDetail()"
+      class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-colors">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 overflow-auto p-4">
+    <p class="text-gray-500 mb-4 text-sm px-2">Mostrando <strong>{{ categoryProducts.length }}</strong> productos en
+      esta categoría.</p>
+
+    <div class="h-full flex flex-col">
+      <p-table [value]="categoryProducts" [rowHover]="true" styleClass="p-datatable-sm" [scrollable]="true"
+        scrollHeight="flex">
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100">Producto</th>
+            <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100 w-24">Stock</th>
+            <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100">Proveedor</th>
+            <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100 w-24">Precio</th>
+            <th class="w-10 bg-gray-50 border-gray-100"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+            [ngClass]="{ '/10 !border-maingoo-sage': selectedProduct?.id === item.id }" (click)="showDialog(item)">
+            <td class="border-gray-100">
+              <div class="flex flex-col">
+                <span class="font-bold text-maingoo-deep text-sm">{{ item.name }}</span>
+                <span class="text-xs text-gray-500" *ngIf="item.brand">{{ item.brand }}</span>
+              </div>
+            </td>
+            <td class="border-gray-100">
+              <span class="text-gray-600 text-sm font-medium">{{ (item.unit?.toUpperCase() === 'KG' ? item.unitCount :
+                item.stock) |
+                number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0') }}</span>
+              <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
+            </td>
+            <td class="border-gray-100">
+              <span class="text-gray-600 text-sm font-medium">{{ item.supplier.name || '-' }}</span>
+            </td>
+            <td class="border-gray-100">
+              <span class="text-maingoo-deep font-bold text-sm">
+                {{ item.lastUnitPrice | currency:'EUR' }}
+              </span>
+            </td>
+            <td class="text-right border-gray-100 px-2">
+              <i class="pi pi-chevron-right text-gray-300 text-xs"></i>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center py-8 text-gray-500">No se encontraron productos.</td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   </div>
 </ng-template>

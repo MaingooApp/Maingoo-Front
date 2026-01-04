@@ -2,9 +2,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseHttpService } from '../../../core/services/base-http.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
+import { GetInvoice } from '../interface/get-invoice.interface';
 
 /**
  * Servicio para gestionar facturas
@@ -33,9 +34,19 @@ export class InvoiceService extends BaseHttpService {
    * GET /api/suppliers/invoices
    * @param restaurantId Filtro opcional por restaurante
    */
-  getInvoices(restaurantId?: string): Observable<Invoice[]> {
-    const url = restaurantId ? `${this.API_URL}?restaurantId=${restaurantId}` : this.API_URL;
-    return this.get<Invoice[]>(url);
+  getInvoices(params: GetInvoice = {}): Observable<Invoice[]> {
+    const url = `${this.API_URL}`;
+    let httpParams = new HttpParams();
+
+    // Iteramos sobre las claves del objeto params para construir los HttpParams
+    Object.keys(params).forEach(key => {
+      const value = (params as any)[key];
+      if (value !== undefined && value !== null) {
+        httpParams = httpParams.set(key, value);
+      }
+    });
+
+    return this.get<Invoice[]>(url, {}, httpParams);
   }
 
   /**
@@ -100,5 +111,13 @@ export class InvoiceService extends BaseHttpService {
    */
   getProductById(id: string): Observable<Product> {
     return this.get<Product>(`${this.PRODUCTS_URL}/${id}`);
+  }
+
+  /**
+   * Elimina un producto por su ID
+   * DELETE /api/products/:id
+   */
+  deleteProduct(id: string): Observable<void> {
+    return this.delete<void>(`${this.PRODUCTS_URL}/${id}`);
   }
 }

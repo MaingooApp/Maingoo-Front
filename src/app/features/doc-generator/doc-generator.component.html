@@ -1,151 +1,217 @@
-<!-- Rejilla de 12 -->
-<div class="card grid grid-cols-12 gap-8">
-  <!-- Buscador -->
-  <div class="col-span-12 lg:col-span-8">
-    <p-iconfield>
-      <p-inputicon class="pi pi-search" />
-      <input
-        pInputText
-        type="text"
-        placeholder="Buscar por nombre o etiqueta..."
-        [(ngModel)]="documentSearchQuery"
-        (keyup)="onDocumentSearch()"
-        class="w-full" />
-      <p-inputicon
-        class="pi pi-times cursor-pointer"
-        (click)="documentSearchQuery = ''; onDocumentSearch()"
-        *ngIf="documentSearchQuery" />
-    </p-iconfield>
-  </div>
+<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
+    <div class="flex-1 w-full min-w-0 transition-all duration-300">
+        <app-section-header class="w-full sticky top-24 z-30" title="Documentos" [showViewSwitcher]="true"
+            [viewMode]="viewMode()" [gridValue]="'cards'" [listValue]="'list'"
+            (viewModeChange)="setViewMode($any($event))" [searchPlaceholder]="'Buscar documentos...'"
+            [showSearch]="true" (search)="onHeaderSearch($event)">
+        </app-section-header>
 
-  <!-- Filtros por etiquetas-->
-  <div class="col-span-12 lg:col-span-4">
-    <!-- Etiquetas-->
-    <div class="flex justify-start items-center gap-2">
-      <button
-        *ngFor="let tag of availableTags"
-        type="button"
-        (click)="toggleTagFilter(tag.name)"
-        [class]="
-          'text-xs font-semibold px-3 py-2 rounded-full border cursor-pointer ' +
-          tag.color +
-          (isTagFilterActive(tag.name) ? ' ring-2 ring-offset-1 ring-indigo-400 shadow-md' : ' opacity-70') +
-          ' flex items-center'
-        ">
-        <i [class]="'pi ' + (isTagFilterActive(tag.name) ? 'pi-check-circle' : 'pi-circle') + ' mr-1'"></i>
-        {{ tag.name }}
-      </button>
-      <!-- Boton para limpiar filtros de etiqetas -->
-      <button
-        *ngIf="selectedTagFilters.length > 0 || documentSearchQuery"
-        pButton
-        type="button"
-        icon="pi pi-filter-slash"
-        label="Limpiar"
-        class="p-button-text p-button-sm"
-        (click)="clearAllFilters()"></button>
+        <div class="flex items-start relative transition-all duration-500 w-full" [class.gap-6]="view() === 'invoices'"
+            [class.gap-0]="view() !== 'invoices'">
+
+            <!-- HUB VIEW: Cards Grid (Left Side) -->
+            <div [ngClass]="view() === 'invoices' ? 'w-full md:w-1/4' : 'w-full'"
+                class="transition-all duration-500 ease-in-out">
+
+                <!-- GRID VIEW -->
+                <div *ngIf="viewMode() === 'cards'" class="grid gap-6 animate-fade-in"
+                    [ngClass]="view() === 'invoices' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+
+                    <!-- Invoice Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex flex-col items-center justify-center text-center gap-1"
+                        [ngClass]="view() === 'invoices' ? 'h-24 border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : 'h-32'"
+                        (click)="setView('invoices')">
+                        <div class="flex items-center gap-3">
+                            <div class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                                [ngClass]="view() === 'invoices' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
+                                <i class="pi pi-receipt text-maingoo-sage"
+                                    [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
+                            </div>
+                            <h3 class="font-bold text-maingoo-deep m-0"
+                                [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">Facturas y albaranes</h3>
+                        </div>
+                        <p *ngIf="view() !== 'invoices'" class="text-gray-500 text-xs m-0">Gestiona tus compras y
+                            documentos</p>
+                    </div>
+
+                    <!-- Placeholder Cards -->
+                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
+                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-thermometer text-gray-400"
+                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
+                            <h3 class="font-semibold text-gray-400 m-0"
+                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">Control Temperaturas</h3>
+                        </div>
+                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                    </div>
+
+                    <!-- APPCC Placeholder -->
+                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
+                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-shield text-gray-400"
+                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
+                            <h3 class="font-semibold text-gray-400 m-0"
+                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">APPCC</h3>
+                        </div>
+                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                    </div>
+
+                    <!-- RRHH Placeholder -->
+                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
+                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-users text-gray-400"
+                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
+                            <h3 class="font-semibold text-gray-400 m-0"
+                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">RRHH</h3>
+                        </div>
+                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
+                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-file text-gray-400"
+                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
+                            <h3 class="font-semibold text-gray-400 m-0"
+                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">Otros Documentos</h3>
+                        </div>
+                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                    </div>
+                </div>
+
+                <!-- LIST VIEW -->
+                <div *ngIf="viewMode() === 'list'" class="flex flex-col gap-3 animate-fade-in w-full">
+
+                    <!-- Invoice List Item -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
+                        [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+                        (click)="setView('invoices')">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                                [ngClass]="view() === 'invoices' ? 'bg-white' : '/30'">
+                                <i class="pi pi-receipt text-maingoo-sage text-xl"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas y albaranes</h3>
+                                <p class="text-gray-500 text-xs m-0 hidden sm:block">Gestiona tus compras y documentos
+                                </p>
+                            </div>
+                        </div>
+                        <i
+                            class="pi pi-chevron-right text-gray-400 group-hover:text-maingoo-sage transition-colors"></i>
+                    </div>
+
+                    <!-- Placeholders List Items -->
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <i class="pi pi-thermometer text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-semibold text-gray-400 text-base m-0">Control Temperaturas</h3>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400 italic">Próximamente</span>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <i class="pi pi-shield text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-semibold text-gray-400 text-base m-0">APPCC</h3>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400 italic">Próximamente</span>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <i class="pi pi-users text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-semibold text-gray-400 text-base m-0">RRHH</h3>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400 italic">Próximamente</span>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center">
+                                <i class="pi pi-file text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-semibold text-gray-400 text-base m-0">Otros Documentos</h3>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400 italic">Próximamente</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- INVOICES DRAWER (Right Side) -->
+            <div [ngClass]="view() === 'invoices' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
+                class="shrink-0 sticky top-32 flex flex-col transition-all duration-500 ease-in-out h-[calc(100vh-8rem)]">
+
+                <div
+                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    <!-- Drawer Header -->
+                    <div
+                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+                                <i class="pi pi-receipt text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas</h2>
+                                <p class="text-xs text-gray-500 m-0">{{ invoices().length }} documentos encontrados</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button pButton label="Subir" icon="pi pi-plus" class="p-button-sm p-button-primary"
+                                (click)="openAddInvoiceModal()">
+                            </button>
+                            <button (click)="setView('hub')"
+                                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                                <i class="pi pi-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawer Content (Table) -->
+                    <div class="flex-1 overflow-auto p-0 bg-white relative">
+                        <div *ngIf="invoices().length === 0 && !loading(); else tablaFacturas"
+                            class="flex flex-col items-center justify-center h-full text-center p-8">
+                            <i class="pi pi-inbox text-gray-300 mb-4" style="font-size: 4rem"></i>
+                            <h3 class="text-lg font-semibold text-gray-700">No hay facturas</h3>
+                            <p class="text-gray-500 text-sm">Registra tu primera factura para verla aquí.</p>
+                        </div>
+
+                        <ng-template #tablaFacturas>
+                            <div class="p-4">
+                                <app-tabla-dinamica [data]="invoices()" [columns]="columns" [loading]="loading()"
+                                    [globalFilterFields]="['supplier.name', 'invoiceNumber']" [actions]="actions()"
+                                    (actionClick)="handleAccion($event)" [exportPdf]="true"
+                                    [exportFilename]="'facturas'">
+                                </app-tabla-dinamica>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-<!-- Cards (p-card)-->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-  <!-- Registro de Temperaturas Card -->
-  <p-card *ngIf="isDocumentVisible('temperatures')">
-    <ng-template pTemplate="header">
-      <div class="rounded-tl-lg rounded-tr-lg">
-        <div class="p-6">
-          <div class="flex items-center gap-3 mb-2">
-            <!-- <div class="bg-blue-100 rounded-full p-2 flex items-center justify-center"> -->
-            <p-chip label="Control de Temperaturas" styleClass="m-1">
-              <span class="rounded-full w-8 h-8 flex">
-                <img
-                  src="assets/icons/temperature.svg"
-                  alt="Temperaturas"
-                  style="
-                    filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%);
-                  " />
-              </span>
-            </p-chip>
-            <!-- <img src="assets/icons/temperature.svg" alt="Temperaturas" class="w-8 h-8" style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%)" /> -->
-            <!-- </div> -->
-            <!-- <h3 class="text-xl font-semibold m-0">Control de Temperaturas</h3> -->
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <span
-              *ngFor="let tag of documentCards[1].tags"
-              class="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-              {{ tag }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </ng-template>
-
-    <!-- <div *ngIf="cameras.length === 0" class="text-center text-gray-400">
-            <p class="text-sm">Sin registros</p>
-        </div> -->
-    <!-- <div *ngIf="cameras.length > 0" class="space-y-3">
-            <div *ngFor="let camera of cameras" class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:shadow-sm">
-                <div class="flex items-center justify-between mb-3">
-                    
-                    
-                    <div class="flex items-center gap-3">
-                        <div class="bg-gray-100 rounded-lg p-2">
-                            <img [src]="getCameraIcon(camera.type)" [alt]="camera.name" class="w-5 h-5" style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%)" />
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-gray-800 text-sm">{{ camera.name }}</h4>
-                            <p class="text-xs text-gray-500">{{ getCameraTypeLabel(camera.type) }}</p>
-                        </div>
-                    </div>
-
-                    <div class="text-right">
-                        <div *ngIf="camera.lastTemp" class="text-xl font-bold text-blue-600">{{ camera.lastTemp }}°C</div>
-                        <div *ngIf="!camera.lastTemp" class="text-xs text-gray-400">Sin registros</div>
-                        <div *ngIf="camera.lastCheck" class="text-xs text-gray-500 mt-1">
-                            {{ camera.lastCheck | date: 'short' }}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <button pButton type="button" label="Ver Detalle" icon="pi pi-eye" severity="secondary" [outlined]="true" class="w-full text-xs" (click)="openTemperatureRegistration(camera)"></button>
-                    <button pButton type="button" label="Registrar Temp." icon="pi pi-thermometer" severity="success" class="w-full text-xs" (click)="openQuickTemperatureRegistration(camera)"></button>
-                </div>
-            </div>
-        </div> -->
-    <!-- <ng-template pTemplate="footer">
-            <button pButton type="button" label="Añadir Cámara Frigorífica" icon="pi pi-plus" severity="success" [outlined]="true" class="w-full" (click)="addNewCamera()"></button>
-        </ng-template> -->
-  </p-card>
-
-  <!-- Registro de Cambios de Aceite Card -->
-  <!-- <p-card *ngIf="isDocumentVisible('oil')">
-        <ng-template pTemplate="header">
-            <div class="rounded-tl-lg rounded-tr-lg">
-                <div class="p-6">
-                    <div class="flex items-center gap-3 mb-2">
-                        <div class="bg-blue-100 rounded-full p-3 flex items-center justify-center">
-                            <img src="assets/icons/droplet-half-2.svg" alt="Cambios de Aceite" class="w-6 h-6" style="filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(200deg) brightness(104%) contrast(97%)" />
-                        </div>
-                        <h3 class="text-xl font-semibold m-0">Control de Aceites</h3>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <span *ngFor="let tag of documentCards[1].tags" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                            {{ tag }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </ng-template>
-
-        <div class="text-center text-gray-400">
-            <p class="text-sm">Sin registros</p>
-        </div>
-
-        <ng-template pTemplate="footer">
-            <button pButton type="button" label="Añadir Freidora" icon="pi pi-plus" severity="success" [outlined]="true" class="w-full" (click)="addNewFryer()"></button>
-        </ng-template>
-    </p-card> -->
 </div>
