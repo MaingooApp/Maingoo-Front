@@ -34,35 +34,39 @@
             selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
           ">
               <div *ngFor="let item of filteredSupplier"
-                class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-32 flex flex-col"
+                class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col"
                 (click)="showDialog(item)">
-                <!-- Card Banner / Image Placeholder -->
-                <div
-                  class="h-12 shrink-0 bg-gradient-to-br from-maingoo-deep to-maingoo-sage flex items-center justify-center p-2 relative">
-                  <!-- Generating a pseudo-logo based on name initials -->
-                  <span class="text-4xl font-bold text-white/90 select-none">
-                    {{ item.commercialName?.charAt(0) || item.name.charAt(0) | uppercase }}
-                  </span>
-                </div>
-
                 <!-- Card Content -->
-                <div class="p-3 bg-white text-maingoo-deep flex-1 flex flex-col justify-between">
-                  <div class="flex items-center gap-3">
-                    <i class="pi pi-box text-maingoo-sage text-xl"></i>
-                    <div class="flex flex-col overflow-hidden">
-                      <span class="font-bold text-lg truncate" [title]="item.commercialName || item.name">
-                        {{ item.commercialName || item.name }}
-                      </span>
-                      <span class="text-sm text-gray-500 truncate"
-                        *ngIf="item.commercialName && item.name !== item.commercialName">
-                        {{ item.name }}
-                      </span>
-                    </div>
+                <div class="p-4 bg-white text-maingoo-deep flex-1 flex flex-col gap-3">
+                  <!-- Header: Name -->
+                  <div class="flex flex-col mb-1">
+                    <span class="font-bold text-lg truncate" [title]="item.name">{{ item.name }}</span>
+                    <span class="text-xs text-gray-400 font-normal">{{ item.sanitaryRegistrationNumber || 'Falta Asignar Reg. Sanitario'
+                      }}</span>
                   </div>
-                  <!-- Optional: Add more details if needed, e.g. phone -->
-                  <div class="mt-2 text-sm text-gray-500 flex items-center gap-2" *ngIf="item.phoneNumber">
-                    <i class="pi pi-phone text-xs text-maingoo-sage"></i>
-                    {{ item.phoneNumber }}
+
+                  <!-- Details List -->
+                  <div class="flex flex-col gap-2 text-sm text-gray-600">
+                    <!-- Contact Name -->
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-user text-maingoo-sage text-xs w-4"></i>
+                      <span class="truncate">{{ item.commercialName || 'Vacío' }}</span>
+                    </div>
+                    <!-- Phone -->
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-phone text-maingoo-sage text-xs w-4"></i>
+                      <span class="truncate">{{ item.phoneNumber || 'Vacío' }}</span>
+                    </div>
+                    <!-- Order Days -->
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-calendar text-maingoo-sage text-xs w-4"></i>
+                      <span class="truncate">{{ item.orderDays || 'Vacío' }}</span>
+                    </div>
+                    <!-- Delivery Days -->
+                    <div class="flex items-center gap-2">
+                      <i class="pi pi-truck text-maingoo-sage text-xs w-4"></i>
+                      <span class="truncate">{{ item.deliveryDays || 'Vacío' }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -178,10 +182,7 @@
             <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
               {{ selectedSupplier?.name }}
             </h1>
-            <div class="flex gap-2" *ngIf="selectedSupplier?.commercialName">
-              <p-tag [value]="selectedSupplier!.commercialName!" severity="info" [rounded]="true"
-                styleClass="text-sm font-normal border-0 px-3 py-1 bg-maingoo-sage/30 text-maingoo-deep"></p-tag>
-            </div>
+
 
             <!-- Helper for inline input -->
             <ng-template #inlineInput let-label="label" let-value="value" let-icon="icon">
@@ -214,30 +215,33 @@
                 </div>
               </div>
 
-              <!-- Sanitary Registration -->
-              <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                <div class="flex items-center gap-2 text-gray-400 text-sm">
-                  <i class="pi pi-file text-maingoo-sage"></i>
-                  <span>Reg. Sanitario</span>
+              <!-- Sanitary Registration & CIF/NIF Group -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Sanitary Registration -->
+                <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <i class="pi pi-file text-maingoo-sage"></i>
+                    <span>Reg. Sanitario</span>
+                  </div>
+                  <div class="flex items-center -ml-2">
+                    <input type="text" [(ngModel)]="selectedSupplier!.sanitaryRegistrationNumber"
+                      [readonly]="!isEditing" placeholder="Vacío"
+                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+                      [ngClass]="{'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing}" />
+                  </div>
                 </div>
-                <div class="flex items-center -ml-2">
-                  <input type="text" [(ngModel)]="selectedSupplier!.sanitaryRegistrationNumber" [readonly]="!isEditing"
-                    placeholder="Vacío"
-                    class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
-                    [ngClass]="{'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing}" />
-                </div>
-              </div>
 
-              <!-- CIF/NIF -->
-              <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                <div class="flex items-center gap-2 text-gray-400 text-sm">
-                  <i class="pi pi-id-card text-maingoo-sage"></i>
-                  <span>CIF/NIF</span>
-                </div>
-                <div class="flex items-center -ml-2">
-                  <input type="text" [(ngModel)]="selectedSupplier!.cifNif" [readonly]="!isEditing"
-                    class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
-                    [ngClass]="{'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing}" />
+                <!-- CIF/NIF -->
+                <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                  <div class="flex items-center gap-2 text-gray-400 text-sm">
+                    <i class="pi pi-id-card text-maingoo-sage"></i>
+                    <span>CIF/NIF</span>
+                  </div>
+                  <div class="flex items-center -ml-2">
+                    <input type="text" [(ngModel)]="selectedSupplier!.cifNif" [readonly]="!isEditing"
+                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+                      [ngClass]="{'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing}" />
+                  </div>
                 </div>
               </div>
 
@@ -253,15 +257,18 @@
                       <span>Contacto</span>
                     </div>
                     <div class="flex items-center">
-                      <span *ngIf="!isEditing" class="text-xs text-maingoo-sage/80 italic">Ver</span>
+                      <span *ngIf="!isEditing && hasEmptyContactFields" class="text-xs text-maingoo-sage/80 italic">
+                        {{ showContact ? 'ocultar campos' : 'mostrar campos' }}
+                      </span>
                     </div>
                   </div>
 
-                  <div class="overflow-hidden transition-all duration-300 ease-in-out"
-                    [style.max-height]="showContact ? '500px' : '0'" [style.opacity]="showContact ? '1' : '0'">
+                  <div class="overflow-hidden transition-all duration-300 ease-in-out">
                     <div class="flex flex-col gap-1 py-1 pl-6">
                       <!-- Persona de contacto -->
-                      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                      <!-- Persona de contacto -->
+                      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+                        *ngIf="selectedSupplier?.commercialName || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
                           <i class="pi pi-user text-maingoo-sage"></i>
                           <span>Persona</span>
@@ -275,7 +282,8 @@
                       </div>
 
                       <!-- Telefono -->
-                      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+                        *ngIf="selectedSupplier?.phoneNumber || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
                           <i class="pi pi-phone text-maingoo-sage"></i>
                           <span>Teléfono</span>
@@ -289,7 +297,8 @@
                       </div>
 
                       <!-- Email -->
-                      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+                        *ngIf="selectedSupplier?.commercialEmail || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
                           <i class="pi pi-envelope text-maingoo-sage"></i>
                           <span>Email</span>
@@ -315,18 +324,20 @@
                       <span>Reparto</span>
                     </div>
                     <div class="flex items-center">
-                      <span *ngIf="!isEditing" class="text-xs text-maingoo-sage/80 italic">Ver</span>
+                      <span *ngIf="!isEditing && hasEmptyDeliveryFields" class="text-xs text-maingoo-sage/80 italic">
+                        {{ showDelivery ? 'ocultar campos' : 'mostrar campos' }}
+                      </span>
                     </div>
                   </div>
 
-                  <div class="overflow-hidden transition-all duration-300 ease-in-out"
-                    [style.max-height]="showDelivery ? '500px' : '0'" [style.opacity]="showDelivery ? '1' : '0'">
+                  <div class="overflow-hidden transition-all duration-300 ease-in-out">
                     <div class="flex flex-col gap-1 py-1">
                       <div class="flex flex-col gap-1 pl-6">
                         <!-- Ultimo dia de pedido Chips -->
-                        <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
+                        <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
+                          *ngIf="selectedLastOrderDays.length > 0 || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                            <i class="pi pi-clock text-maingoo-sage"></i>
+                            <i class="pi pi-calendar text-maingoo-sage"></i>
                             <span>Día de pedido</span>
                           </div>
                           <div class="flex flex-wrap gap-1 items-center -ml-2">
@@ -345,9 +356,10 @@
                         </div>
 
                         <!-- Dias de reparto Chips -->
-                        <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]">
+                        <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
+                          *ngIf="selectedDays.length > 0 || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                            <i class="pi pi-calendar text-maingoo-sage"></i>
+                            <i class="pi pi-truck text-maingoo-sage"></i>
                             <span>Día de reparto</span>
                           </div>
                           <div class="flex flex-wrap gap-1 items-center -ml-2">
@@ -364,7 +376,8 @@
                           </div>
                         </div>
                         <!-- Pedido minimo Inline -->
-                        <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                        <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+                          *ngIf="(selectedSupplier!.minPriceDelivery !== null && selectedSupplier!.minPriceDelivery !== undefined) || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm">
                             <i class="pi pi-euro text-maingoo-sage"></i>
                             <span>Pedido mín.</span>
