@@ -126,11 +126,8 @@ export class ProductosComponent implements OnInit {
 
   setViewMode(mode: 'list' | 'cards') {
     this.viewMode = mode;
-    if (mode === 'list') {
-      this.selectedCategory = null;
-    } else if (mode === 'cards') {
-      this.selectedProduct = null;
-    }
+    this.selectedCategory = null;
+    this.selectedProduct = null;
   }
 
   elaborarInventario() {
