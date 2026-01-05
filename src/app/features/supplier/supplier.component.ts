@@ -495,16 +495,5 @@ export class SupplierComponent {
     this.showMenu = !this.showMenu;
   }
 
-  downloadSupplier() {
-    if (!this.selectedSupplier) return;
-    const dataStr = JSON.stringify(this.selectedSupplier, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `proveedor_${this.selectedSupplier.name.replace(/\s+/g, '_')}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    this.showMenu = false;
-  }
+
 }
