@@ -1,5 +1,5 @@
 <div class="flex flex-col gap-6 relative items-start  p-6 -m-6">
-  <div class="flex-1 w-full min-w-0 transition-all duration-300">
+  <div class="flex-1 w-full min-w-0">
 
 
     <!-- SECTION: Header & Actions -->
@@ -31,11 +31,11 @@
 
 
       <!-- VIEW: List Mode & VIEW: Grid Mode Wrapper -->
-      <div class="flex relative items-start transition-all duration-500"
-        [class.gap-6]="!(selectedCategory && selectedProduct)" [class.gap-0]="selectedCategory && selectedProduct">
+      <div class="flex relative items-start" [class.gap-6]="!(selectedCategory && selectedProduct)"
+        [class.gap-0]="selectedCategory && selectedProduct">
         <div
           [ngClass]="(selectedCategory && selectedProduct) ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'"
-          class="transition-all duration-500 ease-in-out">
+          class="">
 
           <!-- VIEW: List Mode -->
           <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -124,17 +124,17 @@
         'w-0 overflow-hidden opacity-0': !selectedCategory && !selectedProduct, 
         'w-full md:w-3/4': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct), 
         'w-full': selectedCategory && selectedProduct
-    }" class="shrink-0 sticky top-4 h-[calc(100vh-2rem)] flex gap-6 z-20 transition-all duration-500 ease-in-out">
+    }" class="shrink-0 sticky top-4 h-[calc(100vh-2rem)] flex gap-6 z-20">
 
           <!-- Category Layer (Product List Card) -->
           <div *ngIf="selectedCategory" [ngClass]="selectedProduct ? 'flex-1 min-w-0' : 'w-full'"
-            class="h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col transition-all duration-500 relative shrink-0">
+            class="h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative shrink-0">
             <ng-container *ngTemplateOutlet="categoryDetailContent"></ng-container>
           </div>
 
           <!-- Product Layer (Product Detail Card) -->
           <div *ngIf="selectedProduct"
-            class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col transition-all duration-500 relative">
+            class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative">
             <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
               [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
               (verFactura)="verFactura($event)"

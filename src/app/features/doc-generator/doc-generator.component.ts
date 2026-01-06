@@ -69,7 +69,7 @@ export class DocGeneratorComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    // Optionally preload or load on view switch
+    this.loadInvoices();
   }
 
   loadInvoices() {
