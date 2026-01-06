@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, inject, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { COLUMNS } from '../invoices/constants/columns';
+
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../invoices/services/invoice.service';
-import { TablaDinamicaComponent } from '../../shared/components/tabla-dinamica/tabla-dinamica.component';
+
 import { ConvertNumbers } from '../../shared/helpers/numbers';
-import { Action } from '../../shared/interfaces/actions.interface';
+
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
@@ -54,7 +54,7 @@ export interface GroupedInvoices {
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    TablaDinamicaComponent,
+
     SectionHeaderComponent,
     DialogModule,
     FormsModule,
@@ -70,19 +70,30 @@ export class DocGeneratorComponent implements OnInit {
   viewMode = signal<'cards' | 'list'>('cards');
 
   // Invoice Data
-  @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
+
   invoices = signal<Invoice[]>([]);
   loading = signal(true);
   ConvertNumbers = ConvertNumbers;
-  columns = COLUMNS;
-  actions = signal<Action[]>([
-    { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'primary' },
-    { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
-  ]);
+
+
+  // Search
+  searchTerm = signal('');
 
   // Derived: Grouped Invoices
   groupedInvoices = computed(() => {
-    const invoices = this.invoices();
+    let invoices = this.invoices();
+    const term = this.searchTerm();
+
+    // Filter First
+    if (term) {
+      const normalizedTerm = this.normalizeText(term);
+      invoices = invoices.filter(inv =>
+        this.normalizeText(inv.supplier?.name || '').includes(normalizedTerm) ||
+        this.normalizeText(inv.invoiceNumber || '').includes(normalizedTerm) ||
+        (inv.amount?.toString() || '').includes(normalizedTerm)
+      );
+    }
+
     if (!invoices.length) return [];
 
     const grouped: GroupedInvoices[] = [];
@@ -151,9 +162,19 @@ export class DocGeneratorComponent implements OnInit {
       });
     });
 
-    // Expand only the first year by default? Or all? 
-    // Let's default expand the first year (current year usually) and others collapsed
-    grouped.forEach((g, index) => g.expanded = index === 0);
+    // Expand behavior: 
+    // If searching, expand all to show results. 
+    // If not searching, expand only first year.
+    const shouldExpandAll = !!term;
+    grouped.forEach((g, index) => g.expanded = shouldExpandAll || index === 0);
+    if (shouldExpandAll) {
+      grouped.forEach(y => {
+        y.quarters.forEach(q => {
+          q.expanded = true;
+          q.suppliers.forEach(s => s.expanded = true);
+        });
+      });
+    }
 
     return grouped;
   });
@@ -233,13 +254,7 @@ export class DocGeneratorComponent implements OnInit {
     });
   }
 
-  handleAccion(event: { action: string; row: any }) {
-    if (event.action === 'editar') {
-      this.verDetalle(event.row);
-    } else if (event.action === 'eliminar') {
-      this.confirmarEliminacion(event.row);
-    }
-  }
+
 
   openAddInvoiceModal() {
     this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
@@ -251,10 +266,14 @@ export class DocGeneratorComponent implements OnInit {
 
   onHeaderSearch(event: Event) {
     const input = event.target as HTMLInputElement;
-    console.log('Search:', input.value);
+    this.searchTerm.set(input.value);
   }
 
   toggleGroup(group: any) {
     group.expanded = !group.expanded;
+  }
+
+  private normalizeText(text: string): string {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 }
