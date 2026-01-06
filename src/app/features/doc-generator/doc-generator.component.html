@@ -6,20 +6,19 @@
             [showSearch]="true" (search)="onHeaderSearch($event)">
         </app-section-header>
 
-        <div class="flex items-start relative transition-all duration-500 w-full" [class.gap-6]="view() === 'invoices'"
+        <div class="flex items-start relative w-full" [class.gap-6]="view() === 'invoices'"
             [class.gap-0]="view() !== 'invoices'">
 
             <!-- HUB VIEW: Cards Grid (Left Side) -->
-            <div [ngClass]="view() === 'invoices' ? 'w-full md:w-1/4' : 'w-full'"
-                class="transition-all duration-500 ease-in-out">
+            <div [ngClass]="view() === 'invoices' ? 'w-full md:w-1/4' : 'w-full'">
 
                 <!-- GRID VIEW -->
                 <div *ngIf="viewMode() === 'cards'" class="grid gap-6 animate-fade-in"
                     [ngClass]="view() === 'invoices' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
 
                     <!-- Invoice Card -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex flex-col items-center justify-center text-center gap-1"
-                        [ngClass]="view() === 'invoices' ? 'h-24 border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : 'h-32'"
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+                        [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
                         (click)="setView('invoices')">
                         <div class="flex items-center gap-3">
                             <div class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
@@ -30,55 +29,52 @@
                             <h3 class="font-bold text-maingoo-deep m-0"
                                 [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">Facturas y albaranes</h3>
                         </div>
-                        <p *ngIf="view() !== 'invoices'" class="text-gray-500 text-xs m-0">Gestiona tus compras y
-                            documentos</p>
+
+                        <div *ngIf="view() !== 'invoices'" class="flex flex-col gap-2 items-center">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
+                                {{ invoices().length }} documentos
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Placeholder Cards -->
-                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
-                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-thermometer text-gray-400"
-                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
-                            <h3 class="font-semibold text-gray-400 m-0"
-                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">Control Temperaturas</h3>
+                            <i class="pi pi-thermometer text-gray-400 text-2xl"></i>
+                            <h3 class="font-semibold text-gray-400 m-0 text-base">Control Temperaturas</h3>
                         </div>
-                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                        <p class="text-xs text-gray-400 m-0">Próximamente</p>
                     </div>
 
                     <!-- APPCC Placeholder -->
-                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
-                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-shield text-gray-400"
-                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
-                            <h3 class="font-semibold text-gray-400 m-0"
-                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">APPCC</h3>
+                            <i class="pi pi-shield text-gray-400 text-2xl"></i>
+                            <h3 class="font-semibold text-gray-400 m-0 text-base">APPCC</h3>
                         </div>
-                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                        <p class="text-xs text-gray-400 m-0">Próximamente</p>
                     </div>
 
                     <!-- RRHH Placeholder -->
-                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
-                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-users text-gray-400"
-                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
-                            <h3 class="font-semibold text-gray-400 m-0"
-                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">RRHH</h3>
+                            <i class="pi pi-users text-gray-400 text-2xl"></i>
+                            <h3 class="font-semibold text-gray-400 m-0 text-base">RRHH</h3>
                         </div>
-                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                        <p class="text-xs text-gray-400 m-0">Próximamente</p>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-1"
-                        [ngClass]="view() === 'invoices' ? 'h-24' : 'h-32'">
+                    <div
+                        class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-file text-gray-400"
-                                [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
-                            <h3 class="font-semibold text-gray-400 m-0"
-                                [ngClass]="view() === 'invoices' ? 'text-sm' : 'text-base'">Otros Documentos</h3>
+                            <i class="pi pi-file text-gray-400 text-2xl"></i>
+                            <h3 class="font-semibold text-gray-400 m-0 text-base">Otros Documentos</h3>
                         </div>
-                        <p *ngIf="view() !== 'invoices'" class="text-xs text-gray-400 m-0">Próximamente</p>
+                        <p class="text-xs text-gray-400 m-0">Próximamente</p>
                     </div>
                 </div>
 
@@ -162,7 +158,7 @@
 
             <!-- INVOICES DRAWER (Right Side) -->
             <div [ngClass]="view() === 'invoices' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
-                class="shrink-0 sticky top-32 flex flex-col transition-all duration-500 ease-in-out h-[calc(100vh-8rem)]">
+                class="shrink-0 sticky top-32 flex flex-col h-[calc(100vh-8rem)]">
 
                 <div
                     class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
