@@ -158,7 +158,7 @@
 
             <!-- INVOICES DRAWER (Right Side) -->
             <div [ngClass]="view() === 'invoices' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
-                class="shrink-0 sticky top-32 flex flex-col h-[calc(100vh-8rem)]">
+                class="shrink-0 sticky top-32 flex flex-col ">
 
                 <div
                     class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
@@ -189,22 +189,124 @@
 
                     <!-- Drawer Content (Table) -->
                     <div class="flex-1 overflow-auto p-0 bg-white relative">
-                        <div *ngIf="invoices().length === 0 && !loading(); else tablaFacturas"
+                        <div *ngIf="invoices().length === 0 && !loading()"
                             class="flex flex-col items-center justify-center h-full text-center p-8">
                             <i class="pi pi-inbox text-gray-300 mb-4" style="font-size: 4rem"></i>
                             <h3 class="text-lg font-semibold text-gray-700">No hay facturas</h3>
                             <p class="text-gray-500 text-sm">Registra tu primera factura para verla aquí.</p>
                         </div>
 
-                        <ng-template #tablaFacturas>
-                            <div class="p-4">
-                                <app-tabla-dinamica [data]="invoices()" [columns]="columns" [loading]="loading()"
-                                    [globalFilterFields]="['supplier.name', 'invoiceNumber']" [actions]="actions()"
-                                    (actionClick)="handleAccion($event)" [exportPdf]="true"
-                                    [exportFilename]="'facturas'">
-                                </app-tabla-dinamica>
+                        <div *ngIf="invoices().length > 0" class="flex flex-col h-full bg-gray-50/50">
+                            <!-- Grouped List -->
+                            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                                <div *ngFor="let yearGroup of groupedInvoices()"
+                                    class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm transition-all duration-300">
+
+                                    <!-- Year Header -->
+                                    <div (click)="toggleGroup(yearGroup)"
+                                        class="px-4 py-3 bg-gray-50/50 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-maingoo-deep font-bold text-sm shadow-sm">
+                                                {{ yearGroup.year }}
+                                            </div>
+                                            <span class="text-sm text-gray-500 font-medium">{{ yearGroup.total |
+                                                currency:'EUR' }}</span>
+                                        </div>
+                                        <i class="pi pi-chevron-down text-gray-400 transition-transform duration-300"
+                                            [ngClass]="{'rotate-180': yearGroup.expanded}"></i>
+                                    </div>
+
+                                    <!-- Quarters List -->
+                                    <div *ngIf="yearGroup.expanded" class="border-t border-gray-100">
+                                        <div *ngFor="let quarter of yearGroup.quarters"
+                                            class="border-b border-gray-100 last:border-0">
+
+                                            <!-- Quarter Header -->
+                                            <div (click)="toggleGroup(quarter)"
+                                                class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50/80 transition-colors select-none pl-8 bg-white">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="pi pi-calendar text-maingoo-sage text-xs"></i>
+                                                    <span class="text-sm font-semibold text-maingoo-deep">{{
+                                                        quarter.name }}</span>
+                                                </div>
+                                                <div class="flex items-center gap-3">
+                                                    <span class="text-xs text-gray-400 font-medium">{{ quarter.total |
+                                                        currency:'EUR' }}</span>
+                                                    <i class="pi pi-chevron-down text-gray-300 text-xs transition-transform duration-300"
+                                                        [ngClass]="{'rotate-180': quarter.expanded}"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Suppliers List -->
+                                            <div *ngIf="quarter.expanded" class="bg-gray-50/30 pb-2">
+                                                <div *ngFor="let supplier of quarter.suppliers" class="px-4 py-1">
+
+                                                    <!-- Supplier Header (Card-like) -->
+                                                    <div
+                                                        class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                                        <div (click)="toggleGroup(supplier)"
+                                                            class="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors select-none">
+                                                            <div class="flex items-center gap-2">
+                                                                <i class="pi pi-truck text-maingoo-sage/70 text-sm"></i>
+                                                                <span class="text-sm font-medium text-maingoo-deep">{{
+                                                                    supplier.supplierName }}</span>
+                                                                <span
+                                                                    class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500">
+                                                                    {{ supplier.invoices.length }}
+                                                                </span>
+                                                            </div>
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="text-xs font-bold text-maingoo-deep">{{
+                                                                    supplier.total | currency:'EUR' }}</span>
+                                                                <i class="pi pi-chevron-down text-gray-300 text-[10px] transition-transform duration-300"
+                                                                    [ngClass]="{'rotate-180': supplier.expanded}"></i>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Invoices List -->
+                                                        <div *ngIf="supplier.expanded"
+                                                            class="border-t border-gray-100 bg-gray-50/20">
+                                                            <div *ngFor="let invoice of supplier.invoices"
+                                                                class="flex items-center justify-between px-3 py-2 hover:bg-white hover:shadow-sm transition-all cursor-pointer border-b border-gray-100/50 last:border-0 text-sm group"
+                                                                (click)="verDetalle(invoice)">
+
+                                                                <div class="flex items-center gap-3">
+                                                                    <div class="flex flex-col">
+                                                                        <span
+                                                                            class="text-maingoo-deep font-medium group-hover:text-maingoo-sage transition-colors">
+                                                                            {{ invoice.invoiceNumber || 'S/N' }}
+                                                                        </span>
+                                                                        <span class="text-[10px] text-gray-400">
+                                                                            {{ invoice.date | date:'dd MMM yyyy' }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="flex items-center gap-3">
+                                                                    <span class="text-maingoo-deep font-medium text-xs">
+                                                                        {{ invoice.amount | currency:'EUR' }}
+                                                                    </span>
+                                                                    <div
+                                                                        class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        <button pButton icon="pi pi-eye"
+                                                                            class="p-button-text p-button-rounded p-button-secondary w-6 h-6 !p-0"
+                                                                            (click)="verDetalle(invoice); $event.stopPropagation()"></button>
+                                                                        <button pButton icon="pi pi-trash"
+                                                                            class="p-button-text p-button-rounded p-button-danger w-6 h-6 !p-0"
+                                                                            (click)="confirmarEliminacion(invoice); $event.stopPropagation()"></button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </ng-template>
+                        </div>
                     </div>
                 </div>
             </div>
