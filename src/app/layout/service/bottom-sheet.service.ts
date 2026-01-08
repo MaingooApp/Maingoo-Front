@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type SheetState = 'compact' | 'medium' | 'expanded';
+export type SheetState = 'minimized' | 'compact' | 'medium' | 'expanded';
 
 @Injectable({
   providedIn: 'root'
@@ -20,12 +20,14 @@ export class BottomSheetService {
   // Método para toggle entre estados
   toggleState() {
     const current = this.state();
-    if (current === 'compact') {
+    if (current === 'minimized') {
+      this.setState('compact');
+    } else if (current === 'compact') {
       this.setState('medium');
     } else if (current === 'medium') {
       this.setState('expanded');
     } else {
-      this.setState('compact');
+      this.setState('minimized');
     }
   }
 
@@ -37,6 +39,11 @@ export class BottomSheetService {
   // Expandir al máximo
   expand() {
     this.setState('expanded');
+  }
+
+  // Verificar si está minimizado
+  isMinimized(): boolean {
+    return this.state() === 'minimized';
   }
 
   // Verificar si está en modo compacto

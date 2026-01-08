@@ -34,8 +34,9 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private readonly DRAG_THRESHOLD = 50;
   private readonly SCROLL_DELAY = 100;
   private readonly snapPoints = {
-    compact: 5,
-    medium: 35,
+    minimized: 3,
+    compact: 25,
+    medium: 60,
     expanded: 90
   };
 
@@ -47,24 +48,24 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   // Chat properties
   messages: ChatMessage[] = [];
   isTyping = false;
+  isSending = false;
   private messagesSubscription?: Subscription;
   private typingSubscription?: Subscription;
   private routerSubscription?: Subscription;
 
   // Quick actions y chips navegación (6 chips para grid 3x2)
   quickLinks = [
-    { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
-    { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
-    { label: 'Proveedores', icon: 'pi pi-box', route: '/proveedores' },
-    { label: 'Productos', icon: 'pi pi-tags', route: '/productos' },
-    { label: 'Recetas', icon: 'pi pi-tags', route: '/recetas' },
+    { label: 'Métricas', icon: 'pi pi-chart-line', route: '/' },
+    { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
+    { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
+    { label: 'Artículos', icon: 'pi pi-clipboard', route: '/articulos' },
     { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
   ];
 
   // Contextos por ruta
   private routeContexts: { [key: string]: RouteContext } = {
     '/': {
-      title: 'Accione',
+      title: 'Acciones rápidas',
       placeholder: '¿Qué necesitas saber hoy?',
       actions: [
         { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
@@ -92,6 +93,36 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
         { label: 'Comparar precios', icon: 'pi pi-dollar', action: 'Comparar precios de proveedores' },
         { label: 'Contactos', icon: 'pi pi-users', action: 'Ver contactos de proveedores' }
       ]
+    },
+    '/productos': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus productos...',
+      actions: [
+        { label: 'Nuevo producto', icon: 'pi pi-plus', action: 'Agregar nuevo producto' },
+        { label: 'Stock bajo', icon: 'pi pi-exclamation-triangle', action: 'Ver productos con stock bajo' },
+        { label: 'Actualizar precios', icon: 'pi pi-refresh', action: 'Actualizar precios de productos' },
+        { label: 'Categorías', icon: 'pi pi-tags', action: 'Gestionar categorías' }
+      ]
+    },
+    '/recetas': {
+      title: 'Acciones rápidas',
+      placeholder: 'Pregunta sobre tus recetas...',
+      actions: [
+        { label: 'Crear receta', icon: 'pi pi-plus', action: 'Crear nueva receta' },
+        { label: 'Costeo', icon: 'pi pi-calculator', action: 'Análisis de costeo de recetas' },
+        { label: 'Ingredientes', icon: 'pi pi-list', action: 'Ver ingredientes disponibles' },
+        { label: 'Rentabilidad', icon: 'pi pi-percentage', action: 'Análisis de rentabilidad' }
+      ]
+    },
+    '/docgenerator': {
+      title: 'Acciones rápidas',
+      placeholder: 'Genera documentos...',
+      actions: [
+        { label: 'Nuevo documento', icon: 'pi pi-file-plus', action: 'Generar nuevo documento' },
+        { label: 'Plantillas', icon: 'pi pi-clone', action: 'Ver plantillas disponibles' },
+        { label: 'Mis documentos', icon: 'pi pi-folder', action: 'Ver mis documentos' },
+        { label: 'Compartir', icon: 'pi pi-share-alt', action: 'Compartir documento' }
+      ]
     }
   };
 
@@ -108,7 +139,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
     // Escuchar cambios de ruta
     this.routerSubscription = this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.updateContextFromRoute(event.urlAfterRedirects);
       });
@@ -125,6 +156,10 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   get isDarkOverlay(): boolean {
     return this.currentState === 'expanded';
+  }
+
+  get isMinimized(): boolean {
+    return this.currentState === 'minimized';
   }
 
   get isCompact(): boolean {
@@ -146,13 +181,13 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   onTouchMove(event: TouchEvent) {
     if (!this.isDragging) return;
-    
+
     this.currentY = event.touches[0].clientY;
     const deltaY = this.currentY - this.startY;
-    
+
     // Solo permitir arrastrar hacia abajo si está en estados superiores
     const currentState = this.bottomSheetService.currentState();
-    if (deltaY > 0 || currentState !== 'compact') {
+    if (deltaY > 0 || currentState !== 'minimized') {
       // Aplicar transformación temporal mientras se arrastra
       if (this.sheetContainer) {
         const sheet = this.sheetContainer.nativeElement;
@@ -164,19 +199,19 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   onTouchEnd(event: TouchEvent) {
     if (!this.isDragging) return;
-    
+
     this.isDragging = false;
     const deltaY = this.currentY - this.startY;
-    
+
     // Reset styles
     if (this.sheetContainer) {
       const sheet = this.sheetContainer.nativeElement;
       sheet.style.transition = '';
       sheet.style.transform = '';
     }
-    
+
     const currentState = this.currentState;
-    
+
     // Determinar nuevo estado basado en la dirección y distancia del arrastre
     if (Math.abs(deltaY) > this.DRAG_THRESHOLD) {
       if (deltaY > 0) {
@@ -187,7 +222,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
         this.expandState(currentState);
       }
     }
-    
+
     this.startY = 0;
     this.currentY = 0;
   }
@@ -197,11 +232,15 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       this.bottomSheetService.setState('medium');
     } else if (current === 'medium') {
       this.bottomSheetService.setState('compact');
+    } else if (current === 'compact') {
+      this.bottomSheetService.setState('minimized');
     }
   }
 
   private expandState(current: SheetState) {
-    if (current === 'compact') {
+    if (current === 'minimized') {
+      this.bottomSheetService.setState('compact');
+    } else if (current === 'compact') {
       this.bottomSheetService.setState('medium');
     } else if (current === 'medium') {
       this.bottomSheetService.setState('expanded');
@@ -213,28 +252,21 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     if (event && event.target !== event.currentTarget) {
       return;
     }
-    
-    // Click en el header para ciclar entre estados: compact → medium → expanded → compact
-    const current = this.currentState;
-    if (current === 'compact') {
-      this.bottomSheetService.setState('medium');
-    } else if (current === 'medium') {
-      this.bottomSheetService.setState('expanded');
-    } else {
-      this.bottomSheetService.setState('compact');
-    }
+
+    // Click en el header para ciclar entre estados
+    this.bottomSheetService.toggleState();
   }
 
   ngOnInit() {
     // Suscribirse a los mensajes del chat
-    this.messagesSubscription = this.chatService.messages$.subscribe(messages => {
+    this.messagesSubscription = this.chatService.messages$.subscribe((messages) => {
       this.messages = messages;
       // Scroll automático al último mensaje después de que se renderice
       setTimeout(() => this.scrollToBottom(), this.SCROLL_DELAY);
     });
 
     // Suscribirse al indicador de escritura
-    this.typingSubscription = this.chatService.typing$.subscribe(typing => {
+    this.typingSubscription = this.chatService.typing$.subscribe((typing) => {
       this.isTyping = typing;
       if (typing) {
         setTimeout(() => this.scrollToBottom(), this.SCROLL_DELAY);
@@ -252,18 +284,14 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private updateContextFromRoute(url: string): void {
     // Limpiar query params y fragments
     const cleanUrl = url.split('?')[0].split('#')[0];
-    
+
     // Buscar contexto exacto o por prefijo
     if (this.routeContexts[cleanUrl]) {
       this.currentContext = this.routeContexts[cleanUrl];
     } else {
       // Buscar por prefijo (ej: /facturas/1 -> /facturas)
-      const matchedRoute = Object.keys(this.routeContexts).find(route => 
-        route !== '/' && cleanUrl.startsWith(route)
-      );
-      this.currentContext = matchedRoute 
-        ? this.routeContexts[matchedRoute] 
-        : this.routeContexts['/'];
+      const matchedRoute = Object.keys(this.routeContexts).find((route) => route !== '/' && cleanUrl.startsWith(route));
+      this.currentContext = matchedRoute ? this.routeContexts[matchedRoute] : this.routeContexts['/'];
     }
   }
 
@@ -273,15 +301,33 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       event.preventDefault();
     }
-    
-    // Si está en compacto, expandir a medium antes de navegar
-    // Si está en medium o expanded, mantener el estado actual (no expandir)
-    if (this.isCompact) {
-      this.bottomSheetService.setState('medium');
-    }
-    // Si está en medium o expanded, solo navegar sin cambiar estado
-    
+
+    // Siempre colapsar al navegar, manteniendo los botones visibles (compact)
+    // El usuario puede minimizar explícitamente si quiere
+    this.bottomSheetService.setState('compact');
+
     this.router.navigate([route]);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.sheetContainer) return;
+
+    const clickedInside = this.sheetContainer.nativeElement.contains(event.target as Node);
+
+    if (!clickedInside) {
+      if (this.isMedium) {
+        // De medium a compact (botones visibles)
+        this.bottomSheetService.setState('compact');
+      } else if (this.isCompact) {
+        // De compact (botones visibles) a minimized (oculto)
+        this.bottomSheetService.setState('minimized');
+      }
+    }
+  }
+
+  onChatBarClick(): void {
+    this.bottomSheetService.setState('expanded');
   }
 
   onInputFocus(): void {
@@ -306,21 +352,28 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     const message = input.value.trim();
     if (!message) return;
 
+    // Activar animación
+    this.isSending = true;
+    setTimeout(() => (this.isSending = false), 600);
+
     try {
       // Limpiar input inmediatamente
       input.value = '';
-      
+
       // Enviar mensaje usando el servicio de chat (conecta a n8n)
       await this.chatService.sendMessage(message);
-      
+
       // Si está en estado compacto, expandir para ver la respuesta
-      if (this.isCompact) {
+      // Nota: Si se usó la barra compacta, ya se expandió por el click event,
+      // pero esto asegura que si estaba en medium/compact se vea la respuesta
+      if (this.isCompact || this.isMinimized) {
         this.bottomSheetService.setState('expanded');
       }
     } catch (error) {
       console.error('Error al enviar mensaje:', error);
       // Restaurar el mensaje en caso de error
       input.value = message;
+      this.isSending = false; // Detener animación si hubo error inmediato (aunque ya hay timeout)
       // Aquí podrías mostrar un toast o notificación al usuario
     }
   }
@@ -345,9 +398,9 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   }
 
   formatTime(timestamp: Date): string {
-    return new Date(timestamp).toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(timestamp).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 

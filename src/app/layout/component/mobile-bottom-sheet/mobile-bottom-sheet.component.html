@@ -1,7 +1,7 @@
 <!-- Backdrop oscuro (solo visible en estado expanded) -->
-<div 
-  class="bottom-sheet-backdrop" 
-  [class.active]="isDarkOverlay" 
+<div
+  class="bottom-sheet-backdrop"
+  [class.active]="isDarkOverlay"
   (click)="onBackdropClick()"
   role="presentation"
   [attr.aria-hidden]="!isDarkOverlay"></div>
@@ -21,7 +21,12 @@
   [attr.aria-modal]="isExpanded"
   [attr.aria-label]="currentContext.title">
   <!-- Handle / Drag Indicator -->
-  <div class="sheet-handle" (click)="onHeaderClick($event)" role="button" tabindex="0" aria-label="Cambiar estado del panel">
+  <div
+    class="sheet-handle"
+    (click)="onHeaderClick($event)"
+    role="button"
+    tabindex="0"
+    aria-label="Cambiar estado del panel">
     <div class="handle-bar"></div>
   </div>
 
@@ -29,14 +34,39 @@
   <div class="sheet-content">
     <!-- Estado Compacto: Completamente cerrado, solo handle visible -->
     <div class="compact-view" *ngIf="isCompact">
-      <!-- Sin contenido en estado compacto -->
+      <div class="compact-content">
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            *ngFor="let link of quickLinks"
+            (click)="navigateTo(link.route, $event)"
+            [attr.aria-label]="'Navegar a ' + link.label"
+            type="button"
+            class="flex items-center justify-center gap-2 px-3 py-3 bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 rounded-full border-0 shadow-[0_2px_8px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_4px_12px_rgba(26,60,52,0.1)] transition-all duration-200 cursor-pointer">
+            <i [class]="link.icon + ' text-lg'" aria-hidden="true"></i>
+            <span class="text-sm font-medium whitespace-nowrap">{{ link.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Input fake para expandir -->
+      <div class="input-container-compact" (click)="onChatBarClick()">
+        <div
+          class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-500 dark:text-gray-400 rounded-full shadow-sm flex items-center">
+          {{ currentContext.placeholder }}
+        </div>
+        <button
+          type="button"
+          aria-label="Abrir chat"
+          class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center text-white dark:text-[#1A3C34]">
+          <i class="pi pi-send text-sm" aria-hidden="true"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Estado Medio: Menú, acciones e input -->
     <div class="medium-view" *ngIf="isMedium" (click)="$event.stopPropagation()">
       <!-- Contenido scrolleable -->
       <div class="medium-content">
-
         <!-- Chips de navegación en grid 3x2 -->
         <div class="mb-3">
           <div class="grid grid-cols-3 gap-2">
@@ -90,7 +120,10 @@
           type="button"
           aria-label="Enviar mensaje"
           class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm" aria-hidden="true"></i>
+          <i
+            class="pi pi-send text-white dark:text-[#1A3C34] text-sm"
+            [class.animate-send]="isSending"
+            aria-hidden="true"></i>
         </button>
       </div>
     </div>
@@ -99,7 +132,6 @@
     <div class="expanded-view" *ngIf="isExpanded">
       <!-- Chips de navegación expandidos en grid 3x2 en la parte superior -->
       <div class="px-4 pt-2 pb-3 bg-[#F0F7F4] dark:bg-surface-800 border-b border-gray-200 dark:border-surface-700">
-
         <!-- Chips compactos en grid 3x2 -->
         <div class="mb-3">
           <div class="grid grid-cols-3 gap-2">
@@ -160,15 +192,24 @@
         </div>
 
         <!-- Indicador de escritura -->
-        <div class="flex items-start space-x-2 mb-3" *ngIf="isTyping" role="status" aria-live="polite" aria-label="Maingoo está escribiendo">
+        <div
+          class="flex items-start space-x-2 mb-3"
+          *ngIf="isTyping"
+          role="status"
+          aria-live="polite"
+          aria-label="Maingoo está escribiendo">
           <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
             <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
           </div>
           <div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
             <div class="flex space-x-1">
               <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce" aria-hidden="true"></div>
-              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]" aria-hidden="true"></div>
-              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]" aria-hidden="true"></div>
+              <div
+                class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]"
+                aria-hidden="true"></div>
+              <div
+                class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]"
+                aria-hidden="true"></div>
             </div>
           </div>
         </div>
@@ -206,7 +247,10 @@
           type="button"
           aria-label="Enviar mensaje"
           class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm" aria-hidden="true"></i>
+          <i
+            class="pi pi-send text-white dark:text-[#1A3C34] text-sm"
+            [class.animate-send]="isSending"
+            aria-hidden="true"></i>
         </button>
       </div>
     </div>
