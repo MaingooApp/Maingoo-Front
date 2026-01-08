@@ -55,6 +55,39 @@ export class DocumentAnalysisService extends BaseHttpService {
   }
 
   /**
+   * Sube múltiples archivos para análisis en batch
+   * POST /api/analyze/batch
+   * @param files Array de archivos (máx 50)
+   * @param data Metadatos que aplican a todos los archivos
+   * @returns Observable con los IDs de los documentos creados
+   */
+  submitBatchForAnalysis(
+    files: File[],
+    data: { documentType: string; hasDeliveryNotes: boolean }
+  ): Observable<BatchAnalysisResponse> {
+    const formData = new FormData();
+
+    // Añadir cada archivo al FormData
+    files.forEach((file) => {
+      const fileName = file.name || 'document.pdf';
+      const fileType = file.type || 'application/pdf';
+      const fileBlob = new Blob([file], { type: fileType });
+      formData.append('files', fileBlob, fileName);
+    });
+
+    formData.append('documentType', data.documentType);
+    formData.append('hasDeliveryNotes', data.hasDeliveryNotes.toString());
+
+    console.log('Enviando batch FormData:', {
+      filesCount: files.length,
+      documentType: data.documentType,
+      hasDeliveryNotes: data.hasDeliveryNotes
+    });
+
+    return this.http.post<BatchAnalysisResponse>(`${this.API_URL}/batch`, formData);
+  }
+
+  /**
    * Obtiene el estado y resultado del análisis de un documento
    * GET /api/analyze/:id
    * @param documentId ID del documento
@@ -105,4 +138,19 @@ export interface AnalysisDocument {
   processedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Interfaz para la respuesta del batch analysis
+ */
+export interface BatchAnalysisResponse {
+  total: number;
+  success: number;
+  failed: number;
+  results: Array<{
+    documentId: string;
+    filename: string;
+    success: boolean;
+    error?: string;
+  }>;
 }

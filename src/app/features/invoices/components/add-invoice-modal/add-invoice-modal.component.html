@@ -6,44 +6,25 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="flex flex-col gap-2">
               <label for="documentType">Tipo de documento *</label>
-              <p-select
-                formControlName="documentType"
-                id="documentType"
-                [options]="documentTypesList"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Seleccione"
-                appendTo="body"></p-select>
+              <p-select formControlName="documentType" id="documentType" [options]="documentTypesList"
+                optionLabel="label" optionValue="value" placeholder="Seleccione" appendTo="body"></p-select>
             </div>
             @if (isInvoice()) {
-              <div class="flex flex-col gap-2">
-                <label for="hasDeliveryNotes">¿Tiene albaranes?</label>
-                <p-select
-                  formControlName="hasDeliveryNotes"
-                  id="hasDeliveryNotes"
-                  [options]="hasDeliveryNotesOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Seleccione"
-                  appendTo="body"></p-select>
-              </div>
+            <div class="flex flex-col gap-2">
+              <label for="hasDeliveryNotes">¿Tiene albaranes?</label>
+              <p-select formControlName="hasDeliveryNotes" id="hasDeliveryNotes" [options]="hasDeliveryNotesOptions"
+                optionLabel="label" optionValue="value" placeholder="Seleccione" appendTo="body"></p-select>
+            </div>
             }
           </div>
         </form>
       </div>
       <div class="grid grid-cols-1 gap-6 mt-6">
         <div class="flex flex-col gap-2">
-          <label>Subir archivo</label>
-          <p-fileupload
-            #fu
-            name="demo[]"
-            maxFileSize="20000000"
-            accept="image/*,application/pdf"
-            (onSelect)="onFileSelect($event)"
-            (onClear)="onClear()"
-            [showUploadButton]="false"
-            [showCancelButton]="false"
-            [disabled]="!isFormValid()">
+          <label>Subir archivos (máx. 50)</label>
+          <p-fileupload #fu name="files[]" maxFileSize="20000000" accept="image/*,application/pdf" [multiple]="true"
+            (onSelect)="onFileSelect($event)" (onRemove)="onRemoveFile($event)" (onClear)="onClear()"
+            [showUploadButton]="false" [showCancelButton]="false" [disabled]="!isFormValid()">
             <ng-template #header></ng-template>
 
             <!-- <ng-template #content let-files> </ng-template> -->
@@ -53,7 +34,7 @@
                 <div class="vk-dropzone" (click)="fu.choose()">
                   <i class="pi pi-cloud-upload text-4xl text-gray-400"></i>
                   <p class="text-gray-600 mt-2 font-medium">Suelta tus archivos aquí</p>
-                  <p class="text-gray-400 text-sm">o haz clic para seleccionarlos</p>
+                  <p class="text-gray-400 text-sm">o haz clic para seleccionarlos (puedes subir varios a la vez)</p>
                 </div>
               </div>
             </ng-template>
@@ -61,19 +42,9 @@
         </div>
       </div>
       <div class="flex justify-end mt-6 gap-6 border-t pt-4">
-        <button
-          pButton
-          label="Cancelar"
-          icon="pi pi-times"
-          class="p-button-text"
-          severity="danger"
+        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-text" severity="danger"
           (click)="closeModal()"></button>
-        <button
-          pButton
-          label="Subir documento"
-          icon="pi pi-upload"
-          severity="primary"
-          (click)="onSubmit()"
+        <button pButton [label]="submitButtonLabel()" icon="pi pi-upload" severity="primary" (click)="onSubmit()"
           [disabled]="!canSubmit()"></button>
       </div>
     </div>
