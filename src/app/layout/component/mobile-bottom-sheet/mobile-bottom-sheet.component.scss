@@ -1,16 +1,16 @@
 // Estilo del Bottom Sheet - Maingoo Brand Colors
 // Usar CSS custom properties para theming dinámico
 :host {
-  --maingoo-soft-mint: #F0F7F4;
-  --maingoo-white: #FFFFFF;
-  --maingoo-primary: #10B981;
+  --maingoo-soft-mint: #f0f7f4;
+  --maingoo-white: #ffffff;
+  --maingoo-primary: #10b981;
   --maingoo-primary-dark: #059669;
-  --maingoo-green: #6B9E86;
-  --maingoo-dark-green: #1A3C34;
-  --maingoo-text-primary: #1F2937;
-  --maingoo-text-secondary: #6B7280;
-  --maingoo-border: #E5E7EB;
-  
+  --maingoo-green: #6b9e86;
+  --maingoo-dark-green: #1a3c34;
+  --maingoo-text-primary: #1f2937;
+  --maingoo-text-secondary: #6b7280;
+  --maingoo-border: #e5e7eb;
+
   // Constantes de animación
   --transition-standard: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: 0.2s ease;
@@ -51,7 +51,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  
+
   // Solo visible en móvil
   @media (min-width: 768px) {
     display: none;
@@ -65,17 +65,17 @@
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
-  
+
   .handle-bar {
     width: 40px;
     height: 4px;
-    background-color: #D1D5DB;
+    background-color: #d1d5db;
     border-radius: 2px;
     transition: background-color var(--transition-fast);
   }
 
   &:hover .handle-bar {
-    background-color: #9CA3AF;
+    background-color: #9ca3af;
   }
 }
 
@@ -101,12 +101,12 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 16px;
-    padding-bottom: 8px;
+    padding-bottom: 0;
   }
 
   .input-container-compact {
-    padding: 12px 16px;
-    border-top: 1px solid var(--maingoo-border);
+    padding: 2px 16px 12px 16px;
+    border-top: none;
     display: flex;
     gap: 8px;
     background-color: var(--maingoo-soft-mint);
@@ -171,7 +171,7 @@
       transition: background-color var(--transition-fast);
 
       &:hover {
-        background-color: #F3F4F6;
+        background-color: #f3f4f6;
       }
     }
 
@@ -223,7 +223,7 @@
       transition: all var(--transition-fast);
 
       &:hover {
-        background-color: #F3F4F6;
+        background-color: #f3f4f6;
         color: var(--maingoo-green);
       }
     }
@@ -321,11 +321,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #D1D5DB;
+    background-color: #d1d5db;
     border-radius: 3px;
 
     &:hover {
-      background-color: #9CA3AF;
+      background-color: #9ca3af;
     }
   }
 }
@@ -334,8 +334,36 @@
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-  
+
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+// Animación de enviar mensaje
+@keyframes sendFly {
+  0% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(4px) scale(1.1);
+  }
+  40% {
+    transform: translateX(20px) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-20px) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-send {
+  display: inline-block !important;
+  animation: sendFly 0.6s ease-in-out;
 }
