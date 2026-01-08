@@ -16,16 +16,21 @@ export class ConfirmDialogService {
 
   confirm(options: ConfirmDialogOptions): Promise<boolean> {
     return new Promise((resolve) => {
+      const {
+        onAccept,
+        onReject,
+        ...rest
+      } = options;
       const config: Confirmation = {
         ...this.baseConfig,
-        ...options,
+        ...rest,
         accept: () => {
-          options.onAccept?.();
           resolve(true);
+          onAccept?.();
         },
         reject: () => {
-          options.onReject?.();
           resolve(false);
+          onReject?.();
         }
       };
 
