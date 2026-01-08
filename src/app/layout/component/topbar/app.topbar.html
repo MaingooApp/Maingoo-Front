@@ -7,11 +7,12 @@
     <a routerLink="/" class="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
       <!-- Logotipo de Maingoo -->
       <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center flex-shrink-0">
-        <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain">
+        <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain" />
       </div>
       <div class="hidden sm:flex flex-col min-w-0">
-        <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate">Bienvenido, <span
-            class="font-semibold">{{ userName }}</span></span>
+        <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate"
+          >Bienvenido, <span class="font-semibold">{{ userName }}</span></span
+        >
         <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">NOMBRE DE NEGOCIO</span>
       </div>
     </a>
@@ -20,51 +21,75 @@
     <div
       class="bg-[#F0F7F4] dark:bg-surface-700 rounded-xl md:rounded-2xl px-2 sm:px-4 md:px-6 py-1.5 md:py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] flex items-center gap-6 sm:gap-4 md:gap-10">
       <!-- Botón hamburguesa para móvil - despliega menú con iconos -->
-      <button type="button" (click)="toggleMobileMenu()"
+      <button
+        type="button"
+        (click)="toggleMobileMenu()"
         class="flex md:hidden items-center justify-center hover:scale-105 transition-all duration-200 text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86]"
-        aria-label="Abrir menú" pTooltip="Menú" tooltipPosition="bottom" [showDelay]="250"
+        aria-label="Abrir menú"
+        pTooltip="Menú"
+        tooltipPosition="bottom"
+        [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
         <i class="pi pi-bars text-base sm:text-lg"></i>
       </button>
 
       <!-- Botón hamburguesa para escritorio - abre/cierra sidebar del chat -->
-      <button type="button" (click)="layoutService.onMenuToggle()"
+      <button
+        type="button"
+        (click)="layoutService.onMenuToggle()"
         class="hidden md:flex items-center justify-center hover:scale-105 transition-all duration-200 text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86]"
-        aria-label="Abrir menú" pTooltip="Menú" tooltipPosition="bottom" [showDelay]="250"
+        aria-label="Abrir menú"
+        pTooltip="Menú"
+        tooltipPosition="bottom"
+        [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
         <i class="pi pi-bars text-xl"></i>
       </button>
 
       <!-- Menú desplegable móvil -->
-      <div *ngIf="isMobileMenuOpen"
+      <div
+        *ngIf="isMobileMenuOpen"
         class="md:hidden absolute top-full right-0 mt-2 bg-white dark:bg-surface-800 rounded-xl shadow-lg border border-gray-200 dark:border-surface-700 py-2 min-w-[200px] z-50">
         <!-- Perfil -->
-        <button type="button" routerLink="/miperfil" (click)="toggleMobileMenu()"
+        <button
+          type="button"
+          routerLink="/miperfil"
+          (click)="toggleMobileMenu()"
           class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
           <i class="pi pi-user text-base"></i>
           <span class="text-sm font-medium">Mi perfil</span>
         </button>
 
         <!-- Configuración -->
-        <button type="button" (click)="openSettings(); toggleMobileMenu()"
+        <button
+          type="button"
+          (click)="openSettings(); toggleMobileMenu()"
           class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
           <i class="pi pi-cog text-base"></i>
           <span class="text-sm font-medium">Configuración</span>
         </button>
 
         <!-- Cambiar tema -->
-        <button type="button" (click)="toggleDarkMode(); toggleMobileMenu()"
+        <button
+          type="button"
+          (click)="toggleDarkMode(); toggleMobileMenu()"
           class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-          <i class="text-base"
+          <i
+            class="text-base"
             [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
           <span class="text-sm font-medium">{{ layoutService.isDarkTheme() ? 'Tema claro' : 'Tema oscuro' }}</span>
         </button>
       </div>
 
       <!-- Notificaciones del sistema -->
-      <button type="button" (click)="toggleNotifications()"
+      <button
+        type="button"
+        (click)="toggleNotifications()"
         class="relative text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
-        aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom" [showDelay]="250"
+        aria-label="Notificaciones"
+        pTooltip="Notificaciones"
+        tooltipPosition="bottom"
+        [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
         <i class="pi pi-bell text-base sm:text-lg md:text-xl"></i>
         <!-- Indicador de notificaciones no leídas -->
@@ -74,9 +99,14 @@
       </button>
 
       <!-- Botón Perfil -->
-      <button type="button" (click)="toggleProfile()"
+      <button
+        type="button"
+        (click)="toggleProfile()"
         class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
-        aria-label="Mi perfil" pTooltip="Mi perfil" tooltipPosition="bottom" [showDelay]="250"
+        aria-label="Mi perfil"
+        pTooltip="Mi perfil"
+        tooltipPosition="bottom"
+        [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
         <i class="pi pi-user text-base sm:text-lg md:text-xl"></i>
       </button>

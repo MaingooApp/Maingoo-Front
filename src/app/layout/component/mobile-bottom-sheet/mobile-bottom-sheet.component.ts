@@ -34,9 +34,8 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private readonly DRAG_THRESHOLD = 50;
   private readonly SCROLL_DELAY = 100;
   private readonly snapPoints = {
-    minimized: 3,
+    minimized: 8,
     compact: 25,
-    medium: 60,
     expanded: 90
   };
 
@@ -69,9 +68,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       placeholder: '¿Qué necesitas saber hoy?',
       actions: [
         { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
-        { label: 'Ver resumen', icon: 'pi pi-eye', action: 'Mostrar resumen general' },
-        { label: 'Análisis ventas', icon: 'pi pi-chart-bar', action: 'Análisis de ventas' },
-        { label: 'Estadísticas', icon: 'pi pi-chart-pie', action: 'Ver estadísticas generales' }
+        { label: 'Ver resumen', icon: 'pi pi-eye', action: 'Mostrar resumen general' }
       ]
     },
     '/facturas': {
@@ -79,9 +76,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       placeholder: 'Pregunta sobre tus facturas...',
       actions: [
         { label: 'Subir factura', icon: 'pi pi-upload', action: 'Subir factura' },
-        { label: 'Informe compras', icon: 'pi pi-chart-bar', action: 'Informe de compras' },
-        { label: 'Buscar factura', icon: 'pi pi-search', action: 'Buscar una factura' },
-        { label: 'Exportar datos', icon: 'pi pi-download', action: 'Exportar facturas' }
+        { label: 'Informe compras', icon: 'pi pi-chart-bar', action: 'Informe de compras' }
       ]
     },
     '/proveedores': {
@@ -89,9 +84,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       placeholder: 'Pregunta sobre tus proveedores...',
       actions: [
         { label: 'Nuevo proveedor', icon: 'pi pi-plus', action: 'Agregar nuevo proveedor' },
-        { label: 'Análisis', icon: 'pi pi-chart-pie', action: 'Análisis de proveedores' },
-        { label: 'Comparar precios', icon: 'pi pi-dollar', action: 'Comparar precios de proveedores' },
-        { label: 'Contactos', icon: 'pi pi-users', action: 'Ver contactos de proveedores' }
+        { label: 'Análisis', icon: 'pi pi-chart-pie', action: 'Análisis de proveedores' }
       ]
     },
     '/productos': {
@@ -99,9 +92,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       placeholder: 'Pregunta sobre tus productos...',
       actions: [
         { label: 'Nuevo producto', icon: 'pi pi-plus', action: 'Agregar nuevo producto' },
-        { label: 'Stock bajo', icon: 'pi pi-exclamation-triangle', action: 'Ver productos con stock bajo' },
-        { label: 'Actualizar precios', icon: 'pi pi-refresh', action: 'Actualizar precios de productos' },
-        { label: 'Categorías', icon: 'pi pi-tags', action: 'Gestionar categorías' }
+        { label: 'Stock bajo', icon: 'pi pi-exclamation-triangle', action: 'Ver productos con stock bajo' }
       ]
     },
     '/recetas': {
@@ -109,9 +100,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       placeholder: 'Pregunta sobre tus recetas...',
       actions: [
         { label: 'Crear receta', icon: 'pi pi-plus', action: 'Crear nueva receta' },
-        { label: 'Costeo', icon: 'pi pi-calculator', action: 'Análisis de costeo de recetas' },
-        { label: 'Ingredientes', icon: 'pi pi-list', action: 'Ver ingredientes disponibles' },
-        { label: 'Rentabilidad', icon: 'pi pi-percentage', action: 'Análisis de rentabilidad' }
+        { label: 'Costeo', icon: 'pi pi-calculator', action: 'Análisis de costeo de recetas' }
       ]
     },
     '/docgenerator': {
@@ -119,9 +108,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       placeholder: 'Genera documentos...',
       actions: [
         { label: 'Nuevo documento', icon: 'pi pi-file-plus', action: 'Generar nuevo documento' },
-        { label: 'Plantillas', icon: 'pi pi-clone', action: 'Ver plantillas disponibles' },
-        { label: 'Mis documentos', icon: 'pi pi-folder', action: 'Ver mis documentos' },
-        { label: 'Compartir', icon: 'pi pi-share-alt', action: 'Compartir documento' }
+        { label: 'Plantillas', icon: 'pi pi-clone', action: 'Ver plantillas disponibles' }
       ]
     }
   };
@@ -166,16 +153,13 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     return this.currentState === 'compact';
   }
 
-  get isMedium(): boolean {
-    return this.currentState === 'medium';
-  }
-
   get isExpanded(): boolean {
     return this.currentState === 'expanded';
   }
 
   onTouchStart(event: TouchEvent) {
     this.startY = event.touches[0].clientY;
+    this.currentY = this.startY; // Inicializar currentY para evitar falsos positivos si no hay movimiento
     this.isDragging = true;
   }
 
@@ -229,8 +213,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   private collapseState(current: SheetState) {
     if (current === 'expanded') {
-      this.bottomSheetService.setState('medium');
-    } else if (current === 'medium') {
       this.bottomSheetService.setState('compact');
     } else if (current === 'compact') {
       this.bottomSheetService.setState('minimized');
@@ -241,10 +223,15 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     if (current === 'minimized') {
       this.bottomSheetService.setState('compact');
     } else if (current === 'compact') {
-      this.bottomSheetService.setState('medium');
-    } else if (current === 'medium') {
       this.bottomSheetService.setState('expanded');
     }
+  }
+
+  expandFromMinimized(event?: Event) {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.bottomSheetService.setState('compact');
   }
 
   onHeaderClick(event?: Event) {
@@ -255,6 +242,15 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
     // Click en el header para ciclar entre estados
     this.bottomSheetService.toggleState();
+  }
+
+  @HostListener('window:popstate', ['$event'])
+  onPopState(event: Event) {
+    // Si navegamos hacia atrás (por botón físico o gesto), asegurarnos de que el estado interno se actualice
+    // La lógica de historial se maneja centralizadamente en BottomSheetService o por el comportamiento natural
+    if (this.isExpanded) {
+      this.bottomSheetService.setState('compact');
+    }
   }
 
   ngOnInit() {
@@ -316,10 +312,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     const clickedInside = this.sheetContainer.nativeElement.contains(event.target as Node);
 
     if (!clickedInside) {
-      if (this.isMedium) {
-        // De medium a compact (botones visibles)
-        this.bottomSheetService.setState('compact');
-      } else if (this.isCompact) {
+      if (this.isCompact) {
         // De compact (botones visibles) a minimized (oculto)
         this.bottomSheetService.setState('minimized');
       }
@@ -328,13 +321,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   onChatBarClick(): void {
     this.bottomSheetService.setState('expanded');
-  }
-
-  onInputFocus(): void {
-    // Expandir a modo completo cuando se hace focus en el input en estado medium
-    if (this.isMedium) {
-      this.bottomSheetService.setState('expanded');
-    }
   }
 
   async handleQuickAction(action: string): Promise<void> {
@@ -376,6 +362,13 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       this.isSending = false; // Detener animación si hubo error inmediato (aunque ya hay timeout)
       // Aquí podrías mostrar un toast o notificación al usuario
     }
+  }
+
+  closeChat(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.bottomSheetService.setState('compact');
   }
 
   onBackdropClick(): void {
