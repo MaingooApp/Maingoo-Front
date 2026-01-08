@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type SheetState = 'minimized' | 'compact' | 'medium' | 'expanded';
+export type SheetState = 'minimized' | 'compact' | 'expanded';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +14,29 @@ export class BottomSheetService {
 
   // Método para cambiar el estado
   setState(newState: SheetState) {
+    const oldState = this.state();
+
+    // Detectar si estamos abriendo el chat (de cerrado a abierto)
+    const isOpening = (oldState === 'compact' || oldState === 'minimized') && newState === 'expanded';
+
+    // Detectar si estamos cerrando el chat por UI (de abierto a cerrado)
+    const isClosing = oldState === 'expanded' && (newState === 'compact' || newState === 'minimized');
+
+    // Manejo del historial del navegador
+    try {
+      if (isOpening) {
+        // Al abrir, añadimos un estado al historial para que el botón "Atrás" funcione
+        history.pushState({ chatOpen: true }, '', location.href);
+      } else if (isClosing) {
+        // Al cerrar por UI, si tenemos nuestro estado en el historial, volvemos atrás
+        if (history.state && history.state.chatOpen) {
+          history.back();
+        }
+      }
+    } catch (e) {
+      console.warn('History API not available or failed', e);
+    }
+
     this.state.set(newState);
   }
 
@@ -23,8 +46,6 @@ export class BottomSheetService {
     if (current === 'minimized') {
       this.setState('compact');
     } else if (current === 'compact') {
-      this.setState('medium');
-    } else if (current === 'medium') {
       this.setState('expanded');
     } else {
       this.setState('minimized');

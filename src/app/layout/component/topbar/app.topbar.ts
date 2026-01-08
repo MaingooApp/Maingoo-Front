@@ -78,7 +78,7 @@ export class AppTopbar implements OnInit, OnDestroy {
     private toastService: ToastService,
     private elementRef: ElementRef,
     private bottomSheetService: BottomSheetService
-  ) { }
+  ) {}
 
   ngOnInit() {
     // Suscribirse a las notificaciones de toast
@@ -88,7 +88,7 @@ export class AppTopbar implements OnInit, OnDestroy {
     });
 
     // Suscribirse al historial de notificaciones
-    this.notificationsListSubscription = this.toastService.notifications$.subscribe(notifications => {
+    this.notificationsListSubscription = this.toastService.notifications$.subscribe((notifications) => {
       this.notifications = notifications;
     });
   }
@@ -183,12 +183,12 @@ export class AppTopbar implements OnInit, OnDestroy {
     if (this.isMobile) {
       // En móvil: controlar el bottom sheet
       const currentState = this.bottomSheetService.currentState();
-      if (currentState === 'compact') {
-        // Si está cerrado, abrir a medium
-        this.bottomSheetService.setState('medium');
-      } else {
-        // Si está en medium o expanded, cerrar a compact
+      if (currentState === 'minimized') {
+        // Si está minimizado, abrir a compacto (menú)
         this.bottomSheetService.setState('compact');
+      } else {
+        // En cualquier otro caso, minimizar
+        this.bottomSheetService.setState('minimized');
       }
     } else {
       // En escritorio: toggle del menú desplegable
