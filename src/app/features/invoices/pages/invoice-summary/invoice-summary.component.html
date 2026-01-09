@@ -1,25 +1,121 @@
-<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
-  <app-section-header class="w-full" title="Facturas y albaranes" [showViewSwitcher]="false" [showSearch]="false">
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+  <!-- MOBILE HEADER (Search & Controls) -->
+  <div class="md:hidden flex items-center justify-between w-full relative z-20">
+    <!-- Search Input (Expandable) -->
+    <div
+      class="transition-all duration-300 ease-out h-12 flex items-center"
+      [ngClass]="showMobileSearch ? 'w-full z-30' : 'w-12 relative'">
+      <div class="relative flex items-center w-full h-full">
+        <input
+          #mobileSearchInput
+          type="text"
+          pInputText
+          placeholder="Buscar factura..."
+          class="w-full pl-4 pr-14 py-2 rounded-full border border-gray-200 shadow-sm transition-all opacity-0 scale-95 pointer-events-none h-10"
+          [ngClass]="{ '!opacity-100 !scale-100 !pointer-events-auto': showMobileSearch }"
+          (input)="searchTerm.set(getInputValue($event))" />
+        <button
+          type="button"
+          class="absolute right-0 w-12 h-12 z-20 flex items-center justify-center text-maingoo-dark-green rounded-full active:bg-gray-100 transition-colors"
+          (click)="showMobileSearch = !showMobileSearch; showMobileSearch && mobileSearchInput.focus()">
+          <i class="pi text-xl" [ngClass]="showMobileSearch ? 'pi-times' : 'pi-search'"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP HEADER -->
+  <app-section-header
+    class="w-full hidden md:block"
+    title="Facturas y albaranes"
+    [showViewSwitcher]="false"
+    [showSearch]="false">
     <div actions>
-      <button pButton label="Subir documento" icon="pi pi-receipt" severity="primary" (click)="openAddInvoiceModal()">
-      </button>
+      <button
+        pButton
+        label="Subir documento"
+        icon="pi pi-receipt"
+        severity="primary"
+        (click)="openAddInvoiceModal()"></button>
     </div>
   </app-section-header>
 
   <div class="w-full">
     <div *ngIf="invoices().length === 0; else tablaFacturas">
-      <app-empty-state icon="pi-inbox" title="No hay facturas registradas"
+      <app-empty-state
+        icon="pi-inbox"
+        title="No hay facturas registradas"
         description="Cuando registres una factura, aparecerá aquí.">
       </app-empty-state>
     </div>
 
     <ng-template #tablaFacturas>
-      <div class="card rounded-xl shadow-md p-6 bg-white">
-        <app-tabla-dinamica [data]="invoices()" [columns]="columns" [loading]="loading()"
-          [globalFilterFields]="['supplier.name', 'invoiceNumber']" [actions]="actions()"
-          (actionClick)="handleAccion($event)" [exportPdf]="true" [exportFilename]="'facturas'">
+      <!-- Desktop Table -->
+      <div class="hidden md:block card rounded-xl shadow-md p-6 bg-white">
+        <app-tabla-dinamica
+          [data]="invoices()"
+          [columns]="columns"
+          [loading]="loading()"
+          [globalFilterFields]="['supplier.name', 'invoiceNumber']"
+          [actions]="actions()"
+          (actionClick)="handleAccion($event)"
+          [exportPdf]="true"
+          [exportFilename]="'facturas'">
         </app-tabla-dinamica>
+      </div>
+
+      <!-- Mobile Simplified Table (Excel-like) -->
+      <div class="md:hidden w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="px-4 py-3 font-medium">Proveedor</th>
+                <th class="px-3 py-3 font-medium text-right">Fecha</th>
+                <th class="px-4 py-3 font-medium text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr
+                *ngFor="let invoice of filteredInvoices()"
+                (click)="verDetalle(invoice)"
+                class="bg-white active:bg-gray-50 transition-colors cursor-pointer">
+                <td class="px-4 py-3 font-medium text-gray-900 truncate max-w-[140px]">
+                  {{ invoice.supplier?.name || 'Sin nombre' }}
+                  <div class="text-[10px] text-gray-400 font-normal mt-0.5">{{ invoice.invoiceNumber }}</div>
+                </td>
+                <td class="px-3 py-3 text-right text-gray-500 whitespace-nowrap">
+                  {{ invoice.date | date: 'dd/MM/yy' }}
+                </td>
+                <td class="px-4 py-3 text-right font-bold text-maingoo-deep whitespace-nowrap">
+                  {{ invoice.amount | currency: 'EUR' }}
+                </td>
+              </tr>
+              <tr *ngIf="filteredInvoices().length === 0">
+                <td colspan="3" class="px-4 py-8 text-center text-gray-500">No se encontraron facturas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </ng-template>
   </div>
+
+  <!-- FAB: Exportar PDF (Bottom Left) -->
+  <button
+    class="md:hidden fixed bottom-24 left-6 w-14 h-14 rounded-full bg-red-500 text-white shadow-[0_4px_20px_rgba(239,68,68,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)] hover:bg-red-600"
+    (click)="exportarPdf()"
+    pTooltip="Exportar PDF"
+    tooltipPosition="right">
+    <i class="pi pi-file-pdf text-xl font-bold"></i>
+  </button>
+
+  <!-- FAB: Subir Documento (Bottom Right) -->
+  <button
+    class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
+    (click)="openAddInvoiceModal()"
+    pTooltip="Subir documento"
+    tooltipPosition="left">
+    <i class="pi pi-plus text-xl font-bold"></i>
+  </button>
 </div>
