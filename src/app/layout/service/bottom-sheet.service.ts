@@ -1,13 +1,13 @@
 import { Injectable, signal } from '@angular/core';
 
-export type SheetState = 'minimized' | 'compact' | 'expanded';
+export type SheetState = 'closed' | 'chat-open' | 'menu-open';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BottomSheetService {
-  // Estado actual del Bottom Sheet
-  private state = signal<SheetState>('compact');
+  // Estado actual del Bottom Sheet/Modals
+  private state = signal<SheetState>('closed');
 
   // Getter para el estado actual
   currentState = this.state.asReadonly();
@@ -16,20 +16,21 @@ export class BottomSheetService {
   setState(newState: SheetState) {
     const oldState = this.state();
 
-    // Detectar si estamos abriendo el chat (de cerrado a abierto)
-    const isOpening = (oldState === 'compact' || oldState === 'minimized') && newState === 'expanded';
+    // Detectar si estamos abriendo un modal
+    const isOpening = oldState === 'closed' && (newState === 'chat-open' || newState === 'menu-open');
 
-    // Detectar si estamos cerrando el chat por UI (de abierto a cerrado)
-    const isClosing = oldState === 'expanded' && (newState === 'compact' || newState === 'minimized');
+    // Detectar si estamos cerrando un modal
+    const isClosing = (oldState === 'chat-open' || oldState === 'menu-open') && newState === 'closed';
 
     // Manejo del historial del navegador
     try {
       if (isOpening) {
         // Al abrir, añadimos un estado al historial para que el botón "Atrás" funcione
-        history.pushState({ chatOpen: true }, '', location.href);
+        const modalType = newState === 'chat-open' ? 'chat' : 'menu';
+        history.pushState({ modalOpen: true, modalType }, '', location.href);
       } else if (isClosing) {
         // Al cerrar por UI, si tenemos nuestro estado en el historial, volvemos atrás
-        if (history.state && history.state.chatOpen) {
+        if (history.state && history.state.modalOpen) {
           history.back();
         }
       }
@@ -40,40 +41,47 @@ export class BottomSheetService {
     this.state.set(newState);
   }
 
-  // Método para toggle entre estados
-  toggleState() {
-    const current = this.state();
-    if (current === 'minimized') {
-      this.setState('compact');
-    } else if (current === 'compact') {
-      this.setState('expanded');
-    } else {
-      this.setState('minimized');
+  // Abrir el chat
+  openChat() {
+    this.setState('chat-open');
+  }
+
+  // Abrir el menú
+  openMenu() {
+    this.setState('menu-open');
+  }
+
+  // Cerrar el chat
+  closeChat() {
+    if (this.state() === 'chat-open') {
+      this.setState('closed');
     }
   }
 
-  // Colapsar al estado compacto
-  collapse() {
-    this.setState('compact');
+  // Cerrar el menú
+  closeMenu() {
+    if (this.state() === 'menu-open') {
+      this.setState('closed');
+    }
   }
 
-  // Expandir al máximo
-  expand() {
-    this.setState('expanded');
+  // Cerrar cualquier cosa que esté abierta
+  closeAll() {
+    this.setState('closed');
   }
 
-  // Verificar si está minimizado
-  isMinimized(): boolean {
-    return this.state() === 'minimized';
+  // Verificar si el chat está abierto
+  isChatOpen(): boolean {
+    return this.state() === 'chat-open';
   }
 
-  // Verificar si está en modo compacto
-  isCompact(): boolean {
-    return this.state() === 'compact';
+  // Verificar si el menú está abierto
+  isMenuOpen(): boolean {
+    return this.state() === 'menu-open';
   }
 
-  // Verificar si está expandido
-  isExpanded(): boolean {
-    return this.state() === 'expanded';
+  // Verificar si algo está abierto
+  isAnyOpen(): boolean {
+    return this.state() !== 'closed';
   }
 }

@@ -1,0 +1,205 @@
+:host {
+  --maingoo-dark-green: #1a3c34;
+  --maingoo-green: #6b9e86;
+  --maingoo-soft-mint: #f0f7f4;
+}
+
+.menu-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 9;
+  display: flex;
+  align-items: flex-end;
+
+  // Solo visible en móvil
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.menu-modal-content {
+  width: 100%;
+  max-height: 65vh;
+  background-color: var(--maingoo-soft-mint);
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  :host-context(.app-dark) & {
+    background-color: #1f2937;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+
+  :host-context(.app-dark) & {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--maingoo-dark-green);
+
+  :host-context(.app-dark) & {
+    color: #f9fafb;
+  }
+}
+
+.close-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: var(--maingoo-dark-green);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  i {
+    font-size: 18px;
+  }
+
+  &:active {
+    transform: scale(0.9);
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  :host-context(.app-dark) & {
+    color: #9ca3af;
+
+    &:active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+  }
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 12px;
+  background-color: #ffffff;
+  border: 1px solid rgba(107, 158, 134, 0.1);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100px;
+
+  &:active {
+    transform: scale(0.95);
+    background-color: var(--maingoo-green);
+    border-color: var(--maingoo-green);
+
+    .menu-icon,
+    .menu-label {
+      color: #ffffff;
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--maingoo-green);
+      box-shadow: 0 2px 8px rgba(107, 158, 134, 0.15);
+    }
+  }
+
+  :host-context(.app-dark) & {
+    background-color: #374151;
+    border-color: rgba(107, 158, 134, 0.2);
+
+    &:active {
+      background-color: var(--maingoo-dark-green);
+      border-color: var(--maingoo-dark-green);
+    }
+  }
+}
+
+.menu-icon {
+  font-size: 28px;
+  color: var(--maingoo-green);
+  transition: color 0.2s ease;
+
+  :host-context(.app-dark) & {
+    color: var(--maingoo-green);
+  }
+}
+
+.menu-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--maingoo-dark-green);
+  text-align: center;
+  line-height: 1.2;
+  transition: color 0.2s ease;
+
+  :host-context(.app-dark) & {
+    color: #f9fafb;
+  }
+}
+
+// Animaciones
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
