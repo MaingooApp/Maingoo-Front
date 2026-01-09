@@ -1,8 +1,8 @@
-import { Component, ElementRef, HostListener, ViewChild, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { BottomSheetService, SheetState } from '../../../layout/service/bottom-sheet.service';
+import { BottomSheetService } from '../../../layout/service/bottom-sheet.service';
 import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -27,22 +27,10 @@ interface RouteContext {
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })
 export class MobileBottomSheetComponent implements OnInit, OnDestroy {
-  @ViewChild('sheetContainer') sheetContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
 
   // Constantes de configuración
-  private readonly DRAG_THRESHOLD = 50;
   private readonly SCROLL_DELAY = 100;
-  private readonly snapPoints = {
-    minimized: 8,
-    compact: 25,
-    expanded: 90
-  };
-
-  // Estado del drag
-  private startY = 0;
-  private currentY = 0;
-  private isDragging = false;
 
   // Chat properties
   messages: ChatMessage[] = [];
@@ -52,16 +40,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private typingSubscription?: Subscription;
   private routerSubscription?: Subscription;
 
-  // Quick actions y chips navegación (6 chips para grid 3x2)
-  quickLinks = [
-    { label: 'Métricas', icon: 'pi pi-chart-line', route: '/' },
-    { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
-    { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
-    { label: 'Artículos', icon: 'pi pi-clipboard', route: '/articulos' },
-    { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
-  ];
-
-  // Contextos por ruta
+  // Contextos por ruta (para las acciones rápidas)
   private routeContexts: { [key: string]: RouteContext } = {
     '/': {
       title: 'Acciones rápidas',
@@ -132,124 +111,16 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Propiedades computadas para optimización
-  get currentState(): SheetState {
-    return this.bottomSheetService.currentState();
-  }
-
-  get sheetHeight(): string {
-    return `${this.snapPoints[this.currentState as keyof typeof this.snapPoints]}vh`;
-  }
-
-  get isDarkOverlay(): boolean {
-    return this.currentState === 'expanded';
-  }
-
-  get isMinimized(): boolean {
-    return this.currentState === 'minimized';
-  }
-
-  get isCompact(): boolean {
-    return this.currentState === 'compact';
-  }
-
-  get isExpanded(): boolean {
-    return this.currentState === 'expanded';
-  }
-
-  onTouchStart(event: TouchEvent) {
-    this.startY = event.touches[0].clientY;
-    this.currentY = this.startY; // Inicializar currentY para evitar falsos positivos si no hay movimiento
-    this.isDragging = true;
-  }
-
-  onTouchMove(event: TouchEvent) {
-    if (!this.isDragging) return;
-
-    this.currentY = event.touches[0].clientY;
-    const deltaY = this.currentY - this.startY;
-
-    // Solo permitir arrastrar hacia abajo si está en estados superiores
-    const currentState = this.bottomSheetService.currentState();
-    if (deltaY > 0 || currentState !== 'minimized') {
-      // Aplicar transformación temporal mientras se arrastra
-      if (this.sheetContainer) {
-        const sheet = this.sheetContainer.nativeElement;
-        sheet.style.transition = 'none';
-        sheet.style.transform = `translateY(${Math.max(0, deltaY)}px)`;
-      }
-    }
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    if (!this.isDragging) return;
-
-    this.isDragging = false;
-    const deltaY = this.currentY - this.startY;
-
-    // Reset styles
-    if (this.sheetContainer) {
-      const sheet = this.sheetContainer.nativeElement;
-      sheet.style.transition = '';
-      sheet.style.transform = '';
-    }
-
-    const currentState = this.currentState;
-
-    // Determinar nuevo estado basado en la dirección y distancia del arrastre
-    if (Math.abs(deltaY) > this.DRAG_THRESHOLD) {
-      if (deltaY > 0) {
-        // Arrastrando hacia abajo - colapsar
-        this.collapseState(currentState);
-      } else {
-        // Arrastrando hacia arriba - expandir
-        this.expandState(currentState);
-      }
-    }
-
-    this.startY = 0;
-    this.currentY = 0;
-  }
-
-  private collapseState(current: SheetState) {
-    if (current === 'expanded') {
-      this.bottomSheetService.setState('compact');
-    } else if (current === 'compact') {
-      this.bottomSheetService.setState('minimized');
-    }
-  }
-
-  private expandState(current: SheetState) {
-    if (current === 'minimized') {
-      this.bottomSheetService.setState('compact');
-    } else if (current === 'compact') {
-      this.bottomSheetService.setState('expanded');
-    }
-  }
-
-  expandFromMinimized(event?: Event) {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.bottomSheetService.setState('compact');
-  }
-
-  onHeaderClick(event?: Event) {
-    // Si el evento viene de un elemento hijo (como un chip), no hacer nada
-    if (event && event.target !== event.currentTarget) {
-      return;
-    }
-
-    // Click en el header para ciclar entre estados
-    this.bottomSheetService.toggleState();
+  // Propiedades computadas
+  get isOpen(): boolean {
+    return this.bottomSheetService.isChatOpen();
   }
 
   @HostListener('window:popstate', ['$event'])
   onPopState(event: Event) {
-    // Si navegamos hacia atrás (por botón físico o gesto), asegurarnos de que el estado interno se actualice
-    // La lógica de historial se maneja centralizadamente en BottomSheetService o por el comportamiento natural
-    if (this.isExpanded) {
-      this.bottomSheetService.setState('compact');
+    // Si navegamos hacia atrás (por botón físico o gesto), cerrar el chat
+    if (this.isOpen) {
+      this.bottomSheetService.closeChat();
     }
   }
 
@@ -291,38 +162,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
   }
 
-  navigateTo(route: string, event?: Event): void {
-    // Prevenir que el evento burbujee y active el onHeaderClick
-    if (event) {
-      event.stopPropagation();
-      event.preventDefault();
-    }
-
-    // Siempre colapsar al navegar, manteniendo los botones visibles (compact)
-    // El usuario puede minimizar explícitamente si quiere
-    this.bottomSheetService.setState('compact');
-
-    this.router.navigate([route]);
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    if (!this.sheetContainer) return;
-
-    const clickedInside = this.sheetContainer.nativeElement.contains(event.target as Node);
-
-    if (!clickedInside) {
-      if (this.isCompact) {
-        // De compact (botones visibles) a minimized (oculto)
-        this.bottomSheetService.setState('minimized');
-      }
-    }
-  }
-
-  onChatBarClick(): void {
-    this.bottomSheetService.setState('expanded');
-  }
-
   async handleQuickAction(action: string): Promise<void> {
     try {
       // Enviar la acción al chat
@@ -330,7 +169,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       // Mantener expandido para mostrar la respuesta
     } catch (error) {
       console.error('Error al procesar acción rápida:', error);
-      // Aquí podrías mostrar un toast o notificación al usuario
     }
   }
 
@@ -348,19 +186,11 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
       // Enviar mensaje usando el servicio de chat (conecta a n8n)
       await this.chatService.sendMessage(message);
-
-      // Si está en estado compacto, expandir para ver la respuesta
-      // Nota: Si se usó la barra compacta, ya se expandió por el click event,
-      // pero esto asegura que si estaba en medium/compact se vea la respuesta
-      if (this.isCompact || this.isMinimized) {
-        this.bottomSheetService.setState('expanded');
-      }
     } catch (error) {
       console.error('Error al enviar mensaje:', error);
       // Restaurar el mensaje en caso de error
       input.value = message;
-      this.isSending = false; // Detener animación si hubo error inmediato (aunque ya hay timeout)
-      // Aquí podrías mostrar un toast o notificación al usuario
+      this.isSending = false;
     }
   }
 
@@ -368,14 +198,11 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     if (event) {
       event.stopPropagation();
     }
-    this.bottomSheetService.setState('compact');
+    this.bottomSheetService.closeChat();
   }
 
   onBackdropClick(): void {
-    // Si está expandido, colapsar a compacto al hacer click en el backdrop
-    if (this.isExpanded) {
-      this.bottomSheetService.setState('compact');
-    }
+    this.closeChat();
   }
 
   private scrollToBottom() {

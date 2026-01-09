@@ -2,7 +2,7 @@
 <div
   class="fixed top-0 left-0 right-0 z-[1000] w-full h-16 md:h-16 lg:h-20 flex items-center justify-center px-0 md:px-4 lg:px-8">
   <div
-    class="w-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-2 sm:px-4 md:pl-10 md:pr-4 h-full">
+    class="w-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] border-b-2 border-[#6B9E86]/20 md:border-b-0 shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-3 sm:px-4 md:pl-10 md:pr-4 h-full transition-all duration-300">
     <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
     <a routerLink="/" class="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
       <!-- Logotipo de Maingoo -->
@@ -10,95 +10,79 @@
         <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain" />
       </div>
       <div class="hidden sm:flex flex-col min-w-0">
-        <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate"
-          >Bienvenido, <span class="font-semibold">{{ userName }}</span></span
+        <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate font-medium"
+          >Bienvenido, <span class="font-semibold">{{ userName }}</span>
+          <span class="text-[#6B9E86] font-normal">• {{ currentTime }}</span></span
         >
-        <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">NOMBRE DE NEGOCIO</span>
+        <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">{{ businessName }}</span>
       </div>
     </a>
 
     <!-- ========== SECCIÓN DERECHA: Cápsula Flotante ========== -->
     <div
-      class="bg-[#F0F7F4] dark:bg-surface-700 rounded-xl md:rounded-2xl px-2 sm:px-4 md:px-6 py-1.5 md:py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] flex items-center gap-6 sm:gap-4 md:gap-10">
-      <!-- Botón hamburguesa para móvil - despliega menú con iconos -->
-      <!-- Botón hamburguesa para móvil ELIMINADO -->
-
+      class="bg-[#F0F7F4]/80 dark:bg-surface-700/80 backdrop-blur-sm rounded-xl md:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 md:py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:shadow-[0_6px_16px_rgba(26,60,52,0.08)] flex items-center gap-2 sm:gap-3 md:gap-4 transition-all duration-300">
       <!-- Botón hamburguesa para escritorio - abre/cierra sidebar del chat -->
       <button
         type="button"
         (click)="layoutService.onMenuToggle()"
-        class="hidden md:flex items-center justify-center hover:scale-105 transition-all duration-200 text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86]"
-        aria-label="Abrir menú"
-        pTooltip="Menú"
+        pRipple
+        class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
+        aria-label="Abrir menú del chat"
+        pTooltip="Chat AI"
         tooltipPosition="bottom"
         [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-bars text-xl"></i>
+        <i class="pi pi-comments text-lg"></i>
       </button>
-
-      <!-- Menú desplegable móvil -->
-      <div
-        *ngIf="isMobileMenuOpen"
-        class="md:hidden absolute top-full right-0 mt-2 bg-white dark:bg-surface-800 rounded-xl shadow-lg border border-gray-200 dark:border-surface-700 py-2 min-w-[200px] z-50">
-        <!-- Perfil -->
-        <button
-          type="button"
-          routerLink="/miperfil"
-          (click)="toggleMobileMenu()"
-          class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-          <i class="pi pi-user text-base"></i>
-          <span class="text-sm font-medium">Mi perfil</span>
-        </button>
-
-        <!-- Configuración -->
-        <button
-          type="button"
-          (click)="openSettings(); toggleMobileMenu()"
-          class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-          <i class="pi pi-cog text-base"></i>
-          <span class="text-sm font-medium">Configuración</span>
-        </button>
-
-        <!-- Cambiar tema -->
-        <button
-          type="button"
-          (click)="toggleDarkMode(); toggleMobileMenu()"
-          class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-          <i
-            class="text-base"
-            [ngClass]="{ 'pi': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
-          <span class="text-sm font-medium">{{ layoutService.isDarkTheme() ? 'Tema claro' : 'Tema oscuro' }}</span>
-        </button>
-      </div>
 
       <!-- Notificaciones del sistema -->
       <button
         type="button"
         (click)="toggleNotifications()"
-        class="relative text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+        pRipple
+        class="relative flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
         aria-label="Notificaciones"
         pTooltip="Notificaciones"
         tooltipPosition="bottom"
         [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-bell text-base sm:text-lg md:text-xl"></i>
-        <!-- Indicador de notificaciones no leídas -->
+        <i class="pi pi-bell text-lg"></i>
+        <!-- Enhanced notification badge -->
         @if (hasUnreadNotifications) {
-        <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+        <span
+          class="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white dark:border-surface-900 text-[10px] font-bold text-white shadow-lg notification-pulse">
+          {{ notificationCount > 9 ? '9+' : notificationCount }}
+        </span>
         }
       </button>
 
-      <!-- Botón Perfil -->
+      <!-- Botón Dark Mode -->
+      <button
+        type="button"
+        (click)="toggleDarkMode()"
+        pRipple
+        class="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
+        aria-label="Cambiar tema"
+        pTooltip="Cambiar tema"
+        tooltipPosition="bottom"
+        [showDelay]="250"
+        tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+        <i class="pi pi-moon text-lg dark:hidden"></i>
+        <i class="pi pi-sun text-lg hidden dark:block"></i>
+      </button>
+
+      <!-- Botón Perfil (oculto en móvil) -->
       <button
         type="button"
         (click)="toggleProfile()"
-        class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
+        pRipple
+        class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
         aria-label="Mi perfil"
         pTooltip="Mi perfil"
         tooltipPosition="bottom"
         [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-user text-base sm:text-lg md:text-xl"></i>
+        <i class="pi pi-user text-lg"></i>
       </button>
     </div>
   </div>

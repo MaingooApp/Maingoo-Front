@@ -1,0 +1,17 @@
+<div class="bottom-nav-container">
+  <nav class="bottom-nav" role="navigation" aria-label="Navegación principal móvil">
+    <button
+      *ngFor="let item of navItems"
+      type="button"
+      class="nav-item"
+      [class.active]="
+        isActive(item) || (item.action === 'chat' && isChatActive()) || (item.action === 'menu' && isMenuActive())
+      "
+      (click)="handleNavClick(item, $event)"
+      [attr.aria-label]="item.label"
+      [attr.aria-current]="isActive(item) ? 'page' : null">
+      <i [class]="item.icon + ' nav-icon'" aria-hidden="true"></i>
+      <span class="nav-label">{{ item.label }}</span>
+    </button>
+  </nav>
+</div>

@@ -1,5 +1,4 @@
-// Estilo del Bottom Sheet - Maingoo Brand Colors
-// Usar CSS custom properties para theming dinámico
+// Chat Modal Styles - Maingoo Brand Colors
 :host {
   --maingoo-soft-mint: #f0f7f4;
   --maingoo-white: #ffffff;
@@ -11,7 +10,6 @@
   --maingoo-text-secondary: #6b7280;
   --maingoo-border: #e5e7eb;
 
-  // Constantes de animación
   --transition-standard: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: 0.2s ease;
   --shadow-light: 0 2px 8px rgba(26, 60, 52, 0.05);
@@ -19,47 +17,41 @@
   --shadow-heavy: 0 -4px 24px rgba(0, 0, 0, 0.12);
 }
 
-// ========== BACKDROP ==========// ========== BACKDROP ==========
+// ========== BACKDROP ==========
 .bottom-sheet-backdrop {
   position: fixed;
-  top: 0;
+  top: 64px; // Mismo que el chat modal, debajo del topbar
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0);
-  z-index: 9;
-  pointer-events: none;
-  transition: background-color var(--transition-standard);
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 99; // Debajo del chat modal (z-index: 100)
+  animation: fadeIn 0.3s ease;
+  pointer-events: auto; // Permitir clicks en el backdrop
 
-  &.active {
-    background-color: rgba(0, 0, 0, 0.4);
-    pointer-events: all;
+  // Solo visible en móvil
+  @media (min-width: 768px) {
+    display: none;
   }
 }
 
-// ========== CONTENEDOR PRINCIPAL ==========// ========== CONTENEDOR PRINCIPAL ==========
-.bottom-sheet-container {
+// ========== CHAT MODAL CONTAINER ==========
+.chat-modal-container {
   position: fixed;
-  bottom: 0;
+  top: 64px; // Altura del topbar (ajusta según tu header)
   left: 0;
   right: 0;
-  z-index: 10;
+  bottom: 0;
+  z-index: 100; // Debajo del topbar pero encima del contenido
   background-color: var(--maingoo-soft-mint);
-  border-radius: 24px 24px 0 0;
-  box-shadow: var(--shadow-heavy);
-  transition:
-    height var(--transition-standard),
-    background-color var(--transition-standard),
-    box-shadow var(--transition-standard);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px 16px 0 0; // Esquinas redondeadas arriba
 
-  // Estado minimizado: Transparente y sin sombra para mostrar solo el botón
-  &.minimized {
-    background-color: transparent;
-    box-shadow: none;
-    overflow: visible; // Permitir que la sombra del botón se vea
+  :host-context(.app-dark) & {
+    background-color: #111827;
   }
 
   // Solo visible en móvil
@@ -68,305 +60,37 @@
   }
 }
 
-// ========== CONTENIDO PRINCIPAL ==========
-.sheet-main-content {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  width: 100%;
-  height: 100%;
-}
-
-// ========== BOTÓN FLOTANTE MENÚ ==========
-.menu-trigger-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; // Alinear arriba para que no se oculte
-  padding-top: 8px;
-}
-
-.menu-float-button {
+// ========== CHAT HEADER ==========
+.chat-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background-color: var(--maingoo-dark-green);
-  color: white;
-  border-radius: 100px; // Pill shape
-  border: none;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(26, 60, 52, 0.25);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  pointer-events: auto;
-
-  i {
-    font-size: 12px;
-  }
-
-  &:active {
-    transform: scale(0.95);
-    background-color: var(--maingoo-primary-dark);
-  }
-}
-
-// ========== HANDLE / DRAG INDICATOR ==========// ========== HANDLE / DRAG INDICATOR ==========
-.sheet-handle {
-  padding: 12px 0;
-  display: flex;
-  justify-content: center;
-  cursor: pointer;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--maingoo-border);
+  background-color: var(--maingoo-soft-mint);
   flex-shrink: 0;
 
-  .handle-bar {
-    width: 40px;
-    height: 4px;
-    background-color: #d1d5db;
-    border-radius: 2px;
-    transition: background-color var(--transition-fast);
-  }
-
-  &:hover .handle-bar {
-    background-color: #9ca3af;
+  :host-context(.app-dark) & {
+    background-color: #1f2937;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
   }
 }
 
-// ========== CONTENIDO BASE ==========// ========== CONTENIDO BASE ==========
-.sheet-content {
+// ========== CHAT MESSAGES ==========
+.chat-messages {
   flex: 1;
-  overflow: visible;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-// ========== ESTADO COMPACTO ==========
-.compact-view {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
   background-color: var(--maingoo-soft-mint);
-
-  .compact-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 16px;
-    padding-bottom: 0;
-  }
-
-  .input-container-compact {
-    padding: 2px 16px 12px 16px;
-    border-top: none;
-    display: flex;
-    gap: 8px;
-    background-color: var(--maingoo-soft-mint);
-    flex-shrink: 0;
-  }
-}
-
-// ========== ESTADO MEDIO ==========
-.medium-view {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  background-color: var(--maingoo-soft-mint);
 
-  .medium-content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 16px;
-    padding-bottom: 8px;
+  :host-context(.app-dark) & {
+    background-color: #111827;
   }
 
-  .input-container-medium {
-    padding: 12px 16px;
-    border-top: 1px solid var(--maingoo-border);
-    display: flex;
-    gap: 8px;
-    background-color: var(--maingoo-soft-mint);
-    flex-shrink: 0;
-  }
-}
-
-// ========== ESTADO EXPANDIDO ==========
-.expanded-view {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: var(--maingoo-soft-mint);
-
-  .chat-header-full {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    border-bottom: 1px solid var(--maingoo-border);
-    background-color: var(--maingoo-soft-mint);
-    flex-shrink: 0;
-
-    .back-button,
-    .menu-button {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      color: var(--maingoo-text-primary);
-      transition: background-color var(--transition-fast);
-
-      &:hover {
-        background-color: #f3f4f6;
-      }
-    }
-
-    .header-info {
-      flex: 1;
-
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--maingoo-text-primary);
-      }
-
-      .subtitle {
-        font-size: 12px;
-        color: var(--maingoo-text-secondary);
-      }
-    }
-  }
-
-  .chat-messages-full {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    background-color: var(--maingoo-soft-mint);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .input-container-full-sidebar {
-    padding: 12px 16px;
-    border-top: 1px solid var(--maingoo-border);
-    display: flex;
-    gap: 8px;
-    background-color: var(--maingoo-soft-mint);
-    flex-shrink: 0;
-
-    .attach-button {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: none;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      color: var(--maingoo-text-secondary);
-      transition: all var(--transition-fast);
-
-      &:hover {
-        background-color: #f3f4f6;
-        color: var(--maingoo-green);
-      }
-    }
-  }
-}
-
-// ========== MENSAJES (estilo sidebar) ==========
-// Los mensajes usan clases de Tailwind directamente en el HTML
-// Aquí solo agregamos estilos complementarios
-
-.message-wrapper {
-  margin-bottom: 0; // El espaciado se maneja en el HTML con mb-3
-}
-
-// Animación fadeIn (igual que sidebar)
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// ========== INPUT CONTAINER (estándar) ==========
-.input-container {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-
-  .chat-input {
-    flex: 1;
-    padding: 12px 16px;
-    border: 1px solid var(--maingoo-border);
-    border-radius: 24px;
-    font-size: 14px;
-    outline: none;
-    transition: all var(--transition-fast);
-
-    &:focus {
-      border-color: var(--maingoo-green);
-      box-shadow: 0 0 0 3px rgba(107, 158, 134, 0.1);
-    }
-
-    &::placeholder {
-      color: var(--maingoo-text-secondary);
-    }
-  }
-
-  .send-button {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background-color: var(--maingoo-dark-green);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    flex-shrink: 0;
-
-    &:hover {
-      background-color: var(--maingoo-green);
-      transform: scale(1.05);
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    i {
-      font-size: 16px;
-    }
-  }
-}
-
-// ========== SCROLLBAR PERSONALIZADO ==========
-.chat-messages,
-.chat-messages-full {
+  // Custom scrollbar
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -385,13 +109,89 @@
   }
 }
 
-// Ocultar scrollbar horizontal en chips
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.message-wrapper {
+  margin-bottom: 0;
+}
 
-  &::-webkit-scrollbar {
-    display: none;
+// ========== QUICK ACTIONS ==========
+.quick-actions-container {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  background-color: var(--maingoo-soft-mint);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+
+  :host-context(.app-dark) & {
+    background-color: #1f2937;
+    border-top-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+// ========== CHAT INPUT ==========
+.chat-input-container {
+  padding: 12px 16px;
+  border-top: 1px solid var(--maingoo-border);
+  display: flex;
+  gap: 8px;
+  background-color: var(--maingoo-soft-mint);
+  flex-shrink: 0;
+
+  :host-context(.app-dark) & {
+    background-color: #1f2937;
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .attach-button {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--maingoo-text-secondary);
+    transition: all var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      background-color: #f3f4f6;
+      color: var(--maingoo-green);
+    }
+
+    &:active {
+      transform: scale(0.9);
+    }
+
+    :host-context(.app-dark) & {
+      color: #9ca3af;
+
+      &:hover {
+        background-color: #374151;
+        color: var(--maingoo-green);
+      }
+    }
+  }
+}
+
+// ========== ANIMATIONS ==========
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
