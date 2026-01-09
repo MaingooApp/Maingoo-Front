@@ -16,6 +16,9 @@ export interface Product {
   storageType?: 'seco' | 'fresco' | 'congelado' | null;
   productType?: 'simple' | 'elaborado' | null;
   unitCount?: number;
+  lastUnitPrice?: number;
+  supplier?: Supplier;
+  brand?: string;
 }
 
 export interface ProductCategory {
