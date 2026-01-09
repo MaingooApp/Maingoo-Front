@@ -142,106 +142,148 @@
           </ng-container>
 
           <!-- VIEW: List Mode -->
-          <div *ngIf="viewMode === 'list'" class="rounded-xl shadow-sm overflow-hidden">
-            <p-table [value]="filteredSupplier" [rowHover]="true" styleClass="p-datatable-sm">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th
-                    class="text-maingoo-deep font-bold text-sm"
-                    [class.w-full]="selectedSupplier"
-                    [class.w-[25%]]="!selectedSupplier">
-                    Proveedor
-                  </th>
-                  <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Comercial</th>
-                  <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Teléfono</th>
-                  <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Pedido</th>
-                  <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Reparto</th>
-                  <th [class.w-[10%]]="!selectedSupplier" [class.w-auto]="selectedSupplier"></th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-item>
-                <tr
-                  class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
-                  [ngClass]="{ '/10 !border-maingoo-sage': selectedSupplier?.id === item.id }"
-                  (click)="showDialog(item)">
-                  <!-- Column 1: Provider Name + Sanitary Reg -->
-                  <td>
-                    <div class="flex flex-col">
-                      <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
-                      <span class="text-xs text-gray-400 font-normal" *ngIf="item.sanitaryRegistrationNumber">{{
-                        item.sanitaryRegistrationNumber
-                      }}</span>
-                      <span class="text-xs text-gray-300 italic font-normal" *ngIf="!item.sanitaryRegistrationNumber"
-                        >Sin registro sanitario</span
-                      >
-                    </div>
-                  </td>
+          <div *ngIf="viewMode === 'list'" class="rounded-xl shadow-sm overflow-hidden bg-white">
+            <!-- Mobile Compact List View (Rows) -->
+            <div class="flex flex-col md:hidden">
+              <div
+                *ngFor="let item of filteredSupplier"
+                (click)="showDialog(item)"
+                class="border-b border-gray-100 last:border-0 p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer relative"
+                [class.bg-maingoo-sage-50]="selectedSupplier?.id === item.id">
+                <!-- Avatar/Icon Compact -->
+                <div
+                  class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
+                  <span class="text-maingoo-deep font-bold text-sm">{{ item.name.charAt(0).toUpperCase() }}</span>
+                </div>
 
-                  <!-- Column 2: Contact Name (Persona) -->
-                  <td *ngIf="!selectedSupplier">
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-user text-maingoo-sage text-xs"></i>
-                      <span class="truncate max-w-[150px]" *ngIf="item.commercialName">{{ item.commercialName }}</span>
-                      <span class="truncate max-w-[150px] text-gray-300 italic" *ngIf="!item.commercialName"
-                        >Sin comercial</span
-                      >
-                    </div>
-                  </td>
+                <!-- Main Info Compact -->
+                <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <div class="flex justify-between items-center">
+                    <h3 class="font-semibold text-[#1A3C34] text-sm truncate pr-2">{{ item.name }}</h3>
+                  </div>
 
-                  <!-- Column 3: Phone -->
-                  <td *ngIf="!selectedSupplier">
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-phone text-maingoo-sage text-xs"></i>
-                      <span *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
-                      <span class="text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
-                    </div>
-                  </td>
+                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <span *ngIf="item.commercialName" class="truncate flex items-center gap-1 min-w-0 max-w-[45%]">
+                      <i class="pi pi-user text-[10px] text-maingoo-sage"></i> {{ item.commercialName }}
+                    </span>
+                    <span *ngIf="item.phoneNumber" class="truncate flex items-center gap-1 min-w-0">
+                      <i class="pi pi-phone text-[10px] text-maingoo-sage"></i> {{ item.phoneNumber }}
+                    </span>
+                  </div>
+                </div>
 
-                  <!-- Column 4: Order Day -->
-                  <td *ngIf="!selectedSupplier">
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-calendar text-maingoo-sage text-xs"></i>
-                      <span class="truncate max-w-[200px]" title="Pedidos" *ngIf="item.orderDays">{{
-                        item.orderDays
-                      }}</span>
-                      <span class="truncate max-w-[200px] text-gray-300 italic" title="Pedidos" *ngIf="!item.orderDays"
-                        >Sin días pedido</span
-                      >
-                    </div>
-                  </td>
+                <!-- Chevron -->
+                <i class="pi pi-chevron-right text-gray-300 text-xs shrink-0"></i>
+              </div>
+            </div>
 
-                  <!-- Column 5: Delivery Day -->
-                  <td *ngIf="!selectedSupplier">
-                    <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-truck text-maingoo-sage text-xs"></i>
-                      <span class="truncate max-w-[200px]" title="Reparto" *ngIf="item.deliveryDays">{{
-                        item.deliveryDays
-                      }}</span>
-                      <span
-                        class="truncate max-w-[200px] text-gray-300 italic"
-                        title="Reparto"
-                        *ngIf="!item.deliveryDays"
-                        >Sin días reparto</span
-                      >
-                    </div>
-                  </td>
+            <!-- Desktop Table View -->
+            <div class="hidden md:block">
+              <p-table [value]="filteredSupplier" [rowHover]="true" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th
+                      class="text-maingoo-deep font-bold text-sm"
+                      [class.w-full]="selectedSupplier"
+                      [class.w-[25%]]="!selectedSupplier">
+                      Proveedor
+                    </th>
+                    <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Comercial</th>
+                    <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Teléfono</th>
+                    <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Pedido</th>
+                    <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Reparto</th>
+                    <th [class.w-[10%]]="!selectedSupplier" [class.w-auto]="selectedSupplier"></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                  <tr
+                    class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+                    [ngClass]="{ '/10 !border-maingoo-sage': selectedSupplier?.id === item.id }"
+                    (click)="showDialog(item)">
+                    <!-- Column 1: Provider Name + Sanitary Reg -->
+                    <td>
+                      <div class="flex flex-col">
+                        <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
+                        <span class="text-xs text-gray-400 font-normal" *ngIf="item.sanitaryRegistrationNumber">{{
+                          item.sanitaryRegistrationNumber
+                        }}</span>
+                        <span class="text-xs text-gray-300 italic font-normal" *ngIf="!item.sanitaryRegistrationNumber"
+                          >Sin registro sanitario</span
+                        >
+                      </div>
+                    </td>
 
-                  <td class="text-right">
-                    <button
-                      pButton
-                      icon="pi pi-chevron-left"
-                      class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
-                      [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }"></button>
-                  </td>
-                </tr>
-              </ng-template>
-              <!-- Empty State in Table -->
-              <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="4" class="text-center py-8 text-gray-500">No se encontraron proveedores.</td>
-                </tr>
-              </ng-template>
-            </p-table>
+                    <!-- Column 2: Contact Name (Persona) -->
+                    <td *ngIf="!selectedSupplier">
+                      <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="pi pi-user text-maingoo-sage text-xs"></i>
+                        <span class="truncate max-w-[150px]" *ngIf="item.commercialName">{{
+                          item.commercialName
+                        }}</span>
+                        <span class="truncate max-w-[150px] text-gray-300 italic" *ngIf="!item.commercialName"
+                          >Sin comercial</span
+                        >
+                      </div>
+                    </td>
+
+                    <!-- Column 3: Phone -->
+                    <td *ngIf="!selectedSupplier">
+                      <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="pi pi-phone text-maingoo-sage text-xs"></i>
+                        <span *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
+                        <span class="text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
+                      </div>
+                    </td>
+
+                    <!-- Column 4: Order Day -->
+                    <td *ngIf="!selectedSupplier">
+                      <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="pi pi-calendar text-maingoo-sage text-xs"></i>
+                        <span class="truncate max-w-[200px]" title="Pedidos" *ngIf="item.orderDays">{{
+                          item.orderDays
+                        }}</span>
+                        <span
+                          class="truncate max-w-[200px] text-gray-300 italic"
+                          title="Pedidos"
+                          *ngIf="!item.orderDays"
+                          >Sin días pedido</span
+                        >
+                      </div>
+                    </td>
+
+                    <!-- Column 5: Delivery Day -->
+                    <td *ngIf="!selectedSupplier">
+                      <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="pi pi-truck text-maingoo-sage text-xs"></i>
+                        <span class="truncate max-w-[200px]" title="Reparto" *ngIf="item.deliveryDays">{{
+                          item.deliveryDays
+                        }}</span>
+                        <span
+                          class="truncate max-w-[200px] text-gray-300 italic"
+                          title="Reparto"
+                          *ngIf="!item.deliveryDays"
+                          >Sin días reparto</span
+                        >
+                      </div>
+                    </td>
+
+                    <td class="text-right">
+                      <button
+                        pButton
+                        icon="pi pi-chevron-left"
+                        class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
+                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }"></button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <!-- Empty State in Table -->
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="4" class="text-center py-8 text-gray-500">No se encontraron proveedores.</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
           </div>
         </ng-template>
       </div>
@@ -314,8 +356,8 @@
 
       <div class="px-6 pb-24 md:pb-8 relative flex-1 overflow-y-auto" (click)="showMenu = false">
         <!-- Title, Properties and Image -->
-        <div class="mb-6 flex justify-between items-start gap-6">
-          <div class="flex-1 pt-2 flex flex-col gap-2">
+        <div class="mb-6 flex flex-col-reverse md:flex-row justify-between items-start gap-6">
+          <div class="flex-1 pt-2 flex flex-col gap-2 w-full">
             <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
               {{ selectedSupplier?.name }}
             </h1>
@@ -591,7 +633,7 @@
 
           <!-- Image Placeholder -->
           <div
-            class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+            class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm self-center md:self-auto">
             <i class="pi pi-image text-gray-300 text-5xl"></i>
           </div>
         </div>
