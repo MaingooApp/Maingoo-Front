@@ -4,12 +4,22 @@
   <div
     class="w-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] border-b-2 border-[#6B9E86]/20 md:border-b-0 shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-3 sm:px-4 md:pl-10 md:pr-4 h-full transition-all duration-300">
     <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
+    <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
     <a routerLink="/" class="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
-      <!-- Logotipo de Maingoo -->
+      <!-- Logotipo de Maingoo (SIEMPRE VISIBLE) -->
       <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center flex-shrink-0">
         <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain" />
       </div>
-      <div class="hidden sm:flex flex-col min-w-0">
+
+      <!-- Si hay un título de página en móvil, mostramos solo eso -->
+      <div *ngIf="isMobile && layoutService.pageTitle()" class="flex flex-col min-w-0 animate-fade-in">
+        <h1 class="text-xl font-bold text-[#1A3C34] dark:text-surface-0 truncate m-0">
+          {{ layoutService.pageTitle() }}
+        </h1>
+      </div>
+
+      <!-- Si NO hay título o NO es móvil, mostramos la bienvenida -->
+      <div *ngIf="!isMobile || !layoutService.pageTitle()" class="hidden sm:flex flex-col min-w-0">
         <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate font-medium"
           >Bienvenido, <span class="font-semibold">{{ userName }}</span>
           <span class="text-[#6B9E86] font-normal">• {{ currentTime }}</span></span
@@ -54,21 +64,6 @@
           {{ notificationCount > 9 ? '9+' : notificationCount }}
         </span>
         }
-      </button>
-
-      <!-- Botón Dark Mode -->
-      <button
-        type="button"
-        (click)="toggleDarkMode()"
-        pRipple
-        class="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
-        aria-label="Cambiar tema"
-        pTooltip="Cambiar tema"
-        tooltipPosition="bottom"
-        [showDelay]="250"
-        tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-moon text-lg dark:hidden"></i>
-        <i class="pi pi-sun text-lg hidden dark:block"></i>
       </button>
 
       <!-- Botón Perfil (oculto en móvil) -->
