@@ -350,8 +350,11 @@ export class Dashboard implements OnInit {
     // Generar datos del chart
     const labels = chartCategories.map(c => c.name);
     const data = chartCategories.map(c => c.count);
-    const colors = chartCategories.map((_, i) =>
-      this.CHART_COLORS[i] || this.CHART_COLORS[this.CHART_COLORS.length - 1]
+    // Asignar colores: gris solo para "Otros", las demás categorías ciclan entre los otros colores
+    const colorsWithoutGray = this.CHART_COLORS.slice(0, -1); // Todos menos el gris
+    const grayColor = this.CHART_COLORS[this.CHART_COLORS.length - 1];
+    const colors = chartCategories.map((c, i) =>
+      c.name === 'Otros' ? grayColor : colorsWithoutGray[i % colorsWithoutGray.length]
     );
 
     this.productChartData = {
