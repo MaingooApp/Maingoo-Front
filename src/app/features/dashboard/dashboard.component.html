@@ -13,62 +13,247 @@
     </app-kpi-slot>
   </div>
 
-  <!-- Dashboard Cards Grid -->
-  <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- Main Content Layout: Cards + Panel Lateral -->
+  <div class="flex flex-row gap-6 w-full items-start">
 
-    <!-- Métricas Proveedores Card -->
-    <div
-      class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative min-h-[200px] flex flex-col p-6">
-      <div class="flex items-center gap-3 mb-4">
+    <!-- Left: Dashboard Cards Grid -->
+    <div class="flex-1 min-w-0">
+      <div class="w-full grid gap-6"
+        [ngClass]="activePanel ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'">
+
+        <!-- Métricas Proveedores Card -->
         <div
-          class="w-12 h-12 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <i class="pi pi-truck text-maingoo-sage text-2xl"></i>
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'suppliers'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="pi pi-truck text-maingoo-sage text-xl"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Gasto por Proveedor</h3>
+                <p class="text-gray-400 text-xs m-0">Total histórico</p>
+              </div>
+            </div>
+            <!-- Botón ver más métricas -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('suppliers')">
+              <span>Ver más</span>
+              <i class="pi pi-arrow-right text-[10px] group-hover/btn:translate-x-0.5 transition-transform"></i>
+            </button>
+          </div>
+
+          <!-- Pie Chart Container -->
+          <div class="flex-1 flex items-center justify-center min-h-[200px]">
+            <!-- Loading state -->
+            <div *ngIf="supplierChartLoading" class="flex flex-col items-center gap-3">
+              <p-skeleton shape="circle" size="140px"></p-skeleton>
+              <p-skeleton width="120px" height="12px"></p-skeleton>
+            </div>
+
+            <!-- Chart -->
+            <p-chart *ngIf="!supplierChartLoading && supplierChartData" type="doughnut" [data]="supplierChartData"
+              [options]="supplierChartOptions" class="w-full h-full">
+            </p-chart>
+
+            <!-- Empty state -->
+            <p *ngIf="!supplierChartLoading && !supplierChartData" class="text-gray-400 text-sm italic">
+              Sin datos de facturas
+            </p>
+          </div>
+
+          <!-- Total footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Total facturado</span>
+            <span *ngIf="!supplierChartLoading" class="text-sm font-bold text-maingoo-deep">{{
+              formatCurrency(supplierChartTotal) }}</span>
+            <p-skeleton *ngIf="supplierChartLoading" width="80px" height="16px"></p-skeleton>
+          </div>
         </div>
-        <div>
-          <h3 class="font-bold text-maingoo-deep text-lg m-0">Métricas Proveedores</h3>
-          <p class="text-gray-500 text-sm m-0">Análisis de proveedores</p>
+
+        <!-- Métricas Productos Card - Pie Chart de Categorías -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'products'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="pi pi-box text-maingoo-sage text-xl"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Productos por Categoría</h3>
+                <p class="text-gray-400 text-xs m-0">Inventario actual</p>
+              </div>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('products')">
+              <span>Ver más</span>
+              <i class="pi pi-arrow-right text-[10px] group-hover/btn:translate-x-0.5 transition-transform"></i>
+            </button>
+          </div>
+
+          <!-- Pie Chart Container -->
+          <div class="flex-1 flex items-center justify-center min-h-[200px]">
+            <!-- Loading state -->
+            <div *ngIf="productChartLoading" class="flex flex-col items-center gap-3">
+              <p-skeleton shape="circle" size="140px"></p-skeleton>
+              <p-skeleton width="120px" height="12px"></p-skeleton>
+            </div>
+
+            <!-- Chart -->
+            <p-chart *ngIf="!productChartLoading && productChartData" type="doughnut" [data]="productChartData"
+              [options]="productChartOptions" class="w-full h-full">
+            </p-chart>
+
+            <!-- Empty state -->
+            <p *ngIf="!productChartLoading && !productChartData" class="text-gray-400 text-sm italic">
+              Sin productos registrados
+            </p>
+          </div>
+
+          <!-- Total footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Total productos</span>
+            <span *ngIf="!productChartLoading" class="text-sm font-bold text-maingoo-deep">{{ productChartTotal
+              }}</span>
+            <p-skeleton *ngIf="productChartLoading" width="40px" height="16px"></p-skeleton>
+          </div>
         </div>
-      </div>
-      <div class="flex-1 flex items-center justify-center">
-        <p class="text-gray-400 text-sm italic">Próximamente</p>
+
+        <!-- Métricas Artículos Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'articles'}">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="pi pi-tags text-maingoo-sage text-xl"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Métricas Artículos</h3>
+                <p class="text-gray-400 text-xs m-0">Análisis de artículos</p>
+              </div>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('articles')">
+              <span>Ver más</span>
+              <i class="pi pi-arrow-right text-[10px] group-hover/btn:translate-x-0.5 transition-transform"></i>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center">
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Métricas Productos Card -->
-    <div
-      class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative min-h-[200px] flex flex-col p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div
-          class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <i class="pi pi-box text-amber-600 text-2xl"></i>
-        </div>
-        <div>
-          <h3 class="font-bold text-maingoo-deep text-lg m-0">Métricas Productos</h3>
-          <p class="text-gray-500 text-sm m-0">Análisis de productos</p>
-        </div>
-      </div>
-      <div class="flex-1 flex items-center justify-center">
-        <p class="text-gray-400 text-sm italic">Próximamente</p>
-      </div>
-    </div>
+    <!-- Right: Panel Lateral Genérico -->
+    <ng-container *ngIf="activePanel">
+      <!-- DESKTOP: Side Panel -->
+      <div
+        class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl z-20 flex-col bg-white min-h-[400px]">
 
-    <!-- Métricas Artículos Card -->
-    <div
-      class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative min-h-[200px] flex flex-col p-6">
-      <div class="flex items-center gap-3 mb-4">
+        <!-- Panel Header -->
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center">
+              <i class="text-maingoo-sage text-xl" [ngClass]="{
+                  'pi pi-truck': activePanel === 'suppliers',
+                  'pi pi-box': activePanel === 'products',
+                  'pi pi-tags': activePanel === 'articles'
+                }"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-maingoo-deep m-0">
+                {{ activePanel === 'suppliers' ? 'Métricas de Proveedores' :
+                activePanel === 'products' ? 'Métricas de Productos' :
+                'Métricas de Artículos' }}
+              </h2>
+              <p class="text-xs text-gray-400 m-0">Análisis detallado</p>
+            </div>
+          </div>
+          <!-- Close Button -->
+          <button
+            class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-all"
+            (click)="closePanel()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <!-- Panel Content: Placeholder -->
+        <div class="p-6 flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <i class="pi text-gray-200 text-6xl mb-4" [ngClass]="{
+                'pi-chart-pie': activePanel === 'suppliers',
+                'pi-box': activePanel === 'products',
+                'pi-tags': activePanel === 'articles'
+              }"></i>
+            <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
+            <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOBILE: Bottom Sheet -->
+      <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closePanel()"></div>
         <div
-          class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <i class="pi pi-tags text-blue-600 text-2xl"></i>
-        </div>
-        <div>
-          <h3 class="font-bold text-maingoo-deep text-lg m-0">Métricas Artículos</h3>
-          <p class="text-gray-500 text-sm m-0">Análisis de artículos</p>
+          class="relative w-full h-[70vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+          <div class="w-full flex justify-center pt-4 pb-2 shrink-0 cursor-grab" (click)="closePanel()">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+          </div>
+          <div class="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="text-lg font-bold text-maingoo-deep m-0">
+              {{ activePanel === 'suppliers' ? 'Métricas Proveedores' :
+              activePanel === 'products' ? 'Métricas Productos' :
+              'Métricas Artículos' }}
+            </h2>
+            <button class="text-gray-400" (click)="closePanel()">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center p-6">
+            <div class="text-center">
+              <i class="pi text-gray-200 text-5xl mb-4" [ngClass]="{
+                  'pi-chart-pie': activePanel === 'suppliers',
+                  'pi-box': activePanel === 'products',
+                  'pi-tags': activePanel === 'articles'
+                }"></i>
+              <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
+              <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="flex-1 flex items-center justify-center">
-        <p class="text-gray-400 text-sm italic">Próximamente</p>
-      </div>
-    </div>
+    </ng-container>
 
   </div>
 </div>
+
+<style>
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0.5;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+</style>
