@@ -180,6 +180,10 @@
                             <button pButton label="Subir" icon="pi pi-plus" class="p-button-sm p-button-primary"
                                 (click)="openAddInvoiceModal()">
                             </button>
+                            <button pButton icon="pi pi-trash" class="p-button-sm p-button-danger p-button-outlined"
+                                pTooltip="Borrar todas las facturas" tooltipPosition="bottom"
+                                [disabled]="invoices().length === 0" (click)="confirmarBorrarTodas()">
+                            </button>
                             <button (click)="setView('hub')"
                                 class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
                                 <i class="pi pi-times text-xl"></i>
@@ -313,3 +317,37 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de verificación para borrar todas las facturas -->
+<p-dialog header="Verificación de seguridad" [(visible)]="showDeleteVerificationModal" [modal]="true" [closable]="true"
+    [style]="{width: '450px'}" [draggable]="false" (onHide)="cancelarVerificacion()">
+
+    <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+            <i class="pi pi-exclamation-triangle text-red-500 text-2xl"></i>
+            <div>
+                <p class="text-red-700 font-medium m-0">Esta acción es irreversible</p>
+                <p class="text-red-600 text-sm m-0">Se eliminarán permanentemente {{ invoices().length }} facturas.</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <label class="text-gray-700 font-medium">
+                Para confirmar, escribe <span class="font-bold text-red-600">"Borrar Facturas"</span> en el campo:
+            </label>
+            <input type="text" pInputText [ngModel]="deleteVerificationText()"
+                (ngModelChange)="deleteVerificationText.set($event)" placeholder="Escribe aquí..." class="w-full"
+                autocomplete="off">
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2">
+            <button pButton label="Cancelar" class="p-button-text p-button-secondary" (click)="cancelarVerificacion()">
+            </button>
+            <button pButton label="Eliminar todas" icon="pi pi-trash" class="p-button-danger"
+                [disabled]="deleteVerificationText() !== 'Borrar Facturas'" (click)="verificarYBorrar()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -21,6 +21,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 
 export interface SupplierGroup {
@@ -54,6 +55,7 @@ export interface GroupedInvoices {
     InputTextModule,
     IconFieldModule,
     InputIconModule,
+    TooltipModule,
 
     SectionHeaderComponent,
     DialogModule,
@@ -78,6 +80,10 @@ export class DocGeneratorComponent implements OnInit {
 
   // Search
   searchTerm = signal('');
+
+  // Modal de verificación para borrar todas las facturas
+  showDeleteVerificationModal = signal(false);
+  deleteVerificationText = signal('');
 
   // Derived: Grouped Invoices
   groupedInvoices = computed(() => {
@@ -275,5 +281,96 @@ export class DocGeneratorComponent implements OnInit {
 
   private normalizeText(text: string): string {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  /**
+   * Muestra diálogo de confirmación para borrar todas las facturas (paso 1)
+   */
+  confirmarBorrarTodas() {
+    const totalFacturas = this.invoices().length;
+    if (totalFacturas === 0) return;
+
+    this.confirmDialog.confirmDeletion(
+      `¿Estás seguro de que deseas eliminar <b>todas las ${totalFacturas} facturas</b>? Esta acción no se puede deshacer.`,
+      {
+        acceptLabel: 'Sí, continuar',
+        rejectLabel: 'Cancelar',
+        onAccept: () => {
+          // Paso 2: Mostrar modal de verificación con texto
+          this.deleteVerificationText.set('');
+          this.showDeleteVerificationModal.set(true);
+        }
+      }
+    );
+  }
+
+  /**
+   * Verifica el texto de confirmación y procede a borrar (paso 2)
+   */
+  verificarYBorrar() {
+    const textoEsperado = 'borrar Facturas';
+    if (this.deleteVerificationText() !== textoEsperado) {
+      this.toastService.error('Error', `Debes escribir exactamente "${textoEsperado}" para confirmar.`);
+      return;
+    }
+
+    this.showDeleteVerificationModal.set(false);
+    this.deleteVerificationText.set('');
+    this.borrarTodasLasFacturas();
+  }
+
+  /**
+   * Cancela el modal de verificación
+   */
+  cancelarVerificacion() {
+    this.showDeleteVerificationModal.set(false);
+    this.deleteVerificationText.set('');
+  }
+
+  /**
+   * Elimina todas las facturas secuencialmente
+   */
+  borrarTodasLasFacturas() {
+    const facturas = this.invoices();
+    const facturasConId = facturas.filter(f => f.id);
+
+    if (facturasConId.length === 0) {
+      this.toastService.warn('Atención', 'No hay facturas para eliminar.');
+      return;
+    }
+
+    this.loading.set(true);
+    let eliminadas = 0;
+    let errores = 0;
+
+    // Eliminar facturas secuencialmente para evitar problemas de concurrencia
+    const eliminarSiguiente = (index: number) => {
+      if (index >= facturasConId.length) {
+        // Finalizado
+        this.loading.set(false);
+        if (errores === 0) {
+          this.toastService.success('Completado', `Se eliminaron ${eliminadas} facturas correctamente.`);
+          this.invoices.set([]);
+        } else {
+          this.toastService.warn('Completado con errores', `Se eliminaron ${eliminadas} facturas. ${errores} fallaron.`);
+          this.loadInvoices(); // Recargar para ver el estado actual
+        }
+        return;
+      }
+
+      const factura = facturasConId[index];
+      this.invoiceService.deleteInvoice(factura.id!).subscribe({
+        next: () => {
+          eliminadas++;
+          eliminarSiguiente(index + 1);
+        },
+        error: () => {
+          errores++;
+          eliminarSiguiente(index + 1);
+        }
+      });
+    };
+
+    eliminarSiguiente(0);
   }
 }
