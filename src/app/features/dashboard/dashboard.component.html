@@ -1,4 +1,18 @@
 <div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+
+  <!-- KPI Slots Row: flex column en móvil, row en desktop -->
+  <div class="w-full flex flex-col md:flex-row gap-4">
+    <!-- Slot Actividad -->
+    <app-kpi-slot *ngIf="actividadSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
+      (slideChange)="onSlideChange($event)" (retry)="onRetryActividad()">
+    </app-kpi-slot>
+
+    <!-- Slot Incidencias -->
+    <app-kpi-slot *ngIf="incidenciasSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
+      (slideChange)="onSlideChange($event)" (retry)="onRetryIncidencias()">
+    </app-kpi-slot>
+  </div>
+
   <!-- Dashboard Cards Grid -->
   <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
