@@ -34,7 +34,12 @@
               </div>
               <div>
                 <h3 class="font-bold text-maingoo-deep text-base m-0">Gasto por Proveedor</h3>
-                <p class="text-gray-400 text-xs m-0">Total histórico</p>
+                <!-- Selector de período -->
+                <p-dropdown [options]="supplierPeriodOptions" [(ngModel)]="selectedSupplierPeriod"
+                  (onChange)="onSupplierPeriodChange()" optionLabel="label" optionValue="value"
+                  styleClass="p-dropdown-sm border-none !shadow-none" [style]="{'min-width': '120px'}"
+                  panelStyleClass="text-sm">
+                </p-dropdown>
               </div>
             </div>
             <!-- Botón ver más métricas -->

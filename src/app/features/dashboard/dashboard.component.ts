@@ -1,13 +1,16 @@
 import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { KpiSlotComponent } from './components/kpi-slot/kpi-slot.component';
 import { DashboardKpiSlotMockService } from './services/dashboard-kpi-slot.mock.service';
 import { KpiSlotVM, KpiSlotClickEvent, KpiSlideChangeEvent } from './interfaces/kpi-slot.interfaces';
 import { Observable, startWith, forkJoin } from 'rxjs';
 import { ChartModule } from 'primeng/chart';
+import { DropdownModule } from 'primeng/dropdown';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToastService } from '@app/shared/services/toast.service';
 
 /**
  * Componente principal del Dashboard
@@ -16,7 +19,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, KpiSlotComponent, ChartModule, SkeletonModule],
+  imports: [CommonModule, FormsModule, KpiSlotComponent, ChartModule, DropdownModule, SkeletonModule],
   templateUrl: './dashboard.component.html'
 })
 export class Dashboard implements OnInit {
@@ -24,6 +27,7 @@ export class Dashboard implements OnInit {
   private invoiceService = inject(InvoiceService);
   private platformId = inject(PLATFORM_ID);
   private cd = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   /** Observable del slot de Actividad con estado loading inicial */
   actividadSlot$!: Observable<KpiSlotVM>;
@@ -36,6 +40,19 @@ export class Dashboard implements OnInit {
   supplierChartOptions: any;
   supplierChartLoading = true;
   supplierChartTotal = 0;
+
+  /** Opciones de período de tiempo para el filtro */
+  supplierPeriodOptions = [
+    { label: 'Esta semana', value: 'week' },
+    { label: 'Este mes', value: 'month' },
+    { label: 'Total histórico', value: 'all' }
+  ];
+
+  /** Período seleccionado para el gráfico de proveedores */
+  selectedSupplierPeriod = 'week';
+
+  /** Almacén de todas las facturas para filtrar localmente */
+  private allInvoices: Invoice[] = [];
 
   /** Datos del pie chart de categorías de productos */
   productChartData: any;
@@ -110,7 +127,8 @@ export class Dashboard implements OnInit {
 
     this.invoiceService.getInvoices().subscribe({
       next: (invoices) => {
-        this.processInvoicesForChart(invoices);
+        this.allInvoices = invoices;
+        this.updateSupplierChart();
         this.supplierChartLoading = false;
         this.cd.markForCheck();
       },
@@ -118,6 +136,61 @@ export class Dashboard implements OnInit {
         console.error('Error cargando facturas para el gráfico:', err);
         this.supplierChartLoading = false;
         this.cd.markForCheck();
+      }
+    });
+  }
+
+  /**
+   * Actualiza el gráfico de proveedores según el período seleccionado
+   */
+  onSupplierPeriodChange(): void {
+    // Mostrar warning si se selecciona total histórico
+    if (this.selectedSupplierPeriod === 'all') {
+      this.toastService.warn(
+        'Vista histórica',
+        'En un futuro esta vista estará disponible en otra sección'
+      );
+    }
+    this.updateSupplierChart();
+  }
+
+  /**
+   * Actualiza el gráfico de proveedores con las facturas filtradas
+   */
+  private updateSupplierChart(): void {
+    const filteredInvoices = this.filterInvoicesByPeriod(this.allInvoices, this.selectedSupplierPeriod);
+    this.processInvoicesForChart(filteredInvoices);
+  }
+
+  /**
+   * Filtra facturas por período de tiempo
+   */
+  private filterInvoicesByPeriod(invoices: Invoice[], period: string): Invoice[] {
+    if (period === 'all') {
+      return invoices;
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return invoices.filter(invoice => {
+      const invoiceDate = new Date(invoice.date);
+
+      switch (period) {
+        case 'today':
+          return invoiceDate >= today;
+        case 'week':
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lunes
+          return invoiceDate >= startOfWeek;
+        case 'month':
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          return invoiceDate >= startOfMonth;
+        case 'year':
+          const startOfYear = new Date(now.getFullYear(), 0, 1);
+          return invoiceDate >= startOfYear;
+        default:
+          return true;
       }
     });
   }
