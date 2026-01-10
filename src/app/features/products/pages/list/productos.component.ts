@@ -350,25 +350,38 @@ export class ProductosComponent implements OnInit {
     if (!category) return {};
 
     switch (category.toLowerCase()) {
-      case 'frutas':
       case 'verduras':
-        // Green
-        return { backgroundColor: '#dcfce7', color: '#166534' };
+        return { backgroundColor: '#e6f4ea', color: '#1f7a4a' };
+      case 'frutas':
+        return { backgroundColor: '#eef7ec', color: '#3a8f5b' };
       case 'carnes':
-        // Red
-        return { backgroundColor: '#fee2e2', color: '#991b1b' };
-      case 'lacteos':
-        // Blue
-        return { backgroundColor: '#dbeafe', color: '#1e40af' };
+        return { backgroundColor: '#f6e1e1', color: '#8b2c2c' };
+      case 'pescados y mariscos':
+        return { backgroundColor: '#e0f2f1', color: '#0f5f5c' };
+      case 'secos y granos':
+        return { backgroundColor: '#f5f0dc', color: '#8a6a2f' };
+      case 'panadería':
+        return { backgroundColor: '#f3e6d8', color: '#8c4b1f' };
+      case 'conservas':
+        return { backgroundColor: '#f2e2b8', color: '#7a5a1e' };
+      case 'aceites y condimentos':
+        return { backgroundColor: '#f6f1cf', color: '#7c6412' };
+      case 'lácteos':
+        return { backgroundColor: '#e8eff8', color: '#2c4f91' };
+      case 'repostería y pastelería':
+        return { backgroundColor: '#f4e3ea', color: '#8a2f5d' };
       case 'bebidas':
-        // Yellow/Orange
-        return { backgroundColor: '#fef9c3', color: '#854d0e' };
+        return { backgroundColor: '#cffafe', color: '#0e7490' };
       case 'limpieza':
-        // Purple
         return { backgroundColor: '#f3e8ff', color: '#6b21a8' };
+      case 'packaging':
+        return { backgroundColor: '#edf0f4', color: '#4b5563' };
+      case 'útiles y menaje':
+        return { backgroundColor: '#e5e7eb', color: '#374151' };
+      case 'otros':
+        return { backgroundColor: '#f1f3f5', color: '#6b7280' };
       default:
-        // Gray
-        return { backgroundColor: '#f3f4f6', color: '#374151' };
+        return { backgroundColor: '#e9f1ed', color: '#4a6a5c' };
     }
   }
 
