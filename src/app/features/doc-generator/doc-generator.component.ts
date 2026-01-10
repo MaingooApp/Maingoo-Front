@@ -308,7 +308,7 @@ export class DocGeneratorComponent implements OnInit {
    * Verifica el texto de confirmación y procede a borrar (paso 2)
    */
   verificarYBorrar() {
-    const textoEsperado = 'borrar Facturas';
+    const textoEsperado = 'Borrar Facturas';
     if (this.deleteVerificationText() !== textoEsperado) {
       this.toastService.error('Error', `Debes escribir exactamente "${textoEsperado}" para confirmar.`);
       return;

@@ -1,9 +1,60 @@
-<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
-  <app-section-header class="w-full" title="Métricas" [showViewSwitcher]="false" [showSearch]="false">
-  </app-section-header>
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+  <!-- Dashboard Cards Grid -->
+  <div class="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-  <!-- Dashboard content placeholder or empty space for now -->
-  <div class="w-full">
-    <!-- Future Content -->
+    <!-- Métricas Proveedores Card -->
+    <div
+      class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative min-h-[200px] flex flex-col p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-12 h-12 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="pi pi-truck text-maingoo-sage text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-maingoo-deep text-lg m-0">Métricas Proveedores</h3>
+          <p class="text-gray-500 text-sm m-0">Análisis de proveedores</p>
+        </div>
+      </div>
+      <div class="flex-1 flex items-center justify-center">
+        <p class="text-gray-400 text-sm italic">Próximamente</p>
+      </div>
+    </div>
+
+    <!-- Métricas Productos Card -->
+    <div
+      class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative min-h-[200px] flex flex-col p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="pi pi-box text-amber-600 text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-maingoo-deep text-lg m-0">Métricas Productos</h3>
+          <p class="text-gray-500 text-sm m-0">Análisis de productos</p>
+        </div>
+      </div>
+      <div class="flex-1 flex items-center justify-center">
+        <p class="text-gray-400 text-sm italic">Próximamente</p>
+      </div>
+    </div>
+
+    <!-- Métricas Artículos Card -->
+    <div
+      class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative min-h-[200px] flex flex-col p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div
+          class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <i class="pi pi-tags text-blue-600 text-2xl"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-maingoo-deep text-lg m-0">Métricas Artículos</h3>
+          <p class="text-gray-500 text-sm m-0">Análisis de artículos</p>
+        </div>
+      </div>
+      <div class="flex-1 flex items-center justify-center">
+        <p class="text-gray-400 text-sm italic">Próximamente</p>
+      </div>
+    </div>
+
   </div>
 </div>
