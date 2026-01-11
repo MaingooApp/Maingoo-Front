@@ -43,9 +43,8 @@ export class Dashboard implements OnInit {
 
   /** Opciones de período de tiempo para el filtro */
   supplierPeriodOptions = [
-    { label: 'Esta semana', value: 'week' },
-    { label: 'Este mes', value: 'month' },
-    { label: 'Total histórico', value: 'all' }
+    { label: 'Semana', value: 'week' },
+    { label: 'Mes', value: 'month' }
   ];
 
   /** Período seleccionado para el gráfico de proveedores */
@@ -61,10 +60,23 @@ export class Dashboard implements OnInit {
   productChartTotal = 0;
 
   /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' */
-  activePanel: 'suppliers' | 'products' | 'articles' | null = null;
+  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | null = null;
 
   /** Lista resumen de proveedores para el panel */
   supplierSummary: { name: string; total: number; color: string }[] = [];
+
+  /** Bar chart de gasto mensual por proveedor */
+  monthlyExpenseChartData: any;
+  monthlyExpenseChartOptions: any;
+  monthlyExpenseChartLoading = false;
+
+  /** Opciones de año para el selector del bar chart */
+  yearOptions: { label: string; value: number }[] = [];
+  selectedYear: number = new Date().getFullYear();
+
+  /** Opciones de proveedor para el selector del bar chart */
+  supplierOptions: { label: string; value: string }[] = [];
+  selectedSupplierId: string = 'all';
 
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
@@ -196,6 +208,213 @@ export class Dashboard implements OnInit {
   }
 
   /**
+   * Inicializa las opciones del chart de gasto mensual cuando se abre el panel de proveedores
+   */
+  initMonthlyExpenseChart(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    // Obtener años únicos de las facturas
+    const years = new Set<number>();
+    this.allInvoices.forEach(inv => {
+      const year = new Date(inv.date).getFullYear();
+      years.add(year);
+    });
+
+    // Crear opciones de año ordenadas descendentemente
+    this.yearOptions = Array.from(years)
+      .sort((a, b) => b - a)
+      .map(y => ({ label: y.toString(), value: y }));
+
+    if (this.yearOptions.length > 0 && !this.yearOptions.find(y => y.value === this.selectedYear)) {
+      this.selectedYear = this.yearOptions[0].value;
+    }
+
+    // Obtener proveedores únicos de las facturas
+    const suppliersMap = new Map<string, string>();
+    this.allInvoices.forEach(inv => {
+      if (inv.supplier?.id && inv.supplier?.name) {
+        suppliersMap.set(inv.supplier.id, inv.supplier.name);
+      }
+    });
+
+    // Crear opciones de proveedor
+    this.supplierOptions = [
+      { label: 'Todos los proveedores', value: 'all' },
+      ...Array.from(suppliersMap.entries())
+        .map(([id, name]) => ({ label: name, value: id }))
+        .sort((a, b) => a.label.localeCompare(b.label))
+    ];
+
+    this.updateMonthlyExpenseChart();
+  }
+
+  /**
+   * Actualiza el bar chart de gasto mensual según año y proveedor seleccionados
+   */
+  updateMonthlyExpenseChart(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const monthLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    // Filtrar facturas por año
+    const yearInvoices = this.allInvoices.filter(inv => {
+      const invoiceYear = new Date(inv.date).getFullYear();
+      return invoiceYear === this.selectedYear;
+    });
+
+    if (this.selectedSupplierId === 'all') {
+      // STACKED BAR: Crear un dataset por cada proveedor
+      const suppliersData = new Map<string, { name: string; monthlyTotals: number[] }>();
+
+      yearInvoices.forEach(inv => {
+        const supplierId = inv.supplier?.id || 'unknown';
+        const supplierName = inv.supplier?.name || 'Desconocido';
+        const month = new Date(inv.date).getMonth();
+        const amount = parseFloat(inv.amount) || 0;
+
+        if (!suppliersData.has(supplierId)) {
+          suppliersData.set(supplierId, {
+            name: supplierName,
+            monthlyTotals: new Array(12).fill(0)
+          });
+        }
+        suppliersData.get(supplierId)!.monthlyTotals[month] += amount;
+      });
+
+      // Ordenar proveedores por total descendente y tomar los top 8
+      const sortedSuppliers = Array.from(suppliersData.entries())
+        .map(([id, data]) => ({
+          id,
+          name: data.name,
+          monthlyTotals: data.monthlyTotals.map(t => Math.round(t * 100) / 100),
+          total: data.monthlyTotals.reduce((sum, t) => sum + t, 0)
+        }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 8);
+
+      // Generar datasets con colores consistentes basados en el ID del proveedor
+      const datasets = sortedSuppliers.map((supplier) => ({
+        label: supplier.name,
+        data: supplier.monthlyTotals,
+        backgroundColor: this.getSupplierColor(supplier.id),
+        borderWidth: 0,
+        borderRadius: 2
+      }));
+
+      this.monthlyExpenseChartData = {
+        labels: monthLabels,
+        datasets: datasets
+      };
+
+      this.monthlyExpenseChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context: any) => {
+                const value = context.raw as number;
+                return ` ${context.dataset.label}: ${this.formatCurrency(value)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: false }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            grid: { color: '#f3f4f6' },
+            ticks: {
+              stepSize: 500,
+              autoSkip: false,
+              maxTicksLimit: 30,
+              callback: (value: number) => this.formatCurrency(value)
+            }
+          }
+        }
+      };
+    } else {
+      // SINGLE BAR: Un solo proveedor seleccionado
+      const filteredInvoices = yearInvoices.filter(inv => inv.supplier?.id === this.selectedSupplierId);
+
+      const monthlyTotals = new Array(12).fill(0);
+      filteredInvoices.forEach(inv => {
+        const month = new Date(inv.date).getMonth();
+        monthlyTotals[month] += parseFloat(inv.amount) || 0;
+      });
+
+      const roundedTotals = monthlyTotals.map(t => Math.round(t * 100) / 100);
+
+      // Usar el color consistente del proveedor
+      const supplierColor = this.getSupplierColor(this.selectedSupplierId);
+
+      this.monthlyExpenseChartData = {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Gasto mensual',
+            data: roundedTotals,
+            backgroundColor: supplierColor,
+            borderColor: this.darkenColor(supplierColor),
+            borderWidth: 1,
+            borderRadius: 4
+          }
+        ]
+      };
+
+      this.monthlyExpenseChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context: any) => {
+                const value = context.raw as number;
+                return ` ${this.formatCurrency(value)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false } },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#f3f4f6' },
+            ticks: {
+              stepSize: 500,
+              callback: (value: number) => this.formatCurrency(value)
+            }
+          }
+        }
+      };
+    }
+
+    this.cd.markForCheck();
+  }
+
+  /**
+   * Handler para cambio de año en el bar chart
+   */
+  onYearChange(): void {
+    this.updateMonthlyExpenseChart();
+  }
+
+  /**
+   * Handler para cambio de proveedor en el bar chart
+   */
+  onSupplierFilterChange(): void {
+    this.updateMonthlyExpenseChart();
+  }
+
+  /**
    * Carga los datos reales para el pie chart de categorías de productos
    */
   loadProductChart(): void {
@@ -221,18 +440,19 @@ export class Dashboard implements OnInit {
   private processInvoicesForChart(invoices: Invoice[]): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Agrupar facturas por proveedor y sumar importes
-    const supplierTotals = new Map<string, { name: string; total: number }>();
+    // Agrupar facturas por proveedor y sumar importes (usando ID como clave)
+    const supplierTotals = new Map<string, { id: string; name: string; total: number }>();
 
     invoices.forEach(invoice => {
+      const supplierId = invoice.supplier?.id || 'unknown';
       const supplierName = invoice.supplier?.name || 'Sin proveedor';
       const amount = parseFloat(invoice.amount) || 0;
 
-      if (supplierTotals.has(supplierName)) {
-        const current = supplierTotals.get(supplierName)!;
+      if (supplierTotals.has(supplierId)) {
+        const current = supplierTotals.get(supplierId)!;
         current.total += amount;
       } else {
-        supplierTotals.set(supplierName, { name: supplierName, total: amount });
+        supplierTotals.set(supplierId, { id: supplierId, name: supplierName, total: amount });
       }
     });
 
@@ -249,24 +469,22 @@ export class Dashboard implements OnInit {
         .slice(MAX_SUPPLIERS)
         .reduce((sum, s) => sum + s.total, 0);
 
-      chartSuppliers.push({ name: 'Otros', total: otrosTotal });
+      chartSuppliers.push({ id: 'otros', name: 'Otros', total: otrosTotal });
     }
 
     // Calcular total
     this.supplierChartTotal = chartSuppliers.reduce((sum, s) => sum + s.total, 0);
 
-    // Generar datos del chart
+    // Generar datos del chart con colores consistentes basados en ID
     const labels = chartSuppliers.map(s => s.name);
     const data = chartSuppliers.map(s => Math.round(s.total * 100) / 100);
-    const colors = chartSuppliers.map((_, i) =>
-      this.CHART_COLORS[i] || this.CHART_COLORS[this.CHART_COLORS.length - 1]
-    );
+    const colors = chartSuppliers.map(s => this.getSupplierColor(s.id));
 
     // Guardar resumen para el panel lateral
-    this.supplierSummary = chartSuppliers.map((s, i) => ({
+    this.supplierSummary = chartSuppliers.map((s) => ({
       name: s.name,
       total: Math.round(s.total * 100) / 100,
-      color: colors[i]
+      color: this.getSupplierColor(s.id)
     }));
 
     this.supplierChartData = {
@@ -406,6 +624,23 @@ export class Dashboard implements OnInit {
   }
 
   /**
+   * Genera un color consistente para un proveedor basado en su ID
+   */
+  private getSupplierColor(supplierId: string): string {
+    // Calcular hash simple del ID
+    let hash = 0;
+    for (let i = 0; i < supplierId.length; i++) {
+      const char = supplierId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convertir a 32bit integer
+    }
+
+    // Usar el hash para seleccionar un color del array
+    const index = Math.abs(hash) % this.CHART_COLORS.length;
+    return this.CHART_COLORS[index];
+  }
+
+  /**
    * Oscurece un color hex para el hover
    */
   private darkenColor(hex: string): string {
@@ -438,8 +673,13 @@ export class Dashboard implements OnInit {
   /**
    * Abre un panel lateral de métricas
    */
-  openPanel(panel: 'suppliers' | 'products' | 'articles'): void {
+  openPanel(panel: 'suppliers' | 'products' | 'articles' | 'sales'): void {
     this.activePanel = panel;
+
+    // Inicializar bar chart cuando se abre el panel de proveedores
+    if (panel === 'suppliers') {
+      this.initMonthlyExpenseChart();
+    }
   }
 
   /**

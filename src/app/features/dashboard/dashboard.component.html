@@ -19,7 +19,7 @@
     <!-- Left: Dashboard Cards Grid -->
     <div class="flex-1 min-w-0">
       <div class="w-full grid gap-6"
-        [ngClass]="activePanel ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'">
+        [ngClass]="activePanel ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
 
         <!-- Métricas Proveedores Card -->
         <div
@@ -37,8 +37,8 @@
                 <!-- Selector de período -->
                 <p-dropdown [options]="supplierPeriodOptions" [(ngModel)]="selectedSupplierPeriod"
                   (onChange)="onSupplierPeriodChange()" optionLabel="label" optionValue="value"
-                  styleClass="p-dropdown-sm border-none !shadow-none" [style]="{'min-width': '120px'}"
-                  panelStyleClass="text-sm">
+                  styleClass="p-dropdown-sm border-none !shadow-none text-xs text-left flex items-center"
+                  [style]="{'width': '95px', 'height': '24px', 'line-height': '24px'}" panelStyleClass="text-xs">
                 </p-dropdown>
               </div>
             </div>
@@ -59,15 +59,16 @@
               <p-skeleton width="120px" height="12px"></p-skeleton>
             </div>
 
-            <!-- Chart -->
-            <p-chart *ngIf="!supplierChartLoading && supplierChartData" type="doughnut" [data]="supplierChartData"
-              [options]="supplierChartOptions" class="w-full h-full">
+            <!-- Chart (solo si hay datos) -->
+            <p-chart *ngIf="!supplierChartLoading && supplierChartData && supplierChartTotal > 0" type="doughnut"
+              [data]="supplierChartData" [options]="supplierChartOptions" class="w-full h-full">
             </p-chart>
 
             <!-- Empty state -->
-            <p *ngIf="!supplierChartLoading && !supplierChartData" class="text-gray-400 text-sm italic">
-              Sin datos de facturas
-            </p>
+            <div *ngIf="!supplierChartLoading && supplierChartTotal === 0" class="text-center">
+              <i class="pi pi-inbox text-gray-200 text-4xl mb-2"></i>
+              <p class="text-gray-400 text-sm">Sin datos para este período</p>
+            </div>
           </div>
 
           <!-- Total footer -->
@@ -159,6 +160,34 @@
             <p class="text-gray-400 text-sm italic">Próximamente</p>
           </div>
         </div>
+
+        <!-- Ventas Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'sales'}">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <i class="pi pi-chart-bar text-maingoo-sage text-xl"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Ventas</h3>
+                <p class="text-gray-400 text-xs m-0">Análisis de ventas</p>
+              </div>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('sales')">
+              <span>Ver más</span>
+              <i class="pi pi-arrow-right text-[10px] group-hover/btn:translate-x-0.5 transition-transform"></i>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center">
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -175,14 +204,16 @@
               <i class="text-maingoo-sage text-xl" [ngClass]="{
                   'pi pi-truck': activePanel === 'suppliers',
                   'pi pi-box': activePanel === 'products',
-                  'pi pi-tags': activePanel === 'articles'
+                  'pi pi-tags': activePanel === 'articles',
+                  'pi pi-chart-bar': activePanel === 'sales'
                 }"></i>
             </div>
             <div>
               <h2 class="text-lg font-bold text-maingoo-deep m-0">
-                {{ activePanel === 'suppliers' ? 'Métricas de Proveedores' :
-                activePanel === 'products' ? 'Métricas de Productos' :
-                'Métricas de Artículos' }}
+                {{ activePanel === 'suppliers' ? 'Proveedores' :
+                activePanel === 'products' ? 'Productos' :
+                activePanel === 'articles' ? 'Artículos' :
+                'Ventas' }}
               </h2>
               <p class="text-xs text-gray-400 m-0">Análisis detallado</p>
             </div>
@@ -195,17 +226,58 @@
           </button>
         </div>
 
-        <!-- Panel Content: Placeholder -->
-        <div class="p-6 flex-1 flex items-center justify-center">
-          <div class="text-center">
-            <i class="pi text-gray-200 text-6xl mb-4" [ngClass]="{
-                'pi-chart-pie': activePanel === 'suppliers',
-                'pi-box': activePanel === 'products',
-                'pi-tags': activePanel === 'articles'
-              }"></i>
-            <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
-            <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
-          </div>
+        <!-- Panel Content -->
+        <div class="p-6 flex-1 flex flex-col overflow-auto">
+          <!-- Suppliers Panel - Bar Chart de Gasto Mensual -->
+          <ng-container *ngIf="activePanel === 'suppliers'">
+            <!-- Filtros -->
+            <div class="flex flex-wrap gap-4 mb-6">
+              <!-- Selector de Año -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs text-gray-500 font-medium">Año</label>
+                <p-dropdown [options]="yearOptions" [(ngModel)]="selectedYear" (onChange)="onYearChange()"
+                  optionLabel="label" optionValue="value" styleClass="w-28" placeholder="Año">
+                </p-dropdown>
+              </div>
+
+              <!-- Selector de Proveedor -->
+              <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+                <label class="text-xs text-gray-500 font-medium">Proveedor</label>
+                <p-dropdown [options]="supplierOptions" [(ngModel)]="selectedSupplierId"
+                  (onChange)="onSupplierFilterChange()" optionLabel="label" optionValue="value" [filter]="true"
+                  filterPlaceholder="Buscar..." styleClass="w-full" placeholder="Seleccionar proveedor">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="flex-1">
+              <h4 class="text-sm font-semibold text-maingoo-deep mb-3">Gasto Mensual</h4>
+              <p-chart *ngIf="monthlyExpenseChartData" type="bar" [data]="monthlyExpenseChartData"
+                [options]="monthlyExpenseChartOptions" height="350px">
+              </p-chart>
+
+              <!-- Empty state -->
+              <div *ngIf="!monthlyExpenseChartData" class="flex items-center justify-center h-[350px]">
+                <p class="text-gray-400 text-sm italic">Sin datos para el período seleccionado</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Products/Articles Panel - Placeholder -->
+          <ng-container *ngIf="activePanel !== 'suppliers'">
+            <div class="flex-1 flex items-center justify-center">
+              <div class="text-center">
+                <i class="pi text-gray-200 text-6xl mb-4" [ngClass]="{
+                    'pi-box': activePanel === 'products',
+                    'pi-tags': activePanel === 'articles',
+                    'pi-chart-bar': activePanel === 'sales'
+                  }"></i>
+                <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
+                <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
+              </div>
+            </div>
+          </ng-container>
         </div>
       </div>
 
@@ -221,7 +293,8 @@
             <h2 class="text-lg font-bold text-maingoo-deep m-0">
               {{ activePanel === 'suppliers' ? 'Métricas Proveedores' :
               activePanel === 'products' ? 'Métricas Productos' :
-              'Métricas Artículos' }}
+              activePanel === 'articles' ? 'Métricas Artículos' :
+              'Métricas Ventas' }}
             </h2>
             <button class="text-gray-400" (click)="closePanel()">
               <i class="pi pi-times"></i>
