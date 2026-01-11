@@ -19,6 +19,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Product, ProductService } from '../../services/product.service';
+import { IconComponent } from '../icon/icon.component';
 
 interface Column {
   field: string;
@@ -52,7 +53,8 @@ interface ExportColumn {
     TagModule,
     InputIconModule,
     IconFieldModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    IconComponent
   ],
   templateUrl: './crud.html',
   styleUrls: ['./crud.scss'],
@@ -81,7 +83,7 @@ export class Crud implements OnInit {
     private productService: ProductService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
-  ) {}
+  ) { }
 
   exportCSV() {
     this.dt.exportCSV();

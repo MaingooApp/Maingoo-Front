@@ -12,6 +12,8 @@ import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastService } from '@app/shared/services/toast.service';
 
+import { IconComponent } from '../../shared/components/icon/icon.component';
+
 /**
  * Componente principal del Dashboard
  * Muestra KPI slots y cards de métricas del restaurante
@@ -19,7 +21,7 @@ import { ToastService } from '@app/shared/services/toast.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, KpiSlotComponent, ChartModule, DropdownModule, SkeletonModule],
+  imports: [CommonModule, FormsModule, KpiSlotComponent, ChartModule, DropdownModule, SkeletonModule, IconComponent],
   templateUrl: './dashboard.component.html'
 })
 export class Dashboard implements OnInit {

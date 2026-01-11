@@ -19,10 +19,12 @@ interface RouteContext {
   actions: QuickAction[];
 }
 
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-mobile-bottom-sheet',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, IconComponent],
   templateUrl: './mobile-bottom-sheet.component.html',
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })
@@ -146,10 +148,10 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   onTouchMove(event: TouchEvent) {
     if (!this.isDragging) return;
-    
+
     this.currentY = event.touches[0].clientY;
     const deltaY = this.currentY - this.startY;
-    
+
     // Solo permitir arrastrar hacia abajo si está en estados superiores
     const currentState = this.bottomSheetService.currentState();
     if (deltaY > 0 || currentState !== 'compact') {
@@ -164,19 +166,19 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
   onTouchEnd(event: TouchEvent) {
     if (!this.isDragging) return;
-    
+
     this.isDragging = false;
     const deltaY = this.currentY - this.startY;
-    
+
     // Reset styles
     if (this.sheetContainer) {
       const sheet = this.sheetContainer.nativeElement;
       sheet.style.transition = '';
       sheet.style.transform = '';
     }
-    
+
     const currentState = this.currentState;
-    
+
     // Determinar nuevo estado basado en la dirección y distancia del arrastre
     if (Math.abs(deltaY) > this.DRAG_THRESHOLD) {
       if (deltaY > 0) {
@@ -187,7 +189,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
         this.expandState(currentState);
       }
     }
-    
+
     this.startY = 0;
     this.currentY = 0;
   }
@@ -213,7 +215,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     if (event && event.target !== event.currentTarget) {
       return;
     }
-    
+
     // Click en el header para ciclar entre estados: compact → medium → expanded → compact
     const current = this.currentState;
     if (current === 'compact') {
@@ -252,17 +254,17 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private updateContextFromRoute(url: string): void {
     // Limpiar query params y fragments
     const cleanUrl = url.split('?')[0].split('#')[0];
-    
+
     // Buscar contexto exacto o por prefijo
     if (this.routeContexts[cleanUrl]) {
       this.currentContext = this.routeContexts[cleanUrl];
     } else {
       // Buscar por prefijo (ej: /facturas/1 -> /facturas)
-      const matchedRoute = Object.keys(this.routeContexts).find(route => 
+      const matchedRoute = Object.keys(this.routeContexts).find(route =>
         route !== '/' && cleanUrl.startsWith(route)
       );
-      this.currentContext = matchedRoute 
-        ? this.routeContexts[matchedRoute] 
+      this.currentContext = matchedRoute
+        ? this.routeContexts[matchedRoute]
         : this.routeContexts['/'];
     }
   }
@@ -273,14 +275,14 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       event.preventDefault();
     }
-    
+
     // Si está en compacto, expandir a medium antes de navegar
     // Si está en medium o expanded, mantener el estado actual (no expandir)
     if (this.isCompact) {
       this.bottomSheetService.setState('medium');
     }
     // Si está en medium o expanded, solo navegar sin cambiar estado
-    
+
     this.router.navigate([route]);
   }
 
@@ -309,10 +311,10 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     try {
       // Limpiar input inmediatamente
       input.value = '';
-      
+
       // Enviar mensaje usando el servicio de chat (conecta a n8n)
       await this.chatService.sendMessage(message);
-      
+
       // Si está en estado compacto, expandir para ver la respuesta
       if (this.isCompact) {
         this.bottomSheetService.setState('expanded');
@@ -345,9 +347,9 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   }
 
   formatTime(timestamp: Date): string {
-    return new Date(timestamp).toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(timestamp).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 

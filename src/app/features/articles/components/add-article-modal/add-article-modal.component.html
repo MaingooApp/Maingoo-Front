@@ -10,11 +10,11 @@
 
 		<div class="flex justify-end gap-3 mt-4">
 			<button pButton label="Cancelar" class="p-button-text" severity="secondary" (click)="closeModal()">
-				<span class="material-symbols-outlined">close</span>
+				<app-icon name="close" size="md"></app-icon>
 			</button>
 			<button pButton label="Crear artículo" severity="primary" (click)="onSubmit()"
 				[disabled]="nameControl.invalid">
-				<span class="material-symbols-outlined">check</span>
+				<app-icon name="check" size="md"></app-icon>
 			</button>
 		</div>
 	</div>

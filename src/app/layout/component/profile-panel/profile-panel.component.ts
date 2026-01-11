@@ -4,10 +4,12 @@ import { RouterModule, Router } from '@angular/router';
 import { LayoutService } from '../../service/layout.service';
 import { AuthService } from '../../../features/auth/services/auth-service.service';
 
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+
 @Component({
 	selector: 'app-profile-panel',
 	standalone: true,
-	imports: [CommonModule, RouterModule],
+	imports: [CommonModule, RouterModule, IconComponent],
 	templateUrl: './profile-panel.component.html'
 })
 export class ProfilePanelComponent {

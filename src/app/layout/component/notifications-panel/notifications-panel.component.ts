@@ -4,10 +4,12 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { LayoutService } from '../../service/layout.service';
 import { Subscription } from 'rxjs';
 
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-notifications-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './notifications-panel.component.html'
 })
 export class NotificationsPanelComponent implements OnInit, OnDestroy {
@@ -17,7 +19,7 @@ export class NotificationsPanelComponent implements OnInit, OnDestroy {
   constructor(
     private toastService: ToastService,
     public layoutService: LayoutService
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Suscribirse al historial de notificaciones

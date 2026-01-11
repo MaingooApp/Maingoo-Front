@@ -5,6 +5,7 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FluidModule } from 'primeng/fluid';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
+import { IconComponent } from '@app/shared/components/icon/icon.component';
 
 @Component({
 	selector: 'app-add-article-modal',
@@ -14,7 +15,8 @@ import { CommonModule } from '@angular/common';
 		ReactiveFormsModule,
 		InputTextModule,
 		ButtonModule,
-		FluidModule
+		FluidModule,
+		IconComponent
 	],
 	templateUrl: './add-article-modal.component.html',
 	host: { class: 'block' },

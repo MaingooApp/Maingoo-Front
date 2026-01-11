@@ -127,7 +127,7 @@
     <!-- Botón de guardar -->
     <div class="flex justify-end gap-4 pt-6">
       <button pButton type="submit" label="Guardar cambios" [disabled]="perfilForm.invalid">
-        <span class="material-symbols-outlined">save</span>
+        <app-icon name="save" size="md"></app-icon>
       </button>
     </div>
   </div>
@@ -152,7 +152,7 @@
               [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
             <small *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
               class="text-red-500">
-              <span class="material-symbols-outlined mr-1">error</span>
+              <app-icon name="error" size="sm" class="mr-1"></app-icon>
               La contraseña actual es obligatoria
             </small>
           </div>
@@ -165,7 +165,7 @@
               <label for="newPassword" class="font-medium">Nueva contraseña *</label>
               <button type="button" class="text-sm text-primary hover:underline flex items-center gap-1"
                 (click)="passwordHelpPopover.toggle($event)">
-                <span class="material-symbols-outlined">info</span>
+                <app-icon name="info" size="sm"></app-icon>
                 Requisitos
               </button>
             </div>
@@ -175,23 +175,23 @@
                 <p class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Requisitos de contraseña:</p>
                 <div class="space-y-2 text-sm">
                   <div class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
+                    <app-icon name="check_circle" size="sm" class="text-green-500 mt-0.5"></app-icon>
                     <span>Mínimo 8 caracteres</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
+                    <app-icon name="check_circle" size="sm" class="text-green-500 mt-0.5"></app-icon>
                     <span>Al menos 1 letra mayúscula (A-Z)</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
+                    <app-icon name="check_circle" size="sm" class="text-green-500 mt-0.5"></app-icon>
                     <span>Al menos 1 letra minúscula (a-z)</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
+                    <app-icon name="check_circle" size="sm" class="text-green-500 mt-0.5"></app-icon>
                     <span>Al menos 1 número (0-9)</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
+                    <app-icon name="check_circle" size="sm" class="text-green-500 mt-0.5"></app-icon>
                     <span>Al menos 1 carácter especial</span>
                   </div>
                 </div>
@@ -203,7 +203,7 @@
 
             <small *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
               class="text-red-500">
-              <i class="pi pi-exclamation-circle mr-1"></i>
+              <app-icon name="error" size="sm" class="mr-1"></app-icon>
               <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']">La nueva contraseña es
                 obligatoria</span>
               <span *ngIf="passwordForm.get('newPassword')?.errors?.['passwordPolicy']">La contraseña no cumple con los
@@ -221,7 +221,7 @@
                 (passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched) ||
                 (passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched)
               " class="text-red-500">
-              <i class="pi pi-exclamation-circle mr-1"></i>
+              <app-icon name="error" size="sm" class="mr-1"></app-icon>
               <span *ngIf="passwordForm.get('confirmPassword')?.errors?.['required']">Debes confirmar la nueva
                 contraseña</span>
               <span *ngIf="
@@ -234,8 +234,10 @@
 
         <!-- Botón de cambiar contraseña -->
         <div class="flex justify-end mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
-          <button pButton type="submit" label="Actualizar contraseña" icon="pi pi-shield"
-            [disabled]="passwordForm.invalid" class="p-button-success"></button>
+          <button pButton type="submit" [disabled]="passwordForm.invalid" class="p-button-success">
+            <app-icon name="shield" size="md" class="mr-2"></app-icon>
+            Actualizar contraseña
+          </button>
         </div>
       </form>
     </p-tabPanel>
@@ -243,7 +245,7 @@
     <!-- Pestaña: Cambiar email (preparado para futuro) -->
     <p-tabPanel header="Cambiar email">
       <div class="flex flex-col items-center justify-center p-8 text-center">
-        <span class="material-symbols-outlined text-6xl text-surface-300 dark:text-surface-600 mb-4">mail</span>
+        <app-icon name="mail" size="6xl" class="text-surface-300 dark:text-surface-600 mb-4"></app-icon>
         <h3 class="text-xl font-semibold text-surface-700 dark:text-surface-300 mb-2">Próximamente</h3>
         <p class="text-surface-600 dark:text-surface-400 max-w-md">
           La funcionalidad para cambiar el email estará disponible próximamente.

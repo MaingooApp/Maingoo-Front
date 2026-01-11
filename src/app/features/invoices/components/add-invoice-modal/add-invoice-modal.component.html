@@ -32,7 +32,7 @@
             <ng-template #empty>
               <div class="vk-dropzone-wrapper">
                 <div class="vk-dropzone" (click)="fu.choose()">
-                  <span class="material-symbols-outlined text-4xl text-gray-400">cloud_upload</span>
+                  <app-icon name="cloud_upload" size="4xl" class="text-gray-400"></app-icon>
                   <p class="text-gray-600 mt-2 font-medium">Suelta tus archivos aquí</p>
                   <p class="text-gray-400 text-sm">o haz clic para seleccionarlos (puedes subir varios a la vez)</p>
                 </div>
@@ -43,10 +43,10 @@
       </div>
       <div class="flex justify-end mt-6 gap-6 border-t pt-4">
         <button pButton label="Cancelar" class="p-button-text" severity="danger" (click)="closeModal()">
-          <span class="material-symbols-outlined">close</span>
+          <app-icon name="close" size="md"></app-icon>
         </button>
         <button pButton [label]="submitButtonLabel()" severity="primary" (click)="onSubmit()" [disabled]="!canSubmit()">
-          <span class="material-symbols-outlined">upload</span>
+          <app-icon name="upload" size="md"></app-icon>
         </button>
       </div>
     </div>

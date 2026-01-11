@@ -13,6 +13,7 @@ import { ToastService } from '@shared/services/toast.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DocumentAnalysisService } from '@app/core/services/document-analysis.service';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
+import { IconComponent } from '@shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-add-invoice-modal',
@@ -24,7 +25,8 @@ import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
     SelectModule,
     ReactiveFormsModule,
     TextareaModule,
-    FileUploadModule
+    FileUploadModule,
+    IconComponent
   ],
   templateUrl: './add-invoice-modal.component.html',
   styleUrl: './add-invoice-modal.component.scss',

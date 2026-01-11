@@ -6,6 +6,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ChartModule } from 'primeng/chart';
 import { Product, Invoice } from '@app/core/interfaces/Invoice.interfaces';
 
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-product-detail-sidebar',
   standalone: true,
@@ -14,7 +16,8 @@ import { Product, Invoice } from '@app/core/interfaces/Invoice.interfaces';
     ButtonModule,
     TagModule,
     TooltipModule,
-    ChartModule
+    ChartModule,
+    IconComponent
   ],
   templateUrl: './product-detail-sidebar.component.html'
 })
@@ -23,19 +26,19 @@ export class ProductDetailSidebarComponent {
   @Input() relatedInvoices: Invoice[] = [];
   @Input() priceChartData: any;
   @Input() priceChartOptions: any;
-  
+
   @Output() close = new EventEmitter<void>();
   @Output() verFactura = new EventEmitter<Invoice>();
   @Output() delete = new EventEmitter<Product>();
-  
+
   showMenu: boolean = false;
 
   setStorageType(type: 'seco' | 'fresco' | 'congelado') {
     if (this.product) {
-          this.product.storageType = type;
-          // In a real app, you would emit an update event here or call a service
-          // this.update.emit(this.product);
-      }
+      this.product.storageType = type;
+      // In a real app, you would emit an update event here or call a service
+      // this.update.emit(this.product);
+    }
   }
 
 
