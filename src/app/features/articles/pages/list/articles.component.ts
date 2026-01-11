@@ -11,10 +11,12 @@ import { AddArticleModalComponent } from '../../components/add-article-modal/add
 import { TableModule } from 'primeng/table';
 import { ToastService } from '../../../../shared/services/toast.service';
 
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, EmptyStateComponent, ButtonModule, TableModule],
+  imports: [CommonModule, SectionHeaderComponent, EmptyStateComponent, ButtonModule, TableModule, IconComponent],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit {

@@ -28,8 +28,7 @@ import { SupplierService } from '@app/features/supplier/services/supplier.servic
 import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../../../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-
-
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-productos',
@@ -54,8 +53,8 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     ProductDetailSidebarComponent,
     ProductDetailSidebarComponent,
     SectionHeaderComponent,
-    EmptyStateComponent
-
+    EmptyStateComponent,
+    IconComponent
   ],
   providers: [],
   templateUrl: './productos.component.html',

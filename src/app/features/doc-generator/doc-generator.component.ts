@@ -23,6 +23,7 @@ import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
+import { IconComponent } from '../../shared/components/icon/icon.component';
 
 export interface SupplierGroup {
   supplierName: string;
@@ -61,7 +62,8 @@ export interface GroupedInvoices {
     DialogModule,
     FormsModule,
     FileUploadModule,
-    CardModule
+    CardModule,
+    IconComponent
   ],
   templateUrl: './doc-generator.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -16,6 +16,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
+import { IconComponent } from '@shared/components/icon/icon.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
@@ -49,8 +50,10 @@ import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-mod
     ChartModule,
     TagModule,
     TooltipModule,
+    TooltipModule,
     SectionHeaderComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    IconComponent
   ],
   templateUrl: './supplier.component.html'
 })
@@ -127,12 +130,7 @@ export class SupplierComponent {
   ] as const;
 
   actions = [
-    {
-      icon: 'pi pi-trash',
-      action: 'eliminar',
-      color: 'danger',
-      tooltip: 'Eliminar'
-    }
+    { action: 'delete', icon: 'delete', color: 'danger', tooltip: 'Eliminar proveedor' }
   ] as const;
 
   constructor(

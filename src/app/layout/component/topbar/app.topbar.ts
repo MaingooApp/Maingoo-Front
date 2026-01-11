@@ -28,6 +28,8 @@ import { BottomSheetService } from '../../service/bottom-sheet.service';
 // - EnterpriseService: para obtener datos de la empresa (nombre)
 import { EnterpriseService } from '../../../features/enterprise/services/enterprise.service';
 
+import { IconComponent } from '../../../shared/components/icon/icon.component';
+
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
   // Selector del componente usado en plantillas: <app-topbar></app-topbar>
@@ -35,7 +37,7 @@ import { EnterpriseService } from '../../../features/enterprise/services/enterpr
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, IconComponent],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html'
 })

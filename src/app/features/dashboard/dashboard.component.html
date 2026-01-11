@@ -30,7 +30,7 @@
             <div class="flex items-center gap-3">
               <div
                 class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-maingoo-sage text-xl">local_shipping</span>
+                <app-icon name="local_shipping" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
                 <h3 class="font-bold text-maingoo-deep text-base m-0">Proveedores</h3>
@@ -47,8 +47,8 @@
               class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
               (click)="openPanel('suppliers')">
               <span>Ver más</span>
-              <span
-                class="material-symbols-outlined text-[10px] group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
             </button>
           </div>
 
@@ -89,7 +89,7 @@
             <div class="flex items-center gap-3">
               <div
                 class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-maingoo-sage text-xl">inventory_2</span>
+                <app-icon name="inventory_2" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
                 <h3 class="font-bold text-maingoo-deep text-base m-0">Productos</h3>
@@ -101,8 +101,8 @@
               class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
               (click)="openPanel('products')">
               <span>Ver más</span>
-              <span
-                class="material-symbols-outlined text-[10px] group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
             </button>
           </div>
 
@@ -142,7 +142,7 @@
             <div class="flex items-center gap-3">
               <div
                 class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-maingoo-sage text-xl">restaurant</span>
+                <app-icon name="restaurant" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
                 <h3 class="font-bold text-maingoo-deep text-base m-0">Artículos</h3>
@@ -154,8 +154,8 @@
               class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
               (click)="openPanel('articles')">
               <span>Ver más</span>
-              <span
-                class="material-symbols-outlined text-[10px] group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
             </button>
           </div>
           <div class="flex-1 flex items-center justify-center">
@@ -171,7 +171,7 @@
             <div class="flex items-center gap-3">
               <div
                 class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span class="material-symbols-outlined text-maingoo-sage text-xl">bar_chart</span>
+                <app-icon name="bar_chart" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
                 <h3 class="font-bold text-maingoo-deep text-base m-0">Ventas</h3>
@@ -183,8 +183,8 @@
               class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
               (click)="openPanel('sales')">
               <span>Ver más</span>
-              <span
-                class="material-symbols-outlined text-[10px] group-hover/btn:translate-x-0.5 transition-transform">arrow_forward</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
             </button>
           </div>
           <div class="flex-1 flex items-center justify-center">
@@ -204,12 +204,9 @@
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center">
-              <span class="material-symbols-outlined text-maingoo-sage text-xl">
-                {{ activePanel === 'suppliers' ? 'local_shipping' :
-                activePanel === 'products' ? 'inventory_2' :
-                activePanel === 'articles' ? 'restaurant' :
-                'bar_chart' }}
-              </span>
+              <app-icon
+                [name]="activePanel === 'suppliers' ? 'local_shipping' : activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : 'bar_chart'"
+                size="xl" class="text-maingoo-sage"></app-icon>
             </div>
             <div>
               <h2 class="text-lg font-bold text-maingoo-deep m-0">
@@ -225,7 +222,7 @@
           <button
             class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-all"
             (click)="closePanel()">
-            <span class="material-symbols-outlined">close</span>
+            <app-icon name="close" size="md"></app-icon>
           </button>
         </div>
 
@@ -271,10 +268,9 @@
           <ng-container *ngIf="activePanel !== 'suppliers'">
             <div class="flex-1 flex items-center justify-center">
               <div class="text-center">
-                <span class="material-symbols-outlined text-gray-200 text-6xl mb-4">
-                  {{ activePanel === 'products' ? 'inventory_2' :
-                  activePanel === 'articles' ? 'restaurant' : 'bar_chart' }}
-                </span>
+                <app-icon
+                  [name]="activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : 'bar_chart'"
+                  size="6xl" class="text-gray-200 mb-4"></app-icon>
                 <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
                 <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
               </div>
@@ -299,15 +295,14 @@
               'Métricas Ventas' }}
             </h2>
             <button class="text-gray-400" (click)="closePanel()">
-              <span class="material-symbols-outlined">close</span>
+              <app-icon name="close" size="md"></app-icon>
             </button>
           </div>
           <div class="flex-1 flex items-center justify-center p-6">
             <div class="text-center">
-              <span class="material-symbols-outlined text-gray-200 text-5xl mb-4">
-                {{ activePanel === 'suppliers' ? 'pie_chart' :
-                activePanel === 'products' ? 'inventory_2' : 'restaurant' }}
-              </span>
+              <app-icon
+                [name]="activePanel === 'suppliers' ? 'pie_chart' : activePanel === 'products' ? 'inventory_2' : 'restaurant'"
+                size="5xl" class="text-gray-200 mb-4"></app-icon>
               <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
               <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
             </div>

@@ -4,9 +4,11 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from '../configurator/app.configurator';
 import { LayoutService } from '../../service/layout.service';
 
+import { IconComponent } from '@shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-floating-configurator',
-  imports: [ButtonModule, StyleClassModule, AppConfigurator],
+  imports: [ButtonModule, StyleClassModule, AppConfigurator, IconComponent],
   templateUrl: './app.floatingconfigurator.html',
   styleUrls: ['./app.floatingconfigurator.scss']
 })

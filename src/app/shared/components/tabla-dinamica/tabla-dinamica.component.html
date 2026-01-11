@@ -1,17 +1,6 @@
-<p-table
-  #dt
-  [value]="data"
-  [paginator]="true"
-  [rows]="20"
-  [rowsPerPageOptions]="[10, 20, 50]"
-  [globalFilterFields]="globalFilterFields"
-  [loading]="loading"
-  responsiveLayout="scroll"
-  class="w-full"
-  showGridlines
-  stripedRows
-  filterDisplay="menu"
-  [selection]="enableCheckbox ? selection : null"
+<p-table #dt [value]="data" [paginator]="true" [rows]="20" [rowsPerPageOptions]="[10, 20, 50]"
+  [globalFilterFields]="globalFilterFields" [loading]="loading" responsiveLayout="scroll" class="w-full" showGridlines
+  stripedRows filterDisplay="menu" [selection]="enableCheckbox ? selection : null"
   [selectionMode]="enableCheckbox ? selectionMode : null"
   (selectionChange)="enableCheckbox && selectionChange.emit($event)">
   <!-- Filtro global -->
@@ -19,24 +8,17 @@
     <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
       <!-- Botón PDF -->
       <div class="flex items-center gap-3">
-        <button
-          *ngIf="exportPdf"
-          pButton
-          icon="pi pi-file-pdf"
-          label="Exportar PDF"
-          severity="primary"
-          (click)="exportarComoPdf()"></button>
+        <button *ngIf="exportPdf" pButton label="Exportar PDF" severity="primary" (click)="exportarComoPdf()">
+          <app-icon name="picture_as_pdf" size="md" class="mr-2"></app-icon>
+        </button>
       </div>
 
       <!-- Buscador -->
       <p-iconfield iconPosition="left" class="ml-auto">
         <p-inputicon>
-          <i class="pi pi-search"></i>
+          <app-icon name="search" size="md"></app-icon>
         </p-inputicon>
-        <input
-          pInputText
-          type="text"
-          (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+        <input pInputText type="text" (input)="dt.filterGlobal(getInputValue($event), 'contains')"
           placeholder="Buscar..." />
       </p-iconfield>
     </div>
@@ -91,14 +73,10 @@
       </ng-container>
       <td *ngIf="actions.length > 0">
         <div class="flex gap-2 justify-center">
-          <button
-            *ngFor="let act of actions"
-            pButton
-            [icon]="act.icon"
-            [severity]="act.color || 'primary'"
-            [pTooltip]="act.tooltip || act.action"
-            (click)="onActionClick(act.action, row)"
-            size="small"></button>
+          <button *ngFor="let act of actions" pButton [severity]="act.color || 'primary'"
+            [pTooltip]="act.tooltip || act.action" (click)="onActionClick(act.action, row)" size="small">
+            <app-icon [name]="act.icon" size="sm"></app-icon>
+          </button>
         </div>
       </td>
     </tr>

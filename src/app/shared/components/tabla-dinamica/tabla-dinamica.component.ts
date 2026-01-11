@@ -12,6 +12,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Column } from '../../interfaces/columns.interface';
 import { Action } from '../../interfaces/actions.interface';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
   selector: 'app-tabla-dinamica',
@@ -25,7 +26,10 @@ import { Action } from '../../interfaces/actions.interface';
     TagModule,
     TooltipModule,
     FormsModule,
-    InputIcon
+    TooltipModule,
+    FormsModule,
+    InputIcon,
+    IconComponent
   ],
   templateUrl: './tabla-dinamica.component.html'
 })
