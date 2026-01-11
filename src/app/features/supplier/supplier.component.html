@@ -8,7 +8,8 @@
       searchPlaceholder="Buscar un proveedor..." (viewModeChange)="setViewMode($any($event))"
       (search)="filterSuppliers($event)">
       <div actions>
-        <button pButton label="Subir Factura" icon="pi pi-receipt" severity="primary" (click)="openAddInvoiceModal()">
+        <button pButton label="Subir Factura" severity="primary" (click)="openAddInvoiceModal()">
+          <span class="material-symbols-outlined text-base">receipt_long</span>
         </button>
       </div>
     </app-section-header>
@@ -51,26 +52,26 @@
                   <div class="flex flex-col gap-2 text-sm text-gray-600">
                     <!-- Contact Name -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-user text-maingoo-sage text-xs w-4"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs w-4">person</span>
                       <span class="truncate" *ngIf="item.commercialName">{{ item.commercialName }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.commercialName">Sin nombre
                         comercial</span>
                     </div>
                     <!-- Phone -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-phone text-maingoo-sage text-xs w-4"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs w-4">phone</span>
                       <span class="truncate" *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
                     </div>
                     <!-- Order Days -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-clock text-maingoo-sage text-xs w-4"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs w-4">schedule</span>
                       <span class="truncate" *ngIf="item.orderDays">{{ item.orderDays }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.orderDays">Sin días pedido</span>
                     </div>
                     <!-- Delivery Days -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-truck text-maingoo-sage text-xs w-4"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs w-4">local_shipping</span>
                       <span class="truncate" *ngIf="item.deliveryDays">{{ item.deliveryDays }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.deliveryDays">Sin días reparto</span>
                     </div>
@@ -112,7 +113,7 @@
                   <!-- Column 2: Contact Name (Persona) -->
                   <td *ngIf="!selectedSupplier">
                     <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-user text-maingoo-sage text-xs"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs">person</span>
                       <span class="truncate max-w-[150px]" *ngIf="item.commercialName">{{ item.commercialName }}</span>
                       <span class="truncate max-w-[150px] text-gray-300 italic" *ngIf="!item.commercialName">Sin
                         comercial</span>
@@ -122,7 +123,7 @@
                   <!-- Column 3: Phone -->
                   <td *ngIf="!selectedSupplier">
                     <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-phone text-maingoo-sage text-xs"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs">phone</span>
                       <span *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
                       <span class="text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
                     </div>
@@ -131,7 +132,7 @@
                   <!-- Column 4: Order Day -->
                   <td *ngIf="!selectedSupplier">
                     <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-calendar text-maingoo-sage text-xs"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs">calendar_month</span>
                       <span class="truncate max-w-[200px]" title="Pedidos" *ngIf="item.orderDays">{{ item.orderDays
                         }}</span>
                       <span class="truncate max-w-[200px] text-gray-300 italic" title="Pedidos"
@@ -142,7 +143,7 @@
                   <!-- Column 5: Delivery Day -->
                   <td *ngIf="!selectedSupplier">
                     <div class="flex items-center gap-2 text-sm text-gray-600">
-                      <i class="pi pi-truck text-maingoo-sage text-xs"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage text-xs">local_shipping</span>
                       <span class="truncate max-w-[200px]" title="Reparto" *ngIf="item.deliveryDays">{{
                         item.deliveryDays }}</span>
                       <span class="truncate max-w-[200px] text-gray-300 italic" title="Reparto"
@@ -151,9 +152,11 @@
                   </td>
 
                   <td class="text-right">
-                    <button pButton icon="pi pi-chevron-left"
+                    <button pButton
                       class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
-                      [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }"></button>
+                      [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }">
+                      <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
                   </td>
                 </tr>
               </ng-template>
@@ -208,20 +211,23 @@
           <!-- Action Buttons -->
           <div class="flex gap-1">
 
-            <button pButton [icon]="isEditing ? 'pi pi-check' : 'pi pi-pencil'" class="p-button-rounded p-button-text"
+            <button pButton class="p-button-rounded p-button-text"
               [ngClass]="isEditing ? 'p-button-success' : 'p-button-secondary'"
               [pTooltip]="isEditing ? 'Guardar cambios' : 'Editar proveedor'" tooltipPosition="bottom"
-              (click)="editSupplier(selectedSupplier!)"></button>
-            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-              pTooltip="Eliminar proveedor" tooltipPosition="bottom"
-              (click)="confirmDelete(selectedSupplier!)"></button>
+              (click)="editSupplier(selectedSupplier!)">
+              <span class="material-symbols-outlined">{{ isEditing ? 'check' : 'edit' }}</span>
+            </button>
+            <button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar proveedor"
+              tooltipPosition="bottom" (click)="confirmDelete(selectedSupplier!)">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
 
           <!-- Close Button -->
           <button
             class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
             (click)="hideDialog()">
-            <i class="pi pi-times"></i>
+            <span class="material-symbols-outlined">close</span>
           </button>
         </div>
       </div>
@@ -257,7 +263,7 @@
               <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                 *ngIf="selectedSupplier?.address">
                 <div class="flex items-center gap-2 text-gray-400 text-sm">
-                  <i class="pi pi-map-marker text-maingoo-sage"></i>
+                  <span class="material-symbols-outlined text-maingoo-sage">location_on</span>
                   <span>Dirección</span>
                 </div>
                 <div class="flex items-center -ml-2">
@@ -272,7 +278,7 @@
                 <!-- Sanitary Registration -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
                   <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <i class="pi pi-file text-maingoo-sage"></i>
+                    <span class="material-symbols-outlined text-maingoo-sage">description</span>
                     <span>Reg. Sanitario</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -286,7 +292,7 @@
                 <!-- CIF/NIF -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
                   <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <i class="pi pi-id-card text-maingoo-sage"></i>
+                    <span class="material-symbols-outlined text-maingoo-sage">badge</span>
                     <span>CIF/NIF</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -305,7 +311,7 @@
                   <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
                     (click)="!isEditing && (showContact = !showContact)">
                     <div class="flex items-center gap-2 text-gray-400 text-sm">
-                      <i class="pi pi-briefcase text-maingoo-sage"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage">work</span>
                       <span>Contacto</span>
                     </div>
                     <div class="flex items-center">
@@ -318,11 +324,10 @@
                   <div class="overflow-hidden transition-all duration-300 ease-in-out">
                     <div class="flex flex-col gap-1 py-1 pl-6">
                       <!-- Persona de contacto -->
-                      <!-- Persona de contacto -->
                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                         *ngIf="selectedSupplier?.commercialName || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
-                          <i class="pi pi-user text-maingoo-sage"></i>
+                          <span class="material-symbols-outlined text-maingoo-sage">person</span>
                           <span>Persona</span>
                         </div>
                         <div class="flex items-center -ml-2">
@@ -337,7 +342,7 @@
                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                         *ngIf="selectedSupplier?.phoneNumber || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
-                          <i class="pi pi-phone text-maingoo-sage"></i>
+                          <span class="material-symbols-outlined text-maingoo-sage">phone</span>
                           <span>Teléfono</span>
                         </div>
                         <div class="flex items-center -ml-2">
@@ -352,7 +357,7 @@
                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                         *ngIf="selectedSupplier?.commercialEmail || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
-                          <i class="pi pi-envelope text-maingoo-sage"></i>
+                          <span class="material-symbols-outlined text-maingoo-sage">mail</span>
                           <span>Email</span>
                         </div>
                         <div class="flex items-center -ml-2">
@@ -372,7 +377,7 @@
                   <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
                     (click)="!isEditing && (showDelivery = !showDelivery)">
                     <div class="flex items-center gap-2 text-gray-400 text-sm">
-                      <i class="pi pi-truck text-maingoo-sage"></i>
+                      <span class="material-symbols-outlined text-maingoo-sage">local_shipping</span>
                       <span>Reparto</span>
                     </div>
                     <div class="flex items-center">
@@ -389,7 +394,7 @@
                         <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
                           *ngIf="selectedLastOrderDays.length > 0 || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                            <i class="pi pi-calendar text-maingoo-sage"></i>
+                            <span class="material-symbols-outlined text-maingoo-sage">calendar_month</span>
                             <span>Día de pedido</span>
                           </div>
                           <div class="flex flex-wrap gap-1 items-center -ml-2">
@@ -411,7 +416,7 @@
                         <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
                           *ngIf="selectedDays.length > 0 || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                            <i class="pi pi-truck text-maingoo-sage"></i>
+                            <span class="material-symbols-outlined text-maingoo-sage">local_shipping</span>
                             <span>Día de reparto</span>
                           </div>
                           <div class="flex flex-wrap gap-1 items-center -ml-2">
@@ -431,7 +436,7 @@
                         <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                           *ngIf="(selectedSupplier!.minPriceDelivery !== null && selectedSupplier!.minPriceDelivery !== undefined) || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm">
-                            <i class="pi pi-euro text-maingoo-sage"></i>
+                            <span class="material-symbols-outlined text-maingoo-sage">euro</span>
                             <span>Pedido mín.</span>
                           </div>
                           <div class="flex items-center -ml-2">
@@ -455,7 +460,7 @@
           <!-- Image Placeholder -->
           <div
             class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
-            <i class="pi pi-image text-gray-300 text-5xl"></i>
+            <span class="material-symbols-outlined text-gray-300 text-5xl">image</span>
           </div>
         </div>
 
@@ -467,8 +472,9 @@
               class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">
               Estadísticas
             </h3>
-            <i class="pi pi-chevron-down text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
-              [ngClass]="{ 'rotate-180': showStats }"></i>
+            <span
+              class="material-symbols-outlined text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
+              [ngClass]="{ 'rotate-180': showStats }">expand_more</span>
           </div>
 
           <div class="overflow-hidden transition-all duration-300 ease-in-out"
@@ -510,8 +516,9 @@
               class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">
               Facturas Asociadas
             </h3>
-            <i class="pi pi-chevron-down text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
-              [ngClass]="{ 'rotate-180': showInvoices }"></i>
+            <span
+              class="material-symbols-outlined text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
+              [ngClass]="{ 'rotate-180': showInvoices }">expand_more</span>
           </div>
 
           <div class="overflow-hidden transition-all duration-300 ease-in-out"
@@ -535,7 +542,7 @@
                 <div class="flex items-center gap-3">
                   <div
                     class="w-8 h-8 rounded-full bg-white text-maingoo-sage flex items-center justify-center border border-maingoo-sage/10">
-                    <i class="pi pi-file text-sm"></i>
+                    <span class="material-symbols-outlined text-sm">description</span>
                   </div>
                   <div class="flex flex-col">
                     <span
@@ -547,9 +554,11 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="text-maingoo-deep font-bold text-sm block">{{ invoice.amount | currency: 'EUR' }}</span>
-                  <button pButton icon="pi pi-eye"
+                  <button pButton
                     class="p-button-rounded p-button-text p-button-sm text-maingoo-sage hover:bg-white md:hidden"
-                    (click)="viewInvoice(invoice); $event.stopPropagation()"></button>
+                    (click)="viewInvoice(invoice); $event.stopPropagation()">
+                    <span class="material-symbols-outlined">visibility</span>
+                  </button>
                 </div>
               </div>
             </div>

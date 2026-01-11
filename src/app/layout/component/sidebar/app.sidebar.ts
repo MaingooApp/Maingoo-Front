@@ -9,6 +9,7 @@ import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { LayoutService } from '../../service/layout.service';
 import { filter } from 'rxjs/operators';
+import { IconComponent } from '@shared/components/icon/icon.component';
 
 interface QuickAction {
   label: string;
@@ -25,7 +26,7 @@ interface RouteContext {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule],
+  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule, IconComponent],
   templateUrl: './app.sidebar.html',
 })
 export class AppSidebar {
@@ -41,12 +42,12 @@ export class AppSidebar {
   currentYear = new Date().getFullYear();
 
   quickLinks = [
-    { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
-    // { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
-    { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
-    { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
-    { label: 'Artículos', icon: 'pi pi-clipboard', route: '/articulos' },
-    { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' }
+    { label: 'Dashboard', icon: 'monitoring', route: '/' },
+    { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
+    { label: 'Almacén', icon: 'warehouse', route: '/productos' },
+    { label: 'Docs', icon: 'description', route: '/docgenerator' },
+    { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
+    // { label: 'Ventas', icon: 'payments', route: '/not-found' },
   ];
 
   // Contextos por ruta
@@ -55,60 +56,60 @@ export class AppSidebar {
       title: 'Acciones rápidas',
       placeholder: '¿Qué necesitas saber hoy?',
       actions: [
-        { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
-        { label: 'Ver resumen', icon: 'pi pi-eye', action: 'Mostrar resumen general' },
-        { label: 'Análisis ventas', icon: 'pi pi-chart-bar', action: 'Análisis de ventas' },
-        { label: 'Estadísticas', icon: 'pi pi-chart-pie', action: 'Ver estadísticas generales' }
+        { label: 'Generar informe', icon: 'analytics', action: 'Generar informe del dashboard' },
+        { label: 'Ver resumen', icon: 'visibility', action: 'Mostrar resumen general' },
+        { label: 'Análisis ventas', icon: 'bar_chart', action: 'Análisis de ventas' },
+        { label: 'Estadísticas', icon: 'pie_chart', action: 'Ver estadísticas generales' }
       ]
     },
     '/facturas': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus facturas...',
       actions: [
-        { label: 'Subir factura', icon: 'pi pi-upload', action: 'Subir factura' },
-        { label: 'Informe compras', icon: 'pi pi-chart-bar', action: 'Informe de compras' },
-        { label: 'Buscar factura', icon: 'pi pi-search', action: 'Buscar una factura' },
-        { label: 'Exportar datos', icon: 'pi pi-download', action: 'Exportar facturas' }
+        { label: 'Subir factura', icon: 'upload', action: 'Subir factura' },
+        { label: 'Informe compras', icon: 'bar_chart', action: 'Informe de compras' },
+        { label: 'Buscar factura', icon: 'search', action: 'Buscar una factura' },
+        { label: 'Exportar datos', icon: 'download', action: 'Exportar facturas' }
       ]
     },
     '/proveedores': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus proveedores...',
       actions: [
-        { label: 'Nuevo proveedor', icon: 'pi pi-plus', action: 'Agregar nuevo proveedor' },
-        { label: 'Análisis', icon: 'pi pi-chart-pie', action: 'Análisis de proveedores' },
-        { label: 'Comparar precios', icon: 'pi pi-dollar', action: 'Comparar precios de proveedores' },
-        { label: 'Contactos', icon: 'pi pi-users', action: 'Ver contactos de proveedores' }
+        { label: 'Nuevo proveedor', icon: 'add', action: 'Agregar nuevo proveedor' },
+        { label: 'Análisis', icon: 'pie_chart', action: 'Análisis de proveedores' },
+        { label: 'Comparar precios', icon: 'attach_money', action: 'Comparar precios de proveedores' },
+        { label: 'Contactos', icon: 'group', action: 'Ver contactos de proveedores' }
       ]
     },
     '/productos': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus productos...',
       actions: [
-        { label: 'Nuevo producto', icon: 'pi pi-plus', action: 'Agregar nuevo producto' },
-        { label: 'Stock bajo', icon: 'pi pi-exclamation-triangle', action: 'Ver productos con stock bajo' },
-        { label: 'Actualizar precios', icon: 'pi pi-refresh', action: 'Actualizar precios de productos' },
-        { label: 'Categorías', icon: 'pi pi-tags', action: 'Gestionar categorías' }
+        { label: 'Nuevo producto', icon: 'add', action: 'Agregar nuevo producto' },
+        { label: 'Stock bajo', icon: 'warning', action: 'Ver productos con stock bajo' },
+        { label: 'Actualizar precios', icon: 'sync', action: 'Actualizar precios de productos' },
+        { label: 'Categorías', icon: 'label', action: 'Gestionar categorías' }
       ]
     },
     '/recetas': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus recetas...',
       actions: [
-        { label: 'Crear receta', icon: 'pi pi-plus', action: 'Crear nueva receta' },
-        { label: 'Costeo', icon: 'pi pi-calculator', action: 'Análisis de costeo de recetas' },
-        { label: 'Ingredientes', icon: 'pi pi-list', action: 'Ver ingredientes disponibles' },
-        { label: 'Rentabilidad', icon: 'pi pi-percentage', action: 'Análisis de rentabilidad' }
+        { label: 'Crear receta', icon: 'add', action: 'Crear nueva receta' },
+        { label: 'Costeo', icon: 'calculate', action: 'Análisis de costeo de recetas' },
+        { label: 'Ingredientes', icon: 'list', action: 'Ver ingredientes disponibles' },
+        { label: 'Rentabilidad', icon: 'percent', action: 'Análisis de rentabilidad' }
       ]
     },
     '/docgenerator': {
       title: 'Acciones rápidas',
       placeholder: 'Genera documentos...',
       actions: [
-        { label: 'Nuevo documento', icon: 'pi pi-file-plus', action: 'Generar nuevo documento' },
-        { label: 'Plantillas', icon: 'pi pi-clone', action: 'Ver plantillas disponibles' },
-        { label: 'Mis documentos', icon: 'pi pi-folder', action: 'Ver mis documentos' },
-        { label: 'Compartir', icon: 'pi pi-share-alt', action: 'Compartir documento' }
+        { label: 'Nuevo documento', icon: 'note_add', action: 'Generar nuevo documento' },
+        { label: 'Plantillas', icon: 'content_copy', action: 'Ver plantillas disponibles' },
+        { label: 'Mis documentos', icon: 'folder', action: 'Ver mis documentos' },
+        { label: 'Compartir', icon: 'share', action: 'Compartir documento' }
       ]
     }
   };

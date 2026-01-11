@@ -23,8 +23,8 @@
                         <div class="flex items-center gap-3">
                             <div class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
                                 [ngClass]="view() === 'invoices' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
-                                <i class="pi pi-receipt text-maingoo-sage"
-                                    [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'"></i>
+                                <span class="material-symbols-outlined text-maingoo-sage"
+                                    [ngClass]="view() === 'invoices' ? 'text-xl' : 'text-2xl'">receipt_long</span>
                             </div>
                             <h3 class="font-bold text-maingoo-deep m-0"
                                 [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">Facturas y albaranes</h3>
@@ -42,7 +42,7 @@
                     <div
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-thermometer text-gray-400 text-2xl"></i>
+                            <span class="material-symbols-outlined text-gray-400 text-2xl">thermostat</span>
                             <h3 class="font-semibold text-gray-400 m-0 text-base">Control Temperaturas</h3>
                         </div>
                         <p class="text-xs text-gray-400 m-0">Próximamente</p>
@@ -52,7 +52,7 @@
                     <div
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-shield text-gray-400 text-2xl"></i>
+                            <span class="material-symbols-outlined text-gray-400 text-2xl">shield</span>
                             <h3 class="font-semibold text-gray-400 m-0 text-base">APPCC</h3>
                         </div>
                         <p class="text-xs text-gray-400 m-0">Próximamente</p>
@@ -62,7 +62,7 @@
                     <div
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-users text-gray-400 text-2xl"></i>
+                            <span class="material-symbols-outlined text-gray-400 text-2xl">group</span>
                             <h3 class="font-semibold text-gray-400 m-0 text-base">RRHH</h3>
                         </div>
                         <p class="text-xs text-gray-400 m-0">Próximamente</p>
@@ -71,7 +71,7 @@
                     <div
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center justify-center text-center opacity-60 gap-3 min-h-[180px] h-auto">
                         <div class="flex items-center gap-3">
-                            <i class="pi pi-file text-gray-400 text-2xl"></i>
+                            <span class="material-symbols-outlined text-gray-400 text-2xl">description</span>
                             <h3 class="font-semibold text-gray-400 m-0 text-base">Otros Documentos</h3>
                         </div>
                         <p class="text-xs text-gray-400 m-0">Próximamente</p>
@@ -88,7 +88,7 @@
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
                                 [ngClass]="view() === 'invoices' ? 'bg-white' : '/30'">
-                                <i class="pi pi-receipt text-maingoo-sage text-xl"></i>
+                                <span class="material-symbols-outlined text-maingoo-sage text-xl">receipt_long</span>
                             </div>
                             <div class="flex flex-col">
                                 <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas y albaranes</h3>
@@ -96,8 +96,8 @@
                                 </p>
                             </div>
                         </div>
-                        <i
-                            class="pi pi-chevron-right text-gray-400 group-hover:text-maingoo-sage transition-colors"></i>
+                        <span
+                            class="material-symbols-outlined text-gray-400 group-hover:text-maingoo-sage transition-colors">chevron_right</span>
                     </div>
 
                     <!-- Placeholders List Items -->
@@ -105,7 +105,7 @@
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 flex items-center justify-center">
-                                <i class="pi pi-thermometer text-gray-400 text-xl"></i>
+                                <span class="material-symbols-outlined text-gray-400 text-xl">thermostat</span>
                             </div>
                             <div class="flex flex-col">
                                 <h3 class="font-semibold text-gray-400 text-base m-0">Control Temperaturas</h3>
@@ -118,7 +118,7 @@
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 flex items-center justify-center">
-                                <i class="pi pi-shield text-gray-400 text-xl"></i>
+                                <span class="material-symbols-outlined text-gray-400 text-xl">shield</span>
                             </div>
                             <div class="flex flex-col">
                                 <h3 class="font-semibold text-gray-400 text-base m-0">APPCC</h3>
@@ -131,7 +131,7 @@
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 flex items-center justify-center">
-                                <i class="pi pi-users text-gray-400 text-xl"></i>
+                                <span class="material-symbols-outlined text-gray-400 text-xl">group</span>
                             </div>
                             <div class="flex flex-col">
                                 <h3 class="font-semibold text-gray-400 text-base m-0">RRHH</h3>
@@ -144,7 +144,7 @@
                         class="bg-white rounded-xl border border-dashed border-gray-300 p-4 flex items-center justify-between opacity-60">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 flex items-center justify-center">
-                                <i class="pi pi-file text-gray-400 text-xl"></i>
+                                <span class="material-symbols-outlined text-gray-400 text-xl">description</span>
                             </div>
                             <div class="flex flex-col">
                                 <h3 class="font-semibold text-gray-400 text-base m-0">Otros Documentos</h3>
@@ -168,7 +168,7 @@
                         <div class="flex items-center gap-3">
                             <div
                                 class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
-                                <i class="pi pi-receipt text-xl"></i>
+                                <span class="material-symbols-outlined text-xl">receipt_long</span>
                             </div>
                             <div>
                                 <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas</h2>
@@ -177,16 +177,18 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <button pButton label="Subir" icon="pi pi-plus" class="p-button-sm p-button-primary"
+                            <button pButton label="Subir" class="p-button-sm p-button-primary"
                                 (click)="openAddInvoiceModal()">
+                                <span class="material-symbols-outlined text-sm">add</span>
                             </button>
-                            <button pButton icon="pi pi-trash" class="p-button-sm p-button-danger p-button-outlined"
+                            <button pButton class="p-button-sm p-button-danger p-button-outlined"
                                 pTooltip="Borrar todas las facturas" tooltipPosition="bottom"
                                 [disabled]="invoices().length === 0" (click)="confirmarBorrarTodas()">
+                                <span class="material-symbols-outlined">delete</span>
                             </button>
                             <button (click)="setView('hub')"
                                 class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
-                                <i class="pi pi-times text-xl"></i>
+                                <span class="material-symbols-outlined text-xl">close</span>
                             </button>
                         </div>
                     </div>
@@ -195,7 +197,8 @@
                     <div class="flex-1 overflow-auto p-0 bg-white relative">
                         <div *ngIf="invoices().length === 0 && !loading()"
                             class="flex flex-col items-center justify-center h-full text-center p-8">
-                            <i class="pi pi-inbox text-gray-300 mb-4" style="font-size: 4rem"></i>
+                            <span class="material-symbols-outlined text-gray-300 mb-4"
+                                style="font-size: 4rem">inbox</span>
                             <h3 class="text-lg font-semibold text-gray-700">No hay facturas</h3>
                             <p class="text-gray-500 text-sm">Registra tu primera factura para verla aquí.</p>
                         </div>
@@ -217,8 +220,9 @@
                                             <span class="text-sm text-gray-500 font-medium">{{ yearGroup.total |
                                                 currency:'EUR' }}</span>
                                         </div>
-                                        <i class="pi pi-chevron-down text-gray-400 transition-transform duration-300"
-                                            [ngClass]="{'rotate-180': yearGroup.expanded}"></i>
+                                        <span
+                                            class="material-symbols-outlined text-gray-400 transition-transform duration-300"
+                                            [ngClass]="{'rotate-180': yearGroup.expanded}">expand_more</span>
                                     </div>
 
                                     <!-- Quarters List -->
@@ -230,15 +234,17 @@
                                             <div (click)="toggleGroup(quarter)"
                                                 class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50/80 transition-colors select-none pl-8 bg-white">
                                                 <div class="flex items-center gap-2">
-                                                    <i class="pi pi-calendar text-maingoo-sage text-xs"></i>
+                                                    <span
+                                                        class="material-symbols-outlined text-maingoo-sage text-xs">calendar_month</span>
                                                     <span class="text-sm font-semibold text-maingoo-deep">{{
                                                         quarter.name }}</span>
                                                 </div>
                                                 <div class="flex items-center gap-3">
                                                     <span class="text-xs text-gray-400 font-medium">{{ quarter.total |
                                                         currency:'EUR' }}</span>
-                                                    <i class="pi pi-chevron-down text-gray-300 text-xs transition-transform duration-300"
-                                                        [ngClass]="{'rotate-180': quarter.expanded}"></i>
+                                                    <span
+                                                        class="material-symbols-outlined text-gray-300 text-xs transition-transform duration-300"
+                                                        [ngClass]="{'rotate-180': quarter.expanded}">expand_more</span>
                                                 </div>
                                             </div>
 
@@ -252,7 +258,8 @@
                                                         <div (click)="toggleGroup(supplier)"
                                                             class="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors select-none">
                                                             <div class="flex items-center gap-2">
-                                                                <i class="pi pi-truck text-maingoo-sage/70 text-sm"></i>
+                                                                <span
+                                                                    class="material-symbols-outlined text-maingoo-sage/70 text-sm">local_shipping</span>
                                                                 <span class="text-sm font-medium text-maingoo-deep">{{
                                                                     supplier.supplierName }}</span>
                                                                 <span
@@ -263,8 +270,9 @@
                                                             <div class="flex items-center gap-2">
                                                                 <span class="text-xs font-bold text-maingoo-deep">{{
                                                                     supplier.total | currency:'EUR' }}</span>
-                                                                <i class="pi pi-chevron-down text-gray-300 text-[10px] transition-transform duration-300"
-                                                                    [ngClass]="{'rotate-180': supplier.expanded}"></i>
+                                                                <span
+                                                                    class="material-symbols-outlined text-gray-300 text-[10px] transition-transform duration-300"
+                                                                    [ngClass]="{'rotate-180': supplier.expanded}">expand_more</span>
                                                             </div>
                                                         </div>
 
@@ -293,12 +301,18 @@
                                                                     </span>
                                                                     <div
                                                                         class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                        <button pButton icon="pi pi-eye"
+                                                                        <button pButton
                                                                             class="p-button-text p-button-rounded p-button-secondary w-6 h-6 !p-0"
-                                                                            (click)="verDetalle(invoice); $event.stopPropagation()"></button>
-                                                                        <button pButton icon="pi pi-trash"
+                                                                            (click)="verDetalle(invoice); $event.stopPropagation()">
+                                                                            <span
+                                                                                class="material-symbols-outlined text-sm">visibility</span>
+                                                                        </button>
+                                                                        <button pButton
                                                                             class="p-button-text p-button-rounded p-button-danger w-6 h-6 !p-0"
-                                                                            (click)="confirmarEliminacion(invoice); $event.stopPropagation()"></button>
+                                                                            (click)="confirmarEliminacion(invoice); $event.stopPropagation()">
+                                                                            <span
+                                                                                class="material-symbols-outlined text-sm">delete</span>
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -324,7 +338,7 @@
 
     <div class="flex flex-col gap-4">
         <div class="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
-            <i class="pi pi-exclamation-triangle text-red-500 text-2xl"></i>
+            <span class="material-symbols-outlined text-red-500 text-2xl">warning</span>
             <div>
                 <p class="text-red-700 font-medium m-0">Esta acción es irreversible</p>
                 <p class="text-red-600 text-sm m-0">Se eliminarán permanentemente {{ invoices().length }} facturas.</p>
@@ -345,8 +359,9 @@
         <div class="flex justify-end gap-2">
             <button pButton label="Cancelar" class="p-button-text p-button-secondary" (click)="cancelarVerificacion()">
             </button>
-            <button pButton label="Eliminar todas" icon="pi pi-trash" class="p-button-danger"
+            <button pButton label="Eliminar todas" class="p-button-danger"
                 [disabled]="deleteVerificationText() !== 'Borrar Facturas'" (click)="verificarYBorrar()">
+                <span class="material-symbols-outlined">delete</span>
             </button>
         </div>
     </ng-template>

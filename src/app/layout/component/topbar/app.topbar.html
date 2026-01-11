@@ -25,7 +25,7 @@
         class="flex md:hidden items-center justify-center hover:scale-105 transition-all duration-200 text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86]"
         aria-label="Abrir menú" pTooltip="Menú" tooltipPosition="bottom" [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-bars text-base sm:text-lg"></i>
+        <span class="material-symbols-outlined text-base sm:text-lg">menu</span>
       </button>
 
       <!-- Botón hamburguesa para escritorio - abre/cierra sidebar del chat -->
@@ -33,7 +33,7 @@
         class="hidden md:flex items-center justify-center hover:scale-105 transition-all duration-200 text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86]"
         aria-label="Abrir menú" pTooltip="Menú" tooltipPosition="bottom" [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-bars text-xl"></i>
+        <span class="material-symbols-outlined text-xl">menu</span>
       </button>
 
       <!-- Menú desplegable móvil -->
@@ -42,14 +42,14 @@
         <!-- Perfil -->
         <button type="button" routerLink="/miperfil" (click)="toggleMobileMenu()"
           class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-          <i class="pi pi-user text-base"></i>
+          <span class="material-symbols-outlined text-base">person</span>
           <span class="text-sm font-medium">Mi perfil</span>
         </button>
 
         <!-- Configuración -->
         <button type="button" (click)="openSettings(); toggleMobileMenu()"
           class="w-full px-4 py-3 text-left text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-          <i class="pi pi-cog text-base"></i>
+          <span class="material-symbols-outlined text-base">settings</span>
           <span class="text-sm font-medium">Configuración</span>
         </button>
 
@@ -67,7 +67,7 @@
         class="relative text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
         aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom" [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-bell text-base sm:text-lg md:text-xl"></i>
+        <span class="material-symbols-outlined text-base sm:text-lg md:text-xl">notifications</span>
         <!-- Indicador de notificaciones no leídas -->
         @if (hasUnreadNotifications) {
         <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
@@ -79,7 +79,7 @@
         class="text-[#1A3C34] dark:text-surface-0 hover:text-[#6B9E86] dark:hover:text-[#6B9E86] hover:scale-105 transition-all duration-200"
         aria-label="Mi perfil" pTooltip="Mi perfil" tooltipPosition="bottom" [showDelay]="250"
         tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <i class="pi pi-user text-base sm:text-lg md:text-xl"></i>
+        <span class="material-symbols-outlined text-base sm:text-lg md:text-xl">person</span>
       </button>
     </div>
   </div>

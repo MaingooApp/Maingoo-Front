@@ -1,27 +1,15 @@
 <!-- Backdrop oscuro (solo visible en estado expanded) -->
-<div 
-  class="bottom-sheet-backdrop" 
-  [class.active]="isDarkOverlay" 
-  (click)="onBackdropClick()"
-  role="presentation"
+<div class="bottom-sheet-backdrop" [class.active]="isDarkOverlay" (click)="onBackdropClick()" role="presentation"
   [attr.aria-hidden]="!isDarkOverlay"></div>
 
 <!-- Contenedor del Bottom Sheet -->
-<div
-  #sheetContainer
-  class="bottom-sheet-container"
-  [class.compact]="isCompact"
-  [class.medium]="isMedium"
-  [class.expanded]="isExpanded"
-  [style.height]="sheetHeight"
-  (touchstart)="onTouchStart($event)"
-  (touchmove)="onTouchMove($event)"
-  (touchend)="onTouchEnd($event)"
-  role="dialog"
-  [attr.aria-modal]="isExpanded"
+<div #sheetContainer class="bottom-sheet-container" [class.compact]="isCompact" [class.medium]="isMedium"
+  [class.expanded]="isExpanded" [style.height]="sheetHeight" (touchstart)="onTouchStart($event)"
+  (touchmove)="onTouchMove($event)" (touchend)="onTouchEnd($event)" role="dialog" [attr.aria-modal]="isExpanded"
   [attr.aria-label]="currentContext.title">
   <!-- Handle / Drag Indicator -->
-  <div class="sheet-handle" (click)="onHeaderClick($event)" role="button" tabindex="0" aria-label="Cambiar estado del panel">
+  <div class="sheet-handle" (click)="onHeaderClick($event)" role="button" tabindex="0"
+    aria-label="Cambiar estado del panel">
     <div class="handle-bar"></div>
   </div>
 
@@ -40,11 +28,8 @@
         <!-- Chips de navegación en grid 3x2 -->
         <div class="mb-3">
           <div class="grid grid-cols-3 gap-2">
-            <button
-              *ngFor="let link of quickLinks"
-              (click)="navigateTo(link.route, $event)"
-              [attr.aria-label]="'Navegar a ' + link.label"
-              type="button"
+            <button *ngFor="let link of quickLinks" (click)="navigateTo(link.route, $event)"
+              [attr.aria-label]="'Navegar a ' + link.label" type="button"
               class="flex items-center justify-center gap-2 px-3 py-3 bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 rounded-full border-0 shadow-[0_2px_8px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_4px_12px_rgba(26,60,52,0.1)] transition-all duration-200 cursor-pointer">
               <i [class]="link.icon + ' text-lg'" aria-hidden="true"></i>
               <span class="text-sm font-medium whitespace-nowrap">{{ link.label }}</span>
@@ -61,11 +46,8 @@
         <!-- Acciones rápidas contextuales -->
         <div class="mb-3">
           <div class="grid grid-cols-2 gap-2">
-            <button
-              *ngFor="let action of currentContext.actions"
-              (click)="handleQuickAction(action.action)"
-              [attr.aria-label]="action.label"
-              type="button"
+            <button *ngFor="let action of currentContext.actions" (click)="handleQuickAction(action.action)"
+              [attr.aria-label]="action.label" type="button"
               class="px-3 py-3 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-sm font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center justify-center gap-2 text-center">
               <i [class]="action.icon + ' text-base'" aria-hidden="true"></i>
               <span class="truncate">{{ action.label }}</span>
@@ -76,21 +58,13 @@
 
       <!-- Input fijo en la parte inferior -->
       <div class="input-container-medium" (click)="$event.stopPropagation()">
-        <input
-          #mediumInput
-          type="text"
-          [placeholder]="currentContext.placeholder"
+        <input #mediumInput type="text" [placeholder]="currentContext.placeholder"
           [attr.aria-label]="currentContext.placeholder"
           class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-800 dark:text-surface-0 rounded-full shadow-sm focus:shadow-md transition-all"
-          (focus)="onInputFocus()"
-          (keydown.enter)="sendMessage(mediumInput)" />
-        <button
-          (click)="sendMessage(mediumInput)"
-          [disabled]="isTyping"
-          type="button"
-          aria-label="Enviar mensaje"
+          (focus)="onInputFocus()" (keydown.enter)="sendMessage(mediumInput)" />
+        <button (click)="sendMessage(mediumInput)" [disabled]="isTyping" type="button" aria-label="Enviar mensaje"
           class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm" aria-hidden="true"></i>
+          <span class="material-symbols-outlined text-white dark:text-[#1A3C34] text-sm" aria-hidden="true">send</span>
         </button>
       </div>
     </div>
@@ -103,11 +77,8 @@
         <!-- Chips compactos en grid 3x2 -->
         <div class="mb-3">
           <div class="grid grid-cols-3 gap-2">
-            <button
-              *ngFor="let link of quickLinks"
-              (click)="navigateTo(link.route, $event)"
-              [attr.aria-label]="'Navegar a ' + link.label"
-              type="button"
+            <button *ngFor="let link of quickLinks" (click)="navigateTo(link.route, $event)"
+              [attr.aria-label]="'Navegar a ' + link.label" type="button"
               class="flex items-center justify-center gap-2 px-3 py-3 bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 rounded-full border-0 shadow-[0_2px_8px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_4px_12px_rgba(26,60,52,0.1)] transition-all duration-200 cursor-pointer">
               <i [class]="link.icon + ' text-lg'" aria-hidden="true"></i>
               <span class="text-sm font-medium whitespace-nowrap">{{ link.label }}</span>
@@ -124,11 +95,8 @@
 
       <div #messagesContainer class="chat-messages-full">
         <!-- Mensajes reales del chat -->
-        <div
-          *ngFor="let message of messages; trackBy: trackByMessageId"
-          class="message-wrapper"
-          [class.bot-wrapper]="message.sender === 'bot'"
-          [class.user-wrapper]="message.sender === 'user'">
+        <div *ngFor="let message of messages; trackBy: trackByMessageId" class="message-wrapper"
+          [class.bot-wrapper]="message.sender === 'bot'" [class.user-wrapper]="message.sender === 'user'">
           <!-- Mensaje del BOT -->
           <div *ngIf="message.sender === 'bot'" class="flex items-start space-x-2 mb-3 animate-[fadeIn_0.3s_ease-out]">
             <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
@@ -136,39 +104,38 @@
             </div>
             <div
               class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3"
-              role="article"
-              aria-label="Mensaje de Maingoo AI">
+              role="article" aria-label="Mensaje de Maingoo AI">
               <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
             </div>
           </div>
 
           <!-- Mensaje del USUARIO -->
-          <div
-            *ngIf="message.sender === 'user'"
+          <div *ngIf="message.sender === 'user'"
             class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
-            <div
-              class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3"
-              role="article"
-              aria-label="Tu mensaje">
+            <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3"
+              role="article" aria-label="Tu mensaje">
               <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
             </div>
             <div
               class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
-              <i class="pi pi-user text-white text-xs" aria-hidden="true"></i>
+              <span class="material-symbols-outlined text-white text-xs" aria-hidden="true">person</span>
             </div>
           </div>
         </div>
 
         <!-- Indicador de escritura -->
-        <div class="flex items-start space-x-2 mb-3" *ngIf="isTyping" role="status" aria-live="polite" aria-label="Maingoo está escribiendo">
+        <div class="flex items-start space-x-2 mb-3" *ngIf="isTyping" role="status" aria-live="polite"
+          aria-label="Maingoo está escribiendo">
           <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
             <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
           </div>
           <div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
             <div class="flex space-x-1">
               <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce" aria-hidden="true"></div>
-              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]" aria-hidden="true"></div>
-              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]" aria-hidden="true"></div>
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]" aria-hidden="true">
+              </div>
+              <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.2s]" aria-hidden="true">
+              </div>
             </div>
           </div>
         </div>
@@ -177,11 +144,8 @@
       <!-- Acciones rápidas contextuales -->
       <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
         <div class="grid grid-cols-2 gap-2">
-          <button
-            *ngFor="let action of currentContext.actions"
-            (click)="handleQuickAction(action.action)"
-            [attr.aria-label]="action.label"
-            type="button"
+          <button *ngFor="let action of currentContext.actions" (click)="handleQuickAction(action.action)"
+            [attr.aria-label]="action.label" type="button"
             class="px-3 py-3 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-sm font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center justify-center gap-2 text-center">
             <i [class]="action.icon + ' text-base'" aria-hidden="true"></i>
             <span class="truncate">{{ action.label }}</span>
@@ -191,22 +155,14 @@
 
       <div class="input-container-full-sidebar">
         <button class="attach-button" type="button" aria-label="Adjuntar archivo">
-          <i class="pi pi-paperclip" aria-hidden="true"></i>
+          <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
         </button>
-        <input
-          #expandedInput
-          type="text"
-          placeholder="Escribe tu mensaje..."
-          aria-label="Escribe tu mensaje"
+        <input #expandedInput type="text" placeholder="Escribe tu mensaje..." aria-label="Escribe tu mensaje"
           class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-800 dark:text-surface-0 rounded-full shadow-sm focus:shadow-md transition-all"
           (keydown.enter)="sendMessage(expandedInput)" />
-        <button
-          (click)="sendMessage(expandedInput)"
-          [disabled]="isTyping"
-          type="button"
-          aria-label="Enviar mensaje"
+        <button (click)="sendMessage(expandedInput)" [disabled]="isTyping" type="button" aria-label="Enviar mensaje"
           class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="pi pi-send text-white dark:text-[#1A3C34] text-sm" aria-hidden="true"></i>
+          <span class="material-symbols-outlined text-white dark:text-[#1A3C34] text-sm" aria-hidden="true">send</span>
         </button>
       </div>
     </div>

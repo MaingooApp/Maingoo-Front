@@ -27,12 +27,7 @@
       <!-- Email -->
       <div class="flex flex-col gap-2">
         <label for="email">Email *</label>
-        <input
-          pInputText
-          id="email"
-          type="email"
-          formControlName="email"
-          class="w-full"
+        <input pInputText id="email" type="email" formControlName="email" class="w-full"
           placeholder="empresa@ejemplo.com" />
         <small *ngIf="perfilForm.get('email')?.invalid && perfilForm.get('email')?.touched" class="text-red-500">
           Email inválido o requerido.
@@ -53,12 +48,7 @@
       <!-- Dirección -->
       <div class="flex flex-col gap-2 md:col-span-2">
         <label for="address">Dirección *</label>
-        <input
-          pInputText
-          id="address"
-          type="text"
-          formControlName="address"
-          class="w-full"
+        <input pInputText id="address" type="text" formControlName="address" class="w-full"
           placeholder="Calle Ejemplo 123" />
         <small *ngIf="perfilForm.get('address')?.invalid && perfilForm.get('address')?.touched" class="text-red-500">
           La dirección es obligatoria.
@@ -78,8 +68,7 @@
       <div class="flex flex-col gap-2">
         <label for="postalCode">Código postal *</label>
         <input pInputText id="postalCode" type="text" formControlName="postalCode" class="w-full" placeholder="28001" />
-        <small
-          *ngIf="perfilForm.get('postalCode')?.invalid && perfilForm.get('postalCode')?.touched"
+        <small *ngIf="perfilForm.get('postalCode')?.invalid && perfilForm.get('postalCode')?.touched"
           class="text-red-500">
           El código postal es obligatorio.
         </small>
@@ -97,12 +86,7 @@
       <!-- IBAN -->
       <div class="flex flex-col gap-2">
         <label for="iban">Número de cuenta (IBAN)</label>
-        <input
-          pInputText
-          id="iban"
-          type="text"
-          formControlName="iban"
-          class="w-full"
+        <input pInputText id="iban" type="text" formControlName="iban" class="w-full"
           placeholder="ES00 0000 0000 0000 0000 0000" />
       </div>
     </div>
@@ -115,27 +99,15 @@
       <div class="flex flex-col gap-2">
         <label for="firstPhone">Teléfono principal *</label>
         <div class="flex gap-2">
-          <input
-            pInputText
-            id="firstPhonePrefix"
-            type="text"
-            formControlName="firstPhonePrefix"
-            class="w-20"
+          <input pInputText id="firstPhonePrefix" type="text" formControlName="firstPhonePrefix" class="w-20"
             placeholder="+34" />
-          <input
-            pInputText
-            id="firstPhoneNumber"
-            type="text"
-            formControlName="firstPhoneNumber"
-            class="flex-1"
+          <input pInputText id="firstPhoneNumber" type="text" formControlName="firstPhoneNumber" class="flex-1"
             placeholder="612345678" />
         </div>
-        <small
-          *ngIf="
+        <small *ngIf="
             (perfilForm.get('firstPhonePrefix')?.invalid || perfilForm.get('firstPhoneNumber')?.invalid) &&
             (perfilForm.get('firstPhonePrefix')?.touched || perfilForm.get('firstPhoneNumber')?.touched)
-          "
-          class="text-red-500">
+          " class="text-red-500">
           El teléfono principal es obligatorio.
         </small>
       </div>
@@ -144,19 +116,9 @@
       <div class="flex flex-col gap-2">
         <label for="secondPhone">Teléfono secundario</label>
         <div class="flex gap-2">
-          <input
-            pInputText
-            id="secondPhonePrefix"
-            type="text"
-            formControlName="secondPhonePrefix"
-            class="w-20"
+          <input pInputText id="secondPhonePrefix" type="text" formControlName="secondPhonePrefix" class="w-20"
             placeholder="+34" />
-          <input
-            pInputText
-            id="secondPhoneNumber"
-            type="text"
-            formControlName="secondPhoneNumber"
-            class="flex-1"
+          <input pInputText id="secondPhoneNumber" type="text" formControlName="secondPhoneNumber" class="flex-1"
             placeholder="612345678" />
         </div>
       </div>
@@ -164,7 +126,9 @@
 
     <!-- Botón de guardar -->
     <div class="flex justify-end gap-4 pt-6">
-      <button pButton type="submit" label="Guardar cambios" icon="pi pi-save" [disabled]="perfilForm.invalid"></button>
+      <button pButton type="submit" label="Guardar cambios" [disabled]="perfilForm.invalid">
+        <span class="material-symbols-outlined">save</span>
+      </button>
     </div>
   </div>
 </form>
@@ -184,18 +148,11 @@
           <!-- Contraseña actual -->
           <div class="flex flex-col gap-2">
             <label for="currentPassword" class="font-medium">Contraseña actual *</label>
-            <p-password
-              id="currentPassword"
-              formControlName="currentPassword"
-              placeholder="••••••••"
-              [toggleMask]="true"
-              [feedback]="false"
-              styleClass="w-full"
-              inputStyleClass="w-full" />
-            <small
-              *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+            <p-password id="currentPassword" formControlName="currentPassword" placeholder="••••••••"
+              [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
+            <small *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
               class="text-red-500">
-              <i class="pi pi-exclamation-circle mr-1"></i>
+              <span class="material-symbols-outlined mr-1">error</span>
               La contraseña actual es obligatoria
             </small>
           </div>
@@ -206,11 +163,9 @@
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <label for="newPassword" class="font-medium">Nueva contraseña *</label>
-              <button
-                type="button"
-                class="text-sm text-primary hover:underline flex items-center gap-1"
+              <button type="button" class="text-sm text-primary hover:underline flex items-center gap-1"
                 (click)="passwordHelpPopover.toggle($event)">
-                <i class="pi pi-info-circle"></i>
+                <span class="material-symbols-outlined">info</span>
                 Requisitos
               </button>
             </div>
@@ -220,93 +175,67 @@
                 <p class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Requisitos de contraseña:</p>
                 <div class="space-y-2 text-sm">
                   <div class="flex items-start gap-2">
-                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
                     <span>Mínimo 8 caracteres</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
                     <span>Al menos 1 letra mayúscula (A-Z)</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
                     <span>Al menos 1 letra minúscula (a-z)</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
                     <span>Al menos 1 número (0-9)</span>
                   </div>
                   <div class="flex items-start gap-2">
-                    <i class="pi pi-check-circle text-green-500 mt-0.5"></i>
+                    <span class="material-symbols-outlined text-green-500 mt-0.5">check_circle</span>
                     <span>Al menos 1 carácter especial</span>
                   </div>
                 </div>
               </div>
             </p-popover>
 
-            <p-password
-              id="newPassword"
-              formControlName="newPassword"
-              placeholder="••••••••"
-              [toggleMask]="true"
-              [feedback]="false"
-              styleClass="w-full"
-              inputStyleClass="w-full" />
+            <p-password id="newPassword" formControlName="newPassword" placeholder="••••••••" [toggleMask]="true"
+              [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
 
-            <small
-              *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
+            <small *ngIf="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched"
               class="text-red-500">
               <i class="pi pi-exclamation-circle mr-1"></i>
-              <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']"
-                >La nueva contraseña es obligatoria</span
-              >
-              <span *ngIf="passwordForm.get('newPassword')?.errors?.['passwordPolicy']"
-                >La contraseña no cumple con los requisitos de seguridad</span
-              >
+              <span *ngIf="passwordForm.get('newPassword')?.errors?.['required']">La nueva contraseña es
+                obligatoria</span>
+              <span *ngIf="passwordForm.get('newPassword')?.errors?.['passwordPolicy']">La contraseña no cumple con los
+                requisitos de seguridad</span>
             </small>
           </div>
 
           <!-- Confirmar nueva contraseña -->
           <div class="flex flex-col gap-2">
             <label for="confirmPassword" class="font-medium">Confirmar nueva contraseña *</label>
-            <p-password
-              id="confirmPassword"
-              formControlName="confirmPassword"
-              placeholder="••••••••"
-              [toggleMask]="true"
-              [feedback]="false"
-              styleClass="w-full"
-              inputStyleClass="w-full" />
+            <p-password id="confirmPassword" formControlName="confirmPassword" placeholder="••••••••"
+              [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
 
-            <small
-              *ngIf="
+            <small *ngIf="
                 (passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched) ||
                 (passwordForm.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched)
-              "
-              class="text-red-500">
+              " class="text-red-500">
               <i class="pi pi-exclamation-circle mr-1"></i>
-              <span *ngIf="passwordForm.get('confirmPassword')?.errors?.['required']"
-                >Debes confirmar la nueva contraseña</span
-              >
-              <span
-                *ngIf="
+              <span *ngIf="passwordForm.get('confirmPassword')?.errors?.['required']">Debes confirmar la nueva
+                contraseña</span>
+              <span *ngIf="
                   passwordForm.errors?.['passwordMismatch'] &&
                   !passwordForm.get('confirmPassword')?.errors?.['required']
-                "
-                >Las contraseñas no coinciden</span
-              >
+                ">Las contraseñas no coinciden</span>
             </small>
           </div>
         </div>
 
         <!-- Botón de cambiar contraseña -->
         <div class="flex justify-end mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
-          <button
-            pButton
-            type="submit"
-            label="Actualizar contraseña"
-            icon="pi pi-shield"
-            [disabled]="passwordForm.invalid"
-            class="p-button-success"></button>
+          <button pButton type="submit" label="Actualizar contraseña" icon="pi pi-shield"
+            [disabled]="passwordForm.invalid" class="p-button-success"></button>
         </div>
       </form>
     </p-tabPanel>
@@ -314,7 +243,7 @@
     <!-- Pestaña: Cambiar email (preparado para futuro) -->
     <p-tabPanel header="Cambiar email">
       <div class="flex flex-col items-center justify-center p-8 text-center">
-        <i class="pi pi-envelope text-6xl text-surface-300 dark:text-surface-600 mb-4"></i>
+        <span class="material-symbols-outlined text-6xl text-surface-300 dark:text-surface-600 mb-4">mail</span>
         <h3 class="text-xl font-semibold text-surface-700 dark:text-surface-300 mb-2">Próximamente</h3>
         <p class="text-surface-600 dark:text-surface-400 max-w-md">
           La funcionalidad para cambiar el email estará disponible próximamente.
