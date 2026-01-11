@@ -4,8 +4,9 @@
       (viewModeChange)="setViewMode($any($event))" [showViewSwitcher]="articles().length > 0"
       [showSearch]="hasInvoices">
       <div actions *ngIf="hasInvoices">
-        <button pButton label="Crear artículo" icon="pi pi-plus" severity="primary"
-          (click)="openCreateArticle()"></button>
+        <button pButton label="Crear artículo" severity="primary" (click)="openCreateArticle()">
+          <span class="material-symbols-outlined">add</span>
+        </button>
       </div>
     </app-section-header>
 
@@ -16,7 +17,7 @@
         class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-            <i class="pi pi-box text-xl"></i>
+            <span class="material-symbols-outlined text-xl">inventory_2</span>
           </div>
           <h3 class="font-semibold text-gray-800 truncate">{{ article.name }}</h3>
         </div>
@@ -38,13 +39,15 @@
             <td>
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                  <i class="pi pi-box"></i>
+                  <span class="material-symbols-outlined">inventory_2</span>
                 </div>
                 <span class="font-bold text-maingoo-deep">{{ article.name }}</span>
               </div>
             </td>
             <td>
-              <button pButton icon="pi pi-ellipsis-v" class="p-button-text p-button-rounded text-gray-400"></button>
+              <button pButton class="p-button-text p-button-rounded text-gray-400">
+                <span class="material-symbols-outlined">more_vert</span>
+              </button>
             </td>
           </tr>
         </ng-template>
