@@ -25,6 +25,9 @@ import { Subscription } from 'rxjs';
 // Importar BottomSheetService para controlar el bottom sheet en móvil
 import { BottomSheetService } from '../../service/bottom-sheet.service';
 
+// - EnterpriseService: para obtener datos de la empresa (nombre)
+import { EnterpriseService } from '../../../features/enterprise/services/enterprise.service';
+
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
   // Selector del componente usado en plantillas: <app-topbar></app-topbar>
@@ -48,6 +51,10 @@ export class AppTopbar implements OnInit, OnDestroy {
 
   // Lista de notificaciones
   notifications: any[] = [];
+
+  // Datos de la empresa
+  enterpriseName = '';
+  enterpriseType = '';
 
   // Estado del menú móvil
   isMobileMenuOpen = false;
@@ -77,7 +84,8 @@ export class AppTopbar implements OnInit, OnDestroy {
     private router: Router,
     private toastService: ToastService,
     private elementRef: ElementRef,
-    private bottomSheetService: BottomSheetService
+    private bottomSheetService: BottomSheetService,
+    private enterpriseService: EnterpriseService
   ) { }
 
   ngOnInit() {
@@ -91,6 +99,31 @@ export class AppTopbar implements OnInit, OnDestroy {
     this.notificationsListSubscription = this.toastService.notifications$.subscribe(notifications => {
       this.notifications = notifications;
     });
+
+    // Obtener información de la empresa
+    const enterpriseId = this.authService.getEnterpriseId();
+    if (enterpriseId) {
+      this.enterpriseService.getEnterpriseById(enterpriseId).subscribe({
+        next: (enterprise) => {
+          this.enterpriseName = enterprise.name;
+          this.enterpriseType = this.mapEnterpriseType(enterprise.type);
+        },
+        error: (err) => console.error('Error fetching enterprise details:', err)
+      });
+    }
+  }
+
+  /**
+   * Mapea el tipo de empresa a un nombre amigable
+   */
+  private mapEnterpriseType(type: string): string {
+    const typeMap: { [key: string]: string } = {
+      'RESTAURANT': 'Restaurante',
+      'CATERING': 'Catering',
+      'HOTEL': 'Hotel',
+      'OTHER': 'Otro'
+    };
+    return typeMap[type] || 'Negocio';
   }
 
   ngOnDestroy() {
