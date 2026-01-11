@@ -83,7 +83,7 @@ export class ProductDetailSidebarComponent {
       'LT': 'Lata',
       'CB': 'Cubo',
       'FR': 'Frasco',
-      'TA': 'Tarro',
+      'TR': 'Tarro',
       'SC': 'Saco',
       'RT': 'Retráctil',
       'BS': 'Blister',
