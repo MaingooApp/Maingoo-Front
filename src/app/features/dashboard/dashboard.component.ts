@@ -285,15 +285,7 @@ export class Dashboard implements OnInit {
       cutout: '60%',
       plugins: {
         legend: {
-          display: true,
-          position: 'bottom',
-          labels: {
-            usePointStyle: true,
-            padding: 12,
-            font: {
-              size: 11
-            }
-          }
+          display: false
         },
         tooltip: {
           callbacks: {
@@ -329,20 +321,8 @@ export class Dashboard implements OnInit {
     });
 
     // Convertir a array y ordenar por cantidad (descendente)
-    const sortedCategories = Array.from(categoryTotals.values())
+    const chartCategories = Array.from(categoryTotals.values())
       .sort((a, b) => b.count - a.count);
-
-    // Tomar los top 6 y agrupar el resto en "Otros"
-    const MAX_CATEGORIES = 6;
-    let chartCategories = sortedCategories.slice(0, MAX_CATEGORIES);
-
-    if (sortedCategories.length > MAX_CATEGORIES) {
-      const otrosCount = sortedCategories
-        .slice(MAX_CATEGORIES)
-        .reduce((sum, c) => sum + c.count, 0);
-
-      chartCategories.push({ name: 'Otros', count: otrosCount });
-    }
 
     // Calcular total
     this.productChartTotal = chartCategories.reduce((sum, c) => sum + c.count, 0);
@@ -350,12 +330,8 @@ export class Dashboard implements OnInit {
     // Generar datos del chart
     const labels = chartCategories.map(c => c.name);
     const data = chartCategories.map(c => c.count);
-    // Asignar colores: gris solo para "Otros", las demás categorías ciclan entre los otros colores
-    const colorsWithoutGray = this.CHART_COLORS.slice(0, -1); // Todos menos el gris
-    const grayColor = this.CHART_COLORS[this.CHART_COLORS.length - 1];
-    const colors = chartCategories.map((c, i) =>
-      c.name === 'Otros' ? grayColor : colorsWithoutGray[i % colorsWithoutGray.length]
-    );
+    // Asignar colores según el nombre de la categoría (igual que getCategoryStyle en productos)
+    const colors = chartCategories.map(c => this.getCategoryColor(c.name));
 
     this.productChartData = {
       labels: labels,
@@ -373,15 +349,7 @@ export class Dashboard implements OnInit {
       cutout: '60%',
       plugins: {
         legend: {
-          display: true,
-          position: 'bottom',
-          labels: {
-            usePointStyle: true,
-            padding: 12,
-            font: {
-              size: 11
-            }
-          }
+          display: false
         },
         tooltip: {
           callbacks: {
@@ -394,6 +362,47 @@ export class Dashboard implements OnInit {
       },
       maintainAspectRatio: false
     };
+  }
+
+  /**
+   * Obtiene el color de fondo para una categoría (igual que getCategoryStyle en productos)
+   */
+  private getCategoryColor(category: string): string {
+    switch (category.toLowerCase()) {
+      case 'verduras':
+        return '#4ade80';
+      case 'frutas':
+        return '#86efac';
+      case 'carnes':
+        return '#f87171';
+      case 'pescados y mariscos':
+        return '#2dd4bf';
+      case 'secos y granos':
+        return '#fbbf24';
+      case 'panadería':
+        return '#fb923c';
+      case 'conservas':
+        return '#fcd34d';
+      case 'aceites y condimentos':
+        return '#facc15';
+      case 'lácteos':
+      case 'lacteos':
+        return '#60a5fa';
+      case 'repostería y pastelería':
+        return '#f472b6';
+      case 'bebidas':
+        return '#22d3ee';
+      case 'limpieza':
+        return '#a78bfa';
+      case 'packaging':
+        return '#94a3b8';
+      case 'útiles y menaje':
+        return '#9ca3af';
+      case 'otros':
+        return '#d1d5db';
+      default:
+        return '#6B9080';
+    }
   }
 
   /**
