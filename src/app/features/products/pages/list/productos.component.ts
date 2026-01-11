@@ -164,15 +164,25 @@ export class ProductosComponent implements OnInit {
 
     this.invoiceService.getProducts().subscribe({
       next: (productos: Product[]) => {
-        // Map potential snake_case from backend and parse string numbers
+        // Map potential snake_case from backend, parse string numbers,
+        // and extract category from nested subcategory structure
         this.productos = productos.map(p => {
           let count = (p as any).unit_count ?? p.unitCount;
           if (typeof count === 'string') {
             count = parseFloat(count.replace(',', '.'));
           }
+
+          // Extract category from nested subcategory.category structure (new backend format)
+          const subcategory = (p as any).subcategory;
+          const category = subcategory?.category ?? (p as any).category;
+
           return {
             ...p,
-            unitCount: count
+            unitCount: count,
+            // Map the nested category structure to flat category for template compatibility
+            category: category,
+            // Keep subcategory info available
+            subcategory: subcategory
           };
         });
         this.cargando = false;
