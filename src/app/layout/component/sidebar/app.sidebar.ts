@@ -41,7 +41,7 @@ export class AppSidebar {
   currentYear = new Date().getFullYear();
 
   quickLinks = [
-    { label: 'Métricas', icon: 'pi pi-chart-line', route: '/' },
+    { label: 'Dashboard', icon: 'pi pi-chart-line', route: '/' },
     // { label: 'Facturas', icon: 'pi pi-receipt', route: '/facturas' },
     { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
     { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
