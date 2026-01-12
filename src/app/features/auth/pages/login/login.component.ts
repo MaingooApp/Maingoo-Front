@@ -9,10 +9,13 @@ import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../../../layout/component/floating-configurator/app.floatingconfigurator';
 import { AuthService } from '../../services/auth-service.service';
 
+import { CommonModule } from '@angular/common';
+
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
+    CommonModule,
     ButtonModule,
     CheckboxModule,
     InputTextModule,
@@ -34,7 +37,7 @@ export class Login {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({

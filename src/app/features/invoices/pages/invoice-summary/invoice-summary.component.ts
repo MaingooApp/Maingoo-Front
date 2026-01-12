@@ -1,6 +1,6 @@
 // invoice-summary.component.ts
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { COLUMNS } from '@features/invoices/constants/columns';
@@ -14,6 +14,7 @@ import { ModalService } from '@shared/services/modal.service';
 import { ToastService } from '@shared/services/toast.service';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LayoutService } from '../../../../layout/service/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -47,6 +48,21 @@ export class InvoiceSummaryComponent implements OnInit {
   @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
   invoices = signal<Invoice[]>([]);
   loading = signal(true);
+  searchTerm = signal('');
+
+  filteredInvoices = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    const allInvoices = this.invoices();
+
+    if (!term) return allInvoices;
+
+    return allInvoices.filter(
+      (inv) =>
+        (inv.supplier?.name || '').toLowerCase().includes(term) ||
+        (inv.invoiceNumber || '').toLowerCase().includes(term)
+    );
+  });
+
   ConvertNumbers = ConvertNumbers;
 
   columns = COLUMNS;
@@ -63,10 +79,18 @@ export class InvoiceSummaryComponent implements OnInit {
     private readonly confirmDialog: ConfirmDialogService,
     private readonly toastService: ToastService,
     private readonly router: Router,
-    private readonly modalService: ModalService
-  ) { }
+    private readonly modalService: ModalService,
+    private readonly layoutService: LayoutService
+  ) {}
+
+  showMobileSearch = false;
+
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
 
   ngOnInit(): void {
+    this.layoutService.setPageTitle('Facturas y albaranes');
     this.invoiceService.getInvoices().subscribe({
       next: (data: Invoice[]) => {
         this.invoices.set(data);
@@ -78,6 +102,16 @@ export class InvoiceSummaryComponent implements OnInit {
         this.toastService.error('Error', 'No se pudieron cargar las facturas.');
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.layoutService.setPageTitle('');
+  }
+
+  exportarPdf() {
+    if (this.tablaRef) {
+      this.tablaRef.exportarComoPdf();
+    }
   }
 
   verDetalle(factura: Invoice) {
@@ -121,6 +155,10 @@ export class InvoiceSummaryComponent implements OnInit {
     } else if (event.action === 'eliminar') {
       this.confirmarEliminacion(event.row);
     }
+  }
+
+  getInputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
   }
 
   openAddInvoiceModal() {
