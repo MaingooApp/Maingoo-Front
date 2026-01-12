@@ -5,9 +5,9 @@ export interface Product {
   name: string;
   eanCode: string;
   description: string | null;
-  categoryId: string;
+  subcategoryId: string;
   unit: string;
-  category: ProductCategory;
+  subcategory: ProductCategory;
   allergens: ProductAllergen[];
   createdAt: string;
   updatedAt: string;
@@ -25,6 +25,7 @@ export interface ProductCategory {
   id: string;
   name: string;
   description: string | null;
+  category?: ProductCategory; // Parent category
 }
 
 export interface ProductAllergen {

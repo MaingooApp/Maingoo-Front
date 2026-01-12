@@ -96,8 +96,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
     // Use filtered products instead of all products
     this.filteredProducts.forEach((p) => {
-      if (p.category?.name) {
-        categoryCounts.set(p.category.name, (categoryCounts.get(p.category.name) || 0) + 1);
+      const categoryName = p.subcategory?.category?.name || p.subcategory?.name;
+      if (categoryName) {
+        categoryCounts.set(categoryName, (categoryCounts.get(categoryName) || 0) + 1);
       }
     });
 
@@ -131,17 +132,24 @@ export class ProductosComponent implements OnInit, OnDestroy {
   get filteredProducts(): Product[] {
     if (!this.searchTerm) return this.productos;
     const lowerTerm = this.normalizeText(this.searchTerm);
-    return this.productos.filter(
-      (p) =>
+    return this.productos.filter((p) => {
+      const categoryName = p.subcategory?.category?.name || p.subcategory?.name;
+      const subcategoryName = p.subcategory?.name;
+      return (
         this.normalizeText(p.name).includes(lowerTerm) ||
-        (p.category?.name && this.normalizeText(p.category.name).includes(lowerTerm)) ||
+        (categoryName && this.normalizeText(categoryName).includes(lowerTerm)) ||
+        (subcategoryName && this.normalizeText(subcategoryName).includes(lowerTerm)) ||
         (p.eanCode && p.eanCode.includes(lowerTerm))
-    );
+      );
+    });
   }
 
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
-    return this.filteredProducts.filter((p) => p.category?.name === this.selectedCategory);
+    return this.filteredProducts.filter((p) => {
+      const categoryName = p.subcategory?.category?.name || p.subcategory?.name;
+      return categoryName === this.selectedCategory;
+    });
   }
 
   // --- UI Handlers & Interactivity ---
