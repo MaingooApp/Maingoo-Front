@@ -14,6 +14,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
 // - AppConfigurator: componente hijo que maneja la configuración visual (tema, colores)
 import { AppConfigurator } from '../configurator/app.configurator';
+// - IconComponent: componente de iconos Material Symbols
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../../service/layout.service';
 // - AuthService: servicio de autenticación que expone métodos como logout()
@@ -33,7 +35,7 @@ import { BottomSheetService } from '../../service/bottom-sheet.service';
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, RippleModule],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, RippleModule, IconComponent],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html',
   styleUrls: ['./app.topbar.scss']
@@ -93,7 +95,7 @@ export class AppTopbar implements OnInit, OnDestroy {
     private toastService: ToastService,
     private elementRef: ElementRef,
     private bottomSheetService: BottomSheetService
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Suscribirse a las notificaciones de toast

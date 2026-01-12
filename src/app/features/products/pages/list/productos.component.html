@@ -10,7 +10,7 @@
           class="flex items-center justify-center rounded-full w-12 h-12 text-gray-600 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 transition-all duration-200"
           [class.bg-maingoo-sage]="showMobileSearch" [class.text-white]="showMobileSearch"
           [class.border-transparent]="showMobileSearch" (click)="showMobileSearch = !showMobileSearch">
-          <i class="pi pi-search text-lg"></i>
+          <app-icon name="search" size="md"></app-icon>
         </button>
 
         <input *ngIf="showMobileSearch" type="text" pInputText placeholder="Buscar producto..."
@@ -24,7 +24,7 @@
         <button
           class="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 text-red-500 flex items-center justify-center active:scale-95 transition-all"
           (click)="eliminarTodo()">
-          <i class="pi pi-trash"></i>
+          <app-icon name="delete" size="md"></app-icon>
         </button>
 
         <!-- View Toggle Switch -->
@@ -33,12 +33,12 @@
           <button class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-200"
             [class.bg-maingoo-sage]="viewMode === 'list'" [class.text-white]="viewMode === 'list'"
             [class.text-gray-400]="viewMode !== 'list'" (click)="setViewMode('list')">
-            <i class="pi pi-bars"></i>
+            <app-icon name="view_headline" size="sm"></app-icon>
           </button>
           <button class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-200"
             [class.bg-maingoo-sage]="viewMode === 'cards'" [class.text-white]="viewMode === 'cards'"
             [class.text-gray-400]="viewMode !== 'cards'" (click)="setViewMode('cards')">
-            <i class="pi pi-th-large"></i>
+            <app-icon name="grid_view" size="sm"></app-icon>
           </button>
         </div>
       </div>
@@ -51,14 +51,17 @@
         [showViewSwitcher]="productos.length > 0" [showSearch]="productos.length > 0"
         (search)="filterProductos($event)">
         <div actions class="flex items-center gap-2">
-          <button pButton label="Subir Factura" icon="pi pi-receipt" severity="primary"
-            (click)="openAddInvoiceModal()"></button>
+          <button pButton label="Subir Factura" severity="primary" (click)="openAddInvoiceModal()">
+            <app-icon name="receipt_long" size="md"></app-icon>
+          </button>
         </div>
 
         <!-- Controls (Right) -->
         <div controls *ngIf="productos.length > 0">
-          <button pButton label="" icon="pi pi-trash" class="p-button-danger p-button-outlined w-full sm:w-auto"
-            (click)="eliminarTodo()" [disabled]="productos.length === 0 || cargando"></button>
+          <button pButton label="" class="p-button-danger p-button-outlined w-full sm:w-auto" (click)="eliminarTodo()"
+            [disabled]="productos.length === 0 || cargando">
+            <app-icon name="delete" size="md"></app-icon>
+          </button>
         </div>
       </app-section-header>
     </div>
@@ -114,7 +117,7 @@
                 </div>
 
                 <!-- Chevron -->
-                <i class="pi pi-chevron-right text-gray-300 text-xs shrink-0"></i>
+                <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
               </div>
 
               <!-- Empty State Mobile -->
@@ -169,9 +172,11 @@
                       </span>
                     </td>
                     <td class="text-right">
-                      <button pButton icon="pi pi-chevron-left"
+                      <button pButton
                         class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
-                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedProduct?.id === item.id }"></button>
+                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedProduct?.id === item.id }">
+                        <app-icon name="chevron_left" size="md"></app-icon>
+                      </button>
                     </td>
                   </tr>
                 </ng-template>
@@ -224,7 +229,7 @@
               </h2>
               <button (click)="closeCategoryDetail()"
                 class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-colors">
-                <i class="pi pi-times"></i>
+                <app-icon name="close" size="md"></app-icon>
               </button>
             </div>
 
@@ -272,7 +277,7 @@
                         </span>
                       </td>
                       <td class="text-right border-gray-100 px-2">
-                        <i class="pi pi-chevron-right text-gray-300 text-xs"></i>
+                        <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
                       </td>
                     </tr>
                   </ng-template>
@@ -308,7 +313,7 @@
   <button
     class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
     (click)="openAddInvoiceModal()" pTooltip="Subir factura" tooltipPosition="right">
-    <i class="pi pi-plus text-xl font-bold"></i>
+    <app-icon name="add" size="xl"></app-icon>
   </button>
 </div>
 <!-- End of Main Container -->
@@ -336,7 +341,7 @@
         <button
           class="absolute right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center active:bg-gray-200 transition-colors shrink-0"
           (click)="closeCategoryDetail()">
-          <i class="pi pi-times text-sm"></i>
+          <app-icon name="close" size="sm"></app-icon>
         </button>
       </div>
 
@@ -376,7 +381,7 @@
           class="bg-black/40 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2 pointer-events-auto shadow-lg">
           <button class="w-6 h-6 rounded-full flex items-center justify-center text-white/80 active:text-white"
             (click)="prevCategory()">
-            <i class="pi pi-chevron-left text-xs"></i>
+            <app-icon name="chevron_left" size="xs"></app-icon>
           </button>
 
           <div class="flex items-center gap-1.5 overflow-x-auto max-w-[120px] no-scrollbar px-1">
@@ -387,7 +392,7 @@
 
           <button class="w-6 h-6 rounded-full flex items-center justify-center text-white/80 active:text-white"
             (click)="nextCategory()">
-            <i class="pi pi-chevron-right text-xs"></i>
+            <app-icon name="chevron_right" size="xs"></app-icon>
           </button>
         </div>
       </div>
