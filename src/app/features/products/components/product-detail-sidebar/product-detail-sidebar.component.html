@@ -36,11 +36,19 @@
       </h1>
       <div class="grid grid-cols-2 gap-4 mt-2">
         <!-- Category -->
-        <div *ngIf="product?.category?.name" class="flex flex-col gap-1.5">
+        <div *ngIf="product?.subcategory?.name" class="flex flex-col gap-1.5">
           <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
-          <div>
-            <p-tag [value]="product!.category.name" [style]="getCategoryStyle(product!.category.name)" [rounded]="true"
-              styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
+          <div class="flex items-center gap-1 flex-wrap">
+            <ng-container *ngIf="product?.subcategory?.category?.name">
+              <p-tag [value]="product?.subcategory?.category?.name"
+                [style]="getCategoryStyle(product?.subcategory?.category?.name)" [rounded]="true"
+                styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
+              <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
+            </ng-container>
+            <p-tag *ngIf="product?.subcategory?.name" [value]="product?.subcategory?.name"
+              [style]="!product?.subcategory?.category?.name ? getCategoryStyle(product?.subcategory?.name) : {}"
+              [severity]="product?.subcategory?.category?.name ? 'secondary' : undefined" [rounded]="true"
+              [styleClass]="'text-sm font-normal border-0 px-3 py-1 ' + (product?.subcategory?.category?.name ? 'bg-gray-100 text-gray-600' : '')"></p-tag>
           </div>
         </div>
 
