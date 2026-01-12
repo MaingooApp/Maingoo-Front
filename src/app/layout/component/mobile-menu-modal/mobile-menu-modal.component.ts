@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BottomSheetService } from '../../service/bottom-sheet.service';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 interface MenuItem {
   label: string;
@@ -12,7 +13,7 @@ interface MenuItem {
 @Component({
   selector: 'app-mobile-menu-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, IconComponent],
   templateUrl: './mobile-menu-modal.component.html',
   styleUrls: ['./mobile-menu-modal.component.scss']
 })
@@ -29,7 +30,7 @@ export class MobileMenuModalComponent {
   constructor(
     private router: Router,
     public bottomSheetService: BottomSheetService
-  ) {}
+  ) { }
 
   get isOpen(): boolean {
     return this.bottomSheetService.isMenuOpen();

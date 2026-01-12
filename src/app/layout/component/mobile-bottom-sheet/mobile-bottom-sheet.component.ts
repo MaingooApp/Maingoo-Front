@@ -6,6 +6,7 @@ import { BottomSheetService } from '../../../layout/service/bottom-sheet.service
 import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { IconComponent } from '../../../shared/components/icon/icon.component';
 
 interface QuickAction {
   label: string;
@@ -22,7 +23,7 @@ interface RouteContext {
 @Component({
   selector: 'app-mobile-bottom-sheet',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, IconComponent],
   templateUrl: './mobile-bottom-sheet.component.html',
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })

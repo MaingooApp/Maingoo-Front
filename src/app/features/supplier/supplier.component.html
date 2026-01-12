@@ -85,26 +85,26 @@
                   <div class="flex flex-col gap-2 text-sm text-gray-600">
                     <!-- Contact Name -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-user text-maingoo-sage text-xs w-4"></i>
+                      <app-icon name="person" size="xs" class="text-maingoo-sage w-4"></app-icon>
                       <span class="truncate" *ngIf="item.commercialName">{{ item.commercialName }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.commercialName">Sin nombre
                         comercial</span>
                     </div>
                     <!-- Phone -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-phone text-maingoo-sage text-xs w-4"></i>
+                      <app-icon name="phone" size="xs" class="text-maingoo-sage w-4"></app-icon>
                       <span class="truncate" *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
                     </div>
                     <!-- Order Days -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-clock text-maingoo-sage text-xs w-4"></i>
+                      <app-icon name="schedule" size="xs" class="text-maingoo-sage w-4"></app-icon>
                       <span class="truncate" *ngIf="item.orderDays">{{ item.orderDays }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.orderDays">Sin días pedido</span>
                     </div>
                     <!-- Delivery Days -->
                     <div class="flex items-center gap-2">
-                      <i class="pi pi-truck text-maingoo-sage text-xs w-4"></i>
+                      <app-icon name="local_shipping" size="xs" class="text-maingoo-sage w-4"></app-icon>
                       <span class="truncate" *ngIf="item.deliveryDays">{{ item.deliveryDays }}</span>
                       <span class="truncate text-gray-300 italic" *ngIf="!item.deliveryDays">Sin días reparto</span>
                     </div>
@@ -135,16 +135,16 @@
 
                   <div class="flex items-center gap-2 text-xs text-gray-500">
                     <span *ngIf="item.commercialName" class="truncate flex items-center gap-1 min-w-0 max-w-[45%]">
-                      <i class="pi pi-user text-[10px] text-maingoo-sage"></i> {{ item.commercialName }}
+                      <app-icon name="person" size="xs" class="text-maingoo-sage"></app-icon> {{ item.commercialName }}
                     </span>
                     <span *ngIf="item.phoneNumber" class="truncate flex items-center gap-1 min-w-0">
-                      <i class="pi pi-phone text-[10px] text-maingoo-sage"></i> {{ item.phoneNumber }}
+                      <app-icon name="phone" size="xs" class="text-maingoo-sage"></app-icon> {{ item.phoneNumber }}
                     </span>
                   </div>
                 </div>
 
                 <!-- Chevron -->
-                <i class="pi pi-chevron-right text-gray-300 text-xs shrink-0"></i>
+                <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
               </div>
             </div>
 
@@ -183,7 +183,7 @@
                     <!-- Column 2: Contact Name (Persona) -->
                     <td *ngIf="!selectedSupplier">
                       <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <i class="pi pi-user text-maingoo-sage text-xs"></i>
+                        <app-icon name="person" size="xs" class="text-maingoo-sage"></app-icon>
                         <span class="truncate max-w-[150px]" *ngIf="item.commercialName">{{
                           item.commercialName
                           }}</span>
@@ -195,7 +195,7 @@
                     <!-- Column 3: Phone -->
                     <td *ngIf="!selectedSupplier">
                       <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <i class="pi pi-phone text-maingoo-sage text-xs"></i>
+                        <app-icon name="phone" size="xs" class="text-maingoo-sage"></app-icon>
                         <span *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
                         <span class="text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
                       </div>
@@ -204,7 +204,7 @@
                     <!-- Column 4: Order Day -->
                     <td *ngIf="!selectedSupplier">
                       <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <i class="pi pi-calendar text-maingoo-sage text-xs"></i>
+                        <app-icon name="calendar_today" size="xs" class="text-maingoo-sage"></app-icon>
                         <span class="truncate max-w-[200px]" title="Pedidos" *ngIf="item.orderDays">{{
                           item.orderDays
                           }}</span>
@@ -216,7 +216,7 @@
                     <!-- Column 5: Delivery Day -->
                     <td *ngIf="!selectedSupplier">
                       <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <i class="pi pi-truck text-maingoo-sage text-xs"></i>
+                        <app-icon name="local_shipping" size="xs" class="text-maingoo-sage"></app-icon>
                         <span class="truncate max-w-[200px]" title="Reparto" *ngIf="item.deliveryDays">{{
                           item.deliveryDays
                           }}</span>
@@ -226,9 +226,11 @@
                     </td>
 
                     <td class="text-right">
-                      <button pButton icon="pi pi-chevron-left"
+                      <button pButton
                         class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
-                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }"></button>
+                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }">
+                        <app-icon name="chevron_left" size="md"></app-icon>
+                      </button>
                     </td>
                   </tr>
                 </ng-template>
@@ -283,20 +285,23 @@
         <div class="absolute top-4 right-4 flex gap-2 items-center">
           <!-- Action Buttons -->
           <div class="flex gap-1">
-            <button pButton [icon]="isEditing ? 'pi pi-check' : 'pi pi-pencil'" class="p-button-rounded p-button-text"
+            <button pButton class="p-button-rounded p-button-text"
               [ngClass]="isEditing ? 'p-button-success' : 'p-button-secondary'"
               [pTooltip]="isEditing ? 'Guardar cambios' : 'Editar proveedor'" tooltipPosition="bottom"
-              (click)="editSupplier(selectedSupplier!)"></button>
-            <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
-              pTooltip="Eliminar proveedor" tooltipPosition="bottom"
-              (click)="confirmDelete(selectedSupplier!)"></button>
+              (click)="editSupplier(selectedSupplier!)">
+              <app-icon [name]="isEditing ? 'check' : 'edit'" size="md"></app-icon>
+            </button>
+            <button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar proveedor"
+              tooltipPosition="bottom" (click)="confirmDelete(selectedSupplier!)">
+              <app-icon name="delete" size="md"></app-icon>
+            </button>
           </div>
 
           <!-- Close Button -->
           <button
             class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-red-600 w-10 h-10 items-center justify-center flex transition-all duration-200"
             (click)="hideDialog()">
-            <i class="pi pi-times"></i>
+            <app-icon name="close" size="md"></app-icon>
           </button>
         </div>
       </div>
@@ -330,7 +335,7 @@
               <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                 *ngIf="selectedSupplier?.address">
                 <div class="flex items-center gap-2 text-gray-400 text-sm">
-                  <i class="pi pi-map-marker text-maingoo-sage"></i>
+                  <app-icon name="location_on" size="md" class="text-maingoo-sage"></app-icon>
                   <span>Dirección</span>
                 </div>
                 <div class="flex items-center -ml-2">
@@ -345,7 +350,7 @@
                 <!-- Sanitary Registration -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
                   <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <i class="pi pi-file text-maingoo-sage"></i>
+                    <app-icon name="description" size="md" class="text-maingoo-sage"></app-icon>
                     <span>Reg. Sanitario</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -359,7 +364,7 @@
                 <!-- CIF/NIF -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
                   <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <i class="pi pi-id-card text-maingoo-sage"></i>
+                    <app-icon name="badge" size="md" class="text-maingoo-sage"></app-icon>
                     <span>CIF/NIF</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -378,7 +383,7 @@
                   <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
                     (click)="!isEditing && (showContact = !showContact)">
                     <div class="flex items-center gap-2 text-gray-400 text-sm">
-                      <i class="pi pi-briefcase text-maingoo-sage"></i>
+                      <app-icon name="business_center" size="md" class="text-maingoo-sage"></app-icon>
                       <span>Contacto</span>
                     </div>
                     <div class="flex items-center">
@@ -395,7 +400,7 @@
                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                         *ngIf="selectedSupplier?.commercialName || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
-                          <i class="pi pi-user text-maingoo-sage"></i>
+                          <app-icon name="person" size="md" class="text-maingoo-sage"></app-icon>
                           <span>Persona</span>
                         </div>
                         <div class="flex items-center -ml-2">
@@ -410,7 +415,7 @@
                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                         *ngIf="selectedSupplier?.phoneNumber || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
-                          <i class="pi pi-phone text-maingoo-sage"></i>
+                          <app-icon name="phone" size="md" class="text-maingoo-sage"></app-icon>
                           <span>Teléfono</span>
                         </div>
                         <div class="flex items-center -ml-2">
@@ -425,7 +430,7 @@
                       <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
                         *ngIf="selectedSupplier?.commercialEmail || isEditing || showContact">
                         <div class="flex items-center gap-2 text-gray-400 text-sm">
-                          <i class="pi pi-envelope text-maingoo-sage"></i>
+                          <app-icon name="mail" size="md" class="text-maingoo-sage"></app-icon>
                           <span>Email</span>
                         </div>
                         <div class="flex items-center -ml-2">
@@ -445,7 +450,7 @@
                   <div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
                     (click)="!isEditing && (showDelivery = !showDelivery)">
                     <div class="flex items-center gap-2 text-gray-400 text-sm">
-                      <i class="pi pi-truck text-maingoo-sage"></i>
+                      <app-icon name="local_shipping" size="md" class="text-maingoo-sage"></app-icon>
                       <span>Reparto</span>
                     </div>
                     <div class="flex items-center">
@@ -462,7 +467,7 @@
                         <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
                           *ngIf="selectedLastOrderDays.length > 0 || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                            <i class="pi pi-calendar text-maingoo-sage"></i>
+                            <app-icon name="calendar_today" size="md" class="text-maingoo-sage"></app-icon>
                             <span>Día de pedido</span>
                           </div>
                           <div class="flex flex-wrap gap-1 items-center -ml-2">
@@ -486,7 +491,7 @@
                         <div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
                           *ngIf="selectedDays.length > 0 || isEditing || showDelivery">
                           <div class="flex items-center gap-2 text-gray-400 text-sm h-8">
-                            <i class="pi pi-truck text-maingoo-sage"></i>
+                            <app-icon name="local_shipping" size="md" class="text-maingoo-sage"></app-icon>
                             <span>Día de reparto</span>
                           </div>
                           <div class="flex flex-wrap gap-1 items-center -ml-2">
@@ -512,7 +517,7 @@
                             showDelivery
                           ">
                           <div class="flex items-center gap-2 text-gray-400 text-sm">
-                            <i class="pi pi-euro text-maingoo-sage"></i>
+                            <app-icon name="euro" size="md" class="text-maingoo-sage"></app-icon>
                             <span>Pedido mín.</span>
                           </div>
                           <div class="flex items-center -ml-2">
@@ -536,7 +541,7 @@
           <!-- Image Placeholder -->
           <div
             class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm self-center md:self-auto">
-            <i class="pi pi-image text-gray-300 text-5xl"></i>
+            <app-icon name="image" size="2xl" class="text-gray-300"></app-icon>
           </div>
         </div>
 
@@ -548,8 +553,9 @@
               class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">
               Estadísticas
             </h3>
-            <i class="pi pi-chevron-down text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
-              [ngClass]="{ 'rotate-180': showStats }"></i>
+            <app-icon name="expand_more"
+              class="text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
+              [ngClass]="{ 'rotate-180': showStats }" size="md"></app-icon>
           </div>
 
           <div class="overflow-hidden transition-all duration-300 ease-in-out"
@@ -591,8 +597,9 @@
               class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">
               Facturas Asociadas
             </h3>
-            <i class="pi pi-chevron-down text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
-              [ngClass]="{ 'rotate-180': showInvoices }"></i>
+            <app-icon name="expand_more"
+              class="text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
+              [ngClass]="{ 'rotate-180': showInvoices }" size="md"></app-icon>
           </div>
 
           <div class="overflow-hidden transition-all duration-300 ease-in-out"
@@ -616,7 +623,7 @@
                 <div class="flex items-center gap-3">
                   <div
                     class="w-8 h-8 rounded-full bg-white text-maingoo-sage flex items-center justify-center border border-maingoo-sage/10">
-                    <i class="pi pi-file text-sm"></i>
+                    <app-icon name="description" size="sm"></app-icon>
                   </div>
                   <div class="flex flex-col">
                     <span
@@ -627,9 +634,11 @@
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="text-maingoo-deep font-bold text-sm block">{{ invoice.amount | currency: 'EUR' }}</span>
-                  <button pButton icon="pi pi-eye"
+                  <button pButton
                     class="p-button-rounded p-button-text p-button-sm text-maingoo-sage hover:bg-white md:hidden"
-                    (click)="viewInvoice(invoice); $event.stopPropagation()"></button>
+                    (click)="viewInvoice(invoice); $event.stopPropagation()">
+                    <app-icon name="visibility" size="sm"></app-icon>
+                  </button>
                 </div>
               </div>
             </div>
@@ -677,6 +686,6 @@
   <button
     class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-10 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
     (click)="openAddInvoiceModal()" pTooltip="Subir factura" tooltipPosition="left" aria-label="Añadir factura">
-    <i class="pi pi-plus text-2xl font-bold"></i>
+    <app-icon name="add" size="xl"></app-icon>
   </button>
 </div>

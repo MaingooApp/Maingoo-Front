@@ -1,45 +1,31 @@
 <!-- Backdrop oscuro (solo visible cuando el chat está abierto) -->
-<div
-  *ngIf="isOpen"
-  class="bottom-sheet-backdrop"
-  (click)="onBackdropClick()"
-  role="presentation"
-  aria-hidden="false"></div>
+<div *ngIf="isOpen" class="bottom-sheet-backdrop" (click)="onBackdropClick()" role="presentation" aria-hidden="false">
+</div>
 
 <!-- Contenedor del Chat Modal (solo cuando está abierto) -->
-<div
-  *ngIf="isOpen"
-  class="chat-modal-container"
-  (click)="$event.stopPropagation()"
-  role="dialog"
-  aria-modal="true"
+<div *ngIf="isOpen" class="chat-modal-container" (click)="$event.stopPropagation()" role="dialog" aria-modal="true"
   aria-label="Chat con Maingoo AI">
   <!-- Header con título y botón de cerrar -->
   <div class="chat-header">
     <!-- Etiqueta CHAT -->
     <div class="flex items-center gap-2">
-      <i class="pi pi-sparkles text-[#6B9E86] text-lg"></i>
+      <app-icon name="auto_awesome" size="md" class="text-[#6B9E86]"></app-icon>
       <p class="text-sm font-semibold text-[#1A3C34] dark:text-gray-200 mb-0">Maingoo AI</p>
     </div>
 
     <!-- Botón de cerrar -->
-    <button
-      type="button"
-      (click)="closeChat($event)"
+    <button type="button" (click)="closeChat($event)"
       class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-surface-700 text-[#1A3C34] dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-surface-600 transition-all shadow-sm"
       aria-label="Cerrar chat">
-      <i class="pi pi-times text-base"></i>
+      <app-icon name="close" size="md"></app-icon>
     </button>
   </div>
 
   <!-- Mensajes del chat -->
   <div #messagesContainer class="chat-messages">
     <!-- Mensajes reales del chat -->
-    <div
-      *ngFor="let message of messages; trackBy: trackByMessageId"
-      class="message-wrapper"
-      [class.bot-wrapper]="message.sender === 'bot'"
-      [class.user-wrapper]="message.sender === 'user'">
+    <div *ngFor="let message of messages; trackBy: trackByMessageId" class="message-wrapper"
+      [class.bot-wrapper]="message.sender === 'bot'" [class.user-wrapper]="message.sender === 'user'">
       <!-- Mensaje del BOT -->
       <div *ngIf="message.sender === 'bot'" class="flex items-start space-x-2 mb-3 animate-[fadeIn_0.3s_ease-out]">
         <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
@@ -47,34 +33,26 @@
         </div>
         <div
           class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3"
-          role="article"
-          aria-label="Mensaje de Maingoo AI">
+          role="article" aria-label="Mensaje de Maingoo AI">
           <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
         </div>
       </div>
 
       <!-- Mensaje del USUARIO -->
-      <div
-        *ngIf="message.sender === 'user'"
+      <div *ngIf="message.sender === 'user'"
         class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
-        <div
-          class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3"
-          role="article"
-          aria-label="Tu mensaje">
+        <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3"
+          role="article" aria-label="Tu mensaje">
           <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
         </div>
         <div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
-          <i class="pi pi-user text-white text-xs" aria-hidden="true"></i>
+          <app-icon name="person" size="xs" class="text-white" aria-hidden="true"></app-icon>
         </div>
       </div>
     </div>
 
     <!-- Indicador de escritura -->
-    <div
-      class="flex items-start space-x-2 mb-3"
-      *ngIf="isTyping"
-      role="status"
-      aria-live="polite"
+    <div class="flex items-start space-x-2 mb-3" *ngIf="isTyping" role="status" aria-live="polite"
       aria-label="Maingoo está escribiendo">
       <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
         <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
@@ -92,11 +70,8 @@
   <!-- Acciones rápidas contextuales -->
   <div class="quick-actions-container">
     <div class="grid grid-cols-2 gap-2">
-      <button
-        *ngFor="let action of currentContext.actions"
-        (click)="handleQuickAction(action.action)"
-        [attr.aria-label]="action.label"
-        type="button"
+      <button *ngFor="let action of currentContext.actions" (click)="handleQuickAction(action.action)"
+        [attr.aria-label]="action.label" type="button"
         class="px-3 py-3 bg-[#6B9E86]/10 dark:bg-[#6B9E86]/20 text-[#1A3C34] dark:text-[#6B9E86] text-sm font-medium rounded-full hover:bg-[#6B9E86]/20 dark:hover:bg-[#6B9E86]/30 transition-all duration-200 flex items-center justify-center gap-2 text-center">
         <i [class]="action.icon + ' text-base'" aria-hidden="true"></i>
         <span class="truncate">{{ action.label }}</span>
@@ -107,25 +82,15 @@
   <!-- Input del chat -->
   <div class="chat-input-container">
     <button class="attach-button" type="button" aria-label="Adjuntar archivo">
-      <i class="pi pi-paperclip" aria-hidden="true"></i>
+      <app-icon name="attach_file" size="md" aria-hidden="true"></app-icon>
     </button>
-    <input
-      #chatInput
-      type="text"
-      placeholder="Escribe tu mensaje..."
-      aria-label="Escribe tu mensaje"
+    <input #chatInput type="text" placeholder="Escribe tu mensaje..." aria-label="Escribe tu mensaje"
       class="flex-1 px-4 py-3 bg-white dark:bg-surface-700 border-0 outline-0 text-sm text-gray-800 dark:text-surface-0 rounded-full shadow-sm focus:shadow-md transition-all"
       (keydown.enter)="sendMessage(chatInput)" />
-    <button
-      (click)="sendMessage(chatInput)"
-      [disabled]="isTyping"
-      type="button"
-      aria-label="Enviar mensaje"
+    <button (click)="sendMessage(chatInput)" [disabled]="isTyping" type="button" aria-label="Enviar mensaje"
       class="flex-shrink-0 w-10 h-10 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] flex items-center justify-center hover:bg-[#6B9E86] dark:hover:bg-[#8BC4A8] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-      <i
-        class="pi pi-send text-white dark:text-[#1A3C34] text-sm"
-        [class.animate-send]="isSending"
-        aria-hidden="true"></i>
+      <app-icon name="send" size="sm" class="text-white dark:text-[#1A3C34]" [class.animate-send]="isSending"
+        aria-hidden="true"></app-icon>
     </button>
   </div>
 </div>
