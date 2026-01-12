@@ -1,0 +1,130 @@
+:host {
+  --maingoo-dark-green: #1a3c34;
+  --maingoo-green: #6b9e86;
+  --maingoo-soft-mint: #f0f7f4;
+  --nav-height: 60px;
+}
+
+.bottom-nav-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 8; // Debajo del bottom sheet (z-index: 10) pero encima del contenido
+  pointer-events: none;
+
+  // Solo visible en móvil
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.bottom-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background-color: #ffffff;
+  border-radius: 16px 16px 0 0;
+  box-shadow:
+    0 -2px 10px rgba(0, 0, 0, 0.05),
+    0 -4px 20px rgba(0, 0, 0, 0.03);
+  height: var(--nav-height);
+  padding: 0;
+  margin: 0;
+  pointer-events: auto;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Dark mode support with app class
+:host-context(.app-dark) .bottom-nav {
+  background-color: #1f2937;
+  box-shadow:
+    0 -2px 10px rgba(0, 0, 0, 0.2),
+    0 -4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 3px;
+    background-color: var(--maingoo-dark-green);
+    border-radius: 0 0 3px 3px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &.active {
+    color: var(--maingoo-dark-green);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .nav-icon {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Dark mode for active nav items
+:host-context(.app-dark) .nav-item.active {
+  color: var(--maingoo-green);
+
+  &::before {
+    background-color: var(--maingoo-green);
+  }
+}
+
+.nav-item {
+  &:active {
+    transform: scale(0.95);
+  }
+
+  // Sutil efecto hover en desktop (si se usa con ratón)
+  @media (hover: hover) {
+    &:hover:not(.active) {
+      color: #6b7280;
+    }
+  }
+}
+
+.nav-icon {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.nav-label {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+// Animación de entrada (opcional, para uso futuro)
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}

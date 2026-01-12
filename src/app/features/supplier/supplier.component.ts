@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
+import { LayoutService } from '../../layout/service/layout.service';
 import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,12 +23,10 @@ import { ConfirmDialogService } from '../../shared/services/confirm-dialog.servi
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
 import { Supplier, UpdateSupplierDto } from './interfaces/supplier.interface';
-
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { ModalService } from '../../shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 
 @Component({
   selector: 'app-proveedores',
@@ -36,8 +36,6 @@ import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-mod
     TableModule,
     InputTextModule,
     IconFieldModule,
-    InputIconModule,
-    ButtonModule,
     InputIconModule,
     ButtonModule,
     InputSwitchModule,
@@ -54,11 +52,12 @@ import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-mod
   ],
   templateUrl: './supplier.component.html'
 })
-export class SupplierComponent {
+export class SupplierComponent implements OnDestroy {
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
   private modalService = inject(ModalService);
+  private layoutService = inject(LayoutService);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
@@ -73,11 +72,16 @@ export class SupplierComponent {
   showInvoices = false;
   showStats = false;
   showMenu = false;
+  showMobileSearch = false; // New state for mobile search toggle
   viewMode: 'grid' | 'list' = 'grid';
   viewOptions: any[] = [
     { icon: 'pi pi-th-large', value: 'grid' },
     { icon: 'pi pi-list', value: 'list' }
   ];
+
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
 
   // --- UI Handlers & Interactivity ---
 
@@ -138,19 +142,19 @@ export class SupplierComponent {
   constructor(
     private confirmDialog: ConfirmDialogService,
     private toastService: ToastService
-  ) { }
+  ) {}
 
   // Chart
   chartData: any;
   historyChartData: any;
   chartOptions: any;
 
-  // --- Initialization & Lifecycle ---
-
   async ngOnInit() {
+    this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
     this.cargando = true;
     this.initChartOptions();
 
+    // ... existing load logic ...
     this.supplierService.listSuppliers().subscribe({
       next: (suppliers: Supplier[]) => {
         this.supplier = suppliers;
@@ -162,6 +166,10 @@ export class SupplierComponent {
         this.cargando = false;
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.layoutService.setPageTitle(''); // Clear title when leaving
   }
 
   // --- Helpers & Utilities ---
@@ -200,7 +208,10 @@ export class SupplierComponent {
         commercialPhoneNumber: supplier.commercialPhoneNumber || null,
         orderDays: this.selectedLastOrderDays.length > 0 ? this.selectedLastOrderDays.join(',') : null,
         deliveryDays: this.selectedDays.length > 0 ? this.selectedDays.join(',') : null,
-        minPriceDelivery: (supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined) ? Number(supplier.minPriceDelivery) : null,
+        minPriceDelivery:
+          supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined
+            ? Number(supplier.minPriceDelivery)
+            : null,
         sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || null
       };
 
@@ -253,10 +264,11 @@ export class SupplierComponent {
 
   filterSuppliers(event: Event) {
     const query = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredSupplier = this.supplier.filter(s =>
-      s.name?.toLowerCase().includes(query) ||
-      s.commercialName?.toLowerCase().includes(query) ||
-      s.cifNif?.toLowerCase().includes(query)
+    this.filteredSupplier = this.supplier.filter(
+      (s) =>
+        s.name?.toLowerCase().includes(query) ||
+        s.commercialName?.toLowerCase().includes(query) ||
+        s.cifNif?.toLowerCase().includes(query)
     );
   }
 
@@ -353,7 +365,7 @@ export class SupplierComponent {
   }
 
   // Chart Data
-  availableYears: { label: string, value: number }[] = [];
+  availableYears: { label: string; value: number }[] = [];
   selectedYear: number = new Date().getFullYear();
 
   updateChartData(invoices: Invoice[]) {
@@ -361,7 +373,7 @@ export class SupplierComponent {
     const currentYear = new Date().getFullYear();
 
     if (invoices.length > 0) {
-      const invoiceYears = invoices.map(inv => new Date(inv.date).getFullYear());
+      const invoiceYears = invoices.map((inv) => new Date(inv.date).getFullYear());
       const minYear = Math.min(...invoiceYears);
 
       // Generate continuous range from minYear to currentYear
@@ -371,7 +383,7 @@ export class SupplierComponent {
       }
 
       // If selectedYear is not in availableYears (not possible by logic unless < minYear, but safer to check)
-      const yearExists = this.availableYears.some(y => y.value === this.selectedYear);
+      const yearExists = this.availableYears.some((y) => y.value === this.selectedYear);
       if (!yearExists) {
         this.selectedYear = currentYear;
       }
@@ -385,7 +397,7 @@ export class SupplierComponent {
 
     // 2. Historical Data (Yearly)
     if (invoices.length > 0) {
-      const years = invoices.map(inv => new Date(inv.date).getFullYear());
+      const years = invoices.map((inv) => new Date(inv.date).getFullYear());
       const minYear = Math.min(...years);
       const maxYear = new Date().getFullYear();
 
@@ -395,7 +407,7 @@ export class SupplierComponent {
       for (let year = minYear; year <= maxYear; year++) {
         yearlyLabels.push(year.toString());
         const total = invoices
-          .filter(inv => new Date(inv.date).getFullYear() === year)
+          .filter((inv) => new Date(inv.date).getFullYear() === year)
           .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
         yearlyTotals.push(total);
       }
@@ -420,7 +432,7 @@ export class SupplierComponent {
     const monthlyTotals = new Array(12).fill(0);
     const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-    this.supplierInvoices.forEach(inv => {
+    this.supplierInvoices.forEach((inv) => {
       const date = new Date(inv.date);
       if (date.getFullYear() === Number(this.selectedYear)) {
         monthlyTotals[date.getMonth()] += Number(inv.amount || 0);
@@ -475,25 +487,24 @@ export class SupplierComponent {
 
   get hasEmptyContactFields(): boolean {
     if (!this.selectedSupplier) return false;
-    return !this.selectedSupplier.commercialName ||
+    return (
+      !this.selectedSupplier.commercialName ||
       !this.selectedSupplier.phoneNumber ||
-      !this.selectedSupplier.commercialEmail;
+      !this.selectedSupplier.commercialEmail
+    );
   }
 
   get hasEmptyDeliveryFields(): boolean {
     if (!this.selectedSupplier) return false;
     // Check key delivery fields. minPriceDelivery 0 is "filled", so check for null/undefined.
-    const minPriceEmpty = this.selectedSupplier.minPriceDelivery === null || this.selectedSupplier.minPriceDelivery === undefined;
+    const minPriceEmpty =
+      this.selectedSupplier.minPriceDelivery === null || this.selectedSupplier.minPriceDelivery === undefined;
 
-    return !this.selectedSupplier.orderDays ||
-      !this.selectedSupplier.deliveryDays ||
-      minPriceEmpty;
+    return !this.selectedSupplier.orderDays || !this.selectedSupplier.deliveryDays || minPriceEmpty;
   }
 
   toggleMenu(event?: Event) {
     if (event) event.stopPropagation();
     this.showMenu = !this.showMenu;
   }
-
-
 }
