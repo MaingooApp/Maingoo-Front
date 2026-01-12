@@ -5,17 +5,13 @@
     <!-- Header -->
     <div class="modal-header">
       <button type="button" class="close-button" (click)="close()" aria-label="Cerrar menú">
-        <i class="pi pi-times" aria-hidden="true"></i>
+        <app-icon name="close" size="md" aria-hidden="true"></app-icon>
       </button>
     </div>
 
     <!-- Menu Grid -->
     <div class="menu-grid">
-      <button
-        *ngFor="let item of menuItems"
-        type="button"
-        class="menu-item"
-        (click)="navigateTo(item.route, $event)"
+      <button *ngFor="let item of menuItems" type="button" class="menu-item" (click)="navigateTo(item.route, $event)"
         [attr.aria-label]="'Navegar a ' + item.label">
         <i [class]="item.icon + ' menu-icon'" aria-hidden="true"></i>
         <span class="menu-label">{{ item.label }}</span>
