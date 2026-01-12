@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 // - TooltipModule: módulo de PrimeNG para mostrar tooltips en los botones
 import { TooltipModule } from 'primeng/tooltip';
+import { RippleModule } from 'primeng/ripple';
 // - AppConfigurator: componente hijo que maneja la configuración visual (tema, colores)
 import { AppConfigurator } from '../configurator/app.configurator';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
@@ -25,11 +26,6 @@ import { Subscription } from 'rxjs';
 // Importar BottomSheetService para controlar el bottom sheet en móvil
 import { BottomSheetService } from '../../service/bottom-sheet.service';
 
-// - EnterpriseService: para obtener datos de la empresa (nombre)
-import { EnterpriseService } from '../../../features/enterprise/services/enterprise.service';
-
-import { IconComponent } from '../../../shared/components/icon/icon.component';
-
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
   // Selector del componente usado en plantillas: <app-topbar></app-topbar>
@@ -37,9 +33,10 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, IconComponent],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, RippleModule],
   // Template externo: se usa un archivo HTML separado para mejor organización
-  templateUrl: './app.topbar.html'
+  templateUrl: './app.topbar.html',
+  styleUrls: ['./app.topbar.scss']
 })
 export class AppTopbar implements OnInit, OnDestroy {
   // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
@@ -53,10 +50,6 @@ export class AppTopbar implements OnInit, OnDestroy {
 
   // Lista de notificaciones
   notifications: any[] = [];
-
-  // Datos de la empresa
-  enterpriseName = '';
-  enterpriseType = '';
 
   // Estado del menú móvil
   isMobileMenuOpen = false;
@@ -73,6 +66,19 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
+  private timeInterval?: any;
+
+  get businessName(): string {
+    // TODO: Load business name from enterprise service using enterpriseId
+    return 'Tu Negocio';
+  }
+
+  get currentTime(): string {
+    return new Date().toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
   // Injectamos servicios usados por el topbar:
   // - layoutService: controla el estado del layout (sidebar abierto, tema, etc.)
@@ -86,9 +92,8 @@ export class AppTopbar implements OnInit, OnDestroy {
     private router: Router,
     private toastService: ToastService,
     private elementRef: ElementRef,
-    private bottomSheetService: BottomSheetService,
-    private enterpriseService: EnterpriseService
-  ) { }
+    private bottomSheetService: BottomSheetService
+  ) {}
 
   ngOnInit() {
     // Suscribirse a las notificaciones de toast
@@ -98,40 +103,18 @@ export class AppTopbar implements OnInit, OnDestroy {
     });
 
     // Suscribirse al historial de notificaciones
-    this.notificationsListSubscription = this.toastService.notifications$.subscribe(notifications => {
+    this.notificationsListSubscription = this.toastService.notifications$.subscribe((notifications) => {
       this.notifications = notifications;
     });
-
-    // Obtener información de la empresa
-    const enterpriseId = this.authService.getEnterpriseId();
-    if (enterpriseId) {
-      this.enterpriseService.getEnterpriseById(enterpriseId).subscribe({
-        next: (enterprise) => {
-          this.enterpriseName = enterprise.name;
-          this.enterpriseType = this.mapEnterpriseType(enterprise.type);
-        },
-        error: (err) => console.error('Error fetching enterprise details:', err)
-      });
-    }
-  }
-
-  /**
-   * Mapea el tipo de empresa a un nombre amigable
-   */
-  private mapEnterpriseType(type: string): string {
-    const typeMap: { [key: string]: string } = {
-      'RESTAURANT': 'Restaurante',
-      'CATERING': 'Catering',
-      'HOTEL': 'Hotel',
-      'OTHER': 'Otro'
-    };
-    return typeMap[type] || 'Negocio';
   }
 
   ngOnDestroy() {
     // Limpiar suscripciones
     this.notificationSubscription?.unsubscribe();
     this.notificationsListSubscription?.unsubscribe();
+    if (this.timeInterval) {
+      clearInterval(this.timeInterval);
+    }
   }
 
   // HostListener para cerrar el menú móvil cuando se hace click fuera
@@ -213,22 +196,13 @@ export class AppTopbar implements OnInit, OnDestroy {
   }
 
   // toggleMobileMenu: alterna el menú desplegable móvil en escritorio
-  // En móvil, controla el bottom sheet (abre a medium o cierra a compact)
+  // En móvil, ya no se usa porque la navegación se maneja con la bottom nav
   toggleMobileMenu() {
-    if (this.isMobile) {
-      // En móvil: controlar el bottom sheet
-      const currentState = this.bottomSheetService.currentState();
-      if (currentState === 'compact') {
-        // Si está cerrado, abrir a medium
-        this.bottomSheetService.setState('medium');
-      } else {
-        // Si está en medium o expanded, cerrar a compact
-        this.bottomSheetService.setState('compact');
-      }
-    } else {
+    if (!this.isMobile) {
       // En escritorio: toggle del menú desplegable
       this.isMobileMenuOpen = !this.isMobileMenuOpen;
     }
+    // En móvil ya no hacemos nada, la navegación es con la bottom nav
   }
 
   // openSettings: método para abrir el panel de configuración del sistema

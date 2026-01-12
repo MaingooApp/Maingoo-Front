@@ -84,6 +84,9 @@ export class LayoutService {
 
   transitionComplete = signal<boolean>(false);
 
+  // Signal para el título de la página (para mostrar en mobile topbar)
+  pageTitle = signal<string>('');
+
   private initialized = false;
 
   constructor() {
@@ -104,6 +107,10 @@ export class LayoutService {
 
       this.handleDarkModeTransition(config);
     });
+  }
+
+  setPageTitle(title: string) {
+    this.pageTitle.set(title);
   }
 
   private handleDarkModeTransition(config: layoutConfig): void {
@@ -168,10 +175,10 @@ export class LayoutService {
       }
     }
   }
-  
+
   toggleNotificationPanel() {
     const isCurrentlyActive = this.layoutState().notificationPanelActive;
-    
+
     if (isCurrentlyActive) {
       // Si se está cerrando, marcar como animando primero
       this.layoutState.update((prev) => ({
@@ -179,7 +186,7 @@ export class LayoutService {
         notificationPanelAnimating: true,
         notificationPanelActive: false
       }));
-      
+
       // Esperar a que termine la animación (400ms) antes de permitir cambios en el sidebar
       setTimeout(() => {
         this.layoutState.update((prev) => ({
@@ -196,25 +203,25 @@ export class LayoutService {
       }));
     }
   }
-  
+
   isNotificationPanelActive() {
     return this.layoutState().notificationPanelActive;
   }
-  
+
   isNotificationPanelActiveOrAnimating() {
     return this.layoutState().notificationPanelActive || this.layoutState().notificationPanelAnimating;
   }
 
   toggleProfilePanel() {
     const isCurrentlyActive = this.layoutState().profilePanelActive;
-    
+
     if (isCurrentlyActive) {
       this.layoutState.update((prev) => ({
         ...prev,
         profilePanelAnimating: true,
         profilePanelActive: false
       }));
-      
+
       setTimeout(() => {
         this.layoutState.update((prev) => ({
           ...prev,

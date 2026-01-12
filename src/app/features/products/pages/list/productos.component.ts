@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
@@ -28,7 +28,7 @@ import { SupplierService } from '@app/features/supplier/services/supplier.servic
 import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../../../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { LayoutService } from '@app/layout/service/layout.service';
 
 @Component({
   selector: 'app-productos',
@@ -53,14 +53,13 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
     ProductDetailSidebarComponent,
     ProductDetailSidebarComponent,
     SectionHeaderComponent,
-    EmptyStateComponent,
-    IconComponent
+    EmptyStateComponent
   ],
   providers: [],
-  templateUrl: './productos.component.html',
-
+  templateUrl: './productos.component.html'
 })
-export class ProductosComponent implements OnInit {
+export class ProductosComponent implements OnInit, OnDestroy {
+  public layoutService = inject(LayoutService);
   private invoiceService = inject(InvoiceService);
   private supplierService = inject(SupplierService);
   private toastService = inject(ToastService);
@@ -82,43 +81,68 @@ export class ProductosComponent implements OnInit {
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
+  showMobileSearch = false; // New state for mobile search toggle
   searchTerm: string = '';
 
   // View State
   viewMode: 'list' | 'cards' = 'cards';
   selectedCategory: string | null = null;
 
-  get uniqueCategories(): { name: string, count: number }[] {
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
+  get uniqueCategories(): { name: string; count: number }[] {
     const categoryCounts = new Map<string, number>();
 
     // Use filtered products instead of all products
-    this.filteredProducts.forEach(p => {
+    this.filteredProducts.forEach((p) => {
       if (p.category?.name) {
         categoryCounts.set(p.category.name, (categoryCounts.get(p.category.name) || 0) + 1);
       }
     });
 
-    return Array.from(categoryCounts.entries()).map(([name, count]) => ({
-      name,
-      count
-    })).sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(categoryCounts.entries())
+      .map(([name, count]) => ({
+        name,
+        count
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get currentCategoryIndex(): number {
+    if (!this.selectedCategory) return -1;
+    return this.uniqueCategories.findIndex((c) => c.name === this.selectedCategory);
+  }
+
+  nextCategory() {
+    const currentIndex = this.currentCategoryIndex;
+    if (currentIndex !== -1 && currentIndex < this.uniqueCategories.length - 1) {
+      this.selectCategory(this.uniqueCategories[currentIndex + 1].name);
+    }
+  }
+
+  prevCategory() {
+    const currentIndex = this.currentCategoryIndex;
+    if (currentIndex > 0) {
+      this.selectCategory(this.uniqueCategories[currentIndex - 1].name);
+    }
   }
 
   get filteredProducts(): Product[] {
     if (!this.searchTerm) return this.productos;
     const lowerTerm = this.normalizeText(this.searchTerm);
-    return this.productos.filter(p =>
-      this.normalizeText(p.name).includes(lowerTerm) ||
-      (p.category?.name && this.normalizeText(p.category.name).includes(lowerTerm)) ||
-      (p.eanCode && p.eanCode.includes(lowerTerm))
+    return this.productos.filter(
+      (p) =>
+        this.normalizeText(p.name).includes(lowerTerm) ||
+        (p.category?.name && this.normalizeText(p.category.name).includes(lowerTerm)) ||
+        (p.eanCode && p.eanCode.includes(lowerTerm))
     );
   }
 
-
-
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
-    return this.filteredProducts.filter(p => p.category?.name === this.selectedCategory);
+    return this.filteredProducts.filter((p) => p.category?.name === this.selectedCategory);
   }
 
   // --- UI Handlers & Interactivity ---
@@ -137,8 +161,6 @@ export class ProductosComponent implements OnInit {
     /* this.toastService.info('Funcionalidad deshabilitada', 'El historial de inventarios no está disponible.'); */
   }
 
-
-
   selectCategory(categoryName: string) {
     this.selectedProduct = null; // Close product detail if open
     this.selectedCategory = categoryName;
@@ -156,32 +178,54 @@ export class ProductosComponent implements OnInit {
     });
   }
 
+  // --- Swipe Handling ---
+  private touchStartX = 0;
+  private touchStartY = 0;
+
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartY = event.changedTouches[0].screenY;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    const touchEndX = event.changedTouches[0].screenX;
+    const touchEndY = event.changedTouches[0].screenY;
+    this.handleSwipeGesture(touchEndX, touchEndY);
+  }
+
+  private handleSwipeGesture(touchEndX: number, touchEndY: number) {
+    const deltaX = touchEndX - this.touchStartX;
+    const deltaY = touchEndY - this.touchStartY;
+
+    // Minimum swipe distance threshold (e.g., 50px)
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX < 0) {
+        // Swipe Left -> Next Category
+        this.nextCategory();
+      } else {
+        // Swipe Right -> Prev Category
+        this.prevCategory();
+      }
+    }
+  }
+
   // --- Initialization & Lifecycle ---
 
   async ngOnInit(): Promise<void> {
+    this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
 
     this.invoiceService.getProducts().subscribe({
       next: (productos: Product[]) => {
-        // Map potential snake_case from backend, parse string numbers,
-        // and extract category from nested subcategory structure
-        this.productos = productos.map(p => {
+        // Map potential snake_case from backend and parse string numbers
+        this.productos = productos.map((p) => {
           let count = (p as any).unit_count ?? p.unitCount;
           if (typeof count === 'string') {
             count = parseFloat(count.replace(',', '.'));
           }
-
-          // Extract category from nested subcategory.category structure (new backend format)
-          const subcategory = (p as any).subcategory;
-          const category = subcategory?.category ?? (p as any).category;
-
           return {
             ...p,
-            unitCount: count,
-            // Map the nested category structure to flat category for template compatibility
-            category: category,
-            // Keep subcategory info available
-            subcategory: subcategory
+            unitCount: count
           };
         });
         this.cargando = false;
@@ -193,6 +237,10 @@ export class ProductosComponent implements OnInit {
         this.toastService.error('Error', 'No se pudieron cargar los productos. Intenta nuevamente.', 4000);
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.layoutService.setPageTitle('');
   }
 
   // --- Helpers & Utilities ---
@@ -224,7 +272,7 @@ export class ProductosComponent implements OnInit {
         if (this.productos.length === 0) return;
 
         this.cargando = true;
-        const deleteObservables = this.productos.map(p => this.invoiceService.deleteProduct(p.id));
+        const deleteObservables = this.productos.map((p) => this.invoiceService.deleteProduct(p.id));
 
         forkJoin(deleteObservables).subscribe({
           next: () => {
@@ -248,7 +296,10 @@ export class ProductosComponent implements OnInit {
   invoices: Invoice[] = [];
 
   private normalizeText(text: string): string {
-    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
   showDialog(product: Product) {
@@ -266,21 +317,21 @@ export class ProductosComponent implements OnInit {
           console.error('Error al cargar facturas:', error);
           this.toastService.error('Error', 'No se pudieron cargar las facturas.');
         }
-      })
+      });
     }
   }
 
   private async updatePriceChart(product: Product) {
-
     const labels: string[] = [];
     const prices: number[] = [];
 
     const result = await firstValueFrom(this.supplierService.getPriceHistory(product.id));
     result.reverse().forEach((price: any) => {
-      labels.push(new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+      labels.push(
+        new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      );
       prices.push(price.price);
     });
-
 
     this.priceChartData = {
       labels: labels,
@@ -316,7 +367,9 @@ export class ProductosComponent implements OnInit {
                 label += ': ';
               }
               if (context.parsed.y !== null) {
-                label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(context.parsed.y);
+                label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
+                  context.parsed.y
+                );
               }
               return label;
             }
@@ -359,38 +412,25 @@ export class ProductosComponent implements OnInit {
     if (!category) return {};
 
     switch (category.toLowerCase()) {
-      case 'verduras':
-        return { backgroundColor: '#e6f4ea', color: '#1f7a4a' };
       case 'frutas':
-        return { backgroundColor: '#eef7ec', color: '#3a8f5b' };
+      case 'verduras':
+        // Green
+        return { backgroundColor: '#dcfce7', color: '#166534' };
       case 'carnes':
-        return { backgroundColor: '#f6e1e1', color: '#8b2c2c' };
-      case 'pescados y mariscos':
-        return { backgroundColor: '#e0f2f1', color: '#0f5f5c' };
-      case 'secos y granos':
-        return { backgroundColor: '#f5f0dc', color: '#8a6a2f' };
-      case 'panadería':
-        return { backgroundColor: '#f3e6d8', color: '#8c4b1f' };
-      case 'conservas':
-        return { backgroundColor: '#f2e2b8', color: '#7a5a1e' };
-      case 'aceites y condimentos':
-        return { backgroundColor: '#f6f1cf', color: '#7c6412' };
-      case 'lácteos':
-        return { backgroundColor: '#e8eff8', color: '#2c4f91' };
-      case 'repostería y pastelería':
-        return { backgroundColor: '#f4e3ea', color: '#8a2f5d' };
+        // Red
+        return { backgroundColor: '#fee2e2', color: '#991b1b' };
+      case 'lacteos':
+        // Blue
+        return { backgroundColor: '#dbeafe', color: '#1e40af' };
       case 'bebidas':
-        return { backgroundColor: '#cffafe', color: '#0e7490' };
+        // Yellow/Orange
+        return { backgroundColor: '#fef9c3', color: '#854d0e' };
       case 'limpieza':
+        // Purple
         return { backgroundColor: '#f3e8ff', color: '#6b21a8' };
-      case 'packaging':
-        return { backgroundColor: '#edf0f4', color: '#4b5563' };
-      case 'útiles y menaje':
-        return { backgroundColor: '#e5e7eb', color: '#374151' };
-      case 'otros':
-        return { backgroundColor: '#f1f3f5', color: '#6b7280' };
       default:
-        return { backgroundColor: '#e9f1ed', color: '#4a6a5c' };
+        // Gray
+        return { backgroundColor: '#f3f4f6', color: '#374151' };
     }
   }
 

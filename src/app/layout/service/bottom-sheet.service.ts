@@ -1,51 +1,109 @@
 import { Injectable, signal } from '@angular/core';
 
-export type SheetState = 'compact' | 'medium' | 'expanded';
+export type SheetState = 'closed' | 'chat-open' | 'menu-open';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BottomSheetService {
-  // Estado actual del Bottom Sheet
-  private state = signal<SheetState>('compact');
+  // Estado actual del Bottom Sheet/Modals
+  private state = signal<SheetState>('closed');
+
+  // Identificador único del estado de historial actual
+  private currentHistoryId: string | null = null;
 
   // Getter para el estado actual
   currentState = this.state.asReadonly();
 
+  // Genera un ID único para el estado de historial
+  private generateHistoryId(): string {
+    return `modal-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+  }
+
   // Método para cambiar el estado
   setState(newState: SheetState) {
+    const oldState = this.state();
+
+    // Detectar si estamos abriendo un modal
+    const isOpening = oldState === 'closed' && (newState === 'chat-open' || newState === 'menu-open');
+
+    // Detectar si estamos cerrando un modal
+    const isClosing = (oldState === 'chat-open' || oldState === 'menu-open') && newState === 'closed';
+
+    // Manejo del historial del navegador
+    try {
+      if (isOpening) {
+        // Al abrir, generamos un ID único para este estado de historial
+        this.currentHistoryId = this.generateHistoryId();
+        const modalType = newState === 'chat-open' ? 'chat' : 'menu';
+
+        // Añadimos un estado al historial para que el botón "Atrás" funcione
+        history.pushState(
+          {
+            modalOpen: true,
+            modalType,
+            historyId: this.currentHistoryId
+          },
+          '',
+          location.href
+        );
+      } else if (isClosing) {
+        // Al cerrar por UI, solo llamamos a history.back() si el estado actual
+        // del historial es el que nosotros creamos al abrir este modal
+        if (history.state && history.state.modalOpen && history.state.historyId === this.currentHistoryId) {
+          history.back();
+        }
+        // Limpiamos el ID ya que el modal se está cerrando
+        this.currentHistoryId = null;
+      }
+    } catch (e) {
+      console.warn('History API not available or failed', e);
+    }
+
     this.state.set(newState);
   }
 
-  // Método para toggle entre estados
-  toggleState() {
-    const current = this.state();
-    if (current === 'compact') {
-      this.setState('medium');
-    } else if (current === 'medium') {
-      this.setState('expanded');
-    } else {
-      this.setState('compact');
+  // Abrir el chat
+  openChat() {
+    this.setState('chat-open');
+  }
+
+  // Abrir el menú
+  openMenu() {
+    this.setState('menu-open');
+  }
+
+  // Cerrar el chat
+  closeChat() {
+    if (this.state() === 'chat-open') {
+      this.setState('closed');
     }
   }
 
-  // Colapsar al estado compacto
-  collapse() {
-    this.setState('compact');
+  // Cerrar el menú
+  closeMenu() {
+    if (this.state() === 'menu-open') {
+      this.setState('closed');
+    }
   }
 
-  // Expandir al máximo
-  expand() {
-    this.setState('expanded');
+  // Cerrar cualquier cosa que esté abierta
+  closeAll() {
+    this.setState('closed');
   }
 
-  // Verificar si está en modo compacto
-  isCompact(): boolean {
-    return this.state() === 'compact';
+  // Verificar si el chat está abierto
+  isChatOpen(): boolean {
+    return this.state() === 'chat-open';
   }
 
-  // Verificar si está expandido
-  isExpanded(): boolean {
-    return this.state() === 'expanded';
+  // Verificar si el menú está abierto
+  isMenuOpen(): boolean {
+    return this.state() === 'menu-open';
+  }
+
+  // Verificar si algo está abierto
+  isAnyOpen(): boolean {
+    return this.state() !== 'closed';
   }
 }
