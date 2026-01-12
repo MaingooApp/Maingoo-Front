@@ -47,7 +47,7 @@ export class AppSidebar {
     { label: 'Almacén', icon: 'warehouse', route: '/productos' },
     { label: 'Docs', icon: 'description', route: '/docgenerator' },
     { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
-    // { label: 'Ventas', icon: 'payments', route: '/not-found' },
+    { label: 'Ventas', icon: 'payments', route: '/ventas' },
   ];
 
   // Contextos por ruta

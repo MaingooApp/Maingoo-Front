@@ -14,4 +14,5 @@ export class EmptyStateComponent {
 	@Input() description: string = '';
 	@Input() icon: string = '';
 	@Input() iconSize: string = '6rem';
+	@Input() showComingSoon: boolean = false;
 }

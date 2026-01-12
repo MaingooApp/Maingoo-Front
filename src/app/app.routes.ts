@@ -20,7 +20,8 @@ export const appRoutes: Routes = [
       { path: 'productos', loadChildren: () => import('./features/products/product.routes') },
       { path: 'articulos', loadChildren: () => import('./features/articles/articles.routes') },
       { path: 'docgenerator', component: DocGeneratorComponent },
-      { path: 'miperfil', component: MyProfileComponent }
+      { path: 'miperfil', component: MyProfileComponent },
+      { path: 'ventas', loadComponent: () => import('./features/ventas/ventas.component').then(m => m.VentasComponent) }
     ],
     canActivate: [roleGuard(['ADMIN', 'admin', 'USER'])]
   },
