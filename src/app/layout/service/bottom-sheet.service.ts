@@ -15,6 +15,11 @@ export class BottomSheetService {
   // Getter para el estado actual
   currentState = this.state.asReadonly();
 
+  // Genera un ID único para el estado de historial
+  private generateHistoryId(): string {
+    return `modal-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+  }
+
   // Método para cambiar el estado
   setState(newState: SheetState) {
     const oldState = this.state();
@@ -29,7 +34,7 @@ export class BottomSheetService {
     try {
       if (isOpening) {
         // Al abrir, generamos un ID único para este estado de historial
-        this.currentHistoryId = `modal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        this.currentHistoryId = this.generateHistoryId();
         const modalType = newState === 'chat-open' ? 'chat' : 'menu';
 
         // Añadimos un estado al historial para que el botón "Atrás" funcione
