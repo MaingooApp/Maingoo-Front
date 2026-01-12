@@ -43,14 +43,9 @@ export class Dashboard implements OnInit {
   supplierChartLoading = true;
   supplierChartTotal = 0;
 
-  /** Opciones de período de tiempo para el filtro */
-  supplierPeriodOptions = [
-    { label: 'Semana', value: 'week' },
-    { label: 'Mes', value: 'month' }
-  ];
 
-  /** Período seleccionado para el gráfico de proveedores */
-  selectedSupplierPeriod = 'week';
+  /** Período fijo para el gráfico de proveedores (siempre semana actual) */
+  private readonly supplierPeriod = 'week';
 
   /** Almacén de todas las facturas para filtrar localmente */
   private allInvoices: Invoice[] = [];
@@ -155,24 +150,10 @@ export class Dashboard implements OnInit {
   }
 
   /**
-   * Actualiza el gráfico de proveedores según el período seleccionado
-   */
-  onSupplierPeriodChange(): void {
-    // Mostrar warning si se selecciona total histórico
-    if (this.selectedSupplierPeriod === 'all') {
-      this.toastService.warn(
-        'Vista histórica',
-        'En un futuro esta vista estará disponible en otra sección'
-      );
-    }
-    this.updateSupplierChart();
-  }
-
-  /**
-   * Actualiza el gráfico de proveedores con las facturas filtradas
+   * Actualiza el gráfico de proveedores con las facturas de la semana actual
    */
   private updateSupplierChart(): void {
-    const filteredInvoices = this.filterInvoicesByPeriod(this.allInvoices, this.selectedSupplierPeriod);
+    const filteredInvoices = this.filterInvoicesByPeriod(this.allInvoices, this.supplierPeriod);
     this.processInvoicesForChart(filteredInvoices);
   }
 
@@ -525,6 +506,13 @@ export class Dashboard implements OnInit {
    */
   private processProductsForChart(products: any[]): void {
     if (!isPlatformBrowser(this.platformId)) return;
+
+    // Si no hay productos, mostrar empty state
+    if (!products || products.length === 0) {
+      this.productChartData = null;
+      this.productChartTotal = 0;
+      return;
+    }
 
     // Agrupar productos por categoría
     const categoryTotals = new Map<string, { name: string; count: number }>();
