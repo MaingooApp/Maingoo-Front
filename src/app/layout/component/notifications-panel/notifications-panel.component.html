@@ -1,7 +1,5 @@
 <!-- Overlay Backdrop (click to close) -->
-<div
-  *ngIf="layoutService.isNotificationPanelActive()"
-  (click)="layoutService.toggleNotificationPanel()"
+<div *ngIf="layoutService.isNotificationPanelActive()" (click)="layoutService.toggleNotificationPanel()"
   class="fixed inset-0 bg-black/40 z-[999] backdrop-blur-sm transition-opacity duration-300 animate-fade-in"></div>
 
 <!-- Notification Sidebar -->
@@ -13,21 +11,18 @@
   <div
     class="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-surface-700 bg-white dark:bg-surface-900">
     <div class="flex items-center gap-3">
-      <i class="pi pi-bell text-xl text-[#1A3C34] dark:text-surface-0"></i>
+      <app-icon name="notifications" size="lg" class="text-[#1A3C34] dark:text-surface-0"></app-icon>
       <h2 class="text-xl font-bold text-[#1A3C34] dark:text-surface-0 m-0">Notificaciones</h2>
     </div>
 
     <div class="flex items-center gap-2">
-      <button
-        *ngIf="notifications.length > 0"
-        (click)="clearAllNotifications()"
+      <button *ngIf="notifications.length > 0" (click)="clearAllNotifications()"
         class="p-button p-button-text p-button-rounded p-button-sm text-[#6B9E86] hover:text-[#1A3C34] font-medium mr-2">
         Limpiar
       </button>
-      <button
-        (click)="layoutService.toggleNotificationPanel()"
+      <button (click)="layoutService.toggleNotificationPanel()"
         class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-surface-800 transition-colors text-gray-500 dark:text-surface-400">
-        <i class="pi pi-times text-xl"></i>
+        <app-icon name="close" size="lg"></app-icon>
       </button>
     </div>
   </div>
@@ -35,22 +30,21 @@
   <!-- Lista de notificaciones con scroll -->
   <div class="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-surface-900">
     @if (notifications.length === 0) {
-      <div class="flex flex-col items-center justify-center h-full p-8 text-center text-gray-400">
-        <div class="w-16 h-16 bg-gray-100 dark:bg-surface-800 rounded-full flex items-center justify-center mb-4">
-          <i class="pi pi-bell-slash text-2xl"></i>
-        </div>
-        <p class="text-lg font-medium text-gray-600 dark:text-surface-300">Sin notificaciones</p>
-        <p class="text-sm mt-1 text-gray-400">No tienes notificaciones pendientes en este momento.</p>
+    <div class="flex flex-col items-center justify-center h-full p-8 text-center text-gray-400">
+      <div class="w-16 h-16 bg-gray-100 dark:bg-surface-800 rounded-full flex items-center justify-center mb-4">
+        <app-icon name="notifications_off" size="xl"></app-icon>
       </div>
+      <p class="text-lg font-medium text-gray-600 dark:text-surface-300">Sin notificaciones</p>
+      <p class="text-sm mt-1 text-gray-400">No tienes notificaciones pendientes en este momento.</p>
+    </div>
     } @else {
-      <div class="flex flex-col">
-        @for (notification of notifications; track notification.id) {
-          <div
-            class="p-5 border-b border-gray-100 dark:border-surface-800 bg-white dark:bg-surface-800 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors relative group">
-            <div class="flex gap-4">
-              <!-- Icono de estado -->
-              <div
-                [class]="
+    <div class="flex flex-col">
+      @for (notification of notifications; track notification.id) {
+      <div
+        class="p-5 border-b border-gray-100 dark:border-surface-800 bg-white dark:bg-surface-800 hover:bg-gray-50 dark:hover:bg-surface-700 transition-colors relative group">
+        <div class="flex gap-4">
+          <!-- Icono de estado -->
+          <div [class]="
                   'w-10 h-10 rounded-full flex items-center justify-center shrink-0 ' +
                   (notification.severity === 'success'
                     ? 'bg-green-100 text-green-600'
@@ -60,26 +54,26 @@
                         ? 'bg-orange-100 text-orange-600'
                         : 'bg-blue-100 text-blue-600')
                 ">
-                <i [class]="'pi ' + getSeverityIcon(notification.severity) + ' text-lg'"></i>
-              </div>
-
-              <!-- Contenido -->
-              <div class="flex-1 min-w-0">
-                <div class="flex justify-between items-start mb-1">
-                  <p class="text-sm font-semibold text-gray-900 dark:text-surface-0 leading-tight pr-2">
-                    {{ notification.summary }}
-                  </p>
-                  <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatTime(notification.timestamp) }}</span>
-                </div>
-
-                @if (notification.detail) {
-                  <p class="text-sm text-gray-600 dark:text-surface-400 leading-relaxed">{{ notification.detail }}</p>
-                }
-              </div>
-            </div>
+            <i [class]="'pi ' + getSeverityIcon(notification.severity) + ' text-lg'"></i>
           </div>
-        }
+
+          <!-- Contenido -->
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start mb-1">
+              <p class="text-sm font-semibold text-gray-900 dark:text-surface-0 leading-tight pr-2">
+                {{ notification.summary }}
+              </p>
+              <span class="text-xs text-gray-400 whitespace-nowrap">{{ formatTime(notification.timestamp) }}</span>
+            </div>
+
+            @if (notification.detail) {
+            <p class="text-sm text-gray-600 dark:text-surface-400 leading-relaxed">{{ notification.detail }}</p>
+            }
+          </div>
+        </div>
       </div>
+      }
+    </div>
     }
   </div>
 </div>
