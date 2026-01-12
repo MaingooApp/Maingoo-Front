@@ -2,11 +2,12 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { IconComponent } from '../icon/icon.component';
 
 @Component({
 	selector: 'app-section-header',
 	standalone: true,
-	imports: [CommonModule, FormsModule, InputTextModule],
+	imports: [CommonModule, FormsModule, InputTextModule, IconComponent],
 	templateUrl: './section-header.component.html'
 })
 export class SectionHeaderComponent {
