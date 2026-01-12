@@ -75,9 +75,10 @@
           <div class="flex flex-wrap gap-2">
             <ng-container *ngIf="product?.allergens && product!.allergens.length > 0; else noAllergens">
               <p-tag *ngFor="let alergeno of product?.allergens" [value]="alergeno.name" severity="warn"
-                [rounded]="true" icon="pi pi-exclamation-triangle" [pTooltip]="alergeno.description"
-                tooltipPosition="top"
-                styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800"></p-tag>
+                [rounded]="true" [pTooltip]="alergeno.description" tooltipPosition="top"
+                styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800">
+                <app-icon name="warning" size="xs" class="mr-1"></app-icon>
+              </p-tag>
             </ng-container>
             <ng-template #noAllergens>
               <span class="text-sm text-gray-400 italic">Sin alérgenos</span>

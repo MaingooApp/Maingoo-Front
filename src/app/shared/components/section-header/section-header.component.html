@@ -9,12 +9,12 @@
       <button (click)="setViewMode(gridValue)"
         class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
         [ngClass]="viewMode === gridValue ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
-        <span class="material-symbols-outlined text-lg">grid_view</span>
+        <app-icon name="grid_view" size="md"></app-icon>
       </button>
       <button (click)="setViewMode(listValue)"
         class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
         [ngClass]="viewMode === listValue ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
-        <span class="material-symbols-outlined text-lg">list</span>
+        <app-icon name="list" size="md"></app-icon>
       </button>
     </div>
 
