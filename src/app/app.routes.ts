@@ -13,7 +13,7 @@ export const appRoutes: Routes = [
     component: AppLayout,
     children: [
       { path: '', component: Dashboard },
-      { path: 'uikit', loadChildren: () => import('./shared/components/uikit/uikit.routes') },
+
       { path: 'pages', loadChildren: () => import('./features/pages.routes') },
       { path: 'facturas', loadChildren: () => import('./features/invoices/invoice.routes') },
       { path: 'proveedores', component: SupplierComponent },
