@@ -9,8 +9,16 @@ export class BottomSheetService {
   // Estado actual del Bottom Sheet/Modals
   private state = signal<SheetState>('closed');
 
+  // Identificador único del estado de historial actual
+  private currentHistoryId: string | null = null;
+
   // Getter para el estado actual
   currentState = this.state.asReadonly();
+
+  // Genera un ID único para el estado de historial
+  private generateHistoryId(): string {
+    return `modal-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+  }
 
   // Método para cambiar el estado
   setState(newState: SheetState) {
@@ -25,14 +33,28 @@ export class BottomSheetService {
     // Manejo del historial del navegador
     try {
       if (isOpening) {
-        // Al abrir, añadimos un estado al historial para que el botón "Atrás" funcione
+        // Al abrir, generamos un ID único para este estado de historial
+        this.currentHistoryId = this.generateHistoryId();
         const modalType = newState === 'chat-open' ? 'chat' : 'menu';
-        history.pushState({ modalOpen: true, modalType }, '', location.href);
+
+        // Añadimos un estado al historial para que el botón "Atrás" funcione
+        history.pushState(
+          {
+            modalOpen: true,
+            modalType,
+            historyId: this.currentHistoryId
+          },
+          '',
+          location.href
+        );
       } else if (isClosing) {
-        // Al cerrar por UI, si tenemos nuestro estado en el historial, volvemos atrás
-        if (history.state && history.state.modalOpen) {
+        // Al cerrar por UI, solo llamamos a history.back() si el estado actual
+        // del historial es el que nosotros creamos al abrir este modal
+        if (history.state && history.state.modalOpen && history.state.historyId === this.currentHistoryId) {
           history.back();
         }
+        // Limpiamos el ID ya que el modal se está cerrando
+        this.currentHistoryId = null;
       }
     } catch (e) {
       console.warn('History API not available or failed', e);
