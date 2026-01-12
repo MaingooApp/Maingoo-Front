@@ -6,14 +6,26 @@ import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './sidebar/app.sidebar';
 import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
+import { MobileBottomNavComponent } from './mobile-bottom-nav/mobile-bottom-nav.component';
+import { MobileMenuModalComponent } from './mobile-menu-modal/mobile-menu-modal.component';
 import { ProfilePanelComponent } from './profile-panel/profile-panel.component';
 import { LayoutService } from '../service/layout.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent, MobileBottomSheetComponent, ProfilePanelComponent],
-  templateUrl: './app.layout.html',
+  imports: [
+    CommonModule,
+    AppTopbar,
+    AppSidebar,
+    RouterModule,
+    NotificationsPanelComponent,
+    MobileBottomSheetComponent,
+    MobileBottomNavComponent,
+    MobileMenuModalComponent,
+    ProfilePanelComponent
+  ],
+  templateUrl: './app.layout.html'
 })
 export class AppLayout {
   overlayMenuOpenSubscription: Subscription;

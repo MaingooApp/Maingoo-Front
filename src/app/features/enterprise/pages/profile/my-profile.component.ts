@@ -10,6 +10,7 @@ import {
   ValidatorFn,
   Validators
 } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -57,7 +58,8 @@ export class MyProfileComponent {
     private fb: FormBuilder,
     private enterpriseService: EnterpriseService,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -255,5 +257,10 @@ export class MyProfileComponent {
         console.error('❌ Error al cargar el perfil de la empresa:', error);
       }
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }
