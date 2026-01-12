@@ -107,11 +107,6 @@ export class LayoutService {
 
       this.handleDarkModeTransition(config);
     });
-
-    effect(() => {
-      const state = this.pageTitle();
-      // Side effect if needed
-    });
   }
 
   setPageTitle(title: string) {
