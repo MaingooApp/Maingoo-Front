@@ -46,9 +46,8 @@
               <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
             </ng-container>
             <p-tag *ngIf="product?.subcategory?.name" [value]="product?.subcategory?.name"
-              [style]="!product?.subcategory?.category?.name ? getCategoryStyle(product?.subcategory?.name) : {}"
-              [severity]="product?.subcategory?.category?.name ? 'secondary' : undefined" [rounded]="true"
-              [styleClass]="'text-sm font-normal border-0 px-3 py-1 ' + (product?.subcategory?.category?.name ? 'bg-gray-100 text-gray-600' : '')"></p-tag>
+              [style]="getCategoryStyle(product?.subcategory?.category?.name || product?.subcategory?.name)"
+              [rounded]="true" styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
           </div>
         </div>
 
