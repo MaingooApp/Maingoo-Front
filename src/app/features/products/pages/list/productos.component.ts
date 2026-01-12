@@ -29,31 +29,30 @@ import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../../../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { LayoutService } from '@app/layout/service/layout.service';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-productos',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     TableModule,
     ButtonModule,
     InputTextModule,
-    FormsModule,
-    DialogModule,
-    ToastModule,
-    ConfirmDialogModule,
-    TagModule,
-    NgClass,
-    ChartModule,
-    SkeletonModule,
-    TooltipModule,
-    TooltipModule,
     DropdownModule,
     MultiSelectModule,
-    ProductDetailSidebarComponent,
-    ProductDetailSidebarComponent,
+    TagModule,
+    DialogModule,
+    ConfirmDialogModule,
+    ToastModule,
+    TooltipModule,
+    SkeletonModule,
+    ChartModule,
     SectionHeaderComponent,
-    EmptyStateComponent
+    EmptyStateComponent,
+    ProductDetailSidebarComponent,
+    IconComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'
