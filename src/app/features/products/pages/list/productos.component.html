@@ -114,8 +114,7 @@
                       </ng-container>
                       <span *ngIf="item.subcategory?.name"
                         class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
-                        [ngClass]="item.subcategory?.category?.name ? 'bg-gray-100 text-gray-600' : ''"
-                        [ngStyle]="!item.subcategory?.category?.name ? getCategoryStyle(item.subcategory?.name) : {}">
+                        [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)">
                         {{ item.subcategory?.name }}
                       </span>
                     </div>
@@ -177,9 +176,8 @@
                             <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
                           </ng-container>
                           <p-tag *ngIf="item.subcategory?.name" [value]="item.subcategory?.name"
-                            [style]="!item.subcategory?.category?.name ? getCategoryStyle(item.subcategory?.name) : {}"
-                            [severity]="item.subcategory?.category?.name ? 'secondary' : undefined" [rounded]="true"
-                            [styleClass]="'text-xs font-normal border-0 ' + (item.subcategory?.category?.name ? 'bg-gray-100 text-gray-600' : '')"></p-tag>
+                            [style]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
+                            [rounded]="true" styleClass="text-xs font-normal border-0"></p-tag>
                         </div>
                       </div>
                     </td>
@@ -300,7 +298,8 @@
                               </span>
                               <span class="text-[10px] text-gray-300">/</span>
                             </ng-container>
-                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-50 text-gray-500 font-medium"
+                            <span class="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                              [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
                               *ngIf="item.subcategory?.name">
                               {{ item.subcategory?.name }}
                             </span>

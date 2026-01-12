@@ -30,6 +30,7 @@ import { AddInvoiceModalComponent } from '../../../invoices/components/add-invoi
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { LayoutService } from '@app/layout/service/layout.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
 
 @Component({
   selector: 'app-productos',
@@ -416,29 +417,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
   }
 
   getCategoryStyle(category: string | undefined | null): { [klass: string]: any } {
-    if (!category) return {};
-
-    switch (category.toLowerCase()) {
-      case 'frutas':
-      case 'verduras':
-        // Green
-        return { backgroundColor: '#dcfce7', color: '#166534' };
-      case 'carnes':
-        // Red
-        return { backgroundColor: '#fee2e2', color: '#991b1b' };
-      case 'lacteos':
-        // Blue
-        return { backgroundColor: '#dbeafe', color: '#1e40af' };
-      case 'bebidas':
-        // Yellow/Orange
-        return { backgroundColor: '#fef9c3', color: '#854d0e' };
-      case 'limpieza':
-        // Purple
-        return { backgroundColor: '#f3e8ff', color: '#6b21a8' };
-      default:
-        // Gray
-        return { backgroundColor: '#f3f4f6', color: '#374151' };
-    }
+    return getCategoryColor(category);
   }
 
   filterProductos(event: Event) {
