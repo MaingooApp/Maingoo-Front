@@ -56,8 +56,8 @@ export class Dashboard implements OnInit {
   productChartLoading = true;
   productChartTotal = 0;
 
-  /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' */
-  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | null = null;
+  /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' */
+  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | null = null;
 
   /** Lista resumen de proveedores para el panel */
   supplierSummary: { name: string; total: number; color: string }[] = [];
@@ -74,6 +74,15 @@ export class Dashboard implements OnInit {
   /** Opciones de proveedor para el selector del bar chart */
   supplierOptions: { label: string; value: string }[] = [];
   selectedSupplierId: string = 'all';
+
+  /** Datos fake de personal para el dashboard */
+  staffSchedule = [
+    { name: 'María García', role: 'Camarero/a', shift: '10:00 - 18:00' },
+    { name: 'Carlos Ruiz', role: 'Cocinero/a', shift: '08:00 - 16:00' },
+    { name: 'Ana Martínez', role: 'Encargado/a', shift: '09:00 - 17:00' },
+    { name: 'Luis Fernández', role: 'Ayudante cocina', shift: '12:00 - 20:00' },
+    { name: 'Elena López', role: 'Camarero/a', shift: '16:00 - 00:00' },
+  ];
 
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
