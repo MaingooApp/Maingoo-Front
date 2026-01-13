@@ -45,7 +45,7 @@ export class AppSidebar {
     { label: 'Dashboard', icon: 'monitoring', route: '/' },
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
     { label: 'Almacén', icon: 'warehouse', route: '/productos' },
-    { label: 'Docs', icon: 'description', route: '/docgenerator' },
+    { label: 'Gestoría', icon: 'description', route: '/gestoria' },
     { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
     { label: 'Ventas', icon: 'payments', route: '/ventas' },
   ];

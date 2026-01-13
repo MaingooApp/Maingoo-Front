@@ -19,7 +19,7 @@ export const appRoutes: Routes = [
       { path: 'proveedores', component: SupplierComponent },
       { path: 'productos', loadChildren: () => import('./features/products/product.routes') },
       { path: 'articulos', loadChildren: () => import('./features/articles/articles.routes') },
-      { path: 'docgenerator', component: DocGeneratorComponent },
+      { path: 'gestoria', component: DocGeneratorComponent },
       { path: 'miperfil', component: MyProfileComponent },
       { path: 'ventas', loadComponent: () => import('./features/ventas/ventas.component').then(m => m.VentasComponent) }
     ],
