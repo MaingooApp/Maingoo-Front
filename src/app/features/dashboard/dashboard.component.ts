@@ -50,14 +50,10 @@ export class Dashboard implements OnInit {
   /** Almacén de todas las facturas para filtrar localmente */
   private allInvoices: Invoice[] = [];
 
-  /** Datos del pie chart de categorías de productos */
-  productChartData: any;
-  productChartOptions: any;
-  productChartLoading = true;
-  productChartTotal = 0;
+
 
   /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' */
-  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | null = null;
+  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | 'appcc' | 'docs' | null = null;
 
   /** Lista resumen de proveedores para el panel */
   supplierSummary: { name: string; total: number; color: string }[] = [];
@@ -120,98 +116,42 @@ export class Dashboard implements OnInit {
       this.appccTasks.mensuales.length;
   }
 
-  /** Datos fake del gráfico de ventas */
-  salesChartData: any;
-  salesChartOptions: any;
-
-  /** Genera datos fake para el gráfico de ventas al iniciar */
-  initSalesChart(): void {
-    // Generar etiquetas de tiempo fijas: 13:00 a 17:00 (cada 15 min)
-    const labels: string[] = [];
-    for (let h = 13; h <= 17; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        if (h === 17 && m > 0) break; // Terminar en 17:00
-        labels.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
-      }
+  /** Datos de ventas para la card */
+  salesData = {
+    current: {
+      day: '',
+      time: '',
+      amount: 0
+    },
+    lastWeek: {
+      amount: 0,
+      diff: 0 // Diferencia porcentual
+    },
+    average: {
+      amount: 0
     }
+  };
 
-    // Datos fake acumulativos (ventas van subiendo) - 17 puntos de 13:00 a 17:00
-    const todayData = [0, 85, 170, 290, 420, 530, 680, 820, 950, 1080, 1190, 1350, 1480, null, null, null, null];
-    const lastWeekData = [0, 95, 190, 310, 450, 580, 730, 890, 1020, 1170, 1310, 1480, 1620, 1750, 1880, 1950, 2050];
-    const historicalData = [0, 90, 180, 300, 430, 560, 700, 860, 980, 1120, 1250, 1400, 1540, 1680, 1800, 1900, 1980];
+  /** Actualiza los datos de ventas (Fake) */
+  updateSalesData(): void {
+    const now = new Date();
+    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-    this.salesChartData = {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Hoy',
-          data: todayData,
-          borderColor: '#6B9080',
-          backgroundColor: 'rgba(107, 144, 128, 0.1)',
-          tension: 0.4,
-          fill: true,
-          pointRadius: 0,
-          borderWidth: 2
-        },
-        {
-          label: 'Semana pasada',
-          data: lastWeekData,
-          borderColor: '#F59E0B',
-          backgroundColor: 'transparent',
-          tension: 0.4,
-          fill: false,
-          pointRadius: 0,
-          borderDash: [5, 5],
-          borderWidth: 2
-        },
-        {
-          label: 'Media histórica',
-          data: historicalData,
-          borderColor: '#9CA3AF',
-          backgroundColor: 'transparent',
-          tension: 0.4,
-          fill: false,
-          pointRadius: 0,
-          borderDash: [2, 2],
-          borderWidth: 1.5
-        }
-      ]
-    };
+    this.salesData.current.day = days[now.getDay()];
+    this.salesData.current.time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
-    this.salesChartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      aspectRatio: 0.6,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const value = context.raw as number;
-              return value !== null ? ` ${context.dataset.label}: ${this.formatCurrency(value)}` : '';
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { font: { size: 9 } }
-        },
-        y: {
-          beginAtZero: true,
-          grid: { color: '#f3f4f6' },
-          ticks: {
-            stepSize: 100,
-            font: { size: 9 },
-            callback: (value: number) => `${value}€`
-          }
-        }
-      }
-    };
+    // Fake data logic
+    this.salesData.current.amount = 1250.50;
+    this.salesData.lastWeek.amount = 1100.20;
+    this.salesData.average.amount = 1150.00; // Media histórica
+
+    // Calcular diferencia porcentual del día actual vs semana pasada
+    const diff = ((this.salesData.current.amount - this.salesData.lastWeek.amount) / this.salesData.lastWeek.amount) * 100;
+    this.salesData.lastWeek.diff = Math.round(diff);
   }
+
+
+
 
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
@@ -245,8 +185,8 @@ export class Dashboard implements OnInit {
     this.loadActividadSlot();
     this.loadIncidenciasSlot();
     this.loadSupplierChart();
-    this.loadProductChart();
-    this.initSalesChart();
+
+    this.updateSalesData();
   }
 
   /**
@@ -536,25 +476,7 @@ export class Dashboard implements OnInit {
     this.updateMonthlyExpenseChart();
   }
 
-  /**
-   * Carga los datos reales para el pie chart de categorías de productos
-   */
-  loadProductChart(): void {
-    this.productChartLoading = true;
 
-    this.invoiceService.getProducts().subscribe({
-      next: (products) => {
-        this.processProductsForChart(products);
-        this.productChartLoading = false;
-        this.cd.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error cargando productos para el gráfico:', err);
-        this.productChartLoading = false;
-        this.cd.markForCheck();
-      }
-    });
-  }
 
   /**
    * Procesa las facturas y agrupa por proveedor para el pie chart
@@ -640,117 +562,9 @@ export class Dashboard implements OnInit {
     };
   }
 
-  /**
-   * Procesa los productos y agrupa por categoría para el pie chart
-   */
-  private processProductsForChart(products: any[]): void {
-    if (!isPlatformBrowser(this.platformId)) return;
 
-    // Si no hay productos, mostrar empty state
-    if (!products || products.length === 0) {
-      this.productChartData = null;
-      this.productChartTotal = 0;
-      return;
-    }
 
-    // Agrupar productos por categoría
-    const categoryTotals = new Map<string, { name: string; count: number }>();
 
-    products.forEach(product => {
-      const categoryName = product.category?.name || 'Sin categoría';
-
-      if (categoryTotals.has(categoryName)) {
-        const current = categoryTotals.get(categoryName)!;
-        current.count += 1;
-      } else {
-        categoryTotals.set(categoryName, { name: categoryName, count: 1 });
-      }
-    });
-
-    // Convertir a array y ordenar por cantidad (descendente)
-    const chartCategories = Array.from(categoryTotals.values())
-      .sort((a, b) => b.count - a.count);
-
-    // Calcular total
-    this.productChartTotal = chartCategories.reduce((sum, c) => sum + c.count, 0);
-
-    // Generar datos del chart
-    const labels = chartCategories.map(c => c.name);
-    const data = chartCategories.map(c => c.count);
-    // Asignar colores según el nombre de la categoría (igual que getCategoryStyle en productos)
-    const colors = chartCategories.map(c => this.getCategoryColor(c.name));
-
-    this.productChartData = {
-      labels: labels,
-      datasets: [
-        {
-          data: data,
-          backgroundColor: colors,
-          hoverBackgroundColor: colors.map(c => this.darkenColor(c)),
-          borderWidth: 0
-        }
-      ]
-    };
-
-    this.productChartOptions = {
-      cutout: '60%',
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          callbacks: {
-            label: (context: any) => {
-              const value = context.raw as number;
-              return ` ${context.label}: ${value} productos`;
-            }
-          }
-        }
-      },
-      maintainAspectRatio: false
-    };
-  }
-
-  /**
-   * Obtiene el color de fondo para una categoría (igual que getCategoryStyle en productos)
-   */
-  private getCategoryColor(category: string): string {
-    switch (category.toLowerCase()) {
-      case 'verduras':
-        return '#4ade80';
-      case 'frutas':
-        return '#86efac';
-      case 'carnes':
-        return '#f87171';
-      case 'pescados y mariscos':
-        return '#2dd4bf';
-      case 'secos y granos':
-        return '#fbbf24';
-      case 'panadería':
-        return '#fb923c';
-      case 'conservas':
-        return '#fcd34d';
-      case 'aceites y condimentos':
-        return '#facc15';
-      case 'lácteos':
-      case 'lacteos':
-        return '#60a5fa';
-      case 'repostería y pastelería':
-        return '#f472b6';
-      case 'bebidas':
-        return '#22d3ee';
-      case 'limpieza':
-        return '#a78bfa';
-      case 'packaging':
-        return '#94a3b8';
-      case 'útiles y menaje':
-        return '#9ca3af';
-      case 'otros':
-        return '#d1d5db';
-      default:
-        return '#6B9080';
-    }
-  }
 
   /**
    * Genera un color consistente para un proveedor basado en su ID
@@ -802,7 +616,7 @@ export class Dashboard implements OnInit {
   /**
    * Abre un panel lateral de métricas
    */
-  openPanel(panel: 'suppliers' | 'products' | 'articles' | 'sales' | 'gestoria'): void {
+  openPanel(panel: 'suppliers' | 'products' | 'articles' | 'sales' | 'gestoria' | 'staff' | 'appcc' | 'docs'): void {
     this.activePanel = panel;
 
     // Inicializar bar chart cuando se abre el panel de proveedores

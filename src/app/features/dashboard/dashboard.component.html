@@ -103,29 +103,7 @@
 
           <!-- Pie Chart Container -->
           <div class="flex-1 flex items-center justify-center">
-            <!-- Loading state -->
-            <div *ngIf="productChartLoading" class="flex flex-col items-center gap-3">
-              <p-skeleton shape="circle" size="140px"></p-skeleton>
-              <p-skeleton width="120px" height="12px"></p-skeleton>
-            </div>
-
-            <!-- Chart -->
-            <p-chart *ngIf="!productChartLoading && productChartData" type="doughnut" [data]="productChartData"
-              [options]="productChartOptions" class="w-full h-full">
-            </p-chart>
-
-            <!-- Empty state -->
-            <p *ngIf="!productChartLoading && !productChartData" class="text-gray-400 text-sm italic">
-              Sin productos registrados
-            </p>
-          </div>
-
-          <!-- Total footer -->
-          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-            <span class="text-xs text-gray-500">Total productos</span>
-            <span *ngIf="!productChartLoading" class="text-sm font-bold text-maingoo-deep">{{ productChartTotal
-              }}</span>
-            <p-skeleton *ngIf="productChartLoading" width="40px" height="16px"></p-skeleton>
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
           </div>
         </div>
 
@@ -174,14 +152,51 @@
               </div>
             </div>
             <!-- Badge fake data -->
-            <span
-              class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 uppercase tracking-wide">Fake
-              data</span>
+            <div class="flex items-center gap-3">
+              <!-- Badge fake data -->
+              <span
+                class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">FAKE</span>
+              <!-- Botón ver más -->
+              <button
+                class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+                (click)="openPanel('sales')">
+                <span>Ver más</span>
+                <app-icon name="arrow_forward" size="xs"
+                  class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+              </button>
+            </div>
           </div>
           <!-- Sales Chart -->
-          <div class="flex-1">
-            <p-chart *ngIf="salesChartData" type="line" [data]="salesChartData" [options]="salesChartOptions"
-              class="w-full h-full"></p-chart>
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <!-- Current -->
+            <div>
+              <p class="text-xs text-gray-500 font-medium mb-0.5">{{ salesData.current.day }} {{ salesData.current.time
+                }}</p>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-bold text-maingoo-deep">{{ salesData.current.amount |
+                  currency:'EUR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Last Week -->
+            <div>
+              <div class="flex justify-between items-center text-xs text-gray-500 mb-0.5">
+                <span>{{ salesData.current.day }} pasado</span>
+                <span
+                  [ngClass]="salesData.lastWeek.diff >= 0 ? 'text-green-600 bg-green-50 px-1.5 py-0.5 rounded' : 'text-red-500 bg-red-50 px-1.5 py-0.5 rounded'">
+                  {{ salesData.lastWeek.diff > 0 ? '+' : ''}}{{ salesData.lastWeek.diff }}%
+                </span>
+              </div>
+              <span class="text-lg font-semibold text-gray-700 block leading-none">{{ salesData.lastWeek.amount |
+                currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <!-- Average -->
+            <div>
+              <span class="text-xs text-gray-500 block mb-0.5">Media histórica {{ salesData.current.day }}</span>
+              <span class="text-lg font-semibold text-gray-700 block leading-none">{{ salesData.average.amount |
+                currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
           </div>
         </div>
 
@@ -197,14 +212,24 @@
                 <app-icon name="group" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
-                <h3 class="font-bold text-maingoo-deep text-base m-0">Personal</h3>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Equipo</h3>
                 <p class="text-gray-400 text-xs m-0">Horario de hoy</p>
               </div>
             </div>
             <!-- Badge fake data -->
-            <span
-              class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 uppercase tracking-wide">Fake
-              data</span>
+            <div class="flex items-center gap-3">
+              <!-- Badge fake data -->
+              <span
+                class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">FAKE</span>
+              <!-- Botón ver más -->
+              <button
+                class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+                (click)="openPanel('staff')">
+                <span>Ver más</span>
+                <app-icon name="arrow_forward" size="xs"
+                  class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+              </button>
+            </div>
           </div>
 
           <!-- Staff Schedule List -->
@@ -289,9 +314,19 @@
               </div>
             </div>
             <!-- Badge fake data -->
-            <span
-              class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 uppercase tracking-wide">Fake
-              data</span>
+            <div class="flex items-center gap-3">
+              <!-- Badge fake data -->
+              <span
+                class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">FAKE</span>
+              <!-- Botón ver más -->
+              <button
+                class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+                (click)="openPanel('appcc')">
+                <span>Ver más</span>
+                <app-icon name="arrow_forward" size="xs"
+                  class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+              </button>
+            </div>
           </div>
 
           <!-- Tasks List by Category -->
@@ -356,12 +391,20 @@
           <div class="flex items-center gap-3 mb-4">
             <div
               class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="task_alt" size="xl" class="text-maingoo-sage"></app-icon>
+              <app-icon name="folder" size="xl" class="text-maingoo-sage"></app-icon>
             </div>
             <div>
               <h3 class="font-bold text-maingoo-deep text-base m-0">Docs</h3>
               <p class="text-gray-400 text-xs m-0">Pendientes del día</p>
             </div>
+            <!-- Botón ver más -->
+            <button
+              class="ml-auto flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('docs')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
           </div>
           <div class="flex-1 flex items-center justify-center">
             <p class="text-gray-400 text-sm italic">Próximamente</p>
@@ -381,7 +424,7 @@
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center">
               <app-icon
-                [name]="activePanel === 'suppliers' ? 'local_shipping' : activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : 'bar_chart'"
+                [name]="activePanel === 'suppliers' ? 'local_shipping' : activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : activePanel === 'staff' ? 'group' : activePanel === 'appcc' ? 'shield' : activePanel === 'docs' ? 'folder' : 'bar_chart'"
                 size="xl" class="text-maingoo-sage"></app-icon>
             </div>
             <div>
@@ -390,6 +433,9 @@
                 activePanel === 'products' ? 'Productos' :
                 activePanel === 'articles' ? 'Artículos' :
                 activePanel === 'gestoria' ? 'Gestoría' :
+                activePanel === 'staff' ? 'Personal' :
+                activePanel === 'appcc' ? 'APPCC' :
+                activePanel === 'docs' ? 'Documentos' :
                 'Ventas' }}
               </h2>
               <p class="text-xs text-gray-400 m-0">Análisis detallado</p>
@@ -446,7 +492,7 @@
             <div class="flex-1 flex items-center justify-center">
               <div class="text-center">
                 <app-icon
-                  [name]="activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : 'bar_chart'"
+                  [name]="activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : activePanel === 'sales' ? 'payments' : activePanel === 'staff' ? 'group' : activePanel === 'appcc' ? 'shield' : activePanel === 'docs' ? 'folder' : 'bar_chart'"
                   size="6xl" class="text-gray-200 mb-4"></app-icon>
                 <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
                 <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
@@ -470,6 +516,9 @@
               activePanel === 'products' ? 'Métricas Productos' :
               activePanel === 'articles' ? 'Métricas Artículos' :
               activePanel === 'gestoria' ? 'Métricas Gestoría' :
+              activePanel === 'staff' ? 'Métricas Personal' :
+              activePanel === 'appcc' ? 'Métricas APPCC' :
+              activePanel === 'docs' ? 'Métricas Documentos' :
               'Métricas Ventas' }}
             </h2>
             <button class="text-gray-400" (click)="closePanel()">
@@ -479,7 +528,7 @@
           <div class="flex-1 flex items-center justify-center p-6">
             <div class="text-center">
               <app-icon
-                [name]="activePanel === 'suppliers' ? 'pie_chart' : activePanel === 'products' ? 'inventory_2' : activePanel === 'gestoria' ? 'description' : 'restaurant'"
+                [name]="activePanel === 'suppliers' ? 'pie_chart' : activePanel === 'products' ? 'inventory_2' : activePanel === 'gestoria' ? 'description' : activePanel === 'sales' ? 'payments' : activePanel === 'staff' ? 'group' : activePanel === 'appcc' ? 'shield' : activePanel === 'docs' ? 'folder' : 'restaurant'"
                 size="5xl" class="text-gray-200 mb-4"></app-icon>
               <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
               <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
