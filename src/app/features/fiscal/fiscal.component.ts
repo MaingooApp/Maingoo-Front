@@ -47,7 +47,7 @@ export interface GroupedInvoices {
 }
 
 @Component({
-  selector: 'app-doc-generator',
+  selector: 'app-fiscal',
   standalone: true,
   imports: [
     CommonModule,
@@ -65,7 +65,7 @@ export interface GroupedInvoices {
     CardModule,
     IconComponent
   ],
-  templateUrl: './doc-generator.component.html',
+  templateUrl: './fiscal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocGeneratorComponent implements OnInit {
