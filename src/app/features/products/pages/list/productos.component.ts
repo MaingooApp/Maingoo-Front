@@ -271,7 +271,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
     this.confirmationService.confirm({
       message: '¿Estás seguro de que deseas eliminar TODOS los productos? Esta acción no se puede deshacer.',
       header: 'Confirmar eliminación masiva',
-      icon: 'pi pi-exclamation-triangle',
+      icon: 'warning',
       acceptLabel: 'Eliminar todo',
       rejectLabel: 'Cancelar',
       acceptButtonStyleClass: 'p-button-danger',

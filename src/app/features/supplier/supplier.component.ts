@@ -78,8 +78,8 @@ export class SupplierComponent implements OnDestroy {
   showMobileSearch = false; // New state for mobile search toggle
   viewMode: 'grid' | 'list' = 'grid';
   viewOptions: any[] = [
-    { icon: 'pi pi-th-large', value: 'grid' },
-    { icon: 'pi pi-list', value: 'list' }
+    { icon: 'grid_view', value: 'grid' },
+    { icon: 'view_list', value: 'list' }
   ];
 
   get isMobile(): boolean {
@@ -140,7 +140,7 @@ export class SupplierComponent implements OnDestroy {
   constructor(
     private confirmDialog: ConfirmDialogService,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   // Chart
   chartData: any;
