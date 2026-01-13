@@ -46,6 +46,9 @@ export class AppSidebar {
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
     { label: 'Almacén', icon: 'warehouse', route: '/productos' },
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
+    { label: 'APPCC', icon: 'shield', route: '/appcc' },
+    { label: 'Equípo', icon: 'group', route: '/rrhh' },
+    { label: 'Documentos', icon: 'folder', route: '/documentos' },
     { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
     { label: 'Ventas', icon: 'payments', route: '/ventas' },
   ];
