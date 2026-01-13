@@ -49,7 +49,7 @@ export class AppSidebar {
     { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
     { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'APPCC', icon: 'shield', route: '/appcc', comingSoon: true },
+    { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true },
     { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
   ];
 

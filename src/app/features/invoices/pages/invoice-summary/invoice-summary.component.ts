@@ -70,8 +70,8 @@ export class InvoiceSummaryComponent implements OnInit {
   columns = COLUMNS;
 
   actions = signal<Action[]>([
-    { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'primary' },
-    { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
+    { icon: 'visibility', action: 'editar', tooltip: 'Ver detalle', color: 'primary' },
+    { icon: 'delete', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
   ]);
 
   private _dynamicDialogRef: DynamicDialogRef | null = null;
@@ -83,7 +83,7 @@ export class InvoiceSummaryComponent implements OnInit {
     private readonly router: Router,
     private readonly modalService: ModalService,
     private readonly layoutService: LayoutService
-  ) {}
+  ) { }
 
   showMobileSearch = false;
 
