@@ -45,12 +45,12 @@ export class AppSidebar {
     { label: 'Dashboard', icon: 'monitoring', route: '/' },
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
     { label: 'Almacén', icon: 'warehouse', route: '/productos' },
+    { label: 'Artículos', icon: 'restaurant', route: '/articulos', comingSoon: true },
+    { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
+    { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'APPCC', icon: 'shield', route: '/appcc' },
-    { label: 'Equípo', icon: 'group', route: '/rrhh' },
-    { label: 'Documentos', icon: 'folder', route: '/documentos' },
-    { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
-    { label: 'Ventas', icon: 'payments', route: '/ventas' },
+    { label: 'APPCC', icon: 'shield', route: '/appcc', comingSoon: true },
+    { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
   ];
 
   // Contextos por ruta
