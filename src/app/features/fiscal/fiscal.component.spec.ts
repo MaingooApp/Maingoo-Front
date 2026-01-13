@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DocGeneratorComponent } from './doc-generator.component';
+import { DocGeneratorComponent } from './fiscal.component';
 
 describe('DocGeneratorComponent', () => {
   let component: DocGeneratorComponent;
