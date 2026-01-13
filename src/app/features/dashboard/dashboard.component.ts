@@ -126,26 +126,19 @@ export class Dashboard implements OnInit {
 
   /** Genera datos fake para el gráfico de ventas al iniciar */
   initSalesChart(): void {
-    const now = new Date();
-    const currentHour = now.getHours();
-    const currentMinutes = Math.floor(now.getMinutes() / 15) * 15;
-
-    // Generar etiquetas de tiempo (cada 15 min, desde hace 2h hasta +30min)
+    // Generar etiquetas de tiempo fijas: 13:00 a 17:00 (cada 15 min)
     const labels: string[] = [];
-    const startOffset = -8; // 8 intervalos atrás = 2 horas
-    const endOffset = 2;    // 2 intervalos adelante = 30 min
-
-    for (let i = startOffset; i <= endOffset; i++) {
-      const totalMinutes = currentHour * 60 + currentMinutes + (i * 15);
-      const h = Math.floor(totalMinutes / 60) % 24;
-      const m = totalMinutes % 60;
-      labels.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+    for (let h = 13; h <= 17; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        if (h === 17 && m > 0) break; // Terminar en 17:00
+        labels.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+      }
     }
 
-    // Datos fake acumulativos (ventas van subiendo)
-    const todayData = [0, 150, 320, 480, 650, 890, 1050, 1280, 1450, null, null];
-    const lastWeekData = [0, 180, 350, 520, 720, 950, 1180, 1420, 1620, 1780, 1900];
-    const historicalData = [0, 165, 340, 510, 700, 920, 1150, 1380, 1580, 1720, 1850];
+    // Datos fake acumulativos (ventas van subiendo) - 17 puntos de 13:00 a 17:00
+    const todayData = [0, 85, 170, 290, 420, 530, 680, 820, 950, 1080, 1190, 1350, 1480, null, null, null, null];
+    const lastWeekData = [0, 95, 190, 310, 450, 580, 730, 890, 1020, 1170, 1310, 1480, 1620, 1750, 1880, 1950, 2050];
+    const historicalData = [0, 90, 180, 300, 430, 560, 700, 860, 980, 1120, 1250, 1400, 1540, 1680, 1800, 1900, 1980];
 
     this.salesChartData = {
       labels: labels,
@@ -155,10 +148,9 @@ export class Dashboard implements OnInit {
           data: todayData,
           borderColor: '#6B9080',
           backgroundColor: 'rgba(107, 144, 128, 0.1)',
-          tension: 0.3,
+          tension: 0.4,
           fill: true,
-          pointRadius: 3,
-          pointBackgroundColor: '#6B9080',
+          pointRadius: 0,
           borderWidth: 2
         },
         {
@@ -166,9 +158,9 @@ export class Dashboard implements OnInit {
           data: lastWeekData,
           borderColor: '#F59E0B',
           backgroundColor: 'transparent',
-          tension: 0.3,
+          tension: 0.4,
           fill: false,
-          pointRadius: 2,
+          pointRadius: 0,
           borderDash: [5, 5],
           borderWidth: 2
         },
@@ -177,9 +169,9 @@ export class Dashboard implements OnInit {
           data: historicalData,
           borderColor: '#9CA3AF',
           backgroundColor: 'transparent',
-          tension: 0.3,
+          tension: 0.4,
           fill: false,
-          pointRadius: 2,
+          pointRadius: 0,
           borderDash: [2, 2],
           borderWidth: 1.5
         }
@@ -211,7 +203,7 @@ export class Dashboard implements OnInit {
           beginAtZero: true,
           grid: { color: '#f3f4f6' },
           ticks: {
-            stepSize: 250,
+            stepSize: 100,
             font: { size: 9 },
             callback: (value: number) => `${value}€`
           }
