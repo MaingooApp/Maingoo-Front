@@ -87,7 +87,7 @@
                 <app-icon name="inventory_2" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
-                <h3 class="font-bold text-maingoo-deep text-base m-0">Productos</h3>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Almacén</h3>
                 <p class="text-gray-400 text-xs m-0">Todas las categorías</p>
               </div>
             </div>
@@ -234,35 +234,17 @@
           </div>
         </div>
 
-        <!-- Ventas Card (Vacía) -->
+        <!-- Costes Card (Vacía) -->
         <div
           class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
           <div class="flex items-center gap-3 mb-4">
             <div
               class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="payments" size="xl" class="text-maingoo-sage"></app-icon>
-            </div>
-            <div>
-              <h3 class="font-bold text-maingoo-deep text-base m-0">Ventas</h3>
-              <p class="text-gray-400 text-xs m-0">Análisis de ingresos</p>
-            </div>
-          </div>
-          <div class="flex-1 flex items-center justify-center">
-            <p class="text-gray-400 text-sm italic">Próximamente</p>
-          </div>
-        </div>
-
-        <!-- Gestoría Card (Vacía) -->
-        <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="description" size="xl" class="text-maingoo-sage"></app-icon>
+              <app-icon name="calculate" size="xl" class="text-maingoo-sage"></app-icon>
             </div>
             <div>
               <h3 class="font-bold text-maingoo-deep text-base m-0">Gestoría</h3>
-              <p class="text-gray-400 text-xs m-0">Documentos fiscales</p>
+              <p class="text-gray-400 text-xs m-0">Análisis de gastos</p>
             </div>
           </div>
           <div class="flex-1 flex items-center justify-center">
@@ -270,35 +252,76 @@
           </div>
         </div>
 
-        <!-- Sanidad Card (Vacía) -->
+        <!-- APPCC Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="shield" size="xl" class="text-maingoo-sage"></app-icon>
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="shield" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">APPCC</h3>
+                <p class="text-gray-400 text-xs m-0">Tareas de hoy</p>
+              </div>
             </div>
-            <div>
-              <h3 class="font-bold text-maingoo-deep text-base m-0">Sanidad</h3>
-              <p class="text-gray-400 text-xs m-0">APPCC y controles</p>
+            <!-- Badge fake data -->
+            <span
+              class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 uppercase tracking-wide">Fake
+              data</span>
+          </div>
+
+          <!-- Tasks List -->
+          <div class="flex-1 flex flex-col gap-2 overflow-auto">
+            <div *ngFor="let item of appccTasks"
+              class="flex items-center gap-3 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div class="w-5 h-5 rounded border-2 flex items-center justify-center"
+                [ngClass]="item.done ? 'bg-maingoo-sage border-maingoo-sage' : 'border-gray-300'">
+                <app-icon *ngIf="item.done" name="check" size="xs" class="text-white"></app-icon>
+              </div>
+              <span class="text-sm" [ngClass]="item.done ? 'text-gray-400 line-through' : 'text-maingoo-deep'">{{
+                item.task }}</span>
             </div>
           </div>
-          <div class="flex-1 flex items-center justify-center">
-            <p class="text-gray-400 text-sm italic">Próximamente</p>
+
+          <!-- Footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Completadas</span>
+            <span class="text-sm font-bold text-maingoo-deep">{{ completedAppccTasks }} / {{ appccTasks.length }}</span>
           </div>
         </div>
 
-        <!-- Docs Card (Vacía) -->
+        <!-- Tareas Card (Vacía) -->
         <div
           class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
           <div class="flex items-center gap-3 mb-4">
             <div
               class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="folder" size="xl" class="text-maingoo-sage"></app-icon>
+              <app-icon name="task_alt" size="xl" class="text-maingoo-sage"></app-icon>
             </div>
             <div>
               <h3 class="font-bold text-maingoo-deep text-base m-0">Docs</h3>
-              <p class="text-gray-400 text-xs m-0">Otros documentos</p>
+              <p class="text-gray-400 text-xs m-0">Pendientes del día</p>
+            </div>
+          </div>
+          <div class="flex-1 flex items-center justify-center">
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          </div>
+        </div>
+
+        <!-- Documentos Card (Vacía) -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div
+              class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <app-icon name="folder_open" size="xl" class="text-maingoo-sage"></app-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-maingoo-deep text-base m-0">Documentos</h3>
+              <p class="text-gray-400 text-xs m-0">Archivos recientes</p>
             </div>
           </div>
           <div class="flex-1 flex items-center justify-center">
