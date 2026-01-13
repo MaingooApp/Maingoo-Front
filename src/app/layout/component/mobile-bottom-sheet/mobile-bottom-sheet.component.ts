@@ -47,48 +47,48 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       title: 'Acciones rápidas',
       placeholder: '¿Qué necesitas saber hoy?',
       actions: [
-        { label: 'Generar informe', icon: 'pi pi-chart-line', action: 'Generar informe del dashboard' },
-        { label: 'Ver resumen', icon: 'pi pi-eye', action: 'Mostrar resumen general' }
+        { label: 'Generar informe', icon: 'analytics', action: 'Generar informe del dashboard' },
+        { label: 'Ver resumen', icon: 'visibility', action: 'Mostrar resumen general' }
       ]
     },
     '/facturas': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus facturas...',
       actions: [
-        { label: 'Subir factura', icon: 'pi pi-upload', action: 'Subir factura' },
-        { label: 'Informe compras', icon: 'pi pi-chart-bar', action: 'Informe de compras' }
+        { label: 'Subir factura', icon: 'upload', action: 'Subir factura' },
+        { label: 'Informe compras', icon: 'bar_chart', action: 'Informe de compras' }
       ]
     },
     '/proveedores': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus proveedores...',
       actions: [
-        { label: 'Nuevo proveedor', icon: 'pi pi-plus', action: 'Agregar nuevo proveedor' },
-        { label: 'Análisis', icon: 'pi pi-chart-pie', action: 'Análisis de proveedores' }
+        { label: 'Nuevo proveedor', icon: 'add', action: 'Agregar nuevo proveedor' },
+        { label: 'Análisis', icon: 'pie_chart', action: 'Análisis de proveedores' }
       ]
     },
     '/productos': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus productos...',
       actions: [
-        { label: 'Nuevo producto', icon: 'pi pi-plus', action: 'Agregar nuevo producto' },
-        { label: 'Stock bajo', icon: 'pi pi-exclamation-triangle', action: 'Ver productos con stock bajo' }
+        { label: 'Nuevo producto', icon: 'add', action: 'Agregar nuevo producto' },
+        { label: 'Stock bajo', icon: 'warning', action: 'Ver productos con stock bajo' }
       ]
     },
     '/recetas': {
       title: 'Acciones rápidas',
       placeholder: 'Pregunta sobre tus recetas...',
       actions: [
-        { label: 'Crear receta', icon: 'pi pi-plus', action: 'Crear nueva receta' },
-        { label: 'Costeo', icon: 'pi pi-calculator', action: 'Análisis de costeo de recetas' }
+        { label: 'Crear receta', icon: 'add', action: 'Crear nueva receta' },
+        { label: 'Costeo', icon: 'calculate', action: 'Análisis de costeo de recetas' }
       ]
     },
     '/docgenerator': {
       title: 'Acciones rápidas',
       placeholder: 'Genera documentos...',
       actions: [
-        { label: 'Nuevo documento', icon: 'pi pi-file-plus', action: 'Generar nuevo documento' },
-        { label: 'Plantillas', icon: 'pi pi-clone', action: 'Ver plantillas disponibles' }
+        { label: 'Nuevo documento', icon: 'note_add', action: 'Generar nuevo documento' },
+        { label: 'Plantillas', icon: 'content_copy', action: 'Ver plantillas disponibles' }
       ]
     }
   };

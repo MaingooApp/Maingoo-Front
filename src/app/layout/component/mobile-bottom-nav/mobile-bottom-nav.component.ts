@@ -20,10 +20,10 @@ interface NavItem {
 })
 export class MobileBottomNavComponent {
   navItems: NavItem[] = [
-    { label: 'Inicio', icon: 'pi pi-home', action: 'navigate', route: '/' },
-    { label: 'Chat', icon: 'pi pi-sparkles', action: 'chat' },
-    { label: 'Menú', icon: 'pi pi-bars', action: 'menu' },
-    { label: 'Perfil', icon: 'pi pi-user', action: 'navigate', route: '/miperfil' }
+    { label: 'Inicio', icon: 'home', action: 'navigate', route: '/' },
+    { label: 'Chat', icon: 'auto_awesome', action: 'chat' },
+    { label: 'Menú', icon: 'menu', action: 'menu' },
+    { label: 'Perfil', icon: 'person', action: 'navigate', route: '/miperfil' }
   ];
 
   currentRoute: string = '/';

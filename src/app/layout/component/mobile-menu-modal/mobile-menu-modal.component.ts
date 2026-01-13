@@ -19,12 +19,12 @@ interface MenuItem {
 })
 export class MobileMenuModalComponent {
   menuItems: MenuItem[] = [
-    { label: 'Métricas', icon: 'pi pi-chart-line', route: '/' },
-    { label: 'Proveedores', icon: 'pi pi-truck', route: '/proveedores' },
-    { label: 'Mi almacén', icon: 'pi pi-warehouse', route: '/productos' },
-    { label: 'Artículos', icon: 'pi pi-clipboard', route: '/articulos' },
-    { label: 'Docs', icon: 'pi pi-file-edit', route: '/docgenerator' },
-    { label: 'Facturas', icon: 'pi pi-file', route: '/facturas' }
+    { label: 'Métricas', icon: 'monitoring', route: '/' },
+    { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
+    { label: 'Mi almacén', icon: 'warehouse', route: '/productos' },
+    { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
+    { label: 'Docs', icon: 'description', route: '/gestoria' },
+    { label: 'Facturas', icon: 'receipt_long', route: '/facturas' }
   ];
 
   constructor(
