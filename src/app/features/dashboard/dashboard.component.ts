@@ -84,6 +84,20 @@ export class Dashboard implements OnInit {
     { name: 'Elena López', role: 'Camarero/a', shift: '16:00 - 00:00' },
   ];
 
+  /** Datos fake de tareas APPCC para el dashboard */
+  appccTasks = [
+    { task: 'Registrar temperatura cámaras', done: true },
+    { task: 'Limpieza de plancha', done: false },
+    { task: 'Limpieza de horno', done: false },
+    { task: 'Limpieza de cámaras', done: false },
+    { task: 'Control de aceite freidora', done: true },
+  ];
+
+  /** Contador de tareas APPCC completadas */
+  get completedAppccTasks(): number {
+    return this.appccTasks.filter(t => t.done).length;
+  }
+
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
     '#6B9080',  // maingoo-sage
