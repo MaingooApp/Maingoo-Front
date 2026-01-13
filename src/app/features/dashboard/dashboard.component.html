@@ -23,7 +23,7 @@
 
         <!-- Métricas Proveedores Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'suppliers'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -48,7 +48,7 @@
           </div>
 
           <!-- Pie Chart Container -->
-          <div class="flex-1 flex items-center justify-center min-h-[200px]">
+          <div class="flex-1 flex items-center justify-center">
             <!-- Loading state -->
             <div *ngIf="supplierChartLoading" class="flex flex-col items-center gap-3">
               <p-skeleton shape="circle" size="140px"></p-skeleton>
@@ -77,7 +77,7 @@
 
         <!-- Métricas Productos Card - Pie Chart de Categorías -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'products'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -102,7 +102,7 @@
           </div>
 
           <!-- Pie Chart Container -->
-          <div class="flex-1 flex items-center justify-center min-h-[200px]">
+          <div class="flex-1 flex items-center justify-center">
             <!-- Loading state -->
             <div *ngIf="productChartLoading" class="flex flex-col items-center gap-3">
               <p-skeleton shape="circle" size="140px"></p-skeleton>
@@ -131,7 +131,7 @@
 
         <!-- Métricas Artículos Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6"
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'articles'}">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -160,7 +160,7 @@
 
         <!-- Ventas Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'sales'}">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -179,15 +179,15 @@
               data</span>
           </div>
           <!-- Sales Chart -->
-          <div class="flex-1 h-[200px]">
+          <div class="flex-1">
             <p-chart *ngIf="salesChartData" type="line" [data]="salesChartData" [options]="salesChartOptions"
-              class="w-full h-full block"></p-chart>
+              class="w-full h-full"></p-chart>
           </div>
         </div>
 
         <!-- Personal Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'staff'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -232,27 +232,50 @@
           </div>
         </div>
 
-        <!-- Costes Card (Vacía) -->
+        <!-- Gestoría Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="calculate" size="xl" class="text-maingoo-sage"></app-icon>
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'gestoria'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="description" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Gestoría</h3>
+                <p class="text-gray-400 text-xs m-0">Facturas esta semana</p>
+              </div>
             </div>
-            <div>
-              <h3 class="font-bold text-maingoo-deep text-base m-0">Gestoría</h3>
-              <p class="text-gray-400 text-xs m-0">Análisis de gastos</p>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('gestoria')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
+          </div>
+
+          <!-- Invoice List Container -->
+          <div class="flex-1 flex items-center justify-center">
+            <!-- Empty state (sin facturas esta semana) -->
+            <div class="text-center">
+              <p class="text-gray-400 text-sm">Sin datos para este período</p>
             </div>
           </div>
-          <div class="flex-1 flex items-center justify-center">
-            <p class="text-gray-400 text-sm italic">Próximamente</p>
+
+          <!-- Total footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Total facturas</span>
+            <span class="text-sm font-bold text-maingoo-deep">0</span>
           </div>
         </div>
 
         <!-- APPCC Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6">
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -329,7 +352,7 @@
 
         <!-- Tareas Card (Vacía) -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
           <div class="flex items-center gap-3 mb-4">
             <div
               class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -338,24 +361,6 @@
             <div>
               <h3 class="font-bold text-maingoo-deep text-base m-0">Docs</h3>
               <p class="text-gray-400 text-xs m-0">Pendientes del día</p>
-            </div>
-          </div>
-          <div class="flex-1 flex items-center justify-center">
-            <p class="text-gray-400 text-sm italic">Próximamente</p>
-          </div>
-        </div>
-
-        <!-- Documentos Card (Vacía) -->
-        <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <app-icon name="folder_open" size="xl" class="text-maingoo-sage"></app-icon>
-            </div>
-            <div>
-              <h3 class="font-bold text-maingoo-deep text-base m-0">Documentos</h3>
-              <p class="text-gray-400 text-xs m-0">Archivos recientes</p>
             </div>
           </div>
           <div class="flex-1 flex items-center justify-center">
@@ -376,7 +381,7 @@
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center">
               <app-icon
-                [name]="activePanel === 'suppliers' ? 'local_shipping' : activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : 'bar_chart'"
+                [name]="activePanel === 'suppliers' ? 'local_shipping' : activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : 'bar_chart'"
                 size="xl" class="text-maingoo-sage"></app-icon>
             </div>
             <div>
@@ -384,6 +389,7 @@
                 {{ activePanel === 'suppliers' ? 'Proveedores' :
                 activePanel === 'products' ? 'Productos' :
                 activePanel === 'articles' ? 'Artículos' :
+                activePanel === 'gestoria' ? 'Gestoría' :
                 'Ventas' }}
               </h2>
               <p class="text-xs text-gray-400 m-0">Análisis detallado</p>
@@ -440,7 +446,7 @@
             <div class="flex-1 flex items-center justify-center">
               <div class="text-center">
                 <app-icon
-                  [name]="activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : 'bar_chart'"
+                  [name]="activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : 'bar_chart'"
                   size="6xl" class="text-gray-200 mb-4"></app-icon>
                 <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
                 <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
@@ -463,6 +469,7 @@
               {{ activePanel === 'suppliers' ? 'Métricas Proveedores' :
               activePanel === 'products' ? 'Métricas Productos' :
               activePanel === 'articles' ? 'Métricas Artículos' :
+              activePanel === 'gestoria' ? 'Métricas Gestoría' :
               'Métricas Ventas' }}
             </h2>
             <button class="text-gray-400" (click)="closePanel()">
@@ -472,7 +479,7 @@
           <div class="flex-1 flex items-center justify-center p-6">
             <div class="text-center">
               <app-icon
-                [name]="activePanel === 'suppliers' ? 'pie_chart' : activePanel === 'products' ? 'inventory_2' : 'restaurant'"
+                [name]="activePanel === 'suppliers' ? 'pie_chart' : activePanel === 'products' ? 'inventory_2' : activePanel === 'gestoria' ? 'description' : 'restaurant'"
                 size="5xl" class="text-gray-200 mb-4"></app-icon>
               <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
               <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>

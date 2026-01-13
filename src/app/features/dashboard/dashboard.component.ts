@@ -57,7 +57,7 @@ export class Dashboard implements OnInit {
   productChartTotal = 0;
 
   /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' */
-  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | null = null;
+  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | null = null;
 
   /** Lista resumen de proveedores para el panel */
   supplierSummary: { name: string; total: number; color: string }[] = [];
@@ -181,6 +181,7 @@ export class Dashboard implements OnInit {
     this.salesChartOptions = {
       responsive: true,
       maintainAspectRatio: false,
+      aspectRatio: 0.6,
       plugins: {
         legend: {
           display: false
@@ -801,7 +802,7 @@ export class Dashboard implements OnInit {
   /**
    * Abre un panel lateral de métricas
    */
-  openPanel(panel: 'suppliers' | 'products' | 'articles' | 'sales'): void {
+  openPanel(panel: 'suppliers' | 'products' | 'articles' | 'sales' | 'gestoria'): void {
     this.activePanel = panel;
 
     // Inicializar bar chart cuando se abre el panel de proveedores
