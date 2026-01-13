@@ -134,7 +134,7 @@ export class Crud implements OnInit {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete the selected products?',
       header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
+      icon: 'warning',
       accept: () => {
         this.products.set(this.products().filter((val) => !this.selectedProducts?.includes(val)));
         this.selectedProducts = null;
@@ -157,7 +157,7 @@ export class Crud implements OnInit {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete ' + product.name + '?',
       header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
+      icon: 'warning',
       accept: () => {
         this.products.set(this.products().filter((val) => val.id !== product.id));
         this.product = {};
