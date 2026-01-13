@@ -120,6 +120,112 @@ export class Dashboard implements OnInit {
       this.appccTasks.mensuales.length;
   }
 
+  /** Datos fake del gráfico de ventas */
+  salesChartData: any;
+  salesChartOptions: any;
+
+  /** Genera datos fake para el gráfico de ventas al iniciar */
+  initSalesChart(): void {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinutes = Math.floor(now.getMinutes() / 15) * 15;
+
+    // Generar etiquetas de tiempo (cada 15 min, desde hace 2h hasta +30min)
+    const labels: string[] = [];
+    const startOffset = -8; // 8 intervalos atrás = 2 horas
+    const endOffset = 2;    // 2 intervalos adelante = 30 min
+
+    for (let i = startOffset; i <= endOffset; i++) {
+      const totalMinutes = currentHour * 60 + currentMinutes + (i * 15);
+      const h = Math.floor(totalMinutes / 60) % 24;
+      const m = totalMinutes % 60;
+      labels.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+    }
+
+    // Datos fake acumulativos (ventas van subiendo)
+    const todayData = [0, 150, 320, 480, 650, 890, 1050, 1280, 1450, null, null];
+    const lastWeekData = [0, 180, 350, 520, 720, 950, 1180, 1420, 1620, 1780, 1900];
+    const historicalData = [0, 165, 340, 510, 700, 920, 1150, 1380, 1580, 1720, 1850];
+
+    this.salesChartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Hoy',
+          data: todayData,
+          borderColor: '#6B9080',
+          backgroundColor: 'rgba(107, 144, 128, 0.1)',
+          tension: 0.3,
+          fill: true,
+          pointRadius: 3,
+          pointBackgroundColor: '#6B9080',
+          borderWidth: 2
+        },
+        {
+          label: 'Semana pasada',
+          data: lastWeekData,
+          borderColor: '#F59E0B',
+          backgroundColor: 'transparent',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 2,
+          borderDash: [5, 5],
+          borderWidth: 2
+        },
+        {
+          label: 'Media histórica',
+          data: historicalData,
+          borderColor: '#9CA3AF',
+          backgroundColor: 'transparent',
+          tension: 0.3,
+          fill: false,
+          pointRadius: 2,
+          borderDash: [2, 2],
+          borderWidth: 1.5
+        }
+      ]
+    };
+
+    this.salesChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            padding: 8,
+            font: { size: 10 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (context: any) => {
+              const value = context.raw as number;
+              return value !== null ? ` ${context.dataset.label}: ${this.formatCurrency(value)}` : '';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 9 } }
+        },
+        y: {
+          beginAtZero: true,
+          grid: { color: '#f3f4f6' },
+          ticks: {
+            stepSize: 250,
+            font: { size: 9 },
+            callback: (value: number) => `${value}€`
+          }
+        }
+      }
+    };
+  }
+
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
     '#6B9080',  // maingoo-sage
@@ -153,6 +259,7 @@ export class Dashboard implements OnInit {
     this.loadIncidenciasSlot();
     this.loadSupplierChart();
     this.loadProductChart();
+    this.initSalesChart();
   }
 
   /**

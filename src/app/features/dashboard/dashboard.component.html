@@ -160,30 +160,28 @@
 
         <!-- Ventas Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[200px] flex flex-col p-6"
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative min-h-[320px] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'sales'}">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
               <div
                 class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <app-icon name="bar_chart" size="xl" class="text-maingoo-sage"></app-icon>
+                <app-icon name="payments" size="xl" class="text-maingoo-sage"></app-icon>
               </div>
               <div>
                 <h3 class="font-bold text-maingoo-deep text-base m-0">Ventas</h3>
-                <p class="text-gray-400 text-xs m-0">Análisis de ventas</p>
+                <p class="text-gray-400 text-xs m-0">Tendencia del día</p>
               </div>
             </div>
-            <!-- Botón ver más -->
-            <button
-              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
-              (click)="openPanel('sales')">
-              <span>Ver más</span>
-              <app-icon name="arrow_forward" size="xs"
-                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
-            </button>
+            <!-- Badge fake data -->
+            <span
+              class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-600 uppercase tracking-wide">Fake
+              data</span>
           </div>
-          <div class="flex-1 flex items-center justify-center">
-            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          <!-- Sales Chart -->
+          <div class="flex-1 min-h-[180px]">
+            <p-chart *ngIf="salesChartData" type="line" [data]="salesChartData" [options]="salesChartOptions"
+              class="w-full h-full"></p-chart>
           </div>
         </div>
 
