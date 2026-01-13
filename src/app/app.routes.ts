@@ -20,6 +20,9 @@ export const appRoutes: Routes = [
       { path: 'productos', loadChildren: () => import('./features/products/product.routes') },
       { path: 'articulos', loadChildren: () => import('./features/articles/articles.routes') },
       { path: 'gestoria', component: DocGeneratorComponent },
+      { path: 'appcc', loadComponent: () => import('./features/appcc/appcc.component').then(m => m.AppccComponent) },
+      { path: 'rrhh', loadComponent: () => import('./features/rrhh/rrhh.component').then(m => m.RrhhComponent) },
+      { path: 'documentos', loadComponent: () => import('./features/documentos/documentos.component').then(m => m.DocumentosComponent) },
       { path: 'miperfil', component: MyProfileComponent },
       { path: 'ventas', loadComponent: () => import('./features/ventas/ventas.component').then(m => m.VentasComponent) }
     ],
