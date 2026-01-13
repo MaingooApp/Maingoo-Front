@@ -85,17 +85,39 @@ export class Dashboard implements OnInit {
   ];
 
   /** Datos fake de tareas APPCC para el dashboard */
-  appccTasks = [
-    { task: 'Registrar temperatura cámaras', done: true },
-    { task: 'Limpieza de plancha', done: false },
-    { task: 'Limpieza de horno', done: false },
-    { task: 'Limpieza de cámaras', done: false },
-    { task: 'Control de aceite freidora', done: true },
-  ];
+  appccTasks = {
+    diarias: [
+      { task: 'Registrar temperatura cámaras', done: true },
+      { task: 'Control de aceite freidora', done: true },
+      { task: 'Limpieza de plancha', done: false },
+      { task: 'Limpieza de superficies', done: false },
+      { task: 'Verificar fechas de caducidad', done: false },
+    ],
+    semanales: [
+      { task: 'Limpieza profunda de horno', done: false },
+      { task: 'Limpieza de cámaras frigoríficas', done: false },
+      { task: 'Revisión de stock de productos', done: true },
+    ],
+    mensuales: [
+      { task: 'Calibración de termómetros', done: false },
+      { task: 'Revisión de extintores', done: false },
+    ]
+  };
 
   /** Contador de tareas APPCC completadas */
   get completedAppccTasks(): number {
-    return this.appccTasks.filter(t => t.done).length;
+    return [
+      ...this.appccTasks.diarias,
+      ...this.appccTasks.semanales,
+      ...this.appccTasks.mensuales
+    ].filter(t => t.done).length;
+  }
+
+  /** Total de tareas APPCC */
+  get totalAppccTasks(): number {
+    return this.appccTasks.diarias.length +
+      this.appccTasks.semanales.length +
+      this.appccTasks.mensuales.length;
   }
 
   /** Colores para el gráfico */
