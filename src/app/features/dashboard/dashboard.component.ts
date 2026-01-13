@@ -191,13 +191,7 @@ export class Dashboard implements OnInit {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: true,
-          position: 'bottom',
-          labels: {
-            boxWidth: 12,
-            padding: 8,
-            font: { size: 10 }
-          }
+          display: false
         },
         tooltip: {
           callbacks: {
