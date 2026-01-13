@@ -72,13 +72,13 @@ import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
       <!-- Estado: Error -->
       <div *ngIf="slot?.error && !slot?.loading" class="p-4">
         <div class="flex items-center gap-2 text-red-600 mb-2">
-          <i class="pi pi-exclamation-circle"></i>
+          <span class="material-symbols-outlined text-base">error</span>
           <span class="text-sm">{{ slot?.error?.message }}</span>
         </div>
         <button 
           pButton 
           label="Reintentar" 
-          icon="pi pi-refresh"
+          icon="refresh"
           class="p-button-sm p-button-text p-button-secondary"
           (click)="onRetryClick()">
         </button>
@@ -153,7 +153,7 @@ import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
                    shadow-sm border border-gray-200 flex items-center justify-center
                    text-gray-400 hover:text-maingoo-deep transition-all
                    focus:outline-none focus:ring-2 focus:ring-maingoo-sage opacity-0 group-hover:opacity-100">
-            <i class="pi pi-chevron-left text-xs"></i>
+            <span class="material-symbols-outlined text-xs">chevron_left</span>
           </button>
           <button
             (click)="nextSlide(); $event.stopPropagation()"
@@ -163,7 +163,7 @@ import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
                    shadow-sm border border-gray-200 flex items-center justify-center
                    text-gray-400 hover:text-maingoo-deep transition-all
                    focus:outline-none focus:ring-2 focus:ring-maingoo-sage opacity-0 group-hover:opacity-100">
-            <i class="pi pi-chevron-right text-xs"></i>
+            <span class="material-symbols-outlined text-xs">chevron_right</span>
           </button>
         </div>
       </div>
@@ -407,9 +407,9 @@ export class KpiSlotComponent implements OnInit, OnDestroy, OnChanges {
 	}
 
 	getDeltaIcon(delta: number): string {
-		if (delta > 0) return 'pi pi-arrow-up';
-		if (delta < 0) return 'pi pi-arrow-down';
-		return 'pi pi-minus';
+		if (delta > 0) return 'arrow_upward';
+		if (delta < 0) return 'arrow_downward';
+		return 'remove';
 	}
 
 	getSeverityLineClasses(severity?: string): string {

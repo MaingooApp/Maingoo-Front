@@ -6,13 +6,13 @@ import { ConfirmDialogOptions } from '../interfaces/confirm-dialog-options.inter
 export class ConfirmDialogService {
   private readonly baseConfig: Confirmation = {
     header: 'Confirmar acción',
-    icon: 'pi pi-question-circle',
+    icon: 'help',
     acceptLabel: 'Aceptar',
     rejectLabel: 'Cancelar',
     rejectButtonStyleClass: 'p-button-text'
   };
 
-  constructor(private confirmationService: ConfirmationService) {}
+  constructor(private confirmationService: ConfirmationService) { }
 
   confirm(options: ConfirmDialogOptions): Promise<boolean> {
     return new Promise((resolve) => {
@@ -42,7 +42,7 @@ export class ConfirmDialogService {
     return this.confirm({
       message,
       header: options?.header ?? 'Confirmar eliminación',
-      icon: options?.icon ?? 'pi pi-exclamation-triangle',
+      icon: options?.icon ?? 'warning',
       acceptLabel: options?.acceptLabel ?? 'Sí, eliminar',
       rejectLabel: options?.rejectLabel ?? 'Cancelar',
       acceptButtonStyleClass: options?.acceptButtonStyleClass ?? 'p-button-danger',
