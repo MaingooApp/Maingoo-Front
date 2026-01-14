@@ -1,0 +1,371 @@
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+	<div class="flex-1 w-full min-w-0">
+		<app-section-header class="w-full" title="APPCC" [viewMode]="viewMode" [showViewSwitcher]="true"
+			gridValue="cards" listValue="list" (viewModeChange)="setViewMode($event)" [showDemoTag]="true">
+		</app-section-header>
+
+		<div class="flex flex-row gap-6 w-full items-start">
+			<!-- Main Content (Grid/List) -->
+			<div class="min-w-0" [ngClass]="{'flex-1': !selectedModule, 'w-full md:w-1/4': selectedModule}">
+				<!-- Grid View -->
+				<div *ngIf="viewMode === 'cards'" class="grid gap-6 grid-cols-1"
+					[ngClass]="{'sm:grid-cols-2 lg:grid-cols-4': !selectedModule}">
+					<div *ngFor="let module of modules" (click)="openModule(module)"
+						class="rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage cursor-pointer group relative h-auto min-h-[180px] flex flex-col bg-white"
+						[class.ring-maingoo-sage]="selectedModule?.id === module.id">
+						<!-- Card Content -->
+						<div class="p-4 card text-maingoo-deep flex-1 flex flex-col gap-3">
+							<!-- Header: Name & Icon -->
+							<div class="flex items-start justify-between mb-1">
+								<span class="font-bold text-lg leading-tight">{{ module.title }}</span>
+								<div
+									class="w-8 h-8 rounded-full bg-maingoo-sage/10 text-maingoo-sage flex items-center justify-center shrink-0">
+									<app-icon [name]="module.icon" size="md"></app-icon>
+								</div>
+							</div>
+
+							<!-- Details List -->
+							<div class="flex flex-col gap-2 text-sm text-gray-600 mt-auto">
+								<!-- Count Item -->
+								<div class="flex items-center gap-2">
+									<app-icon [name]="module.itemIcon" size="xs"
+										class="text-maingoo-sage w-4"></app-icon>
+									<span class="truncate">{{ module.itemsCount }} {{ module.itemsLabel }}</span>
+								</div>
+								<!-- Last Record -->
+								<div class="flex items-center gap-2">
+									<app-icon name="update" size="xs" class="text-maingoo-sage w-4"></app-icon>
+									<span class="truncate">{{ module.lastUpdateLabel }}: <span
+											class="font-medium text-maingoo-deep">{{ module.lastUpdate }}</span></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- List View -->
+				<div *ngIf="viewMode === 'list'"
+					class="flex flex-col gap-0 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+					<div *ngFor="let module of modules" (click)="openModule(module)"
+						class="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4 hover:bg-gray-50 cursor-pointer group"
+						[class.bg-gray-50]="selectedModule?.id === module.id">
+
+						<!-- Icon -->
+						<div
+							class="w-10 h-10 rounded-full bg-maingoo-sage/10 text-maingoo-sage flex items-center justify-center shrink-0">
+							<app-icon [name]="module.icon" size="md"></app-icon>
+						</div>
+
+						<!-- Content -->
+						<div class="flex-1 min-w-0 flex flex-col gap-1">
+							<h3 class="font-bold text-maingoo-deep text-base truncate">{{ module.title }}</h3>
+							<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+								<div class="flex items-center gap-1.5">
+									<app-icon [name]="module.itemIcon" size="xs" class="text-maingoo-sage"></app-icon>
+									<span>{{ module.itemsCount }} {{ module.itemsLabel }}</span>
+								</div>
+								<div class="flex items-center gap-1.5">
+									<app-icon name="update" size="xs" class="text-maingoo-sage"></app-icon>
+									<span>{{ module.lastUpdateLabel }}: <span class="font-medium text-maingoo-deep">{{
+											module.lastUpdate }}</span></span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Chevron -->
+						<app-icon name="chevron_right" size="sm"
+							class="text-gray-300 group-hover:text-maingoo-sage"></app-icon>
+					</div>
+
+					<!-- Empty State if no modules (optional safety) -->
+					<div *ngIf="modules.length === 0" class="p-8">
+						<app-empty-state class="w-full" icon="shield" title="Sin módulos"
+							description="No hay módulos APPCC configurados." [showComingSoon]="false">
+						</app-empty-state>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sidebar / Details Panel -->
+			<ng-container *ngIf="selectedModule">
+				<!-- DESKTOP: Side Panel -->
+				<div
+					class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl z-20 flex-col bg-white border border-gray-100 card">
+					<ng-container *ngTemplateOutlet="detailContent"></ng-container>
+				</div>
+
+				<!-- MOBILE: Bottom Sheet -->
+				<div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+					<div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeModule()"></div>
+					<div
+						class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden">
+						<div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+							(click)="closeModule()">
+							<div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+						</div>
+						<div class="flex-1 overflow-hidden relative flex flex-col">
+							<ng-container *ngTemplateOutlet="detailContent"></ng-container>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+
+			<!-- Detail Template -->
+			<ng-template #detailContent>
+				<!-- Header -->
+				<div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-white">
+					<div class="flex items-center gap-3">
+						<div
+							class="w-8 h-8 rounded-full bg-maingoo-sage/10 text-maingoo-sage flex items-center justify-center shrink-0">
+							<app-icon [name]="selectedModule?.icon || 'help'" size="sm"></app-icon>
+						</div>
+						<h2 class="font-bold text-lg text-maingoo-deep truncate">{{ selectedModule?.title }}</h2>
+					</div>
+					<div class="flex items-center gap-2">
+						<!-- Add Equipment Button (only for temperatures) -->
+						<button *ngIf="selectedModule?.id === 'temperatures' && !showEquipmentForm" pButton
+							class="p-button-sm p-button-outlined" (click)="toggleEquipmentForm()">
+							<app-icon name="add" size="sm" class="mr-1"></app-icon>
+							Equipo Frigorífico
+						</button>
+						<button (click)="closeModule()"
+							class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-gray-100">
+							<app-icon name="close" size="md"></app-icon>
+						</button>
+					</div>
+				</div>
+
+				<!-- Content Scroller -->
+				<div class="flex-1 overflow-y-auto p-6">
+					<!-- Equipment Form (only for temperatures module) -->
+					<div *ngIf="selectedModule?.id === 'temperatures' && showEquipmentForm" class="mb-6">
+						<div class="bg-white rounded-xl border border-gray-200 p-6">
+							<div class="flex items-center justify-between mb-4">
+								<h3 class="text-lg font-bold text-maingoo-deep">Nuevo Equipo Frigorífico</h3>
+								<button (click)="cancelEquipmentForm()"
+									class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-gray-100">
+									<app-icon name="close" size="sm"></app-icon>
+								</button>
+							</div>
+
+							<!-- Form Fields -->
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<!-- Nombre del equipo -->
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-medium text-gray-600">Nombre del equipo</label>
+									<input type="text" pInputText [(ngModel)]="equipmentForm.name"
+										placeholder="Timbre cocina" class="w-full" />
+								</div>
+
+								<!-- Tipo de Equipo -->
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-medium text-gray-600">Tipo de Equipo</label>
+									<p-dropdown [options]="equipmentTypes" [(ngModel)]="equipmentForm.type"
+										placeholder="Seleccionar tipo" optionLabel="label" optionValue="value"
+										styleClass="w-full"></p-dropdown>
+								</div>
+
+								<!-- Rango de temperatura -->
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-medium text-gray-600">Rango de temperatura</label>
+									<p-dropdown [options]="temperatureRanges"
+										[(ngModel)]="equipmentForm.temperatureRange" placeholder="Seleccionar rango"
+										optionLabel="label" optionValue="value" styleClass="w-full"></p-dropdown>
+								</div>
+
+								<!-- Ubicación -->
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-medium text-gray-600">Ubicación</label>
+									<p-dropdown [options]="locations" [(ngModel)]="equipmentForm.location"
+										placeholder="Seleccionar ubicación" optionLabel="label" optionValue="value"
+										styleClass="w-full"></p-dropdown>
+								</div>
+
+								<!-- Responsable -->
+								<div class="flex flex-col gap-1 md:col-span-2">
+									<label class="text-sm font-medium text-gray-600">Responsable</label>
+									<p-dropdown [options]="responsibles" [(ngModel)]="equipmentForm.responsible"
+										placeholder="Seleccionar responsable" optionLabel="label" optionValue="value"
+										styleClass="w-full"></p-dropdown>
+									<span class="text-xs text-gray-400 italic">Se conectará con el módulo de personal en
+										el futuro</span>
+								</div>
+							</div>
+
+							<!-- Form Actions -->
+							<div class="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200">
+								<button pButton class="p-button-text p-button-secondary"
+									(click)="cancelEquipmentForm()">
+									Cancelar
+								</button>
+								<button pButton class="p-button-primary" (click)="saveEquipment()">
+									<app-icon name="save" size="sm" class="mr-1"></app-icon>
+									Guardar Equipo
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- Saved Equipment List (for temperatures, when form is closed) -->
+					<div *ngIf="selectedModule?.id === 'temperatures' && !showEquipmentForm && !selectedEquipment">
+						<!-- Equipment List -->
+						<div *ngIf="savedEquipment.length > 0" class="flex flex-col gap-3">
+							<h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-2">Equipos
+								registrados</h3>
+							<div *ngFor="let eq of savedEquipment"
+								class="bg-white rounded-lg border border-gray-200 p-4">
+								<!-- Top Row: Equipment Info -->
+								<div class="flex items-center gap-4 mb-3 cursor-pointer" (click)="selectEquipment(eq)">
+									<!-- Icon -->
+									<div
+										class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+										<app-icon name="kitchen" size="md"></app-icon>
+									</div>
+									<!-- Info -->
+									<div class="flex-1 min-w-0">
+										<p class="font-medium text-maingoo-deep truncate">{{ eq.name || 'Sin nombre' }}
+										</p>
+										<div class="flex flex-wrap gap-2 text-xs text-gray-500 mt-1">
+											<span class="bg-gray-100 px-2 py-0.5 rounded">{{
+												getEquipmentTypeLabel(eq.type) }}</span>
+											<span class="bg-gray-100 px-2 py-0.5 rounded">{{
+												getLocationLabel(eq.location) }}</span>
+											<span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{{
+												eq.temperatureRange === 'frio_positivo' ? '0ºC - 4ºC' : '-18ºC'
+												}}</span>
+										</div>
+									</div>
+									<!-- Chevron for details -->
+									<app-icon name="chevron_right" size="sm"
+										class="text-gray-300 hover:text-maingoo-sage"></app-icon>
+								</div>
+								<!-- Bottom Row: Temperature Registration -->
+								<div class="flex items-center gap-2 pt-3 border-t border-gray-100">
+									<input #tempInput type="text" pInputText placeholder="ºC" class="w-20 text-center"
+										(click)="$event.stopPropagation()" />
+									<button pButton class="p-button-sm p-button-primary flex-1"
+										(click)="$event.stopPropagation(); registerTemperature(+tempInput.value, eq); tempInput.value = ''">
+										<app-icon name="thermostat" size="xs" class="mr-1"></app-icon>
+										Registrar Temp.
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- Empty State -->
+						<div *ngIf="savedEquipment.length === 0"
+							class="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 py-12">
+							<div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+								<app-icon name="kitchen" size="xl" class="text-gray-300"></app-icon>
+							</div>
+							<div>
+								<p class="font-medium text-gray-900">Sin equipos registrados</p>
+								<p class="text-sm mt-1">Pulsa "+ Equipo Frigorífico" para añadir tu primer equipo.</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Equipment Detail View -->
+					<div *ngIf="selectedModule?.id === 'temperatures' && selectedEquipment && !showEquipmentForm">
+						<!-- Back Button -->
+						<button (click)="deselectEquipment()"
+							class="flex items-center gap-1 text-sm text-gray-500 hover:text-maingoo-sage mb-4">
+							<app-icon name="arrow_back" size="sm"></app-icon>
+							<span>Volver a la lista</span>
+						</button>
+
+						<!-- Equipment Header -->
+						<div class="bg-white rounded-xl border border-gray-200 p-6 mb-4">
+							<div class="flex items-start justify-between">
+								<div class="flex items-center gap-4">
+									<div
+										class="w-14 h-14 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+										<app-icon name="kitchen" size="lg"></app-icon>
+									</div>
+									<div>
+										<h3 class="text-xl font-bold text-maingoo-deep">{{ selectedEquipment.name }}
+										</h3>
+										<p class="text-sm text-gray-500 mt-1">{{
+											getEquipmentTypeLabel(selectedEquipment.type) }} · {{
+											getLocationLabel(selectedEquipment.location) }}</p>
+									</div>
+								</div>
+								<div class="text-right">
+									<span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
+										{{ getTemperatureRangeLabel(selectedEquipment.temperatureRange) }}
+									</span>
+								</div>
+							</div>
+
+							<!-- Equipment Details Grid -->
+							<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-4 border-t border-gray-100">
+								<div>
+									<p class="text-xs text-gray-400 uppercase tracking-wide">ID</p>
+									<p class="text-sm font-medium text-maingoo-deep mt-1">{{
+										selectedEquipment.equipmentId }}</p>
+								</div>
+								<div>
+									<p class="text-xs text-gray-400 uppercase tracking-wide">Responsable</p>
+									<p class="text-sm font-medium text-maingoo-deep mt-1">{{
+										selectedEquipment.responsible || 'Sin asignar' }}</p>
+								</div>
+								<div>
+									<p class="text-xs text-gray-400 uppercase tracking-wide">Registros</p>
+									<p class="text-sm font-medium text-maingoo-deep mt-1">{{
+										getEquipmentRecords(selectedEquipment.equipmentId).length }}</p>
+								</div>
+								<div>
+									<p class="text-xs text-gray-400 uppercase tracking-wide">Estado</p>
+									<span
+										class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">OK</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- Temperature History -->
+						<div class="bg-white rounded-xl border border-gray-200 p-6">
+							<h4 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Historial de
+								Registros</h4>
+
+							<div *ngIf="getEquipmentRecords(selectedEquipment.equipmentId).length > 0"
+								class="flex flex-col gap-2">
+								<div *ngFor="let record of getEquipmentRecords(selectedEquipment.equipmentId)"
+									class="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+									<div class="flex items-center gap-3">
+										<app-icon name="thermostat" size="sm" class="text-blue-500"></app-icon>
+										<span class="font-bold text-lg text-maingoo-deep">{{ record.temperature
+											}}ºC</span>
+									</div>
+									<div class="text-right text-sm text-gray-500">
+										<p>{{ record.date | date:'dd/MM/yyyy HH:mm' }}</p>
+										<p class="text-xs">{{ record.registeredBy }}</p>
+									</div>
+								</div>
+							</div>
+
+							<div *ngIf="getEquipmentRecords(selectedEquipment.equipmentId).length === 0"
+								class="text-center text-gray-400 py-6">
+								<app-icon name="history" size="lg" class="text-gray-200 mb-2"></app-icon>
+								<p class="text-sm">Sin registros de temperatura</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Default Content for other modules -->
+					<div *ngIf="selectedModule?.id !== 'temperatures'"
+						class="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4">
+						<div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+							<app-icon name="engineering" size="xl" class="text-gray-300"></app-icon>
+						</div>
+						<div>
+							<p class="font-medium text-gray-900">Configuración del módulo</p>
+							<p class="text-sm mt-1">Pronto podrás gestionar los registros y configuraciones de {{
+								selectedModule?.title }}.</p>
+						</div>
+					</div>
+				</div>
+			</ng-template>
+
+		</div>
+	</div>
+</div>
