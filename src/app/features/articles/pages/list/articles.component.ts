@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { ButtonModule } from 'primeng/button';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
@@ -16,7 +15,7 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, EmptyStateComponent, ButtonModule, TableModule, IconComponent],
+  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit {
@@ -46,20 +45,30 @@ export class ArticlesComponent implements OnInit {
     });
   }
 
-  openCreateArticle() {
-    this.toastService.info('Funcionalidad en construcción', 'La creación de artículos estará disponible próximamente.');
-    /*
-    this._dynamicDialogRef = this.modalService.open(AddArticleModalComponent, {
-      header: 'Crear nuevo artículo',
-      width: '400px'
-    });
+  // State for expanded card view
+  selectedCategory: string | null = null;
 
-    this._dynamicDialogRef.onClose.subscribe((result) => {
-      if (result && result.created && result.name) {
-        this.articles.update(articles => [...articles, { name: result.name }]);
-      }
-    });
-    */
+  selectCategory(category: string) {
+    if (this.selectedCategory === category) {
+      this.closeDetail();
+      return;
+    }
+    this.selectedCategory = category;
+  }
+
+  closeDetail() {
+    this.selectedCategory = null;
+  }
+
+  get categoryDisplayName(): string {
+    if (!this.selectedCategory) return '';
+    return this.selectedCategory === 'mise-en-place' ? 'Mise en place' : this.selectedCategory;
+  }
+
+  searchTerm = signal<string>('');
+
+  onSearch(event: any) {
+    this.searchTerm.set(event.target.value);
   }
 
   setViewMode(mode: string) {
