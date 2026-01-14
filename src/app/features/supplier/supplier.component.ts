@@ -17,6 +17,7 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
+import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -51,7 +52,8 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     TooltipModule,
     SectionHeaderComponent,
     EmptyStateComponent,
-    IconComponent
+    IconComponent,
+    SkeletonModule
   ],
   templateUrl: './supplier.component.html'
 })

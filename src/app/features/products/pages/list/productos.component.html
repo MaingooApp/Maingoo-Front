@@ -67,265 +67,184 @@
     </div>
 
     <!-- SECTION: Empty State -->
-    <div *ngIf="!cargando && productos.length === 0; else tablaProductos">
+    <div *ngIf="!cargando && productos.length === 0; else contenidoPrincipal">
       <app-empty-state icon="warehouse" title="No hay productos en tu almacén"
         description="Cuando escanees o subas una factura, esos productos, aparecerá aquí.">
       </app-empty-state>
     </div>
 
     <!-- SECTION: Main Layout (Table/Grid) -->
-    <ng-template #tablaProductos>
-      <!-- VIEW: List Mode & VIEW: Grid Mode Wrapper -->
-      <div class="flex relative items-start" [class.gap-6]="!(selectedCategory && selectedProduct)"
-        [class.gap-0]="selectedCategory && selectedProduct">
-        <div
-          [ngClass]="selectedCategory && selectedProduct ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'"
-          class="">
-          <!-- VIEW: List Mode -->
-          <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <!-- Mobile Compact List -->
-            <div class="flex flex-col md:hidden">
-              <div *ngFor="let item of filteredProducts" (click)="showDialog(item)"
-                class="border-b border-gray-100 last:border-0 p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer relative"
-                [class.bg-maingoo-sage-50]="selectedProduct?.id === item.id">
-                <!-- Icon -->
-                <div
-                  class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100 text-maingoo-deep font-bold text-sm">
-                  {{ item.name.charAt(0).toUpperCase() }}
-                </div>
-
-                <!-- Info -->
-                <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                  <div class="flex justify-between items-center">
-                    <h3 class="font-semibold text-[#1A3C34] text-sm truncate pr-2">{{ item.name }}</h3>
-                    <span class="text-xs font-bold text-maingoo-deep whitespace-nowrap">{{
-                      item.lastUnitPrice | currency: 'EUR'
-                      }}</span>
-                  </div>
-                  <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <div class="flex items-center gap-1 flex-wrap">
-                      <ng-container *ngIf="item.subcategory?.category?.name">
-                        <span
-                          class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
-                          [ngStyle]="getCategoryStyle(item.subcategory?.category?.name)">
-                          {{ item.subcategory?.category?.name }}
-                        </span>
-                        <span class="text-gray-300 text-[10px]">•</span>
-                      </ng-container>
-                      <span *ngIf="item.subcategory?.name"
-                        class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
-                        [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)">
-                        {{ item.subcategory?.name }}
-                      </span>
-                    </div>
-                    <span class="text-gray-300" *ngIf="item.subcategory?.name">|</span>
-                    <span class="font-medium text-gray-600 truncate">Stock:
-                      {{
-                      (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
-                      | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
-                      }}
-                      {{ item.unit }}</span>
-                  </div>
-                </div>
-
-                <!-- Chevron -->
-                <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
-              </div>
-
-              <!-- Empty State Mobile -->
-              <div *ngIf="filteredProducts.length === 0" class="p-8 text-center text-gray-400 text-sm">
-                No se encontraron productos.
+    <ng-template #contenidoPrincipal>
+      <!-- LOADING: Skeleton States -->
+      <ng-container *ngIf="cargando">
+        <!-- Skeleton List View -->
+        <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div *ngFor="let i of [1,2,3,4,5,6,7,8]"
+            class="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4">
+            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+            <div class="flex-1 flex flex-col gap-2">
+              <p-skeleton width="60%" height="1rem"></p-skeleton>
+              <div class="flex items-center gap-2">
+                <p-skeleton width="4rem" height="0.75rem"></p-skeleton>
+                <p-skeleton width="3rem" height="0.75rem"></p-skeleton>
               </div>
             </div>
-
-            <!-- Desktop Table -->
-            <div class="hidden md:block">
-              <p-table #dt [value]="productos" [rowHover]="true" styleClass="p-datatable-sm"
-                [globalFilterFields]="['name', 'eanCode', 'subcategory.name', 'subcategory.category.name', 'unit']"
-                [loading]="cargando">
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th class="text-maingoo-deep font-bold text-sm" [class.w-full]="selectedProduct"
-                      [class.w-[30%]]="!selectedProduct">
-                      Producto
-                    </th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[20%]"
-                      *ngIf="!selectedCategory && !selectedProduct">
-                      Stock
-                    </th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[20%]"
-                      *ngIf="!selectedCategory && !selectedProduct">
-                      Proveedor
-                    </th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[20%]">Precio</th>
-                    <th [class.w-[10%]]="!selectedProduct" [class.w-auto]="selectedProduct"></th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-item>
-                  <tr class="cursor-pointer hover:bg-gray-50 transition-colors border-l-4 border-transparent"
-                    [ngClass]="{ 'bg-gray-50 !border-maingoo-sage': selectedProduct?.id === item.id }"
-                    (click)="showDialog(item)">
-                    <td>
-                      <div class="flex flex-col">
-                        <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
-                        <div class="flex items-center gap-1 mt-1 flex-wrap">
-                          <ng-container *ngIf="item.subcategory?.category?.name">
-                            <p-tag [value]="item.subcategory?.category?.name"
-                              [style]="getCategoryStyle(item.subcategory?.category?.name)" [rounded]="true"
-                              styleClass="text-xs font-normal border-0"></p-tag>
-                            <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
-                          </ng-container>
-                          <p-tag *ngIf="item.subcategory?.name" [value]="item.subcategory?.name"
-                            [style]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
-                            [rounded]="true" styleClass="text-xs font-normal border-0"></p-tag>
-                        </div>
-                      </div>
-                    </td>
-                    <td *ngIf="!selectedCategory && !selectedProduct">
-                      <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <app-icon name="inventory_2" size="xs" class="text-maingoo-sage"></app-icon>
-                        <span class="font-medium">{{
-                          (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
-                          | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
-                          }}</span>
-                        <span class="text-gray-400 text-xs">{{ item.unit }}</span>
-                      </div>
-                    </td>
-                    <td *ngIf="!selectedCategory && !selectedProduct">
-                      <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <app-icon name="local_shipping" size="xs" class="text-maingoo-sage"></app-icon>
-                        <span *ngIf="item.supplier?.name" class="truncate max-w-[150px]">{{ item.supplier.name }}</span>
-                        <span *ngIf="!item.supplier?.name" class="text-gray-300 italic">Sin proveedor</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span class="text-maingoo-deep font-bold text-sm">
-                        {{ item.lastUnitPrice | currency: 'EUR' }}
-                      </span>
-                    </td>
-                    <td class="text-right">
-                      <button pButton
-                        class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
-                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedProduct?.id === item.id }">
-                        <app-icon name="chevron_left" size="md"></app-icon>
-                      </button>
-                    </td>
-                  </tr>
-                </ng-template>
-                <!-- Empty State in Table -->
-                <ng-template pTemplate="emptymessage">
-                  <tr>
-                    <td colspan="5" class="text-center py-8 text-gray-500">No se encontraron productos.</td>
-                  </tr>
-                </ng-template>
-              </p-table>
-            </div>
-          </div>
-
-          <!-- VIEW: Cards Mode (Categories) -->
-          <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 animate-fade-in" [ngClass]="
-              selectedCategory || selectedProduct ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
-            ">
-            <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
-              class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
-              <div class="flex items-start justify-between mb-4">
-                <h3
-                  class="text-lg font-bold mb-2 transition-colors px-3 py-1 rounded-full w-auto inline-block bg-opacity-20"
-                  [ngStyle]="getCategoryStyle(category.name)">
-                  {{ category.name }}
-                </h3>
-              </div>
-
-              <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
-                {{ category.count }} prod.
-              </div>
-            </div>
+            <p-skeleton width="4rem" height="1rem"></p-skeleton>
           </div>
         </div>
 
-        <!-- SECTION: Unified Sidebar (Expanding Cards) -->
-        <div *ngIf="selectedCategory || selectedProduct" [ngClass]="{
-            'w-0 overflow-hidden opacity-0': !selectedCategory && !selectedProduct,
-            'w-full md:w-3/4': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct),
-            'w-full': selectedCategory && selectedProduct
-          }" class="hidden md:flex shrink-0 sticky top-4 h-[calc(100vh-2rem)] gap-6 z-20">
-          <!-- Category Layer (Product List Card) -->
-          <div *ngIf="selectedCategory" [ngClass]="selectedProduct ? 'flex-1 min-w-0' : 'w-full'"
-            class="h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative shrink-0">
-            <!-- Header -->
-            <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-              <h2
-                class="text-xl font-bold mb-0 transition-colors px-3 py-1 rounded-full bg-opacity-20 flex items-center gap-2"
-                [ngStyle]="getCategoryStyle(selectedCategory)">
-                {{ selectedCategory }}
-              </h2>
-              <button (click)="closeCategoryDetail()"
-                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-colors">
-                <app-icon name="close" size="md"></app-icon>
-              </button>
-            </div>
+        <!-- Skeleton Cards View (Categories) -->
+        <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+          <div *ngFor="let i of [1,2,3,4,5,6,7,8]"
+            class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col h-32 justify-between">
+            <p-skeleton width="60%" height="1.5rem" borderRadius="1rem"></p-skeleton>
+            <p-skeleton width="4rem" height="1.25rem"></p-skeleton>
+          </div>
+        </div>
+      </ng-container>
 
-            <!-- Content -->
-            <div class="flex-1 overflow-auto p-4">
-              <p class="text-gray-500 mb-4 text-sm px-2">
-                Mostrando <strong>{{ categoryProducts.length }}</strong> productos en esta categoría.
-              </p>
+      <!-- LOADED: Actual Content -->
+      <ng-container *ngIf="!cargando">
+        <!-- VIEW: List Mode & VIEW: Grid Mode Wrapper -->
+        <div class="flex relative items-start" [class.gap-6]="!(selectedCategory && selectedProduct)"
+          [class.gap-0]="selectedCategory && selectedProduct">
+          <div
+            [ngClass]="selectedCategory && selectedProduct ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'"
+            class="">
+            <!-- VIEW: List Mode -->
+            <div *ngIf="viewMode === 'list'"
+              class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <!-- Mobile Compact List -->
+              <div class="flex flex-col md:hidden">
+                <div *ngFor="let item of filteredProducts" (click)="showDialog(item)"
+                  class="border-b border-gray-100 last:border-0 p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer relative"
+                  [class.bg-maingoo-sage-50]="selectedProduct?.id === item.id">
+                  <!-- Icon -->
+                  <div
+                    class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100 text-maingoo-deep font-bold text-sm">
+                    {{ item.name.charAt(0).toUpperCase() }}
+                  </div>
 
-              <div class="h-full flex flex-col">
-                <p-table [value]="categoryProducts" [rowHover]="true" styleClass="p-datatable-sm" [scrollable]="true"
-                  scrollHeight="flex">
+                  <!-- Info -->
+                  <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <div class="flex justify-between items-center">
+                      <h3 class="font-semibold text-[#1A3C34] text-sm truncate pr-2">{{ item.name }}</h3>
+                      <span class="text-xs font-bold text-maingoo-deep whitespace-nowrap">{{
+                        item.lastUnitPrice | currency: 'EUR'
+                        }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                      <div class="flex items-center gap-1 flex-wrap">
+                        <ng-container *ngIf="item.subcategory?.category?.name">
+                          <span
+                            class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
+                            [ngStyle]="getCategoryStyle(item.subcategory?.category?.name)">
+                            {{ item.subcategory?.category?.name }}
+                          </span>
+                          <span class="text-gray-300 text-[10px]">•</span>
+                        </ng-container>
+                        <span *ngIf="item.subcategory?.name"
+                          class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
+                          [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)">
+                          {{ item.subcategory?.name }}
+                        </span>
+                      </div>
+                      <span class="text-gray-300" *ngIf="item.subcategory?.name">|</span>
+                      <span class="font-medium text-gray-600 truncate">Stock:
+                        {{
+                        (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
+                        | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
+                        }}
+                        {{ item.unit }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Chevron -->
+                  <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
+                </div>
+
+                <!-- Empty State Mobile -->
+                <div *ngIf="filteredProducts.length === 0" class="p-8 text-center text-gray-400 text-sm">
+                  No se encontraron productos.
+                </div>
+              </div>
+
+              <!-- Desktop Table -->
+              <div class="hidden md:block">
+                <p-table #dt [value]="productos" [rowHover]="true" styleClass="p-datatable-sm"
+                  [globalFilterFields]="['name', 'eanCode', 'subcategory.name', 'subcategory.category.name', 'unit']"
+                  [loading]="cargando">
                   <ng-template pTemplate="header">
                     <tr>
-                      <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100">Producto</th>
-                      <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100 w-24">Stock</th>
-                      <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100">Proveedor</th>
-                      <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100 w-24">Precio</th>
-                      <th class="w-10 bg-gray-50 border-gray-100"></th>
+                      <th class="text-maingoo-deep font-bold text-sm" [class.w-full]="selectedProduct"
+                        [class.w-[30%]]="!selectedProduct">
+                        Producto
+                      </th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[20%]"
+                        *ngIf="!selectedCategory && !selectedProduct">
+                        Stock
+                      </th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[20%]"
+                        *ngIf="!selectedCategory && !selectedProduct">
+                        Proveedor
+                      </th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[20%]">Precio</th>
+                      <th [class.w-[10%]]="!selectedProduct" [class.w-auto]="selectedProduct"></th>
                     </tr>
                   </ng-template>
                   <ng-template pTemplate="body" let-item>
                     <tr class="cursor-pointer hover:bg-gray-50 transition-colors border-l-4 border-transparent"
                       [ngClass]="{ 'bg-gray-50 !border-maingoo-sage': selectedProduct?.id === item.id }"
                       (click)="showDialog(item)">
-                      <td class="border-gray-100">
+                      <td>
                         <div class="flex flex-col">
-                          <span class="font-bold text-maingoo-deep text-sm">{{ item.name }}</span>
-                          <span class="text-xs text-gray-500" *ngIf="item.brand">{{ item.brand }}</span>
+                          <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
                           <div class="flex items-center gap-1 mt-1 flex-wrap">
                             <ng-container *ngIf="item.subcategory?.category?.name">
-                              <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">
-                                {{ item.subcategory?.category?.name }}
-                              </span>
-                              <span class="text-[10px] text-gray-300">/</span>
+                              <p-tag [value]="item.subcategory?.category?.name"
+                                [style]="getCategoryStyle(item.subcategory?.category?.name)" [rounded]="true"
+                                styleClass="text-xs font-normal border-0"></p-tag>
+                              <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
                             </ng-container>
-                            <span class="text-[10px] px-1.5 py-0.5 rounded font-medium"
-                              [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
-                              *ngIf="item.subcategory?.name">
-                              {{ item.subcategory?.name }}
-                            </span>
+                            <p-tag *ngIf="item.subcategory?.name" [value]="item.subcategory?.name"
+                              [style]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
+                              [rounded]="true" styleClass="text-xs font-normal border-0"></p-tag>
                           </div>
                         </div>
                       </td>
-                      <td class="border-gray-100">
-                        <span class="text-gray-600 text-sm font-medium">{{
-                          (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
-                          | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
-                          }}</span>
-                        <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
+                      <td *ngIf="!selectedCategory && !selectedProduct">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <app-icon name="inventory_2" size="xs" class="text-maingoo-sage"></app-icon>
+                          <span class="font-medium">{{
+                            (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
+                            | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
+                            }}</span>
+                          <span class="text-gray-400 text-xs">{{ item.unit }}</span>
+                        </div>
                       </td>
-                      <td class="border-gray-100">
-                        <span class="text-gray-600 text-sm font-medium">{{ item.supplier?.name || '-' }}</span>
+                      <td *ngIf="!selectedCategory && !selectedProduct">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <app-icon name="local_shipping" size="xs" class="text-maingoo-sage"></app-icon>
+                          <span *ngIf="item.supplier?.name" class="truncate max-w-[150px]">{{ item.supplier.name
+                            }}</span>
+                          <span *ngIf="!item.supplier?.name" class="text-gray-300 italic">Sin proveedor</span>
+                        </div>
                       </td>
-                      <td class="border-gray-100">
+                      <td>
                         <span class="text-maingoo-deep font-bold text-sm">
                           {{ item.lastUnitPrice | currency: 'EUR' }}
                         </span>
                       </td>
-                      <td class="text-right border-gray-100 px-2">
-                        <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
+                      <td class="text-right">
+                        <button pButton
+                          class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
+                          [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedProduct?.id === item.id }">
+                          <app-icon name="chevron_left" size="md"></app-icon>
+                        </button>
                       </td>
                     </tr>
                   </ng-template>
+                  <!-- Empty State in Table -->
                   <ng-template pTemplate="emptymessage">
                     <tr>
                       <td colspan="5" class="text-center py-8 text-gray-500">No se encontraron productos.</td>
@@ -334,23 +253,137 @@
                 </p-table>
               </div>
             </div>
+
+            <!-- VIEW: Cards Mode (Categories) -->
+            <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 animate-fade-in" [ngClass]="
+              selectedCategory || selectedProduct ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+            ">
+              <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
+                <div class="flex items-start justify-between mb-4">
+                  <h3
+                    class="text-lg font-bold mb-2 transition-colors px-3 py-1 rounded-full w-auto inline-block bg-opacity-20"
+                    [ngStyle]="getCategoryStyle(category.name)">
+                    {{ category.name }}
+                  </h3>
+                </div>
+
+                <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
+                  {{ category.count }} prod.
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Product Layer (Product Detail Card) -->
-          <div *ngIf="selectedProduct"
-            class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative">
-            <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
-              [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
-              (verFactura)="verFactura($event)"
-              (delete)="confirmarEliminarProducto($event)"></app-product-detail-sidebar>
+          <!-- SECTION: Unified Sidebar (Expanding Cards) -->
+          <div *ngIf="selectedCategory || selectedProduct" [ngClass]="{
+            'w-0 overflow-hidden opacity-0': !selectedCategory && !selectedProduct,
+            'w-full md:w-3/4': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct),
+            'w-full': selectedCategory && selectedProduct
+          }" class="hidden md:flex shrink-0 sticky top-4 h-[calc(100vh-2rem)] gap-6 z-20">
+            <!-- Category Layer (Product List Card) -->
+            <div *ngIf="selectedCategory" [ngClass]="selectedProduct ? 'flex-1 min-w-0' : 'w-full'"
+              class="h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative shrink-0">
+              <!-- Header -->
+              <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
+                <h2
+                  class="text-xl font-bold mb-0 transition-colors px-3 py-1 rounded-full bg-opacity-20 flex items-center gap-2"
+                  [ngStyle]="getCategoryStyle(selectedCategory)">
+                  {{ selectedCategory }}
+                </h2>
+                <button (click)="closeCategoryDetail()"
+                  class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-8 h-8 flex items-center justify-center transition-colors">
+                  <app-icon name="close" size="md"></app-icon>
+                </button>
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 overflow-auto p-4">
+                <p class="text-gray-500 mb-4 text-sm px-2">
+                  Mostrando <strong>{{ categoryProducts.length }}</strong> productos en esta categoría.
+                </p>
+
+                <div class="h-full flex flex-col">
+                  <p-table [value]="categoryProducts" [rowHover]="true" styleClass="p-datatable-sm" [scrollable]="true"
+                    scrollHeight="flex">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100">Producto</th>
+                        <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100 w-24">Stock</th>
+                        <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100">Proveedor</th>
+                        <th class="text-maingoo-deep font-bold text-sm bg-gray-50 border-gray-100 w-24">Precio</th>
+                        <th class="w-10 bg-gray-50 border-gray-100"></th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-item>
+                      <tr class="cursor-pointer hover:bg-gray-50 transition-colors border-l-4 border-transparent"
+                        [ngClass]="{ 'bg-gray-50 !border-maingoo-sage': selectedProduct?.id === item.id }"
+                        (click)="showDialog(item)">
+                        <td class="border-gray-100">
+                          <div class="flex flex-col">
+                            <span class="font-bold text-maingoo-deep text-sm">{{ item.name }}</span>
+                            <span class="text-xs text-gray-500" *ngIf="item.brand">{{ item.brand }}</span>
+                            <div class="flex items-center gap-1 mt-1 flex-wrap">
+                              <ng-container *ngIf="item.subcategory?.category?.name">
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">
+                                  {{ item.subcategory?.category?.name }}
+                                </span>
+                                <span class="text-[10px] text-gray-300">/</span>
+                              </ng-container>
+                              <span class="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                                [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
+                                *ngIf="item.subcategory?.name">
+                                {{ item.subcategory?.name }}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="border-gray-100">
+                          <span class="text-gray-600 text-sm font-medium">{{
+                            (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
+                            | number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
+                            }}</span>
+                          <span class="text-gray-400 text-xs ml-1">{{ item.unit }}</span>
+                        </td>
+                        <td class="border-gray-100">
+                          <span class="text-gray-600 text-sm font-medium">{{ item.supplier?.name || '-' }}</span>
+                        </td>
+                        <td class="border-gray-100">
+                          <span class="text-maingoo-deep font-bold text-sm">
+                            {{ item.lastUnitPrice | currency: 'EUR' }}
+                          </span>
+                        </td>
+                        <td class="text-right border-gray-100 px-2">
+                          <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
+                        </td>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                      <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">No se encontraron productos.</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Layer (Product Detail Card) -->
+            <div *ngIf="selectedProduct"
+              class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative">
+              <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
+                [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
+                (verFactura)="verFactura($event)"
+                (delete)="confirmarEliminarProducto($event)"></app-product-detail-sidebar>
+            </div>
           </div>
+
+          <!-- MOBILE: Bottom Sheets (Keep Separate) -->
+
+          <!-- Mobile Sheets moved to bottom -->
         </div>
-
-        <!-- MOBILE: Bottom Sheets (Keep Separate) -->
-
-        <!-- Mobile Sheets moved to bottom -->
-      </div>
-      <!-- End of Row Wrapper -->
+        <!-- End of Row Wrapper -->
+      </ng-container>
     </ng-template>
   </div>
 

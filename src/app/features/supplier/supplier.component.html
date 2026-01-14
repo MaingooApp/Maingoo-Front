@@ -55,194 +55,240 @@
       <!-- Left Side: Main Content -->
       <div class="flex-1 min-w-0">
         <!-- SECTION: Empty State -->
-        <div *ngIf="!cargando && supplier.length === 0; else tablaSupplier">
+        <div *ngIf="!cargando && supplier.length === 0; else contenidoPrincipal">
           <app-empty-state icon="local_shipping" title="No hay proveedores registrados"
             description="Cuando escanees o subas una factura, ese proveedor, aparecerá aquí.">
           </app-empty-state>
         </div>
 
-        <ng-template #tablaSupplier>
-          <!-- VIEW: Grid Mode -->
-          <ng-container *ngIf="viewMode === 'grid'">
-            <div class="grid gap-6"
-              [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
-              <div *ngFor="let item of filteredSupplier"
-                class="rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col"
-                (click)="showDialog(item)">
-                <!-- Card Content -->
-                <div class="p-4 card text-maingoo-deep flex-1 flex flex-col gap-3">
-                  <!-- Header: Name -->
-                  <div class="flex flex-col mb-1">
-                    <span class="font-bold text-lg truncate" [title]="item.name">{{ item.name }}</span>
-                    <span class="text-xs text-gray-400 font-normal" *ngIf="item.sanitaryRegistrationNumber">{{
-                      item.sanitaryRegistrationNumber
-                      }}</span>
-                    <span class="text-xs text-gray-300 italic font-normal" *ngIf="!item.sanitaryRegistrationNumber">Sin
-                      registro sanitario</span>
+        <ng-template #contenidoPrincipal>
+          <!-- LOADING: Skeleton Grid -->
+          <ng-container *ngIf="cargando">
+            <div *ngIf="viewMode === 'grid'" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <div *ngFor="let i of [1,2,3,4,5,6,7,8]"
+                class="rounded-xl overflow-hidden shadow-sm bg-white p-4 flex flex-col gap-3 min-h-[180px]">
+                <div class="flex flex-col gap-2">
+                  <p-skeleton width="70%" height="1.25rem"></p-skeleton>
+                  <p-skeleton width="40%" height="0.75rem"></p-skeleton>
+                </div>
+                <div class="mt-auto flex flex-col gap-2">
+                  <div class="flex items-center gap-2">
+                    <p-skeleton shape="circle" size="1rem"></p-skeleton>
+                    <p-skeleton width="60%" height="0.875rem"></p-skeleton>
                   </div>
-
-                  <!-- Details List -->
-                  <div class="flex flex-col gap-2 text-sm text-gray-600">
-                    <!-- Contact Name -->
-                    <div class="flex items-center gap-2">
-                      <app-icon name="person" size="xs" class="text-maingoo-sage w-4"></app-icon>
-                      <span class="truncate" *ngIf="item.commercialName">{{ item.commercialName }}</span>
-                      <span class="truncate text-gray-300 italic" *ngIf="!item.commercialName">Sin nombre
-                        comercial</span>
-                    </div>
-                    <!-- Phone -->
-                    <div class="flex items-center gap-2">
-                      <app-icon name="phone" size="xs" class="text-maingoo-sage w-4"></app-icon>
-                      <span class="truncate" *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
-                      <span class="truncate text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
-                    </div>
-                    <!-- Order Days -->
-                    <div class="flex items-center gap-2">
-                      <app-icon name="schedule" size="xs" class="text-maingoo-sage w-4"></app-icon>
-                      <span class="truncate" *ngIf="item.orderDays">{{ item.orderDays }}</span>
-                      <span class="truncate text-gray-300 italic" *ngIf="!item.orderDays">Sin días pedido</span>
-                    </div>
-                    <!-- Delivery Days -->
-                    <div class="flex items-center gap-2">
-                      <app-icon name="local_shipping" size="xs" class="text-maingoo-sage w-4"></app-icon>
-                      <span class="truncate" *ngIf="item.deliveryDays">{{ item.deliveryDays }}</span>
-                      <span class="truncate text-gray-300 italic" *ngIf="!item.deliveryDays">Sin días reparto</span>
-                    </div>
+                  <div class="flex items-center gap-2">
+                    <p-skeleton shape="circle" size="1rem"></p-skeleton>
+                    <p-skeleton width="50%" height="0.875rem"></p-skeleton>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <p-skeleton shape="circle" size="1rem"></p-skeleton>
+                    <p-skeleton width="45%" height="0.875rem"></p-skeleton>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div *ngIf="viewMode === 'list'" class="rounded-xl shadow-sm overflow-hidden bg-white">
+              <div *ngFor="let i of [1,2,3,4,5,6]"
+                class="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4">
+                <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+                <div class="flex-1 flex flex-col gap-2">
+                  <p-skeleton width="50%" height="1rem"></p-skeleton>
+                  <p-skeleton width="30%" height="0.75rem"></p-skeleton>
+                </div>
+                <p-skeleton width="1rem" height="1rem"></p-skeleton>
               </div>
             </div>
           </ng-container>
 
-          <!-- VIEW: List Mode -->
-          <div *ngIf="viewMode === 'list'" class="rounded-xl shadow-sm overflow-hidden bg-white">
-            <!-- Mobile Compact List View (Rows) -->
-            <div class="flex flex-col md:hidden">
-              <div *ngFor="let item of filteredSupplier" (click)="showDialog(item)"
-                class="border-b border-gray-100 last:border-0 p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer relative"
-                [class.bg-maingoo-sage-50]="selectedSupplier?.id === item.id">
-                <!-- Avatar/Icon Compact -->
-                <div
-                  class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
-                  <span class="text-maingoo-deep font-bold text-sm">{{ item.name.charAt(0).toUpperCase() }}</span>
-                </div>
+          <!-- LOADED: Actual Content -->
+          <ng-container *ngIf="!cargando">
+            <!-- VIEW: Grid Mode -->
+            <ng-container *ngIf="viewMode === 'grid'">
+              <div class="grid gap-6"
+                [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+                <div *ngFor="let item of filteredSupplier"
+                  class="rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col"
+                  (click)="showDialog(item)">
+                  <!-- Card Content -->
+                  <div class="p-4 card text-maingoo-deep flex-1 flex flex-col gap-3">
+                    <!-- Header: Name -->
+                    <div class="flex flex-col mb-1">
+                      <span class="font-bold text-lg truncate" [title]="item.name">{{ item.name }}</span>
+                      <span class="text-xs text-gray-400 font-normal" *ngIf="item.sanitaryRegistrationNumber">{{
+                        item.sanitaryRegistrationNumber
+                        }}</span>
+                      <span class="text-xs text-gray-300 italic font-normal"
+                        *ngIf="!item.sanitaryRegistrationNumber">Sin
+                        registro sanitario</span>
+                    </div>
 
-                <!-- Main Info Compact -->
-                <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                  <div class="flex justify-between items-center">
-                    <h3 class="font-semibold text-[#1A3C34] text-sm truncate pr-2">{{ item.name }}</h3>
-                  </div>
-
-                  <div class="flex items-center gap-2 text-xs text-gray-500">
-                    <span *ngIf="item.commercialName" class="truncate flex items-center gap-1 min-w-0 max-w-[45%]">
-                      <app-icon name="person" size="xs" class="text-maingoo-sage"></app-icon> {{ item.commercialName }}
-                    </span>
-                    <span *ngIf="item.phoneNumber" class="truncate flex items-center gap-1 min-w-0">
-                      <app-icon name="phone" size="xs" class="text-maingoo-sage"></app-icon> {{ item.phoneNumber }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Chevron -->
-                <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
-              </div>
-            </div>
-
-            <!-- Desktop Table View -->
-            <div class="hidden md:block">
-              <p-table [value]="filteredSupplier" [rowHover]="true" styleClass="p-datatable-sm">
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th class="text-maingoo-deep font-bold text-sm" [class.w-full]="selectedSupplier"
-                      [class.w-[25%]]="!selectedSupplier">
-                      Proveedor
-                    </th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Comercial</th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Teléfono</th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Pedido</th>
-                    <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Reparto</th>
-                    <th [class.w-[10%]]="!selectedSupplier" [class.w-auto]="selectedSupplier"></th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-item>
-                  <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
-                    [ngClass]="{ '/10 !border-maingoo-sage': selectedSupplier?.id === item.id }"
-                    (click)="showDialog(item)">
-                    <!-- Column 1: Provider Name + Sanitary Reg -->
-                    <td>
-                      <div class="flex flex-col">
-                        <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
-                        <span class="text-xs text-gray-400 font-normal" *ngIf="item.sanitaryRegistrationNumber">{{
-                          item.sanitaryRegistrationNumber
-                          }}</span>
-                        <span class="text-xs text-gray-300 italic font-normal"
-                          *ngIf="!item.sanitaryRegistrationNumber">Sin registro sanitario</span>
-                      </div>
-                    </td>
-
-                    <!-- Column 2: Contact Name (Persona) -->
-                    <td *ngIf="!selectedSupplier">
-                      <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <app-icon name="person" size="xs" class="text-maingoo-sage"></app-icon>
-                        <span class="truncate max-w-[150px]" *ngIf="item.commercialName">{{
-                          item.commercialName
-                          }}</span>
-                        <span class="truncate max-w-[150px] text-gray-300 italic" *ngIf="!item.commercialName">Sin
+                    <!-- Details List -->
+                    <div class="flex flex-col gap-2 text-sm text-gray-600">
+                      <!-- Contact Name -->
+                      <div class="flex items-center gap-2">
+                        <app-icon name="person" size="xs" class="text-maingoo-sage w-4"></app-icon>
+                        <span class="truncate" *ngIf="item.commercialName">{{ item.commercialName }}</span>
+                        <span class="truncate text-gray-300 italic" *ngIf="!item.commercialName">Sin nombre
                           comercial</span>
                       </div>
-                    </td>
-
-                    <!-- Column 3: Phone -->
-                    <td *ngIf="!selectedSupplier">
-                      <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <app-icon name="phone" size="xs" class="text-maingoo-sage"></app-icon>
-                        <span *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
-                        <span class="text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
+                      <!-- Phone -->
+                      <div class="flex items-center gap-2">
+                        <app-icon name="phone" size="xs" class="text-maingoo-sage w-4"></app-icon>
+                        <span class="truncate" *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
+                        <span class="truncate text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
                       </div>
-                    </td>
-
-                    <!-- Column 4: Order Day -->
-                    <td *ngIf="!selectedSupplier">
-                      <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <app-icon name="calendar_today" size="xs" class="text-maingoo-sage"></app-icon>
-                        <span class="truncate max-w-[200px]" title="Pedidos" *ngIf="item.orderDays">{{
-                          item.orderDays
-                          }}</span>
-                        <span class="truncate max-w-[200px] text-gray-300 italic" title="Pedidos"
-                          *ngIf="!item.orderDays">Sin días pedido</span>
+                      <!-- Order Days -->
+                      <div class="flex items-center gap-2">
+                        <app-icon name="schedule" size="xs" class="text-maingoo-sage w-4"></app-icon>
+                        <span class="truncate" *ngIf="item.orderDays">{{ item.orderDays }}</span>
+                        <span class="truncate text-gray-300 italic" *ngIf="!item.orderDays">Sin días pedido</span>
                       </div>
-                    </td>
-
-                    <!-- Column 5: Delivery Day -->
-                    <td *ngIf="!selectedSupplier">
-                      <div class="flex items-center gap-2 text-sm text-gray-600">
-                        <app-icon name="local_shipping" size="xs" class="text-maingoo-sage"></app-icon>
-                        <span class="truncate max-w-[200px]" title="Reparto" *ngIf="item.deliveryDays">{{
-                          item.deliveryDays
-                          }}</span>
-                        <span class="truncate max-w-[200px] text-gray-300 italic" title="Reparto"
-                          *ngIf="!item.deliveryDays">Sin días reparto</span>
+                      <!-- Delivery Days -->
+                      <div class="flex items-center gap-2">
+                        <app-icon name="local_shipping" size="xs" class="text-maingoo-sage w-4"></app-icon>
+                        <span class="truncate" *ngIf="item.deliveryDays">{{ item.deliveryDays }}</span>
+                        <span class="truncate text-gray-300 italic" *ngIf="!item.deliveryDays">Sin días reparto</span>
                       </div>
-                    </td>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
 
-                    <td class="text-right">
-                      <button pButton
-                        class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
-                        [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }">
-                        <app-icon name="chevron_left" size="md"></app-icon>
-                      </button>
-                    </td>
-                  </tr>
-                </ng-template>
-                <!-- Empty State in Table -->
-                <ng-template pTemplate="emptymessage">
-                  <tr>
-                    <td colspan="4" class="text-center py-8 text-gray-500">No se encontraron proveedores.</td>
-                  </tr>
-                </ng-template>
-              </p-table>
+            <!-- VIEW: List Mode -->
+            <div *ngIf="viewMode === 'list'" class="rounded-xl shadow-sm overflow-hidden bg-white">
+              <!-- Mobile Compact List View (Rows) -->
+              <div class="flex flex-col md:hidden">
+                <div *ngFor="let item of filteredSupplier" (click)="showDialog(item)"
+                  class="border-b border-gray-100 last:border-0 p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer relative"
+                  [class.bg-maingoo-sage-50]="selectedSupplier?.id === item.id">
+                  <!-- Avatar/Icon Compact -->
+                  <div
+                    class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100">
+                    <span class="text-maingoo-deep font-bold text-sm">{{ item.name.charAt(0).toUpperCase() }}</span>
+                  </div>
+
+                  <!-- Main Info Compact -->
+                  <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                    <div class="flex justify-between items-center">
+                      <h3 class="font-semibold text-[#1A3C34] text-sm truncate pr-2">{{ item.name }}</h3>
+                    </div>
+
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                      <span *ngIf="item.commercialName" class="truncate flex items-center gap-1 min-w-0 max-w-[45%]">
+                        <app-icon name="person" size="xs" class="text-maingoo-sage"></app-icon> {{ item.commercialName
+                        }}
+                      </span>
+                      <span *ngIf="item.phoneNumber" class="truncate flex items-center gap-1 min-w-0">
+                        <app-icon name="phone" size="xs" class="text-maingoo-sage"></app-icon> {{ item.phoneNumber }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Chevron -->
+                  <app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
+                </div>
+              </div>
+
+              <!-- Desktop Table View -->
+              <div class="hidden md:block">
+                <p-table [value]="filteredSupplier" [rowHover]="true" styleClass="p-datatable-sm">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th class="text-maingoo-deep font-bold text-sm" [class.w-full]="selectedSupplier"
+                        [class.w-[25%]]="!selectedSupplier">
+                        Proveedor
+                      </th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Comercial</th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[15%]" *ngIf="!selectedSupplier">Teléfono</th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Pedido
+                      </th>
+                      <th class="text-maingoo-deep font-bold text-sm w-[17.5%]" *ngIf="!selectedSupplier">Día Reparto
+                      </th>
+                      <th [class.w-[10%]]="!selectedSupplier" [class.w-auto]="selectedSupplier"></th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-item>
+                    <tr class="cursor-pointer hover:/20 transition-colors border-l-4 border-transparent"
+                      [ngClass]="{ '/10 !border-maingoo-sage': selectedSupplier?.id === item.id }"
+                      (click)="showDialog(item)">
+                      <!-- Column 1: Provider Name + Sanitary Reg -->
+                      <td>
+                        <div class="flex flex-col">
+                          <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
+                          <span class="text-xs text-gray-400 font-normal" *ngIf="item.sanitaryRegistrationNumber">{{
+                            item.sanitaryRegistrationNumber
+                            }}</span>
+                          <span class="text-xs text-gray-300 italic font-normal"
+                            *ngIf="!item.sanitaryRegistrationNumber">Sin registro sanitario</span>
+                        </div>
+                      </td>
+
+                      <!-- Column 2: Contact Name (Persona) -->
+                      <td *ngIf="!selectedSupplier">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <app-icon name="person" size="xs" class="text-maingoo-sage"></app-icon>
+                          <span class="truncate max-w-[150px]" *ngIf="item.commercialName">{{
+                            item.commercialName
+                            }}</span>
+                          <span class="truncate max-w-[150px] text-gray-300 italic" *ngIf="!item.commercialName">Sin
+                            comercial</span>
+                        </div>
+                      </td>
+
+                      <!-- Column 3: Phone -->
+                      <td *ngIf="!selectedSupplier">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <app-icon name="phone" size="xs" class="text-maingoo-sage"></app-icon>
+                          <span *ngIf="item.phoneNumber">{{ item.phoneNumber }}</span>
+                          <span class="text-gray-300 italic" *ngIf="!item.phoneNumber">Sin teléfono</span>
+                        </div>
+                      </td>
+
+                      <!-- Column 4: Order Day -->
+                      <td *ngIf="!selectedSupplier">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <app-icon name="calendar_today" size="xs" class="text-maingoo-sage"></app-icon>
+                          <span class="truncate max-w-[200px]" title="Pedidos" *ngIf="item.orderDays">{{
+                            item.orderDays
+                            }}</span>
+                          <span class="truncate max-w-[200px] text-gray-300 italic" title="Pedidos"
+                            *ngIf="!item.orderDays">Sin días pedido</span>
+                        </div>
+                      </td>
+
+                      <!-- Column 5: Delivery Day -->
+                      <td *ngIf="!selectedSupplier">
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                          <app-icon name="local_shipping" size="xs" class="text-maingoo-sage"></app-icon>
+                          <span class="truncate max-w-[200px]" title="Reparto" *ngIf="item.deliveryDays">{{
+                            item.deliveryDays
+                            }}</span>
+                          <span class="truncate max-w-[200px] text-gray-300 italic" title="Reparto"
+                            *ngIf="!item.deliveryDays">Sin días reparto</span>
+                        </div>
+                      </td>
+
+                      <td class="text-right">
+                        <button pButton
+                          class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
+                          [ngClass]="{ 'rotate-180 text-maingoo-sage': selectedSupplier?.id === item.id }">
+                          <app-icon name="chevron_left" size="md"></app-icon>
+                        </button>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <!-- Empty State in Table -->
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="4" class="text-center py-8 text-gray-500">No se encontraron proveedores.</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
             </div>
-          </div>
+          </ng-container>
         </ng-template>
       </div>
 
