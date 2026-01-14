@@ -94,7 +94,7 @@
         </div>
 
         <!-- Skeleton Cards View (Categories) -->
-        <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+        <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
           <div *ngFor="let i of [1,2,3,4,5,6,7,8]"
             class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col h-32 justify-between">
             <p-skeleton width="60%" height="1.5rem" borderRadius="1rem"></p-skeleton>
@@ -256,7 +256,7 @@
 
             <!-- VIEW: Cards Mode (Categories) -->
             <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 animate-fade-in" [ngClass]="
-              selectedCategory || selectedProduct ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'
+              selectedCategory || selectedProduct ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
             ">
               <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
                 class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
