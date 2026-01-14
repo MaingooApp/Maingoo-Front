@@ -1,64 +1,175 @@
 <div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <app-section-header class="w-full" title="Artículos" [viewMode]="viewMode" gridValue="cards"
-      (viewModeChange)="setViewMode($any($event))" [showViewSwitcher]="articles().length > 0"
-      [showSearch]="hasInvoices">
-      <div actions *ngIf="hasInvoices">
-        <button pButton label="Crear artículo" severity="primary" (click)="openCreateArticle()">
-          <app-icon name="add" size="md"></app-icon>
-        </button>
-      </div>
+      (viewModeChange)="setViewMode($event)" [showViewSwitcher]="articles().length > 0" [showSearch]="true"
+      (search)="onSearch($event)">
+
     </app-section-header>
 
-    <!-- Articles Grid -->
-    <div *ngIf="articles().length > 0 && viewMode === 'cards'"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-      <div *ngFor="let article of articles()"
-        class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-            <app-icon name="inventory_2" size="xl"></app-icon>
+    <div class="flex flex-row gap-6 w-full items-start">
+      <!-- Left Side -->
+      <div class="flex-1 min-w-0 transition-all duration-300">
+        <!-- Main Categories Cards -->
+        <div class="grid gap-6 mb-8 w-full transition-all duration-300"
+          [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'">
+
+          <!-- Artículos Card -->
+          <div (click)="selectCategory('articles')" (keydown.enter)="selectCategory('articles')" role="button"
+            tabindex="0"
+            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
+            [ngClass]="selectedCategory === 'articles' ? 'border-blue-500 shadow-md ring-1 ring-blue-500 bg-blue-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                [ngClass]="selectedCategory === 'articles' ? 'bg-blue-100 text-blue-600' : 'bg-blue-50 text-blue-600'">
+                <app-icon name="inventory_2" size="xl"></app-icon>
+              </div>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                [ngClass]="selectedCategory === 'articles' ? 'bg-blue-100 text-blue-500' : 'bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500'">
+                <app-icon name="arrow_forward" size="md"></app-icon>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Artículos</h3>
+            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Crea y gestiona tus artículos
+              finalizados y listos para la venta</p>
           </div>
-          <h3 class="font-semibold text-gray-800 truncate">{{ article.name }}</h3>
+
+          <!-- Elaboraciones Card -->
+          <div (click)="selectCategory('elaborations')" (keydown.enter)="selectCategory('elaborations')" role="button"
+            tabindex="0"
+            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
+            [ngClass]="selectedCategory === 'elaborations' ? 'border-orange-500 shadow-md ring-1 ring-orange-500 bg-orange-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-600' : 'bg-orange-50 text-orange-600'">
+                <app-icon name="restaurant_menu" size="xl"></app-icon>
+              </div>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-500' : 'bg-gray-50 text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-500'">
+                <app-icon name="arrow_forward" size="md"></app-icon>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Elaboraciones</h3>
+            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Crea y gestiona tus elaboraciones
+              para tus artículos</p>
+          </div>
+
+          <!-- Mise en place Card -->
+          <div (click)="selectCategory('mise-en-place')" (keydown.enter)="selectCategory('mise-en-place')" role="button"
+            tabindex="0"
+            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
+            [ngClass]="selectedCategory === 'mise-en-place' ? 'border-purple-500 shadow-md ring-1 ring-purple-500 bg-purple-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                [ngClass]="selectedCategory === 'mise-en-place' ? 'bg-purple-100 text-purple-600' : 'bg-purple-50 text-purple-600'">
+                <app-icon name="kitchen" size="xl"></app-icon>
+              </div>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                [ngClass]="selectedCategory === 'mise-en-place' ? 'bg-purple-100 text-purple-500' : 'bg-gray-50 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-500'">
+                <app-icon name="arrow_forward" size="md"></app-icon>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Mise en place</h3>
+            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Organiza y distribuye las
+              elaboraciones con tu equipo</p>
+          </div>
+        </div>
+
+        <!-- Articles Grid (Only visible when no category is selected) -->
+        <div *ngIf="!selectedCategory">
+
+          <div *ngIf="articles().length > 0 && viewMode === 'cards'"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full animate-fade-in">
+            <div *ngFor="let article of articles()"
+              class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                  <app-icon name="inventory_2" size="xl"></app-icon>
+                </div>
+                <h3 class="font-semibold text-gray-800 truncate">{{ article.name }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="articles().length > 0 && viewMode === 'list'"
+            class="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
+            <p-table [value]="articles()" [rowHover]="true" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th class="text-maingoo-deep font-bold text-sm">Artículo</th>
+                  <th class="w-20"></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-article>
+                <tr class="cursor-pointer hover:bg-gray-50 transition-colors">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                        <app-icon name="inventory_2" size="md"></app-icon>
+                      </div>
+                      <span class="font-bold text-maingoo-deep">{{ article.name }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <button pButton class="p-button-text p-button-rounded text-gray-400" aria-label="Opciones">
+                      <app-icon name="more_vert" size="md"></app-icon>
+                    </button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side (Detail Panel) -->
+      <div *ngIf="selectedCategory"
+        class="hidden md:flex w-full md:w-3/4 shrink-0 top-4 z-20 flex-col animate-slide-in-right h-[calc(100vh-140px)] sticky">
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col h-full">
+          <!-- Header -->
+          <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm" [ngClass]="{
+                               'bg-blue-100 text-blue-600': selectedCategory === 'articles',
+                               'bg-orange-100 text-orange-600': selectedCategory === 'elaborations',
+                               'bg-purple-100 text-purple-600': selectedCategory === 'mise-en-place'
+                           }">
+                <app-icon
+                  [name]="selectedCategory === 'articles' ? 'inventory_2' : selectedCategory === 'elaborations' ? 'restaurant_menu' : 'kitchen'"
+                  size="xl"></app-icon>
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900 capitalize">{{ categoryDisplayName }}</h2>
+                <p class="text-sm text-gray-500">Gestión de {{ categoryDisplayName }}</p>
+              </div>
+            </div>
+            <button
+              class="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all shadow-sm"
+              (click)="closeDetail()" aria-label="Cerrar detalle">
+              <app-icon name="close" size="md"></app-icon>
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="p-8 flex-1 overflow-y-auto bg-gray-50/30">
+            <!-- Placeholder Content -->
+            <div
+              class="flex flex-col items-center justify-center h-full text-center p-8 border-2 border-dashed border-gray-200 rounded-xl bg-white/50">
+              <div class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-4">
+                <app-icon name="construction" size="2xl"></app-icon>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">Sección en construcción</h3>
+              <p class="text-gray-500 max-w-md">Estamos trabajando en la vista detallada para <strong>{{
+                  categoryDisplayName }}</strong>. Pronto podrás
+                gestionar todo desde aquí.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Articles List (Table) -->
-    <div *ngIf="articles().length > 0 && viewMode === 'list'"
-      class="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <p-table [value]="articles()" [rowHover]="true" styleClass="p-datatable-sm">
-        <ng-template pTemplate="header">
-          <tr>
-            <th class="text-maingoo-deep font-bold text-sm">Artículo</th>
-            <th class="w-20"></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-article>
-          <tr class="cursor-pointer hover:/20 transition-colors">
-            <td>
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                  <app-icon name="inventory_2" size="md"></app-icon>
-                </div>
-                <span class="font-bold text-maingoo-deep">{{ article.name }}</span>
-              </div>
-            </td>
-            <td>
-              <button pButton class="p-button-text p-button-rounded text-gray-400">
-                <app-icon name="more_vert" size="md"></app-icon>
-              </button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
 
-    <!-- Empty State -->
-    <app-empty-state *ngIf="articles().length === 0 && !loading" class="w-full" icon="restaurant"
-      title="Sección en construcción"
-      description="Estamos trabajando en esta funcionalidad. Pronto podrás crear y gestionar tus artículos de venta."
-      [showComingSoon]="true">
-    </app-empty-state>
   </div>
 </div>
