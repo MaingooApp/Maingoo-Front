@@ -6,16 +6,42 @@
             [showSearch]="true" (search)="onHeaderSearch($event)">
         </app-section-header>
 
-        <div class="flex items-start relative w-full" [class.gap-6]="view() === 'invoices'"
-            [class.gap-0]="view() !== 'invoices'">
+        <div class="flex items-start relative w-full" [class.gap-6]="view() !== 'hub'" [class.gap-0]="view() === 'hub'">
 
             <!-- HUB VIEW: Cards Grid (Left Side) -->
-            <div [ngClass]="view() === 'invoices' ? 'w-full md:w-1/4' : 'w-full'">
+            <div [ngClass]="view() !== 'hub' ? 'w-full md:w-1/4' : 'w-full'">
 
                 <!-- GRID VIEW -->
                 <div *ngIf="viewMode() === 'cards'" class="grid gap-6 animate-fade-in"
-                    [ngClass]="view() === 'invoices' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+                    [ngClass]="view() !== 'hub' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+                    <!-- Mi Gestor Card -->
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3 bg-gray-50/50"
+                        [ngClass]="view() === 'manager' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+                        (click)="setView('manager')">
 
+                        <!-- Demo Tag -->
+                        <span
+                            class="absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-500 uppercase tracking-wider">
+                            Demo
+                        </span>
+
+                        <div class="flex items-center gap-3">
+                            <div class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                                [ngClass]="view() === 'manager' ? 'w-8 h-8 bg-maingoo-sage/10' : 'w-10 h-10 bg-maingoo-sage/10'">
+                                <app-icon name="support_agent" [size]="view() === 'manager' ? 'xl' : '2xl'"
+                                    class="text-maingoo-sage"></app-icon>
+                            </div>
+                            <h3 class="font-bold text-maingoo-deep m-0"
+                                [ngClass]="view() === 'manager' ? 'text-base' : 'text-lg'">Mi gestor</h3>
+                        </div>
+
+                        <div *ngIf="view() !== 'manager'" class="flex flex-col gap-2 items-center">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                Contactar
+                            </span>
+                        </div>
+                    </div>
                     <!-- Invoice Card -->
                     <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
                         [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
@@ -42,6 +68,34 @@
                 <!-- LIST VIEW -->
                 <div *ngIf="viewMode() === 'list'" class="flex flex-col gap-3 animate-fade-in w-full">
 
+                    <!-- Mi Gestor List Item -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between relative"
+                        [ngClass]="view() === 'manager' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+                        (click)="setView('manager')">
+
+                        <!-- Demo Tag -->
+                        <span
+                            class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-500 uppercase tracking-wider">
+                            Demo
+                        </span>
+
+                        <div class="flex items-center gap-4">
+                            <div class="rounded-full flex items-center justify-center transition-transform group-hover:scale-110 bg-maingoo-sage/10"
+                                [ngClass]="view() === 'manager' ? 'w-8 h-8' : 'w-10 h-10'">
+                                <app-icon name="support_agent" [size]="view() === 'manager' ? 'lg' : 'xl'"
+                                    class="text-maingoo-sage"></app-icon>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-bold text-maingoo-deep m-0"
+                                    [ngClass]="view() === 'manager' ? 'text-sm' : 'text-base'">Mi gestor</h3>
+                                <p *ngIf="view() !== 'manager'" class="text-gray-500 text-xs m-0 hidden sm:block">
+                                    Contacta con tu gestor asignado</p>
+                            </div>
+                        </div>
+                        <app-icon name="chevron_right" size="md"
+                            class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+                    </div>
+
                     <!-- Invoice List Item -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
                         [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
@@ -61,6 +115,43 @@
                             class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
                     </div>
 
+                </div>
+            </div>
+
+
+            <!-- MANAGER DRAWER (Right Side) -->
+            <div [ngClass]="view() === 'manager' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
+                class="shrink-0 sticky top-32 flex flex-col ">
+
+                <div
+                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    <!-- Drawer Header -->
+                    <div
+                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+                                <app-icon name="support_agent" size="xl"></app-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-maingoo-deep m-0">Mi Gestor</h2>
+                                <p class="text-xs text-gray-500 m-0">Asesoramiento personalizado</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button (click)="setView('hub')"
+                                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                                <app-icon name="close" size="xl"></app-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawer Content -->
+                    <div
+                        class="flex-1 overflow-auto p-6 bg-white relative flex flex-col items-center justify-center text-center gap-6">
+
+                    </div>
                 </div>
             </div>
 
