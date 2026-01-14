@@ -13,6 +13,27 @@
         <div class="grid gap-6 mb-8 w-full transition-all duration-300"
           [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'">
 
+          <!-- Elaboraciones Card -->
+          <div (click)="selectCategory('elaborations')" (keydown.enter)="selectCategory('elaborations')" role="button"
+            tabindex="0"
+            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
+            [ngClass]="selectedCategory === 'elaborations' ? 'border-orange-500 shadow-md ring-1 ring-orange-500 bg-orange-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
+            <div class="flex items-center justify-between mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-600' : 'bg-orange-50 text-orange-600'">
+                <app-icon name="restaurant_menu" size="xl"></app-icon>
+              </div>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-500' : 'bg-gray-50 text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-500'">
+                <app-icon name="arrow_forward" size="md"></app-icon>
+              </div>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Elaboraciones</h3>
+            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Crea y gestiona tus elaboraciones
+              para tus artículos</p>
+          </div>
+
           <!-- Artículos Card -->
           <div (click)="selectCategory('articles')" (keydown.enter)="selectCategory('articles')" role="button"
             tabindex="0"
@@ -34,26 +55,6 @@
               finalizados y listos para la venta</p>
           </div>
 
-          <!-- Elaboraciones Card -->
-          <div (click)="selectCategory('elaborations')" (keydown.enter)="selectCategory('elaborations')" role="button"
-            tabindex="0"
-            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
-            [ngClass]="selectedCategory === 'elaborations' ? 'border-orange-500 shadow-md ring-1 ring-orange-500 bg-orange-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
-            <div class="flex items-center justify-between mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-600' : 'bg-orange-50 text-orange-600'">
-                <app-icon name="restaurant_menu" size="xl"></app-icon>
-              </div>
-              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-500' : 'bg-gray-50 text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-500'">
-                <app-icon name="arrow_forward" size="md"></app-icon>
-              </div>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Elaboraciones</h3>
-            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Crea y gestiona tus elaboraciones
-              para tus artículos</p>
-          </div>
 
           <!-- Mise en place Card -->
           <div (click)="selectCategory('mise-en-place')" (keydown.enter)="selectCategory('mise-en-place')" role="button"
@@ -145,31 +146,76 @@
                 <p class="text-sm text-gray-500">Gestión de {{ categoryDisplayName }}</p>
               </div>
             </div>
-            <button
-              class="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all shadow-sm"
-              (click)="closeDetail()" aria-label="Cerrar detalle">
-              <app-icon name="close" size="md"></app-icon>
-            </button>
+            <div class="flex items-center gap-2">
+              <button *ngIf="selectedCategory === 'articles'" pButton
+                class="p-button-outlined p-button-secondary !border-gray-200 !text-gray-600 hover:!bg-gray-50 !px-4 !h-10 !rounded-xl !font-medium flex items-center gap-2"
+                (click)="toggleAddArticleForm()">
+                <app-icon name="add" size="sm"></app-icon>
+                <span>Añadir artículo</span>
+              </button>
+
+              <button *ngIf="selectedCategory === 'elaborations'" pButton
+                class="p-button-outlined p-button-secondary !border-gray-200 !text-gray-600 hover:!bg-gray-50 !px-4 !h-10 !rounded-xl !font-medium flex items-center gap-2"
+                (click)="toggleAddElaborationForm()">
+                <app-icon name="add" size="sm"></app-icon>
+                <span>Añadir elaboración</span>
+              </button>
+
+              <button
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50 transition-all shadow-sm"
+                (click)="closeDetail()" aria-label="Cerrar detalle">
+                <app-icon name="close" size="md"></app-icon>
+              </button>
+            </div>
           </div>
 
           <!-- Content -->
           <div class="p-8 flex-1 overflow-y-auto bg-gray-50/30">
-            <!-- Placeholder Content -->
-            <div
-              class="flex flex-col items-center justify-center h-full text-center p-8 border-2 border-dashed border-gray-200 rounded-xl bg-white/50">
-              <div class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-4">
-                <app-icon name="construction" size="2xl"></app-icon>
+
+            <!-- Add Elaboration Form -->
+            <div *ngIf="showAddElaborationForm()"
+              class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+              <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                  <label class="text-sm font-medium text-gray-700">Nombre de elaboración</label>
+                  <input pInputText type="text" [ngModel]="newElaborationName()"
+                    (ngModelChange)="newElaborationName.set($event)" placeholder="Ej: Salsa de tomate" class="w-full" />
+                </div>
+
+                <div class="flex justify-end gap-2 mt-2">
+                  <button pButton label="Cancelar" class="p-button-text" (click)="toggleAddElaborationForm()"></button>
+                  <button pButton label="Guardar" class="p-button-primary"></button>
+                </div>
               </div>
-              <h3 class="text-xl font-semibold text-gray-800 mb-2">Sección en construcción</h3>
-              <p class="text-gray-500 max-w-md">Estamos trabajando en la vista detallada para <strong>{{
-                  categoryDisplayName }}</strong>. Pronto podrás
-                gestionar todo desde aquí.</p>
+            </div>
+
+            <!-- Add Article Form -->
+            <div *ngIf="showAddArticleForm()"
+              class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+              <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1">
+                  <label class="text-sm font-medium text-gray-700">Nombre de artículo</label>
+                  <input pInputText type="text" [ngModel]="newArticleName()"
+                    (ngModelChange)="newArticleName.set($event)" placeholder="Ej: Solomillo de ternera"
+                    class="w-full" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                  <label class="text-sm font-medium text-gray-700">Tipo</label>
+                  <p-dropdown [options]="articleTypes" [ngModel]="newArticleType()"
+                    (ngModelChange)="newArticleType.set($event)" placeholder="Seleccionar tipo" styleClass="w-full"
+                    [appendTo]="'body'"></p-dropdown>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-2">
+                  <button pButton label="Cancelar" class="p-button-text" (click)="toggleAddArticleForm()"></button>
+                  <button pButton label="Guardar" class="p-button-primary"></button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-
   </div>
 </div>

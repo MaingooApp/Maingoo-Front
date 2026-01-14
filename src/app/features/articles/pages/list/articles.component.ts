@@ -12,10 +12,14 @@ import { ToastService } from '../../../../shared/services/toast.service';
 
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent],
+  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit {
@@ -32,6 +36,23 @@ export class ArticlesComponent implements OnInit {
   articles = signal<{ name: string }[]>([]);
 
   viewMode: 'list' | 'cards' = 'cards';
+
+  // Add Article Form State
+  showAddArticleForm = signal<boolean>(false);
+  newArticleName = signal<string>('');
+  newArticleType = signal<any>(null);
+
+  // Add Elaboration Form State
+  showAddElaborationForm = signal<boolean>(false);
+  newElaborationName = signal<string>('');
+
+  articleTypes = [
+    { label: 'Aperitivo', value: 'aperitivo' },
+    { label: 'Entrante', value: 'entrante' },
+    { label: 'Principal', value: 'principal' },
+    { label: 'Postre', value: 'postre' },
+    { label: 'Bebida', value: 'bebida' }
+  ];
 
   ngOnInit() {
     this.invoiceService.getInvoices().subscribe({
@@ -54,10 +75,28 @@ export class ArticlesComponent implements OnInit {
       return;
     }
     this.selectedCategory = category;
+    this.resetForms();
   }
 
   closeDetail() {
     this.selectedCategory = null;
+    this.resetForms();
+  }
+
+  toggleAddArticleForm() {
+    this.showAddArticleForm.update(v => !v);
+  }
+
+  toggleAddElaborationForm() {
+    this.showAddElaborationForm.update(v => !v);
+  }
+
+  resetForms() {
+    this.showAddArticleForm.set(false);
+    this.newArticleName.set('');
+    this.newArticleType.set(null);
+    this.showAddElaborationForm.set(false);
+    this.newElaborationName.set('');
   }
 
   get categoryDisplayName(): string {
