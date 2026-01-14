@@ -24,6 +24,7 @@ import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { TextareaModule } from 'primeng/textarea';
 
 export interface SupplierGroup {
   supplierName: string;
@@ -46,6 +47,15 @@ export interface GroupedInvoices {
   expanded: boolean;
 }
 
+export interface Manager {
+  name: string;
+  company: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'app-fiscal',
   standalone: true,
@@ -63,7 +73,8 @@ export interface GroupedInvoices {
     FormsModule,
     FileUploadModule,
     CardModule,
-    IconComponent
+    IconComponent,
+    TextareaModule
   ],
   templateUrl: './fiscal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -86,6 +97,17 @@ export class DocGeneratorComponent implements OnInit {
   // Modal de verificación para borrar todas las facturas
   showDeleteVerificationModal = signal(false);
   deleteVerificationText = signal('');
+
+  // Manager Data
+  manager = signal<Manager>({
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    address: '',
+    notes: ''
+  });
+  isEditingManager = signal(false);
 
   // Derived: Grouped Invoices
   groupedInvoices = computed(() => {
