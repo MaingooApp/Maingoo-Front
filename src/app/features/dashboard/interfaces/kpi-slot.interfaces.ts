@@ -60,6 +60,8 @@ export interface KpiSlotVM {
 	loading?: boolean;
 	/** Error si lo hay */
 	error?: { message: string };
+	/** Indica si los datos son mock/falsos */
+	isMock?: boolean;
 }
 
 /**
