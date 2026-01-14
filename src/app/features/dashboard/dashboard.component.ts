@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { KpiSlotComponent } from './components/kpi-slot/kpi-slot.component';
 import { DashboardKpiSlotMockService } from './services/dashboard-kpi-slot.mock.service';
 import { KpiSlotVM, KpiSlotClickEvent, KpiSlideChangeEvent } from './interfaces/kpi-slot.interfaces';
-import { Observable, startWith, forkJoin } from 'rxjs';
+import { Observable, startWith, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { ChartModule } from 'primeng/chart';
 import { DropdownModule } from 'primeng/dropdown';
 import { InvoiceService } from '../invoices/services/invoice.service';
+import { SupplierService } from '../supplier/services/supplier.service';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastService } from '@app/shared/services/toast.service';
@@ -27,6 +29,7 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 export class Dashboard implements OnInit {
   private kpiSlotService = inject(DashboardKpiSlotMockService);
   private invoiceService = inject(InvoiceService);
+  private supplierService = inject(SupplierService);
   private platformId = inject(PLATFORM_ID);
   private cd = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
@@ -36,6 +39,9 @@ export class Dashboard implements OnInit {
 
   /** Observable del slot de Incidencias con estado loading inicial */
   incidenciasSlot$!: Observable<KpiSlotVM>;
+
+  /** Observable del slot de Acciones con estado loading inicial */
+  actionsSlot$!: Observable<KpiSlotVM>;
 
   /** Datos del pie chart de proveedores */
   supplierChartData: any;
@@ -181,9 +187,18 @@ export class Dashboard implements OnInit {
     loading: true
   };
 
+  /** Slot inicial en estado loading para Acciones */
+  private readonly loadingSlotActions: KpiSlotVM = {
+    id: 'acciones',
+    title: 'Acciones',
+    slides: [],
+    loading: true
+  };
+
   ngOnInit(): void {
     this.loadActividadSlot();
     this.loadIncidenciasSlot();
+    this.loadActionsSlot();
     this.loadSupplierChart();
 
     this.updateSalesData();
@@ -208,6 +223,48 @@ export class Dashboard implements OnInit {
   }
 
   /**
+   * Carga el slot de Acciones Requeridas (Proveedores)
+   */
+  loadActionsSlot(): void {
+    this.actionsSlot$ = this.supplierService.listSuppliers().pipe(
+      map(suppliers => {
+        const missingSanitaryReg = suppliers.filter(s => !s.sanitaryRegistrationNumber).length;
+
+        const slot: KpiSlotVM = {
+          id: 'acciones',
+          title: 'Acciones',
+          slides: []
+        };
+
+        if (missingSanitaryReg > 0) {
+          slot.slides.push({
+            id: 'missing-sanitary-reg',
+            label: 'Proveedores sin registro sanitario',
+            value: missingSanitaryReg,
+            valueFormatter: 'number',
+            severity: 'warn',
+            tooltip: 'Proveedores que requieren actualizar su registro sanitario',
+            ctaLabel: 'Ver proveedores',
+            ctaAction: { type: 'emit', key: 'open-suppliers-missing-details' }, // Clave personalizada
+            visible: true
+          });
+        }
+
+        return slot;
+      }),
+      startWith(this.loadingSlotActions),
+      catchError(() => {
+        return of({
+          id: 'acciones',
+          title: 'Acciones',
+          slides: [],
+          error: { message: 'Error cargando acciones' }
+        } as KpiSlotVM);
+      })
+    );
+  }
+
+  /**
    * Carga los datos reales para el pie chart de proveedores
    */
   loadSupplierChart(): void {
@@ -227,6 +284,8 @@ export class Dashboard implements OnInit {
       }
     });
   }
+
+
 
   /**
    * Actualiza el gráfico de proveedores con las facturas de la semana actual

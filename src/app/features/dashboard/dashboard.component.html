@@ -11,6 +11,12 @@
     <app-kpi-slot *ngIf="incidenciasSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
       (slideChange)="onSlideChange($event)" (retry)="onRetryIncidencias()">
     </app-kpi-slot>
+
+    <!-- Actions Required Card (Moved to Top) -->
+    <!-- Slot Acciones (Moved from Card) -->
+    <app-kpi-slot *ngIf="actionsSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
+      (slideChange)="onSlideChange($event)">
+    </app-kpi-slot>
   </div>
 
   <!-- Main Content Layout: Cards + Panel Lateral -->
@@ -20,6 +26,9 @@
     <div class="flex-1 min-w-0">
       <div class="w-full grid gap-6"
         [ngClass]="activePanel ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+
+
+
 
         <!-- Métricas Proveedores Card -->
         <div

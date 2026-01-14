@@ -46,7 +46,7 @@ import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
         <div class="flex items-center gap-2">
           <h3 class="text-sm font-semibold text-maingoo-deep m-0">{{ slot?.title || 'Cargando...' }}</h3>
           <!-- Badge indicador de datos mock -->
-          <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-amber-600 uppercase tracking-wide">False data | No Backend</span>
+          <span *ngIf="slot?.isMock" class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-amber-600 uppercase tracking-wide">False data | No Backend</span>
         </div>
         
         <!-- Indicador de slides (dots) - solo si hay más de 1 slide -->
