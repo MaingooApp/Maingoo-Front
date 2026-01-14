@@ -127,7 +127,7 @@
                     class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
                     <!-- Drawer Header -->
                     <div
-                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+                        class="px-6 py-4 flex justify-between items-center bg-gray-50 border-b border-gray-100 shrink-0">
                         <div class="flex items-center gap-3">
                             <div
                                 class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
@@ -140,6 +140,12 @@
                         </div>
 
                         <div class="flex items-center gap-2">
+                            <button pButton class="p-button-rounded p-button-text"
+                                [ngClass]="isEditingManager() ? 'p-button-success' : 'p-button-secondary'"
+                                [pTooltip]="isEditingManager() ? 'Guardar cambios' : 'Editar gestor'"
+                                tooltipPosition="bottom" (click)="isEditingManager.set(!isEditingManager())">
+                                <app-icon [name]="isEditingManager() ? 'check' : 'edit'" size="md"></app-icon>
+                            </button>
                             <button (click)="setView('hub')"
                                 class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
                                 <app-icon name="close" size="xl"></app-icon>
@@ -148,9 +154,105 @@
                     </div>
 
                     <!-- Drawer Content -->
-                    <div
-                        class="flex-1 overflow-auto p-6 bg-white relative flex flex-col items-center justify-center text-center gap-6">
+                    <div class="flex-1 overflow-auto bg-white relative flex flex-col">
 
+                        <div class="px-6 pb-24 md:pb-8 relative flex-1 overflow-y-auto">
+                            <!-- Title & Company -->
+                            <div class="mb-6 flex flex-col gap-1 w-full pt-2">
+                                <div class="w-full">
+                                    <h1 *ngIf="!isEditingManager()"
+                                        class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words m-0">
+                                        <span *ngIf="manager().name">{{ manager().name }}</span>
+                                        <span *ngIf="!manager().name" class="text-gray-300 italic">Nombre del
+                                            Gestor</span>
+                                    </h1>
+                                    <input *ngIf="isEditingManager()" type="text" [(ngModel)]="manager().name"
+                                        placeholder="Nombre del Gestor"
+                                        class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight w-full bg-transparent border-b border-maingoo-sage focus:outline-none focus:border-maingoo-sage px-1 -ml-1 transition-all" />
+                                </div>
+                                <div class="w-full">
+                                    <h2 *ngIf="!isEditingManager()"
+                                        class="text-lg text-gray-500 font-medium m-0 flex items-center gap-2">
+                                        <app-icon name="business" size="sm" class="text-gray-400"></app-icon>
+                                        <span *ngIf="manager().company">{{ manager().company }}</span>
+                                        <span *ngIf="!manager().company" class="text-gray-300 italic">Empresa /
+                                            Asesoría</span>
+                                    </h2>
+                                    <div *ngIf="isEditingManager()" class="flex items-center gap-2 mt-1">
+                                        <app-icon name="business" size="sm" class="text-gray-400"></app-icon>
+                                        <input type="text" [(ngModel)]="manager().company"
+                                            placeholder="Empresa / Asesoría"
+                                            class="text-lg text-gray-600 font-medium w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-maingoo-sage px-1 -ml-1 transition-all" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="border-gray-100 my-6" />
+
+                            <!-- Contact Info Grid -->
+                            <div class="flex flex-col gap-4">
+                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide m-0">Datos de
+                                    contacto</h3>
+
+                                <!-- Email (Obligatorio) -->
+                                <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                                    <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                        <app-icon name="mail" size="md" class="text-maingoo-sage"></app-icon>
+                                        <span>Email principal</span>
+                                    </div>
+                                    <div class="flex items-center -ml-2">
+                                        <input type="text" [(ngModel)]="manager().email"
+                                            [readonly]="!isEditingManager()" placeholder="ejemplo@email.com"
+                                            class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+                                            [ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditingManager() }" />
+                                    </div>
+                                </div>
+
+                                <!-- Phone (Opcional) -->
+                                <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                                    <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                        <app-icon name="phone" size="md" class="text-maingoo-sage"></app-icon>
+                                        <span>Teléfono</span>
+                                    </div>
+                                    <div class="flex items-center -ml-2">
+                                        <input type="text" [(ngModel)]="manager().phone"
+                                            [readonly]="!isEditingManager()" placeholder="Vacío"
+                                            class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+                                            [ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditingManager() }" />
+                                    </div>
+                                </div>
+
+                                <!-- Address (Opcional) -->
+                                <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+                                    <div class="flex items-center gap-2 text-gray-400 text-sm">
+                                        <app-icon name="location_on" size="md" class="text-maingoo-sage"></app-icon>
+                                        <span>Dirección fiscal</span>
+                                    </div>
+                                    <div class="flex items-center -ml-2">
+                                        <input type="text" [(ngModel)]="manager().address"
+                                            [readonly]="!isEditingManager()" placeholder="Vacío"
+                                            class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+                                            [ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditingManager() }" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="border-gray-100 my-6" />
+
+                            <!-- Notes Section -->
+                            <div class="flex flex-col gap-4">
+                                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide m-0">Notas internas
+                                </h3>
+                                <div class="relative group">
+                                    <textarea pInputTextarea [autoResize]="true" [(ngModel)]="manager().notes"
+                                        [readonly]="!isEditingManager()" rows="4"
+                                        placeholder="Añade notas sobre tu gestor..."
+                                        class="w-full bg-gray-50 border-0 rounded-xl p-4 text-sm text-gray-700 leading-relaxed focus:ring-0 focus:shadow-none resize-none transition-all"
+                                        [ngClass]="{ 'bg-white border border-gray-200 focus:border-maingoo-sage': isEditingManager(), 'hover:bg-gray-100': !isEditingManager() }"></textarea>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,7 +273,8 @@
                             </div>
                             <div>
                                 <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas</h2>
-                                <p class="text-xs text-gray-500 m-0">{{ invoices().length }} documentos encontrados</p>
+                                <p class="text-xs text-gray-500 m-0">{{ invoices().length }} documentos encontrados
+                                </p>
                             </div>
                         </div>
 
@@ -238,7 +341,8 @@
                                                         quarter.name }}</span>
                                                 </div>
                                                 <div class="flex items-center gap-3">
-                                                    <span class="text-xs text-gray-400 font-medium">{{ quarter.total |
+                                                    <span class="text-xs text-gray-400 font-medium">{{ quarter.total
+                                                        |
                                                         currency:'EUR' }}</span>
                                                     <app-icon name="expand_more" size="xs"
                                                         class="text-gray-300 transition-transform duration-300"
@@ -339,7 +443,8 @@
             <app-icon name="warning" size="2xl" class="text-red-500"></app-icon>
             <div>
                 <p class="text-red-700 font-medium m-0">Esta acción es irreversible</p>
-                <p class="text-red-600 text-sm m-0">Se eliminarán permanentemente {{ invoices().length }} facturas.</p>
+                <p class="text-red-600 text-sm m-0">Se eliminarán permanentemente {{ invoices().length }} facturas.
+                </p>
             </div>
         </div>
 
