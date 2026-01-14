@@ -108,7 +108,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
         name,
         count
       }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => b.count - a.count);
   }
 
   get currentCategoryIndex(): number {
