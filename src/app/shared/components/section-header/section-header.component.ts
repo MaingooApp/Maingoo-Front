@@ -19,6 +19,7 @@ export class SectionHeaderComponent {
 
 	@Input() showViewSwitcher: boolean = true;
 	@Input() showSearch: boolean = true;
+	@Input() showDemoTag: boolean = false;
 
 	@Output() viewModeChange = new EventEmitter<string>();
 	@Output() search = new EventEmitter<Event>();
