@@ -70,7 +70,7 @@ export interface GroupedInvoices {
 })
 export class DocGeneratorComponent implements OnInit {
   // View Control
-  view = signal<'hub' | 'invoices'>('hub');
+  view = signal<'hub' | 'invoices' | 'manager'>('hub');
   viewMode = signal<'cards' | 'list'>('cards');
 
   // Invoice Data
@@ -215,7 +215,7 @@ export class DocGeneratorComponent implements OnInit {
     });
   }
 
-  setView(view: 'hub' | 'invoices') {
+  setView(view: 'hub' | 'invoices' | 'manager') {
     this.view.set(view);
     if (view === 'invoices' && this.invoices().length === 0) {
       this.loadInvoices();

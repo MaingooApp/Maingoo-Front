@@ -1,0 +1,163 @@
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+	<div class="flex-1 w-full min-w-0 transition-all duration-300">
+
+		<!-- Header -->
+		<app-section-header class="w-full" title="Equipo" [showViewSwitcher]="true" [viewMode]="viewMode"
+			(viewModeChange)="viewMode = $any($event)" gridValue="cards" listValue="list" [showSearch]="true"
+			[showDemoTag]="true" (search)="onSearch($event)">
+
+			<div actions class="flex gap-2">
+				<p-button label="Nuevo Empleado" icon="pi pi-plus"
+					styleClass="p-button-sm p-button-primary bg-blue-600 border-blue-600 hover:bg-blue-700">
+				</p-button>
+			</div>
+		</app-section-header>
+
+		<!-- KPI Cards -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+			<div *ngFor="let kpi of kpis"
+				class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+				<div>
+					<span class="block text-gray-500 text-sm font-medium mb-1">{{kpi.label}}</span>
+					<span class="text-2xl font-bold text-gray-800">{{kpi.value}}</span>
+				</div>
+				<div [class]="kpi.bg + ' p-3 rounded-full'">
+					<i [class]="kpi.icon + ' ' + kpi.color + ' text-xl'"></i>
+				</div>
+			</div>
+		</div>
+
+		<!-- Cards View -->
+		<div *ngIf="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+			<div *ngFor="let employee of filteredEmployees"
+				class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col items-center text-center relative group">
+				<!-- Status Badge -->
+				<div class="absolute top-4 right-4">
+					<p-tag [severity]="getSeverity(employee.status)" [rounded]="true"></p-tag>
+				</div>
+
+				<!-- Avatar -->
+				<p-avatar [image]="employee.avatar" [label]="!employee.avatar ? employee.name.charAt(0) : ''"
+					shape="circle" size="xlarge"
+					[styleClass]="'mb-4 ' + (!employee.avatar ? 'bg-blue-100 text-blue-600 text-xl' : '')">
+				</p-avatar>
+
+				<!-- Info -->
+				<h3 class="font-bold text-lg text-gray-900 mb-1">{{ employee.name }}</h3>
+				<p class="text-sm text-gray-500 mb-4">{{ employee.role }} · {{ employee.department }}</p>
+
+				<!-- Contact Info -->
+				<div class="w-full flex flex-col gap-2 mb-6">
+					<div
+						class="flex items-center justify-center gap-2 text-sm text-gray-600 bg-gray-50 py-2 rounded-lg">
+						<i class="pi pi-envelope text-xs"></i>
+						<span class="truncate max-w-[180px]">{{ employee.email }}</span>
+					</div>
+					<div
+						class="flex items-center justify-center gap-2 text-sm text-gray-600 bg-gray-50 py-2 rounded-lg">
+						<i class="pi pi-phone text-xs"></i>
+						<span>{{ employee.phone }}</span>
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div class="w-full grid grid-cols-2 gap-3 mt-auto">
+					<button pButton label="Turnos" icon="pi pi-calendar"
+						class="p-button-outlined p-button-sm p-button-secondary w-full"></button>
+					<button pButton label="Editar" icon="pi pi-pencil"
+						class="p-button-sm p-button-primary w-full"></button>
+				</div>
+			</div>
+
+			<!-- Empty State for Cards -->
+			<div *ngIf="filteredEmployees.length === 0" class="col-span-full">
+				<app-empty-state icon="group" title="No hay empleados"
+					description="No se han encontrado empleados que coincidan con la búsqueda."
+					[showComingSoon]="false">
+				</app-empty-state>
+			</div>
+		</div>
+
+		<!-- Employee Table (List View) -->
+		<div *ngIf="viewMode === 'list'"
+			class="card bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+			<p-table #dt [value]="filteredEmployees" [rows]="10" [paginator]="true"
+				[globalFilterFields]="['name', 'role', 'department', 'email']" [tableStyle]="{ 'min-width': '75rem' }"
+				[rowHover]="true" dataKey="id"
+				currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
+				[showCurrentPageReport]="true">
+
+				<ng-template pTemplate="header">
+					<tr>
+						<th style="width: 25%">Nombre</th>
+						<th style="width: 20%">Rol / Departamento</th>
+						<th style="width: 15%">Estado</th>
+						<th style="width: 25%">Contacto</th>
+						<th style="width: 15%"></th>
+					</tr>
+				</ng-template>
+
+				<ng-template pTemplate="body" let-employee>
+					<tr class="hover:bg-gray-50 transition-colors">
+						<td>
+							<div class="flex items-center gap-3">
+								<p-avatar [image]="employee.avatar"
+									[label]="!employee.avatar ? employee.name.charAt(0) : ''" shape="circle"
+									size="normal" [styleClass]="!employee.avatar ? 'bg-blue-100 text-blue-600' : ''">
+								</p-avatar>
+								<div class="flex flex-col">
+									<span class="font-medium text-gray-900">{{ employee.name }}</span>
+									<span class="text-xs text-gray-500">ID: {{ employee.id }}</span>
+								</div>
+							</div>
+						</td>
+						<td>
+							<div class="flex flex-col">
+								<span class="text-gray-900">{{ employee.role }}</span>
+								<span class="text-xs text-gray-500">{{ employee.department }}</span>
+							</div>
+						</td>
+						<td>
+							<p-tag [value]="getStatusLabel(employee.status)" [severity]="getSeverity(employee.status)"
+								[rounded]="true">
+							</p-tag>
+						</td>
+						<td>
+							<div class="flex flex-col gap-1">
+								<div class="flex items-center gap-2 text-sm text-gray-600">
+									<i class="pi pi-envelope text-xs"></i>
+									<span>{{ employee.email }}</span>
+								</div>
+								<div class="flex items-center gap-2 text-sm text-gray-600">
+									<i class="pi pi-phone text-xs"></i>
+									<span>{{ employee.phone }}</span>
+								</div>
+							</div>
+						</td>
+						<td class="text-right">
+							<div class="flex justify-end gap-2">
+								<button pButton pRipple icon="pi pi-pencil"
+									class="p-button-text p-button-secondary p-button-sm p-button-rounded hover:bg-gray-100"
+									pTooltip="Editar"></button>
+								<button pButton pRipple icon="pi pi-calendar"
+									class="p-button-text p-button-info p-button-sm p-button-rounded hover:bg-blue-50"
+									pTooltip="Turnos"></button>
+							</div>
+						</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="5">
+							<app-empty-state class="py-8" icon="search_off" title="Sin resultados"
+								description="No se encontraron empleados con los criterios de búsqueda."
+								[showComingSoon]="false">
+							</app-empty-state>
+						</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+
+	</div>
+</div>

@@ -47,9 +47,9 @@ export class AppSidebar {
     { label: 'Almacén', icon: 'warehouse', route: '/productos' },
     { label: 'Artículos', icon: 'restaurant', route: '/articulos', comingSoon: true },
     { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
-    { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
+    { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true},
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'Sanidad', icon: 'shield', route: '/appcc'},
+    { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true},
     { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
   ];
 
