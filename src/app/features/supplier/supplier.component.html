@@ -356,9 +356,13 @@
         <!-- Title, Properties and Image -->
         <div class="mb-6 flex flex-col-reverse md:flex-row justify-between items-start gap-6">
           <div class="flex-1 pt-2 flex flex-col gap-2 w-full">
-            <h1 class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
-              {{ selectedSupplier?.name }}
-            </h1>
+            <div class="w-full">
+              <h1 *ngIf="!isEditing" class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words">
+                {{ selectedSupplier?.name }}
+              </h1>
+              <input *ngIf="isEditing" type="text" [(ngModel)]="selectedSupplier!.name"
+                class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight w-full bg-transparent border-b border-maingoo-sage focus:outline-none focus:border-maingoo-sage px-1 -ml-1" />
+            </div>
 
             <!-- Helper for inline input -->
             <ng-template #inlineInput let-label="label" let-value="value" let-icon="icon">
@@ -398,6 +402,11 @@
                   <div class="flex items-center gap-2 text-gray-400 text-sm">
                     <app-icon name="description" size="md" class="text-maingoo-sage"></app-icon>
                     <span>Reg. Sanitario</span>
+                    <a href="https://rgsa-web-aesan.mscbs.es/rgsa/formulario_principal_js.jsp" target="_blank"
+                      class="text-gray-400 hover:text-maingoo-sage transition-colors flex items-center relative z-10 cursor-pointer"
+                      title="Ver Registro Sanitario (AESAN)" (click)="$event.stopPropagation()">
+                      <app-icon name="open_in_new" size="xs"></app-icon>
+                    </a>
                   </div>
                   <div class="flex items-center -ml-2">
                     <input type="text" [(ngModel)]="selectedSupplier!.sanitaryRegistrationNumber"
@@ -584,11 +593,7 @@
             </div>
           </div>
 
-          <!-- Image Placeholder -->
-          <div
-            class="w-40 h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm self-center md:self-auto">
-            <app-icon name="image" size="2xl" class="text-gray-300"></app-icon>
-          </div>
+
         </div>
 
         <!-- Statistics Section -->
