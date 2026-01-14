@@ -4,7 +4,6 @@
   <div
     class="w-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] border-b-2 border-[#6B9E86]/20 md:border-b-0 shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-3 sm:px-4 md:pl-10 md:pr-4 h-full transition-all duration-300">
     <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
-    <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
     <a routerLink="/" class="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
       <!-- Logotipo de Maingoo (SIEMPRE VISIBLE) -->
       <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center flex-shrink-0">
@@ -21,9 +20,11 @@
       <!-- Si NO hay título o NO es móvil, mostramos la bienvenida -->
       <div *ngIf="!isMobile || !layoutService.pageTitle()" class="hidden sm:flex flex-col min-w-0">
         <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate font-medium">Bienvenido, <span
-            class="font-semibold">{{ userName }}</span>
-          <span class="text-[#6B9E86] font-normal">• {{ currentTime }}</span></span>
-        <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">{{ businessName }}</span>
+            class="font-semibold">{{ userName }}</span></span>
+        <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">
+          <span *ngIf="businessType" class="uppercase font-bold text-[9px] mr-1 opacity-80">{{ businessType }}</span>{{
+          businessName }}
+        </span>
       </div>
     </a>
 

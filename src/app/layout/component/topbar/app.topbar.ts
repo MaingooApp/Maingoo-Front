@@ -28,6 +28,8 @@ import { Subscription } from 'rxjs';
 // Importar BottomSheetService para controlar el bottom sheet en móvil
 import { BottomSheetService } from '../../service/bottom-sheet.service';
 
+import { EnterpriseService, Enterprise } from '../../../features/enterprise/services/enterprise.service';
+
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({
   // Selector del componente usado en plantillas: <app-topbar></app-topbar>
@@ -56,6 +58,9 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Estado del menú móvil
   isMobileMenuOpen = false;
 
+  // Información de la empresa
+  enterprise: Enterprise | null = null;
+
   // Detectar si es móvil
   get isMobile(): boolean {
     return window.innerWidth < 768;
@@ -68,11 +73,22 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Suscripción a las notificaciones
   private notificationSubscription?: Subscription;
   private notificationsListSubscription?: Subscription;
-  private timeInterval?: any;
 
   get businessName(): string {
-    // TODO: Load business name from enterprise service using enterpriseId
-    return 'Tu Negocio';
+    return this.enterprise?.name || 'Tu Negocio';
+  }
+
+  get businessType(): string {
+    if (!this.enterprise?.type) return '';
+
+    const types: Record<string, string> = {
+      'RESTAURANT': 'Restaurante',
+      'CATERING': 'Catering',
+      'HOTEL': 'Hotel',
+      'OTHER': 'Otro'
+    };
+
+    return types[this.enterprise.type] || this.enterprise.type;
   }
 
   get currentTime(): string {
@@ -94,7 +110,8 @@ export class AppTopbar implements OnInit, OnDestroy {
     private router: Router,
     private toastService: ToastService,
     private elementRef: ElementRef,
-    private bottomSheetService: BottomSheetService
+    private bottomSheetService: BottomSheetService,
+    private enterpriseService: EnterpriseService
   ) { }
 
   ngOnInit() {
@@ -108,15 +125,23 @@ export class AppTopbar implements OnInit, OnDestroy {
     this.notificationsListSubscription = this.toastService.notifications$.subscribe((notifications) => {
       this.notifications = notifications;
     });
+
+    // Cargar información de la empresa
+    const enterpriseId = this.authService.getEnterpriseId();
+    if (enterpriseId) {
+      this.enterpriseService.getEnterpriseById(enterpriseId).subscribe({
+        next: (enterprise) => {
+          this.enterprise = enterprise;
+        },
+        error: (err) => console.error('Error loading enterprise info:', err)
+      });
+    }
   }
 
   ngOnDestroy() {
     // Limpiar suscripciones
     this.notificationSubscription?.unsubscribe();
     this.notificationsListSubscription?.unsubscribe();
-    if (this.timeInterval) {
-      clearInterval(this.timeInterval);
-    }
   }
 
   // HostListener para cerrar el menú móvil cuando se hace click fuera
