@@ -97,7 +97,9 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
     // Use filtered products instead of all products
     this.filteredProducts.forEach((p) => {
-      const categoryName = p.subcategory?.category?.name || p.subcategory?.name;
+      // Compatibility with new backend: usage of p.category instead of p.subcategory
+      const cat = p.category || p.subcategory;
+      const categoryName = cat?.name;
       if (categoryName) {
         categoryCounts.set(categoryName, (categoryCounts.get(categoryName) || 0) + 1);
       }
@@ -134,12 +136,18 @@ export class ProductosComponent implements OnInit, OnDestroy {
     if (!this.searchTerm) return this.productos;
     const lowerTerm = this.normalizeText(this.searchTerm);
     return this.productos.filter((p) => {
-      const categoryName = p.subcategory?.category?.name || p.subcategory?.name;
-      const subcategoryName = p.subcategory?.name;
+      const cat = p.category || p.subcategory;
+      const categoryName = cat?.name;
+      // category.parent?.name used to be categories before? The JSON structure implies simpler hierarchy now?
+      // New JSON: "category": { "name": "Frutas frescas", "parent": { "name": "Frutas" } }
+      // The search logic might want to search parent too.
+      // Keeping it simple to category name for now unless subcategory name meant parent before.
+
+      const subcategoryName = cat?.name; // In new JSON, category IS the specific category.
+
       return (
         this.normalizeText(p.name).includes(lowerTerm) ||
         (categoryName && this.normalizeText(categoryName).includes(lowerTerm)) ||
-        (subcategoryName && this.normalizeText(subcategoryName).includes(lowerTerm)) ||
         (p.eanCode && p.eanCode.includes(lowerTerm))
       );
     });
@@ -148,7 +156,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
     return this.filteredProducts.filter((p) => {
-      const categoryName = p.subcategory?.category?.name || p.subcategory?.name;
+      const cat = p.category || p.subcategory;
+      const categoryName = cat?.name;
       return categoryName === this.selectedCategory;
     });
   }
@@ -228,9 +237,17 @@ export class ProductosComponent implements OnInit, OnDestroy {
         // Map potential snake_case from backend and parse string numbers
         this.productos = productos.map((p) => {
           let count = (p as any).unit_count ?? p.unitCount;
+
           if (typeof count === 'string') {
+            // Replace comma with dot for conversion if needed, but ensure it's a number for calculations?
+            // If unitCount can be string in interface now, we might leave it or parse it.
+            // If we parse it, we should type cast it to number if interface allows string?
+            // Interface says `number | string`.
+            // Let's keep it as is or parse to float for sorting/math if used.
+            // Original code parsed it.
             count = parseFloat(count.replace(',', '.'));
           }
+
           return {
             ...p,
             unitCount: count
