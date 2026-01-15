@@ -81,7 +81,7 @@ export interface Manager {
 })
 export class DocGeneratorComponent implements OnInit {
   // View Control
-  view = signal<'hub' | 'invoices' | 'manager'>('hub');
+  view = signal<'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies'>('hub');
   viewMode = signal<'cards' | 'list'>('cards');
 
   // Invoice Data
@@ -237,7 +237,7 @@ export class DocGeneratorComponent implements OnInit {
     });
   }
 
-  setView(view: 'hub' | 'invoices' | 'manager') {
+  setView(view: 'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies') {
     this.view.set(view);
     if (view === 'invoices' && this.invoices().length === 0) {
       this.loadInvoices();
