@@ -21,6 +21,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SupplierService } from './services/supplier.service';
@@ -53,7 +54,8 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     SectionHeaderComponent,
     EmptyStateComponent,
     IconComponent,
-    SkeletonModule
+    SkeletonModule,
+    SkeletonComponent
   ],
   templateUrl: './supplier.component.html'
 })

@@ -78,29 +78,10 @@
       <!-- LOADING: Skeleton States -->
       <ng-container *ngIf="cargando">
         <!-- Skeleton List View -->
-        <div *ngIf="viewMode === 'list'" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-          <div *ngFor="let i of [1,2,3,4,5,6,7,8]"
-            class="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4">
-            <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
-            <div class="flex-1 flex flex-col gap-2">
-              <p-skeleton width="60%" height="1rem"></p-skeleton>
-              <div class="flex items-center gap-2">
-                <p-skeleton width="4rem" height="0.75rem"></p-skeleton>
-                <p-skeleton width="3rem" height="0.75rem"></p-skeleton>
-              </div>
-            </div>
-            <p-skeleton width="4rem" height="1rem"></p-skeleton>
-          </div>
-        </div>
+        <app-skeleton *ngIf="viewMode === 'list'" mode="list" [count]="8"></app-skeleton>
 
         <!-- Skeleton Cards View (Categories) -->
-        <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
-          <div *ngFor="let i of [1,2,3,4,5,6,7,8]"
-            class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col h-32 justify-between">
-            <p-skeleton width="60%" height="1.5rem" borderRadius="1rem"></p-skeleton>
-            <p-skeleton width="4rem" height="1.25rem"></p-skeleton>
-          </div>
-        </div>
+        <app-skeleton *ngIf="viewMode === 'cards'" mode="grid" [count]="8"></app-skeleton>
       </ng-container>
 
       <!-- LOADED: Actual Content -->

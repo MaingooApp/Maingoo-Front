@@ -60,8 +60,8 @@
           <div class="flex-1 flex items-center justify-center">
             <!-- Loading state -->
             <div *ngIf="supplierChartLoading" class="flex flex-col items-center gap-3">
-              <p-skeleton shape="circle" size="140px"></p-skeleton>
-              <p-skeleton width="120px" height="12px"></p-skeleton>
+              <app-skeleton shape="circle" size="140px"></app-skeleton>
+              <app-skeleton width="120px" height="12px"></app-skeleton>
             </div>
 
             <!-- Chart (solo si hay datos) -->
@@ -80,7 +80,7 @@
             <span class="text-xs text-gray-500">Total facturado</span>
             <span *ngIf="!supplierChartLoading" class="text-sm font-bold text-maingoo-deep">{{
               formatCurrency(supplierChartTotal) }}</span>
-            <p-skeleton *ngIf="supplierChartLoading" width="80px" height="16px"></p-skeleton>
+            <app-skeleton *ngIf="supplierChartLoading" width="80px" height="16px"></app-skeleton>
           </div>
         </div>
 

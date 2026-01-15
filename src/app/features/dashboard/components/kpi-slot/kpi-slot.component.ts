@@ -22,6 +22,7 @@ import {
 	KpiSlideChangeEvent
 } from '../../interfaces/kpi-slot.interfaces';
 import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 
 /**
  * Componente reutilizable KPI Slot con carrusel de slides
@@ -30,7 +31,7 @@ import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
 @Component({
 	selector: 'app-kpi-slot',
 	standalone: true,
-	imports: [CommonModule, SkeletonModule, TooltipModule, ButtonModule],
+	imports: [CommonModule, SkeletonModule, TooltipModule, ButtonModule, SkeletonComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
     <!-- Container principal del slot -->
@@ -65,8 +66,8 @@ import { formatKpiValue, formatDelta } from '../../utils/kpi-formatters';
 
       <!-- Estado: Loading -->
       <div *ngIf="slot?.loading" class="p-4">
-        <p-skeleton height="2.5rem" styleClass="mb-2"></p-skeleton>
-        <p-skeleton width="60%" height="1rem"></p-skeleton>
+        <app-skeleton height="2.5rem" styleClass="mb-2"></app-skeleton>
+        <app-skeleton width="60%" height="1rem"></app-skeleton>
       </div>
 
       <!-- Estado: Error -->
