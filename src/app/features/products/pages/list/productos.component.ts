@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -53,7 +54,8 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
     SectionHeaderComponent,
     EmptyStateComponent,
     ProductDetailSidebarComponent,
-    IconComponent
+    IconComponent,
+    SkeletonComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'

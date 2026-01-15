@@ -13,6 +13,7 @@ import { SupplierService } from '../supplier/services/supplier.service';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastService } from '@app/shared/services/toast.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
 
@@ -23,7 +24,7 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, KpiSlotComponent, ChartModule, DropdownModule, SkeletonModule, IconComponent],
+  imports: [CommonModule, FormsModule, KpiSlotComponent, ChartModule, DropdownModule, SkeletonModule, IconComponent, SkeletonComponent],
   templateUrl: './dashboard.component.html'
 })
 export class Dashboard implements OnInit {
