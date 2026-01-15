@@ -53,13 +53,58 @@
                                     class="text-maingoo-sage"></app-icon>
                             </div>
                             <h3 class="font-bold text-maingoo-deep m-0"
-                                [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">Facturas y albaranes</h3>
+                                [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">Facturas Proveedores</h3>
                         </div>
 
                         <div *ngIf="view() !== 'invoices'" class="flex flex-col gap-2 items-center">
                             <span
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
                                 {{ invoices().length }} documentos
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-- Payroll Card -->
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+                        [ngClass]="view() === 'payroll' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+                        (click)="setView('payroll')">
+                        <div class="flex items-center gap-3">
+                            <div class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                                [ngClass]="view() === 'payroll' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
+                                <app-icon name="badge" [size]="view() === 'payroll' ? 'xl' : '2xl'"
+                                    class="text-maingoo-sage"></app-icon>
+                            </div>
+                            <h3 class="font-bold text-maingoo-deep m-0"
+                                [ngClass]="view() === 'payroll' ? 'text-base' : 'text-lg'">Nominas Equipo</h3>
+                        </div>
+
+                        <div *ngIf="view() !== 'payroll'" class="flex flex-col gap-2 items-center">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
+                                Gestión de personal
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Supplies Card -->
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+                        [ngClass]="view() === 'supplies' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+                        (click)="setView('supplies')">
+                        <div class="flex items-center gap-3">
+                            <div class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                                [ngClass]="view() === 'supplies' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
+                                <app-icon name="bolt" [size]="view() === 'supplies' ? 'xl' : '2xl'"
+                                    class="text-maingoo-sage"></app-icon>
+                            </div>
+                            <h3 class="font-bold text-maingoo-deep m-0"
+                                [ngClass]="view() === 'supplies' ? 'text-base' : 'text-lg'">Facturas suministros</h3>
+                        </div>
+
+                        <div *ngIf="view() !== 'supplies'" class="flex flex-col gap-2 items-center">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
+                                Luz, agua, gas...
                             </span>
                         </div>
                     </div>
@@ -106,9 +151,45 @@
                                 <app-icon name="receipt_long" size="xl" class="text-maingoo-sage"></app-icon>
                             </div>
                             <div class="flex flex-col">
-                                <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas y albaranes</h3>
+                                <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas Proveedores</h3>
                                 <p class="text-gray-500 text-xs m-0 hidden sm:block">Gestiona tus compras y documentos
                                 </p>
+                            </div>
+                        </div>
+                        <app-icon name="chevron_right" size="md"
+                            class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+                    </div>
+
+                    <!-- Payroll List Item -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
+                        [ngClass]="view() === 'payroll' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+                        (click)="setView('payroll')">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                                [ngClass]="view() === 'payroll' ? 'bg-white' : '/30'">
+                                <app-icon name="badge" size="xl" class="text-maingoo-sage"></app-icon>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-bold text-maingoo-deep text-base m-0">Nominas Equipo</h3>
+                                <p class="text-gray-500 text-xs m-0 hidden sm:block">Gestión de nóminas y personal</p>
+                            </div>
+                        </div>
+                        <app-icon name="chevron_right" size="md"
+                            class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+                    </div>
+
+                    <!-- Supplies List Item -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
+                        [ngClass]="view() === 'supplies' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+                        (click)="setView('supplies')">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                                [ngClass]="view() === 'supplies' ? 'bg-white' : '/30'">
+                                <app-icon name="bolt" size="xl" class="text-maingoo-sage"></app-icon>
+                            </div>
+                            <div class="flex flex-col">
+                                <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas suministros</h3>
+                                <p class="text-gray-500 text-xs m-0 hidden sm:block">Luz, agua, gas, internet...</p>
                             </div>
                         </div>
                         <app-icon name="chevron_right" size="md"
@@ -272,7 +353,7 @@
                                 <app-icon name="receipt_long" size="xl"></app-icon>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas</h2>
+                                <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas Proveedores</h2>
                                 <p class="text-xs text-gray-500 m-0">{{ invoices().length }} documentos encontrados
                                 </p>
                             </div>
@@ -430,9 +511,100 @@
                     </div>
                 </div>
             </div>
+            <!-- PAYROLL DRAWER (Right Side) -->
+            <div [ngClass]="view() === 'payroll' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
+                class="shrink-0 sticky top-32 flex flex-col ">
+
+                <div
+                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    <!-- Drawer Header -->
+                    <div
+                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+                                <app-icon name="badge" size="xl"></app-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-maingoo-deep m-0">Nóminas Equipo</h2>
+                                <p class="text-xs text-gray-500 m-0">Gestión de personal y documentación</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button pButton label="Añadir nómina" class="p-button-sm p-button-primary">
+                                <app-icon name="add" size="sm"></app-icon>
+                            </button>
+                            <button (click)="setView('hub')"
+                                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                                <app-icon name="close" size="xl"></app-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawer Content (Empty for now) -->
+                    <div
+                        class="flex-1 overflow-auto p-8 bg-white relative flex flex-col items-center justify-center text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-4">
+                            <app-icon name="badge" size="4xl"></app-icon>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900">Panel de Nóminas</h3>
+                        <p class="text-sm text-gray-500 max-w-sm">Aquí podrás gestionar todas las nóminas vinculadas
+                            a
+                            tu equipo. (Próximamente)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUPPLIES DRAWER (Right Side) -->
+            <div [ngClass]="view() === 'supplies' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
+                class="shrink-0 sticky top-32 flex flex-col ">
+
+                <div
+                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    <!-- Drawer Header -->
+                    <div
+                        class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+                                <app-icon name="bolt" size="xl"></app-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas Suministros</h2>
+                                <p class="text-xs text-gray-500 m-0">Luz, agua, gas, internet...</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button pButton label="Añadir factura" class="p-button-sm p-button-primary">
+                                <app-icon name="add" size="sm"></app-icon>
+                            </button>
+                            <button (click)="setView('hub')"
+                                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                                <app-icon name="close" size="xl"></app-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawer Content (Empty for now) -->
+                    <div
+                        class="flex-1 overflow-auto p-8 bg-white relative flex flex-col items-center justify-center text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-4">
+                            <app-icon name="bolt" size="4xl"></app-icon>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900">Panel de Suministros</h3>
+                        <p class="text-sm text-gray-500 max-w-sm">Gestiona aquí todas las facturas recurrentes de
+                            suministros. (Próximamente)</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal de verificación para borrar todas las facturas -->
 <p-dialog header="Verificación de seguridad" [(visible)]="showDeleteVerificationModal" [modal]="true" [closable]="true"
