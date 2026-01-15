@@ -18,8 +18,20 @@ import { TagModule } from 'primeng/tag';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Product, ProductService } from '../../services/product.service';
 import { IconComponent } from '../icon/icon.component';
+
+export interface Product {
+  id?: string;
+  code?: string;
+  name?: string;
+  description?: string;
+  price?: number;
+  quantity?: number;
+  inventoryStatus?: string;
+  category?: string;
+  image?: string;
+  rating?: number;
+}
 
 interface Column {
   field: string;
@@ -58,9 +70,9 @@ interface ExportColumn {
   ],
   templateUrl: './crud.html',
   styleUrls: ['./crud.scss'],
-  providers: [MessageService, ProductService, ConfirmationService]
+  providers: [MessageService, ConfirmationService]
 })
-export class Crud implements OnInit {
+export class Crud {
   productDialog: boolean = false;
 
   products = signal<Product[]>([]);
@@ -80,39 +92,12 @@ export class Crud implements OnInit {
   cols!: Column[];
 
   constructor(
-    private productService: ProductService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) { }
 
   exportCSV() {
     this.dt.exportCSV();
-  }
-
-  ngOnInit() {
-    this.loadDemoData();
-  }
-
-  loadDemoData() {
-    this.productService.getProducts().then((data) => {
-      this.products.set(data);
-    });
-
-    this.statuses = [
-      { label: 'INSTOCK', value: 'instock' },
-      { label: 'LOWSTOCK', value: 'lowstock' },
-      { label: 'OUTOFSTOCK', value: 'outofstock' }
-    ];
-
-    this.cols = [
-      { field: 'code', header: 'Code', customExportHeader: 'Product Code' },
-      { field: 'name', header: 'Name' },
-      { field: 'image', header: 'Image' },
-      { field: 'price', header: 'Price' },
-      { field: 'category', header: 'Category' }
-    ];
-
-    this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -128,6 +113,24 @@ export class Crud implements OnInit {
   editProduct(product: Product) {
     this.product = { ...product };
     this.productDialog = true;
+  }
+
+  deleteProduct(product: Product) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete ' + product.name + '?',
+      header: 'Confirm',
+      icon: 'warning',
+      accept: () => {
+        this.products.set(this.products().filter((val) => val.id !== product.id));
+        this.product = {};
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Product Deleted',
+          life: 3000
+        });
+      }
+    });
   }
 
   deleteSelectedProducts() {
@@ -151,24 +154,6 @@ export class Crud implements OnInit {
   hideDialog() {
     this.productDialog = false;
     this.submitted = false;
-  }
-
-  deleteProduct(product: Product) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + product.name + '?',
-      header: 'Confirm',
-      icon: 'warning',
-      accept: () => {
-        this.products.set(this.products().filter((val) => val.id !== product.id));
-        this.product = {};
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Product Deleted',
-          life: 3000
-        });
-      }
-    });
   }
 
   findIndexById(id: string): number {
