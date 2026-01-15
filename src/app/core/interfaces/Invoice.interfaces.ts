@@ -3,11 +3,14 @@ import { DocumentType } from '../enums/documents.enum';
 export interface Product {
   id: string;
   name: string;
-  eanCode: string;
+  originalName?: string;
+  eanCode: string | null;
   description: string | null;
-  subcategoryId: string;
+  categoryId?: string;
+  subcategoryId?: string; // Kept for backward compat if needed, but likely replaced by categoryId
   unit: string;
-  subcategory: ProductCategory;
+  category?: ProductCategory;
+  subcategory?: ProductCategory; // Kept for backward compat
   allergens: ProductAllergen[];
   createdAt: string;
   updatedAt: string;
@@ -15,9 +18,9 @@ export interface Product {
   idealStock?: number | null;
   storageType?: 'seco' | 'fresco' | 'congelado' | null;
   productType?: 'simple' | 'elaborado' | null;
-  unitCount?: number;
+  unitCount?: number | string;
   lastUnitPrice?: number;
-  supplier?: Supplier;
+  supplier?: Supplier | { id: string; name: string; cifNif?: string };
   brand?: string;
 }
 

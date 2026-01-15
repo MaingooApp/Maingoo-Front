@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { ButtonModule } from 'primeng/button';
-import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
+import { Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
 import { ModalService } from '@app/shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AddArticleModalComponent } from '../../components/add-article-modal/add-article-modal.component';
@@ -15,11 +15,18 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { InputTextarea } from 'primeng/inputtextarea';
+
+interface IngredientRow {
+  type: 'product' | 'elaboration';
+  selectedItem: any;
+  amount: string;
+}
 
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule],
+  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, InputTextarea],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit {
@@ -34,6 +41,8 @@ export class ArticlesComponent implements OnInit {
 
   // Local state for created articles (temporary)
   articles = signal<{ name: string }[]>([]);
+  // Local state for created elaborations
+  elaborations = signal<{ name: string; ingredients: IngredientRow[]; materials: string; steps: string }[]>([]);
 
   viewMode: 'list' | 'cards' = 'cards';
 
@@ -45,6 +54,22 @@ export class ArticlesComponent implements OnInit {
   // Add Elaboration Form State
   showAddElaborationForm = signal<boolean>(false);
   newElaborationName = signal<string>('');
+  elaborationSteps = signal<string>('');
+  elaborationMaterials = signal<string>('');
+
+  // Ingredients State
+  ingredientRows = signal<IngredientRow[]>([
+    { type: 'product', selectedItem: null, amount: '' },
+    { type: 'product', selectedItem: null, amount: '' },
+    { type: 'product', selectedItem: null, amount: '' }
+  ]);
+
+  availableProducts = signal<Product[]>([]);
+
+  ingredientTypes = [
+    { label: 'Ingrediente', value: 'product' },
+    { label: 'Elaboración', value: 'elaboration' }
+  ];
 
   articleTypes = [
     { label: 'Aperitivo', value: 'aperitivo' },
@@ -62,6 +87,13 @@ export class ArticlesComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
+      }
+    });
+
+    // Load products for ingredients
+    this.invoiceService.getProducts().subscribe({
+      next: (products: Product[]) => {
+        this.availableProducts.set(products);
       }
     });
   }
@@ -89,6 +121,9 @@ export class ArticlesComponent implements OnInit {
 
   toggleAddElaborationForm() {
     this.showAddElaborationForm.update(v => !v);
+    if (!this.showAddElaborationForm()) {
+      // If closing, maybe reset? Let's keep it simple for now and rely on manual reset or save.
+    }
   }
 
   resetForms() {
@@ -97,6 +132,58 @@ export class ArticlesComponent implements OnInit {
     this.newArticleType.set(null);
     this.showAddElaborationForm.set(false);
     this.newElaborationName.set('');
+    this.elaborationSteps.set('');
+    this.elaborationMaterials.set('');
+    this.showAddElaborationForm.set(false);
+    this.newElaborationName.set('');
+    // Reset ingredients to 3 empty rows
+    this.ingredientRows.set([
+      { type: 'product', selectedItem: null, amount: '' },
+      { type: 'product', selectedItem: null, amount: '' },
+      { type: 'product', selectedItem: null, amount: '' }
+    ]);
+  }
+
+  addIngredientRow() {
+    this.ingredientRows.update(rows => [
+      ...rows,
+      { type: 'product', selectedItem: null, amount: '' }
+    ]);
+  }
+
+  saveElaboration() {
+    if (!this.newElaborationName().trim()) return;
+
+    this.elaborations.update(current => [
+      ...current,
+      {
+        name: this.newElaborationName(),
+        ingredients: [...this.ingredientRows()],
+        materials: this.elaborationMaterials(),
+        steps: this.elaborationSteps()
+      }
+    ]);
+
+    this.toggleAddElaborationForm(); // Close form
+    this.resetForms(); // Reset fields (although toggle calls reset if we want? No, toggle just flips boolean usually, let's check)
+    // Actually toggle just flips boolean. We want to close and reset.
+    // The previous toggle implementation just updated boolean.
+    // resetForms sets showAddElaborationForm to false.
+    // So just calling resetForms() is enough to close and clear.
+  }
+
+  removeIngredientRow(index: number) {
+    this.ingredientRows.update(rows => rows.filter((_, i) => i !== index));
+  }
+
+  getAvailableItems(type: 'product' | 'elaboration'): any[] {
+    if (type === 'product') {
+      return this.availableProducts();
+    }
+    // For elaborations, we would filter articles by category 'elaborations'
+    // For now assuming articles list contains them or we need to fetch them.
+    // Since we don't have a separate elaborations list loaded yet, we'll use empty or filter articles if available.
+    return this.articles().filter(a => true); // TODO: Filter actual elaborations when available
   }
 
   get categoryDisplayName(): string {
