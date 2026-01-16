@@ -29,7 +29,7 @@
 				<!-- Stock Badge -->
 				<div
 					class="absolute bottom-1 right-1 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-600 shadow-sm border border-gray-100">
-					{{ (product.unit?.toUpperCase() === 'KG' ? product.unitCount : product.stock) | number: '1.0-0' }}
+					{{ (product.unit.toUpperCase() === 'KG' ? product.unitCount : product.stock) | number: '1.0-0' }}
 				</div>
 			</div>
 
