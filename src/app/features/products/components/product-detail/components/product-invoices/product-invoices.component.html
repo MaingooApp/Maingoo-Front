@@ -1,0 +1,30 @@
+<div class="space-y-3 pt-4 border-t border-gray-100">
+	<h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+		<app-icon name="description" size="md" class="text-maingoo-sage"></app-icon>
+		Facturas asociadas ({{ invoices.length }})
+	</h3>
+
+	<div *ngIf="invoices.length > 0; else noInvoices" class="space-y-2">
+		<div *ngFor="let invoice of invoices"
+			class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
+			(click)="viewInvoice.emit(invoice)">
+			<div class="flex flex-col">
+				<span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier.name || 'Proveedor desconocido'
+					}}</span>
+				<span class="text-xs text-gray-500">{{ invoice.date | date:'dd MMM yyyy' }} • {{ invoice.invoiceNumber
+					}}</span>
+			</div>
+			<div class="flex items-center gap-3">
+				<span class="font-bold text-maingoo-deep text-sm">{{ invoice.amount | currency:'EUR' }}</span>
+				<app-icon name="chevron_right" size="md" class="text-gray-300 group-hover:text-maingoo-sage"></app-icon>
+			</div>
+		</div>
+	</div>
+
+	<ng-template #noInvoices>
+		<div
+			class="p-4 rounded-xl bg-gray-50 text-gray-500 text-sm text-center italic border border-dashed border-gray-200">
+			No se han encontrado facturas para este producto.
+		</div>
+	</ng-template>
+</div>

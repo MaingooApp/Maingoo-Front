@@ -1,141 +1,25 @@
-<app-sidebar-shell [title]="product?.name || 'Detalle de Producto'" (close)="close.emit()">
-  <!-- Header Actions -->
-  <div header-actions class="flex items-center gap-1">
-    <button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar producto"
-      tooltipPosition="bottom" (click)="onDelete()">
-      <app-icon name="delete" size="md"></app-icon>
-    </button>
+<!-- Main Content -->
+<div class="flex flex-col gap-6">
+
+  <!-- Categories, Format, Tags -->
+  <app-product-attributes [product]="product"></app-product-attributes>
+
+  <!-- Image Placeholder -->
+  <div
+    class="w-full h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
+    <app-icon name="image" size="2xl" class="text-gray-300"></app-icon>
   </div>
 
-  <!-- Main Content Projected into Shell -->
+  <!-- Information Sections -->
   <div class="flex flex-col gap-6">
+    <!-- Main Info -->
+    <app-product-info [product]="product"></app-product-info>
 
-    <!-- Categories, Format, Tags -->
-    <div class="flex flex-col gap-4">
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Category Hierarchy -->
-        <div *ngIf="product?.category" class="flex flex-col gap-1.5">
-          <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
-          <div class="flex items-center gap-1 flex-wrap">
-            <ng-container *ngFor="let catName of getCategoryPathParts(); let last = last">
-              <p-tag [value]="catName" [style]="getCategoryStyle(catName)" [rounded]="true"
-                styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
-              <app-icon *ngIf="!last" name="chevron_right" size="xs" class="text-gray-400"></app-icon>
-            </ng-container>
-          </div>
-        </div>
+    <!-- Price Evolution Chart -->
+    <app-product-price-chart [data]="priceChartData" [options]="priceChartOptions"></app-product-price-chart>
 
-        <!-- Format -->
-        <div *ngIf="product?.unit" class="flex flex-col gap-1.5">
-          <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Formato</span>
-          <div>
-            <p-tag [value]="getFormatName(product!.unit)" severity="secondary" [rounded]="true"
-              styleClass="text-sm font-normal border-0 px-3 py-1 bg-gray-100 text-gray-700"></p-tag>
-          </div>
-        </div>
-
-        <!-- Storage (Almacenaje) -->
-        <div class="flex flex-col gap-1.5">
-          <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Almacenaje</span>
-          <div class="flex flex-wrap gap-2">
-            <p-tag value="Seco" [rounded]="true" (click)="setStorageType('seco')"
-              [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'seco' ? 'bg-orange-100 text-orange-700 ring-2 ring-orange-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-            <p-tag value="Fresco" [rounded]="true" (click)="setStorageType('fresco')"
-              [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'fresco' ? ' text-maingoo-deep ring-2 ring-maingoo-sage' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-            <p-tag value="Congelado" [rounded]="true" (click)="setStorageType('congelado')"
-              [styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'congelado' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
-            </p-tag>
-          </div>
-        </div>
-
-        <!-- Allergens Tags -->
-        <div class="flex flex-col gap-1.5">
-          <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Alérgenos</span>
-          <div class="flex flex-wrap gap-2">
-            <ng-container *ngIf="product?.allergens && product!.allergens.length > 0; else noAllergens">
-              <p-tag *ngFor="let alergeno of product?.allergens" [value]="alergeno.name" severity="warn"
-                [rounded]="true" [pTooltip]="alergeno.description" tooltipPosition="top"
-                styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800">
-                <app-icon name="warning" size="xs" class="mr-1"></app-icon>
-              </p-tag>
-            </ng-container>
-            <ng-template #noAllergens>
-              <span class="text-sm text-gray-400 italic">Sin alérgenos</span>
-            </ng-template>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Image Placeholder -->
-    <div
-      class="w-full h-40 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm">
-      <app-icon name="image" size="2xl" class="text-gray-300"></app-icon>
-    </div>
-
-    <!-- Information Sections -->
-    <div class="flex flex-col gap-6">
-      <!-- Main Info -->
-      <div class="space-y-3">
-        <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
-          <app-icon name="info" size="md" class="text-maingoo-sage"></app-icon>
-          Detalles del producto
-        </h3>
-        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 text-sm text-gray-700">
-          <p><strong class="text-maingoo-deep">Descripción:</strong> {{ product?.description || 'Sin descripción' }}</p>
-          <p><strong class="text-maingoo-deep">Añadido el:</strong> {{ product?.createdAt | date: 'dd/MM/yyyy HH:mm'
-            }}
-          </p>
-          <p><strong class="text-maingoo-deep">Actualizado el:</strong> {{ product?.updatedAt | date: 'dd/MM/yyyy HH:mm'
-            }}</p>
-        </div>
-      </div>
-
-      <!-- Price Evolution Chart -->
-      <div *ngIf="priceChartData" class="space-y-3 pt-4 border-t border-gray-100">
-        <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
-          <app-icon name="show_chart" size="md" class="text-maingoo-sage"></app-icon>
-          Evolución de precio
-        </h3>
-        <div class="h-48 w-full bg-gray-50/50 rounded-xl p-2 border border-dashed border-gray-100">
-          <p-chart type="line" [data]="priceChartData" [options]="priceChartOptions" height="100%"
-            width="100%"></p-chart>
-        </div>
-      </div>
-
-      <!-- Related Invoices -->
-      <div class="space-y-3 pt-4 border-t border-gray-100">
-        <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
-          <app-icon name="description" size="md" class="text-maingoo-sage"></app-icon>
-          Facturas asociadas ({{ relatedInvoices.length }})
-        </h3>
-
-        <div *ngIf="relatedInvoices.length > 0; else noInvoices" class="space-y-2">
-          <div *ngFor="let invoice of relatedInvoices"
-            class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
-            (click)="verFactura.emit(invoice)">
-            <div class="flex flex-col">
-              <span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier.name || 'Proveedor desconocido'
-                }}</span>
-              <span class="text-xs text-gray-500">{{ invoice.date | date:'dd MMM yyyy' }} • {{ invoice.invoiceNumber
-                }}</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="font-bold text-maingoo-deep text-sm">{{ invoice.amount | currency:'EUR' }}</span>
-              <app-icon name="chevron_right" size="md" class="text-gray-300 group-hover:text-maingoo-sage"></app-icon>
-            </div>
-          </div>
-        </div>
-
-        <ng-template #noInvoices>
-          <div
-            class="p-4 rounded-xl bg-gray-50 text-gray-500 text-sm text-center italic border border-dashed border-gray-200">
-            No se han encontrado facturas para este producto.
-          </div>
-        </ng-template>
-      </div>
-    </div>
+    <!-- Related Invoices -->
+    <app-product-invoices [invoices]="relatedInvoices" (viewInvoice)="verFactura.emit($event)">
+    </app-product-invoices>
   </div>
-</app-sidebar-shell>
+</div>

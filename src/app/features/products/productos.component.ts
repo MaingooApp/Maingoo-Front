@@ -36,6 +36,8 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 
+import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
+
 @Component({
   selector: 'app-productos',
   standalone: true,
@@ -60,7 +62,8 @@ import { ProductCardComponent } from './components/product-card/product-card.com
     IconComponent,
     SkeletonComponent,
     ProductListComponent,
-    ProductCardComponent
+    ProductCardComponent,
+    SidebarShellComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'
