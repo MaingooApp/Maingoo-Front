@@ -34,7 +34,7 @@ import { IconComponent } from '../../../../shared/components/icon/icon.component
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
 
 import { ProductListComponent } from '../../components/product-list/product-list.component';
-import { ProductCategoryCardComponent } from '../../components/product-category-card/product-category-card.component';
+import { ProductCardComponent } from '../../components/product-card/product-card.component';
 
 @Component({
   selector: 'app-productos',
@@ -60,7 +60,7 @@ import { ProductCategoryCardComponent } from '../../components/product-category-
     IconComponent,
     SkeletonComponent,
     ProductListComponent,
-    ProductCategoryCardComponent
+    ProductCardComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'

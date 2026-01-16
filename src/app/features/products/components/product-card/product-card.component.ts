@@ -5,12 +5,12 @@ import { CardShellComponent } from '@shared/components/card-shell/card-shell.com
 import { getCategoryStyle } from '@app/shared/helpers/category-colors.helper';
 
 @Component({
-	selector: 'app-product-category-card',
+	selector: 'app-product-card',
 	standalone: true,
 	imports: [CommonModule, CardShellComponent],
-	templateUrl: './product-category-card.component.html'
+	templateUrl: './product-card.component.html'
 })
-export class ProductCategoryCardComponent {
+export class ProductCardComponent {
 	@Input() group?: ProductGroup;
 	@Input() product?: Product;
 	@Input() isSelected: boolean = false;
