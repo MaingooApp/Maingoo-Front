@@ -2,7 +2,7 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
+import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
 import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -78,6 +78,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
   @ViewChild('dt') dt!: Table;
 
   productos: Product[] = [];
+  productGroups: ProductGroup[] = []; // Groups by rootCategory from API
 
   filtroGlobal: string = '';
   cargando = false;
@@ -157,10 +158,20 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
-    return this.filteredProducts.filter((p) => {
-      const cat = p.category || p.subcategory;
-      const categoryName = cat?.name;
-      return categoryName === this.selectedCategory;
+    // Find the group with the matching root category name
+    const group = this.productGroups.find(g => g.rootCategory.name === this.selectedCategory);
+    if (!group) return [];
+
+    // Apply search filter if any
+    if (!this.searchTerm) return group.products;
+    const lowerTerm = this.normalizeText(this.searchTerm);
+    return group.products.filter((p) => {
+      return (
+        this.normalizeText(p.name).includes(lowerTerm) ||
+        (p.category?.name && this.normalizeText(p.category.name).includes(lowerTerm)) ||
+        (p.category?.path && this.normalizeText(p.category.path).includes(lowerTerm)) ||
+        (p.eanCode && p.eanCode.includes(lowerTerm))
+      );
     });
   }
 
@@ -235,18 +246,18 @@ export class ProductosComponent implements OnInit, OnDestroy {
     this.cargando = true;
 
     this.invoiceService.getProducts().subscribe({
-      next: (productos: Product[]) => {
+      next: (productGroups: ProductGroup[]) => {
+        // Store groups for category cards display
+        this.productGroups = productGroups;
+
+        // Flatten all products from all groups
+        const allProducts: Product[] = productGroups.flatMap(group => group.products);
+
         // Map potential snake_case from backend and parse string numbers
-        this.productos = productos.map((p) => {
+        this.productos = allProducts.map((p) => {
           let count = (p as any).unit_count ?? p.unitCount;
 
           if (typeof count === 'string') {
-            // Replace comma with dot for conversion if needed, but ensure it's a number for calculations?
-            // If unitCount can be string in interface now, we might leave it or parse it.
-            // If we parse it, we should type cast it to number if interface allows string?
-            // Interface says `number | string`.
-            // Let's keep it as is or parse to float for sorting/math if used.
-            // Original code parsed it.
             count = parseFloat(count.replace(',', '.'));
           }
 
@@ -256,7 +267,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
           };
         });
         this.cargando = false;
-        console.log('Productos cargados:', this.productos);
+        console.log('Grupos de productos cargados:', this.productGroups);
+        console.log('Productos aplanados:', this.productos);
       },
       error: (error: any) => {
         console.error('Error al cargar productos:', error);

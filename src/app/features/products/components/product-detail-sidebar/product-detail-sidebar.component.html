@@ -35,19 +35,16 @@
         {{ product?.name }}
       </h1>
       <div class="grid grid-cols-2 gap-4 mt-2">
-        <!-- Category -->
-        <div *ngIf="product?.subcategory?.name" class="flex flex-col gap-1.5">
+        <!-- Category Hierarchy -->
+        <div *ngIf="product?.category" class="flex flex-col gap-1.5">
           <span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
           <div class="flex items-center gap-1 flex-wrap">
-            <ng-container *ngIf="product?.subcategory?.category?.name">
-              <p-tag [value]="product?.subcategory?.category?.name"
-                [style]="getCategoryStyle(product?.subcategory?.category?.name)" [rounded]="true"
+            <!-- Show full category path as breadcrumb -->
+            <ng-container *ngFor="let catName of getCategoryPathParts(); let last = last">
+              <p-tag [value]="catName" [style]="getCategoryStyle(catName)" [rounded]="true"
                 styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
-              <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
+              <app-icon *ngIf="!last" name="chevron_right" size="xs" class="text-gray-400"></app-icon>
             </ng-container>
-            <p-tag *ngIf="product?.subcategory?.name" [value]="product?.subcategory?.name"
-              [style]="getCategoryStyle(product?.subcategory?.category?.name || product?.subcategory?.name)"
-              [rounded]="true" styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
           </div>
         </div>
 

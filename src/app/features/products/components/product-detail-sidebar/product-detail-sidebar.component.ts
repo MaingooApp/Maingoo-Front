@@ -59,6 +59,18 @@ export class ProductDetailSidebarComponent {
     return getCategoryColor(category);
   }
 
+  /**
+   * Parses the category path string into an array of category names
+   * e.g., "Bebidas > Espirituosos > Cremas de licor" -> ["Bebidas", "Espirituosos", "Cremas de licor"]
+   */
+  getCategoryPathParts(): string[] {
+    if (!this.product?.category?.path) {
+      // Fallback to just category name if no path
+      return this.product?.category?.name ? [this.product.category.name] : [];
+    }
+    return this.product.category.path.split(' > ').map(s => s.trim());
+  }
+
   getFormatName(code: string | undefined): string {
     if (!code) return 'Desconocido';
     const formats: { [key: string]: string } = {
