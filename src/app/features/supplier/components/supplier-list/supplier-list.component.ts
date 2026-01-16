@@ -4,11 +4,12 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { Supplier } from '../../interfaces/supplier.interface';
+import { ListShellComponent } from '@shared/components/list-shell/list-shell.component';
 
 @Component({
 	selector: 'app-supplier-list',
 	standalone: true,
-	imports: [CommonModule, TableModule, ButtonModule, IconComponent],
+	imports: [CommonModule, TableModule, ButtonModule, IconComponent, ListShellComponent],
 	templateUrl: './supplier-list.component.html'
 })
 export class SupplierListComponent {
