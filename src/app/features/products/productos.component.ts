@@ -10,31 +10,31 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom, forkJoin } from 'rxjs';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { InvoiceService } from '../../../invoices/services/invoice.service';
+import { ToastService } from '../../shared/services/toast.service';
+import { InvoiceService } from '../invoices/services/invoice.service';
 
-import { ProductDetailSidebarComponent } from '../../components/product-detail-sidebar/product-detail-sidebar.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
 
 import { SupplierService } from '@app/features/supplier/services/supplier.service';
 import { ModalService } from '@app/shared/services/modal.service';
-import { AddInvoiceModalComponent } from '../../../invoices/components/add-invoice-modal/add-invoice-modal.component';
+import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { LayoutService } from '@app/layout/service/layout.service';
-import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
 
-import { ProductListComponent } from '../../components/product-list/product-list.component';
-import { ProductCardComponent } from '../../components/product-card/product-card.component';
+import { ProductListComponent } from './components/product-list/product-list.component';
+import { ProductCardComponent } from './components/product-card/product-card.component';
 
 @Component({
   selector: 'app-productos',
@@ -56,7 +56,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
     ChartModule,
     SectionHeaderComponent,
     EmptyStateComponent,
-    ProductDetailSidebarComponent,
+    ProductDetailComponent,
     IconComponent,
     SkeletonComponent,
     ProductListComponent,
