@@ -1,0 +1,43 @@
+<div class="rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col bg-white"
+	[ngClass]="{'ring-maingoo-sage': isSelected}" (click)="handleClick()">
+	<!-- Card Content -->
+	<div class="p-4 card text-maingoo-deep flex-1 flex flex-col gap-3">
+		<!-- Header: Name -->
+		<div class="flex flex-col mb-1">
+			<span class="font-bold text-lg truncate" [title]="supplier.name">{{ supplier.name }}</span>
+			<span class="text-xs text-gray-400 font-normal" *ngIf="supplier.sanitaryRegistrationNumber">{{
+				supplier.sanitaryRegistrationNumber
+				}}</span>
+			<span class="text-xs text-gray-300 italic font-normal" *ngIf="!supplier.sanitaryRegistrationNumber">Sin
+				registro sanitario</span>
+		</div>
+
+		<!-- Details List -->
+		<div class="flex flex-col gap-2 text-sm text-gray-600">
+			<!-- Contact Name -->
+			<div class="flex items-center gap-2">
+				<app-icon name="person" size="xs" class="text-maingoo-sage w-4"></app-icon>
+				<span class="truncate" *ngIf="supplier.commercialName">{{ supplier.commercialName }}</span>
+				<span class="truncate text-gray-300 italic" *ngIf="!supplier.commercialName">Sin nombre comercial</span>
+			</div>
+			<!-- Phone -->
+			<div class="flex items-center gap-2">
+				<app-icon name="phone" size="xs" class="text-maingoo-sage w-4"></app-icon>
+				<span class="truncate" *ngIf="supplier.phoneNumber">{{ supplier.phoneNumber }}</span>
+				<span class="truncate text-gray-300 italic" *ngIf="!supplier.phoneNumber">Sin teléfono</span>
+			</div>
+			<!-- Order Days -->
+			<div class="flex items-center gap-2">
+				<app-icon name="schedule" size="xs" class="text-maingoo-sage w-4"></app-icon>
+				<span class="truncate" *ngIf="supplier.orderDays">{{ supplier.orderDays }}</span>
+				<span class="truncate text-gray-300 italic" *ngIf="!supplier.orderDays">Sin días pedido</span>
+			</div>
+			<!-- Delivery Days -->
+			<div class="flex items-center gap-2">
+				<app-icon name="local_shipping" size="xs" class="text-maingoo-sage w-4"></app-icon>
+				<span class="truncate" *ngIf="supplier.deliveryDays">{{ supplier.deliveryDays }}</span>
+				<span class="truncate text-gray-300 italic" *ngIf="!supplier.deliveryDays">Sin días reparto</span>
+			</div>
+		</div>
+	</div>
+</div>

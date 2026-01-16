@@ -8,6 +8,7 @@ import { Product, Invoice } from '@app/core/interfaces/Invoice.interfaces';
 
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
+import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
 
 @Component({
   selector: 'app-product-detail-sidebar',
@@ -18,7 +19,8 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
     TagModule,
     TooltipModule,
     ChartModule,
-    IconComponent
+    IconComponent,
+    SidebarShellComponent
   ],
   templateUrl: './product-detail-sidebar.component.html'
 })
