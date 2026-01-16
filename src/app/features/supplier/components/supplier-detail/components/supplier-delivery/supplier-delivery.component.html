@@ -1,0 +1,89 @@
+<div class="group w-full">
+	<!-- Inline Toggle Header -->
+	<div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
+		(click)="!isEditing && (showDelivery = !showDelivery)">
+		<div class="flex items-center gap-2 text-gray-400 text-sm">
+			<app-icon name="local_shipping" size="md" class="text-maingoo-sage"></app-icon>
+			<span>Reparto</span>
+		</div>
+		<div class="flex items-center">
+			<span *ngIf="!isEditing && hasEmptyDeliveryFields" class="text-xs text-maingoo-sage/80 italic">
+				{{ showDelivery ? 'ocultar campos' : 'mostrar campos' }}
+			</span>
+		</div>
+	</div>
+
+	<div class="overflow-hidden transition-all duration-300 ease-in-out">
+		<div class="flex flex-col gap-1 py-1">
+			<div class="flex flex-col gap-1 pl-6">
+				<!-- Ultimo dia de pedido Chips -->
+				<div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
+					*ngIf="selectedLastOrderDays.length > 0 || isEditing || showDelivery">
+					<div class="flex items-center gap-2 text-gray-400 text-sm h-8">
+						<app-icon name="calendar_today" size="md" class="text-maingoo-sage"></app-icon>
+						<span>Día de pedido</span>
+					</div>
+					<div class="flex flex-wrap gap-1 items-center -ml-2">
+						<div *ngFor="let day of daysOptions" (click)="isEditing && toggleDay('lastOrder', day.value)"
+							class="px-2 py-1 rounded text-xs transition-colors border select-none shrink-0" [ngClass]="{
+                'cursor-pointer': isEditing,
+                'cursor-default': !isEditing,
+                'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('lastOrder', day.value),
+                'bg-gray-100 text-gray-500 border-transparent':
+                  !isDaySelected('lastOrder', day.value) && !isEditing,
+                'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200':
+                  !isDaySelected('lastOrder', day.value) && isEditing
+              }">
+							{{ day.short }}
+						</div>
+					</div>
+				</div>
+
+				<!-- Dias de reparto Chips -->
+				<div class="grid grid-cols-[130px_1fr] py-1 group min-h-[32px]"
+					*ngIf="selectedDays.length > 0 || isEditing || showDelivery">
+					<div class="flex items-center gap-2 text-gray-400 text-sm h-8">
+						<app-icon name="local_shipping" size="md" class="text-maingoo-sage"></app-icon>
+						<span>Día de reparto</span>
+					</div>
+					<div class="flex flex-wrap gap-1 items-center -ml-2">
+						<div *ngFor="let day of daysOptions" (click)="isEditing && toggleDay('delivery', day.value)"
+							class="px-2 py-1 rounded text-xs transition-colors border select-none shrink-0" [ngClass]="{
+                'cursor-pointer': isEditing,
+                'cursor-default': !isEditing,
+                'bg-maingoo-sage text-white border-maingoo-sage': isDaySelected('delivery', day.value),
+                'bg-gray-100 text-gray-500 border-transparent':
+                  !isDaySelected('delivery', day.value) && !isEditing,
+                'bg-gray-100 text-gray-500 border-transparent hover:bg-gray-200':
+                  !isDaySelected('delivery', day.value) && isEditing
+              }">
+							{{ day.short }}
+						</div>
+					</div>
+				</div>
+
+				<!-- Pedido minimo Inline -->
+				<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]" *ngIf="
+            (supplier!.minPriceDelivery !== null &&
+              supplier!.minPriceDelivery !== undefined) ||
+            isEditing ||
+            showDelivery
+          ">
+					<div class="flex items-center gap-2 text-gray-400 text-sm">
+						<app-icon name="euro" size="md" class="text-maingoo-sage"></app-icon>
+						<span>Pedido mín.</span>
+					</div>
+					<div class="flex items-center -ml-2">
+						<div class="flex items-center w-full">
+							<p-inputNumber [(ngModel)]="supplier!.minPriceDelivery" mode="currency" currency="EUR"
+								locale="es-ES" placeholder="0,00 €" [minFractionDigits]="2" [maxFractionDigits]="2"
+								styleClass="w-24" [disabled]="!isEditing"
+								inputStyleClass="bg-transparent border-b border-gray-200 hover:border-maingoo-sage focus:border-maingoo-sage text-maingoo-deep font-medium focus:outline-none px-1 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm !shadow-none !rounded-none">
+							</p-inputNumber>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { SidebarShellComponent } from '../../shared/components/sidebar-shell/sidebar-shell.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -30,6 +31,10 @@ import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { ModalService } from '../../shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { SupplierDetailComponent } from './components/supplier-detail/supplier-detail.component';
+
+import { SupplierCardComponent } from './components/supplier-card/supplier-card.component';
+import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
 
 @Component({
   selector: 'app-proveedores',
@@ -54,12 +59,16 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
     SectionHeaderComponent,
     EmptyStateComponent,
     IconComponent,
-    SkeletonModule,
-    SkeletonComponent
+    SkeletonComponent,
+    SupplierDetailComponent,
+    SupplierCardComponent,
+    SupplierListComponent
   ],
   templateUrl: './supplier.component.html'
 })
 export class SupplierComponent implements OnDestroy {
+  @ViewChild(SupplierDetailComponent) detailComponent!: SupplierDetailComponent;
+
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
@@ -76,9 +85,6 @@ export class SupplierComponent implements OnDestroy {
   cargando = true;
 
   // UI State
-  showInvoices = false;
-  showStats = false;
-  showMenu = false;
   showMobileSearch = false; // New state for mobile search toggle
   viewMode: 'grid' | 'list' = 'grid';
   viewOptions: any[] = [
@@ -111,24 +117,6 @@ export class SupplierComponent implements OnDestroy {
     }
   }
 
-  // Toggle Sections
-  showContact = false;
-  showDelivery = false;
-  showMinOrder = false;
-
-  // Delivery Days
-  selectedDays: string[] = [];
-  selectedLastOrderDays: string[] = [];
-  daysOptions = [
-    { label: 'Lunes', value: 'Lunes', short: 'Lun' },
-    { label: 'Martes', value: 'Martes', short: 'Mar' },
-    { label: 'Miércoles', value: 'Miércoles', short: 'Mié' },
-    { label: 'Jueves', value: 'Jueves', short: 'Jue' },
-    { label: 'Viernes', value: 'Viernes', short: 'Vie' },
-    { label: 'Sábado', value: 'Sábado', short: 'Sáb' },
-    { label: 'Domingo', value: 'Domingo', short: 'Dom' }
-  ];
-
   columns = [
     { field: 'name', header: 'Nombre', type: 'text', filter: true },
     { field: 'cifNif', header: 'NIF/CIF', type: 'text', filter: true },
@@ -146,17 +134,10 @@ export class SupplierComponent implements OnDestroy {
     private toastService: ToastService
   ) { }
 
-  // Chart
-  chartData: any;
-  historyChartData: any;
-  chartOptions: any;
-
-  async ngOnInit() {
+  ngOnInit() {
     this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
     this.cargando = true;
-    this.initChartOptions();
 
-    // ... existing load logic ...
     this.supplierService.listSuppliers().subscribe({
       next: (suppliers: Supplier[]) => {
         this.supplier = suppliers;
@@ -176,10 +157,6 @@ export class SupplierComponent implements OnDestroy {
 
   // --- Helpers & Utilities ---
 
-  getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
-  }
-
   confirmarEliminarProveedor(prov: Supplier) {
     this.confirmDialog.confirmDeletion(`¿Estás seguro de eliminar al proveedor "${prov.name}"?`, {
       acceptLabel: 'Sí, eliminar',
@@ -190,59 +167,44 @@ export class SupplierComponent implements OnDestroy {
     });
   }
 
-  // State for edit mode
-  isEditing = false;
-
   // Wrappers for Template calls
   confirmDelete(supplier: Supplier) {
     this.confirmarEliminarProveedor(supplier);
   }
 
-  editSupplier(supplier: Supplier) {
-    if (this.isEditing) {
-      const dto: UpdateSupplierDto = {
-        name: supplier.name,
-        cifNif: supplier.cifNif,
-        address: supplier.address || null,
-        phoneNumber: supplier.phoneNumber || null,
-        commercialName: supplier.commercialName || null,
-        commercialEmail: supplier.commercialEmail || null,
-        commercialPhoneNumber: supplier.commercialPhoneNumber || null,
-        orderDays: this.selectedLastOrderDays.length > 0 ? this.selectedLastOrderDays.join(',') : null,
-        deliveryDays: this.selectedDays.length > 0 ? this.selectedDays.join(',') : null,
-        minPriceDelivery:
-          supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined
-            ? Number(supplier.minPriceDelivery)
-            : null,
-        sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || null
-      };
+  saveSupplier(supplier: Supplier) {
+    const dto: UpdateSupplierDto = {
+      name: supplier.name,
+      cifNif: supplier.cifNif,
+      address: supplier.address || null,
+      phoneNumber: supplier.phoneNumber || null,
+      commercialName: supplier.commercialName || null,
+      commercialEmail: supplier.commercialEmail || null,
+      commercialPhoneNumber: supplier.commercialPhoneNumber || null,
+      orderDays: supplier.orderDays || null,
+      deliveryDays: supplier.deliveryDays || null,
+      minPriceDelivery:
+        supplier.minPriceDelivery !== null && supplier.minPriceDelivery !== undefined
+          ? Number(supplier.minPriceDelivery)
+          : null,
+      sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || null
+    };
 
-      this.supplierService.updateSupplier(supplier.id!, dto).subscribe({
-        next: (updated) => {
-          this.toastService.success('Proveedor actualizado', 'Los datos se han guardado correctamente.');
-          this.isEditing = false;
-          // Reset toggles to collapse empty fields
-          this.showContact = false;
-          this.showDelivery = false;
-          this.showMinOrder = false; // although not a toggle anymore, good practice
+    this.supplierService.updateSupplier(supplier.id!, dto).subscribe({
+      next: (updated) => {
+        this.toastService.success('Proveedor actualizado', 'Los datos se han guardado correctamente.');
+        // Update local data
+        Object.assign(supplier, updated);
 
-          // Update local data
-          Object.assign(supplier, updated);
-        },
-        error: (err) => {
-          console.error('Error updating supplier:', err);
-          this.toastService.error('Error', 'No se pudieron guardar los cambios.');
+        if (this.detailComponent) {
+          this.detailComponent.onSaveSuccess();
         }
-      });
-    } else {
-      // Start editing
-      this.isEditing = true;
-
-      // Auto-expand sections
-      this.showContact = true;
-      this.showDelivery = true;
-      this.showMinOrder = true;
-    }
+      },
+      error: (err) => {
+        console.error('Error updating supplier:', err);
+        this.toastService.error('Error', 'No se pudieron guardar los cambios.');
+      }
+    });
   }
 
   // --- Data Fetching & Operations ---
@@ -250,17 +212,39 @@ export class SupplierComponent implements OnDestroy {
   eliminarProveedor(id: string) {
     this.supplierService.deleteSupplier(id).subscribe({
       next: () => {
-        this.supplier = this.supplier.filter((p) => p.id !== id);
-        this.filteredSupplier = this.filteredSupplier.filter((p) => p.id !== id);
-        this.toastService.success('Proveedor eliminado');
-        if (this.selectedSupplier?.id === id) {
-          this.hideDialog();
-        }
+        this.supplier = this.supplier.filter((s) => s.id !== id);
+        this.filteredSupplier = [...this.supplier];
+        this.toastService.success('Proveedor eliminado', 'El proveedor ha sido eliminado correctamente.');
+        this.selectedSupplier = null; // Close details
       },
       error: (err) => {
-        console.error(err);
-        this.toastService.error('Error al eliminar', err.error.message || 'Intenta nuevamente más tarde.');
+        console.error('Error deleting supplier:', err);
+        this.toastService.error('Error', 'No se pudo eliminar el proveedor.');
       }
+    });
+  }
+
+  showDialog(supplier: Supplier) {
+    // If clicking the same supplier, deselect (collapse) it
+    if (this.selectedSupplier && this.selectedSupplier.id === supplier.id) {
+      this.selectedSupplier = null;
+      this.supplierInvoices = [];
+      return;
+    }
+
+    this.selectedSupplier = { ...supplier };
+    this.loadInvoices(supplier.id!);
+  }
+
+  hideDialog() {
+    this.selectedSupplier = null;
+    this.supplierInvoices = [];
+  }
+
+  loadInvoices(supplierId: string) {
+    this.supplierInvoices = []; // Reset before loading
+    this.invoiceService.getInvoices().subscribe((invoices: Invoice[]) => {
+      this.supplierInvoices = invoices.filter((inv) => inv.supplierId === supplierId);
     });
   }
 
@@ -285,228 +269,5 @@ export class SupplierComponent implements OnDestroy {
       this.showDialog(event.data);
     }
   }
-
-  showDialog(supplier: Supplier) {
-    // If clicking the same supplier, deselect (collapse) it
-    if (this.selectedSupplier && this.selectedSupplier.id === supplier.id) {
-      this.selectedSupplier = null;
-      this.showInvoices = false; // Reset other states
-      this.showMenu = false;
-      return;
-    }
-
-    this.selectedSupplier = supplier;
-    // Reset states
-    this.isEditing = false;
-    this.supplierInvoices = [];
-    this.showInvoices = false;
-    this.showMenu = false;
-
-    // Init toggles to false (collapsed/show only filled)
-    this.showDelivery = false;
-    this.showContact = false;
-    this.showMinOrder = false;
-
-    // Parse delivery days
-    this.selectedDays = supplier.deliveryDays ? supplier.deliveryDays.split(',').map((d: string) => d.trim()) : [];
-    this.selectedLastOrderDays = supplier.orderDays ? supplier.orderDays.split(',').map((d: string) => d.trim()) : [];
-
-    // Fetch invoices for this supplier
-    if (supplier.id) {
-      this.invoiceService.getInvoices({ supplierId: supplier.id }).subscribe({
-        next: (invoices: Invoice[]) => {
-          this.supplierInvoices = invoices;
-          this.updateChartData(this.supplierInvoices);
-        },
-        error: (err: any) => console.error('Error cargando facturas', err)
-      });
-    }
-  }
-
-  initChartOptions() {
-    this.chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: '#1A3C34',
-          titleColor: '#fff',
-          bodyColor: '#fff',
-          cornerRadius: 4,
-          displayColors: false,
-          callbacks: {
-            label: function (context: any) {
-              return context.parsed.y + ' €';
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: {
-            display: false,
-            drawBorder: false
-          },
-          ticks: {
-            color: '#6b7280', // gray-500
-            font: { size: 10 }
-          }
-        },
-        y: {
-          display: false, // minimalist: hide y axis
-          grid: {
-            display: false,
-            drawBorder: false
-          }
-        }
-      }
-    };
-  }
-
-  // Chart Data
-  availableYears: { label: string; value: number }[] = [];
-  selectedYear: number = new Date().getFullYear();
-
-  updateChartData(invoices: Invoice[]) {
-    // 0. Calculate Available Years
-    const currentYear = new Date().getFullYear();
-
-    if (invoices.length > 0) {
-      const invoiceYears = invoices.map((inv) => new Date(inv.date).getFullYear());
-      const minYear = Math.min(...invoiceYears);
-
-      // Generate continuous range from minYear to currentYear
-      this.availableYears = [];
-      for (let year = currentYear; year >= minYear; year--) {
-        this.availableYears.push({ label: year.toString(), value: year });
-      }
-
-      // If selectedYear is not in availableYears (not possible by logic unless < minYear, but safer to check)
-      const yearExists = this.availableYears.some((y) => y.value === this.selectedYear);
-      if (!yearExists) {
-        this.selectedYear = currentYear;
-      }
-    } else {
-      this.availableYears = [{ label: currentYear.toString(), value: currentYear }];
-      this.selectedYear = currentYear;
-    }
-
-    // 1. Update Monthly Chart for Selected Year
-    this.updateMonthlyChart();
-
-    // 2. Historical Data (Yearly)
-    if (invoices.length > 0) {
-      const years = invoices.map((inv) => new Date(inv.date).getFullYear());
-      const minYear = Math.min(...years);
-      const maxYear = new Date().getFullYear();
-
-      const yearlyLabels: string[] = [];
-      const yearlyTotals: number[] = [];
-
-      for (let year = minYear; year <= maxYear; year++) {
-        yearlyLabels.push(year.toString());
-        const total = invoices
-          .filter((inv) => new Date(inv.date).getFullYear() === year)
-          .reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
-        yearlyTotals.push(total);
-      }
-
-      this.historyChartData = {
-        labels: yearlyLabels,
-        datasets: [
-          {
-            label: 'Gasto Anual',
-            data: yearlyTotals,
-            backgroundColor: '#1A3C34', // maingoo-deep
-            hoverBackgroundColor: '#6B9E86', // maingoo-sage
-            borderRadius: 4,
-            barThickness: 20
-          }
-        ]
-      };
-    }
-  }
-
-  updateMonthlyChart() {
-    const monthlyTotals = new Array(12).fill(0);
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
-    this.supplierInvoices.forEach((inv) => {
-      const date = new Date(inv.date);
-      if (date.getFullYear() === Number(this.selectedYear)) {
-        monthlyTotals[date.getMonth()] += Number(inv.amount || 0);
-      }
-    });
-
-    this.chartData = {
-      labels: months,
-      datasets: [
-        {
-          label: 'Gasto',
-          data: monthlyTotals,
-          backgroundColor: '#6B9E86', // maingoo-sage
-          hoverBackgroundColor: '#1A3C34', // maingoo-deep
-          borderRadius: 4,
-          barThickness: 12
-        }
-      ]
-    };
-  }
-
-  onYearChange() {
-    this.updateMonthlyChart();
-  }
-
-  hideDialog() {
-    this.selectedSupplier = null;
-    this.supplierInvoices = [];
-    this.showMenu = false;
-    this.showContact = false;
-    this.showDelivery = false;
-    this.showMinOrder = false;
-    this.selectedDays = [];
-    this.selectedLastOrderDays = [];
-  }
-
-  toggleDay(type: 'delivery' | 'lastOrder', day: string) {
-    const targetArray = type === 'delivery' ? this.selectedDays : this.selectedLastOrderDays;
-    const index = targetArray.indexOf(day);
-
-    if (index === -1) {
-      targetArray.push(day);
-    } else {
-      targetArray.splice(index, 1);
-    }
-  }
-
-  isDaySelected(type: 'delivery' | 'lastOrder', day: string): boolean {
-    const targetArray = type === 'delivery' ? this.selectedDays : this.selectedLastOrderDays;
-    return targetArray.includes(day);
-  }
-
-  get hasEmptyContactFields(): boolean {
-    if (!this.selectedSupplier) return false;
-    return (
-      !this.selectedSupplier.commercialName ||
-      !this.selectedSupplier.phoneNumber ||
-      !this.selectedSupplier.commercialEmail
-    );
-  }
-
-  get hasEmptyDeliveryFields(): boolean {
-    if (!this.selectedSupplier) return false;
-    // Check key delivery fields. minPriceDelivery 0 is "filled", so check for null/undefined.
-    const minPriceEmpty =
-      this.selectedSupplier.minPriceDelivery === null || this.selectedSupplier.minPriceDelivery === undefined;
-
-    return !this.selectedSupplier.orderDays || !this.selectedSupplier.deliveryDays || minPriceEmpty;
-  }
-
-  toggleMenu(event?: Event) {
-    if (event) event.stopPropagation();
-    this.showMenu = !this.showMenu;
-  }
 }
+

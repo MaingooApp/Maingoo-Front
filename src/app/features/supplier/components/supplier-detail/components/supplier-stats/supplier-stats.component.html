@@ -1,0 +1,41 @@
+<div class="mt-8 border-t border-gray-200 pt-6">
+	<div (click)="showStats = !showStats" class="flex justify-between items-center cursor-pointer group select-none">
+		<h3
+			class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">
+			Estadísticas
+		</h3>
+		<app-icon name="expand_more"
+			class="text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
+			[ngClass]="{ 'rotate-180': showStats }" size="md"></app-icon>
+	</div>
+
+	<div class="overflow-hidden transition-all duration-300 ease-in-out"
+		[style.max-height]="showStats ? '1000px' : '0'">
+		<div class="pt-4 px-3 pb-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+			<!-- Monthly Expense Chart -->
+			<div>
+				<div class="flex justify-between items-center mb-2 min-h-[32px]">
+					<h4 class="text-xs font-bold text-gray-400 uppercase">Gasto Mensual</h4>
+					<p-dropdown [options]="availableYears" [(ngModel)]="selectedYear" (onChange)="onYearChange()"
+						optionLabel="label" optionValue="value"
+						styleClass="border-none bg-transparent p-0 text-maingoo-deep font-bold text-sm min-w-[80px]"
+						[panelStyle]="{ 'font-size': '14px' }">
+					</p-dropdown>
+				</div>
+				<div class="h-48" *ngIf="invoices.length > 0">
+					<p-chart type="bar" [data]="chartData" [options]="chartOptions" height="100%"></p-chart>
+				</div>
+			</div>
+
+			<!-- Historical Chart -->
+			<div *ngIf="invoices.length > 0">
+				<div class="flex justify-between items-center mb-2 min-h-[32px]">
+					<h4 class="text-xs font-bold text-gray-400 uppercase">Histórico</h4>
+				</div>
+				<div class="h-48">
+					<p-chart type="bar" [data]="historyChartData" [options]="chartOptions" height="100%"></p-chart>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
