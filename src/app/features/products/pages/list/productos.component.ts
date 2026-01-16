@@ -33,6 +33,9 @@ import { LayoutService } from '@app/layout/service/layout.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
 
+import { ProductListComponent } from '../../components/product-list/product-list.component';
+import { ProductCategoryCardComponent } from '../../components/product-category-card/product-category-card.component';
+
 @Component({
   selector: 'app-productos',
   standalone: true,
@@ -55,7 +58,9 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
     EmptyStateComponent,
     ProductDetailSidebarComponent,
     IconComponent,
-    SkeletonComponent
+    SkeletonComponent,
+    ProductListComponent,
+    ProductCategoryCardComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'

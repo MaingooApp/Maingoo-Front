@@ -1,0 +1,49 @@
+<app-card-shell [isSelected]="isSelected" (click)="handleClick()">
+	<!-- MODE: Category Group -->
+	<ng-container *ngIf="group">
+		<div class="flex items-start justify-between mb-4 h-full">
+			<h3 class="text-lg font-bold mb-2 transition-colors px-3 py-1 rounded-full w-auto inline-block bg-opacity-20"
+				[ngStyle]="getCategoryStyle(group.rootCategory.name)">
+				{{ group.rootCategory.name }}
+			</h3>
+		</div>
+
+		<div class="flex items-center justify-between mt-auto">
+			<div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
+				{{ group.productCount }} prod.
+			</div>
+			<p *ngIf="group.rootCategory.description"
+				class="text-xs text-gray-400 truncate max-w-[60%] text-right hidden md:block">
+				{{ group.rootCategory.description }}
+			</p>
+		</div>
+	</ng-container>
+
+	<!-- MODE: Single Product -->
+	<ng-container *ngIf="product">
+		<div class="flex flex-col gap-2 h-full">
+			<!-- Icon/Placeholder -->
+			<div
+				class="w-full h-24 rounded-lg bg-gray-50 flex items-center justify-center mb-1 relative overflow-hidden shrink-0">
+				<span class="text-2xl font-bold text-gray-300">{{ product.name.charAt(0) }}</span>
+				<!-- Stock Badge -->
+				<div
+					class="absolute bottom-1 right-1 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-bold text-gray-600 shadow-sm border border-gray-100">
+					{{ (product.unit?.toUpperCase() === 'KG' ? product.unitCount : product.stock) | number: '1.0-0' }}
+				</div>
+			</div>
+
+			<!-- Info -->
+			<div class="flex flex-col flex-1 justify-between">
+				<h3 class="font-bold text-maingoo-deep text-sm leading-tight line-clamp-2 min-h-[2.5em]">
+					{{ product.name }}
+				</h3>
+				<div class="flex items-end justify-between mt-2">
+					<span class="text-maingoo-sage font-bold text-sm">{{ product.lastUnitPrice | currency: 'EUR'
+						}}</span>
+					<span class="text-[10px] text-gray-400">{{ product.unit }}</span>
+				</div>
+			</div>
+		</div>
+	</ng-container>
+</app-card-shell>

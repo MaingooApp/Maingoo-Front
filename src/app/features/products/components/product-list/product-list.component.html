@@ -1,0 +1,129 @@
+<app-list-shell>
+	<!-- Mobile Compact List View (Rows) -->
+	<div class="flex flex-col md:hidden">
+		<div *ngFor="let item of products" (click)="onRowClick(item)"
+			class="border-b border-gray-100 last:border-0 p-3 flex items-center gap-3 active:bg-gray-50 transition-colors cursor-pointer relative"
+			[class.bg-maingoo-sage-50]="selectedProduct?.id === item.id">
+			<!-- Icon -->
+			<div
+				class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center shrink-0 border border-gray-100 text-maingoo-deep font-bold text-sm">
+				{{ item.name.charAt(0).toUpperCase() }}
+			</div>
+
+			<!-- Info -->
+			<div class="flex-1 min-w-0 flex flex-col gap-0.5">
+				<div class="flex justify-between items-center">
+					<h3 class="font-semibold text-[#1A3C34] text-sm truncate pr-2">{{ item.name }}</h3>
+					<span class="text-xs font-bold text-maingoo-deep whitespace-nowrap">{{
+						item.lastUnitPrice | currency: 'EUR'
+						}}</span>
+				</div>
+				<div class="flex items-center gap-2 text-xs text-gray-500">
+					<div class="flex items-center gap-1 flex-wrap">
+						<!-- Category Path -->
+						<span *ngIf="item.category?.path" class="text-gray-500 truncate max-w-[150px] text-[10px]">
+							{{ item.category?.path }}
+						</span>
+						<span *ngIf="!item.category?.path && item.category?.name" class="text-gray-500 text-[10px]">
+							{{ item.category?.name }}
+						</span>
+					</div>
+					<span class="text-gray-300" *ngIf="item.category">|</span>
+					<span class="font-medium text-gray-600 truncate">Stock:
+						{{
+						(item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
+						| number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
+						}}
+						{{ item.unit }}</span>
+				</div>
+			</div>
+
+			<!-- Chevron -->
+			<app-icon name="chevron_right" size="xs" class="text-gray-300"></app-icon>
+		</div>
+
+		<!-- Empty State Mobile -->
+		<div *ngIf="products.length === 0" class="p-8 text-center text-gray-400 text-sm">
+			No se encontraron productos.
+		</div>
+	</div>
+
+	<!-- Desktop Table -->
+	<div class="hidden md:block">
+		<p-table [value]="products" [rowHover]="true" styleClass="p-datatable-sm"
+			[globalFilterFields]="['name', 'eanCode', 'subcategory.name', 'subcategory.category.name', 'unit']"
+			[loading]="loading">
+			<ng-template pTemplate="header">
+				<tr>
+					<th class="text-maingoo-deep font-bold text-sm" [class.w-full]="selectedProduct"
+						[class.w-[30%]]="!selectedProduct">
+						Producto
+					</th>
+					<th class="text-maingoo-deep font-bold text-sm w-[20%]" *ngIf="!selectedProduct">
+						Stock
+					</th>
+					<th class="text-maingoo-deep font-bold text-sm w-[20%]" *ngIf="!selectedProduct">
+						Proveedor
+					</th>
+					<th class="text-maingoo-deep font-bold text-sm w-[20%]">Precio</th>
+					<th [class.w-[10%]]="!selectedProduct" [class.w-auto]="selectedProduct"></th>
+				</tr>
+			</ng-template>
+			<ng-template pTemplate="body" let-item>
+				<tr class="cursor-pointer hover:bg-gray-50 transition-colors border-l-4 border-transparent"
+					[ngClass]="{ 'bg-gray-50 !border-maingoo-sage': selectedProduct?.id === item.id }"
+					(click)="onRowClick(item)">
+					<td>
+						<div class="flex flex-col">
+							<span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
+							<!-- Category Path -->
+							<span *ngIf="item.category?.path" class="text-xs text-gray-500 mt-1">
+								{{ item.category?.path }}
+							</span>
+							<span *ngIf="!item.category?.path && item.category?.name"
+								class="text-xs text-gray-500 mt-1">
+								{{ item.category?.name }}
+							</span>
+						</div>
+					</td>
+					<td *ngIf="!selectedProduct">
+						<div class="flex items-center gap-2 text-sm text-gray-600">
+							<app-icon name="inventory_2" size="xs" class="text-maingoo-sage"></app-icon>
+							<span class="font-medium">{{
+								(item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
+								| number: (item.unit?.toUpperCase() === 'KG' ? '1.0-3' : '1.0-0')
+								}}</span>
+							<span class="text-gray-400 text-xs">{{ item.unit }}</span>
+						</div>
+					</td>
+					<td *ngIf="!selectedProduct">
+						<div class="flex items-center gap-2 text-sm text-gray-600">
+							<app-icon name="local_shipping" size="xs" class="text-maingoo-sage"></app-icon>
+							<span *ngIf="item.supplier?.name" class="truncate max-w-[150px]">{{ item.supplier.name
+								}}</span>
+							<span *ngIf="!item.supplier?.name" class="text-gray-300 italic">Sin proveedor</span>
+						</div>
+					</td>
+					<td>
+						<span class="text-maingoo-deep font-bold text-sm">
+							{{ item.lastUnitPrice | currency: 'EUR' }}
+						</span>
+					</td>
+					<td class="text-right">
+						<button pButton
+							class="p-button-text p-button-secondary p-button-sm transition-transform duration-200"
+							[ngClass]="{ 'rotate-180 text-maingoo-sage': selectedProduct?.id === item.id }">
+							<app-icon name="chevron_left" size="md"></app-icon>
+						</button>
+					</td>
+				</tr>
+			</ng-template>
+			<!-- Empty State in Table -->
+			<ng-template pTemplate="emptymessage">
+				<tr>
+					<td colspan="5" class="text-center py-8 text-gray-500">No se encontraron productos.</td>
+				</tr>
+			</ng-template>
+		</p-table>
+	</div>
+</app-list-shell>
