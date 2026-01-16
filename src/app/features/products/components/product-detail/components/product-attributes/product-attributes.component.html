@@ -7,7 +7,6 @@
 				<ng-container *ngFor="let catName of getCategoryPathParts(); let last = last">
 					<p-tag [value]="catName" [style]="getCategoryStyle(catName)" [rounded]="true"
 						styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
-					<app-icon *ngIf="!last" name="chevron_right" size="xs" class="text-gray-400"></app-icon>
 				</ng-container>
 			</div>
 		</div>

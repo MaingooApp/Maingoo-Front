@@ -35,6 +35,7 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
 
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
+import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
 
 import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
 
@@ -63,7 +64,8 @@ import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-
     SkeletonComponent,
     ProductListComponent,
     ProductCardComponent,
-    SidebarShellComponent
+    SidebarShellComponent,
+    CategoryDetailComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'
@@ -246,6 +248,10 @@ export class ProductosComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+
+
+
 
   // --- Initialization & Lifecycle ---
 
@@ -458,6 +464,8 @@ export class ProductosComponent implements OnInit, OnDestroy {
   getCategoryStyle(category: string | undefined | null): { [klass: string]: any } {
     return getCategoryColor(category);
   }
+
+
 
   filterProductos(event: Event) {
     const value = (event.target as HTMLInputElement).value;
