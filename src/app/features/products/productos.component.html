@@ -155,10 +155,10 @@
             <!-- Product Layer (Product Detail Card) -->
             <div *ngIf="selectedProduct"
               class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative">
-              <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
+              <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
                 [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
                 (verFactura)="verFactura($event)" (delete)="confirmarEliminarProducto($event)">
-              </app-product-detail-sidebar>
+              </app-product-detail>
             </div>
           </div>
 
@@ -251,9 +251,9 @@
         <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
       </div>
       <div class="flex-1 overflow-hidden relative flex flex-col">
-        <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
+        <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
           [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
-          (verFactura)="verFactura($event)" (delete)="confirmarEliminarProducto($event)"></app-product-detail-sidebar>
+          (verFactura)="verFactura($event)" (delete)="confirmarEliminarProducto($event)"></app-product-detail>
       </div>
     </div>
   </div>

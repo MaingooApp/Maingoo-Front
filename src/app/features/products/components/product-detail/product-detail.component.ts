@@ -11,7 +11,7 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
 import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
 
 @Component({
-  selector: 'app-product-detail-sidebar',
+  selector: 'app-product-detail',
   standalone: true,
   imports: [
     CommonModule,
@@ -22,9 +22,9 @@ import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-
     IconComponent,
     SidebarShellComponent
   ],
-  templateUrl: './product-detail-sidebar.component.html'
+  templateUrl: './product-detail.component.html'
 })
-export class ProductDetailSidebarComponent {
+export class ProductDetailComponent {
   @Input() product: Product | null = null;
   @Input() relatedInvoices: Invoice[] = [];
   @Input() priceChartData: any;

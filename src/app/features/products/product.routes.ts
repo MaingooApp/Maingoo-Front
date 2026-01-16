@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { ProductosComponent } from './pages/list/productos.component';
+import { ProductosComponent } from './productos.component';
 const productRoutes: Routes = [
   { path: '', component: ProductosComponent },
   { path: '**', redirectTo: '' }
