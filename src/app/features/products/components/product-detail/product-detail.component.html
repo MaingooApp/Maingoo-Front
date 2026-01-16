@@ -1,26 +1,14 @@
 <app-sidebar-shell [title]="product?.name || 'Detalle de Producto'" (close)="close.emit()">
-  <!-- Header Actions (Delete Menu) -->
+  <!-- Header Actions -->
   <div header-actions class="flex items-center gap-1">
-    <div class="relative">
-      <button pButton class="p-button-rounded p-button-text text-gray-400 hover:bg-gray-100 hover:text-maingoo-deep"
-        (click)="toggleMenu($event)">
-        <app-icon name="more_vert" size="md"></app-icon>
-      </button>
-
-      <!-- Dropdown Menu -->
-      <div *ngIf="showMenu"
-        class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl py-1 z-50 border border-gray-100 overflow-hidden animate-fade-in origin-top-right">
-        <button (click)="onDelete()"
-          class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
-          <app-icon name="delete" size="md"></app-icon>
-          Eliminar
-        </button>
-      </div>
-    </div>
+    <button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar producto"
+      tooltipPosition="bottom" (click)="onDelete()">
+      <app-icon name="delete" size="md"></app-icon>
+    </button>
   </div>
 
   <!-- Main Content Projected into Shell -->
-  <div class="flex flex-col gap-6" (click)="showMenu = false">
+  <div class="flex flex-col gap-6">
 
     <!-- Categories, Format, Tags -->
     <div class="flex flex-col gap-4">
