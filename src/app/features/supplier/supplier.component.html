@@ -83,7 +83,7 @@
             </ng-container>
 
             <!-- VIEW: List Mode -->
-            <div *ngIf="viewMode === 'list'" class="rounded-xl shadow-sm overflow-hidden bg-white">
+            <div *ngIf="viewMode === 'list'">
               <app-supplier-list [suppliers]="filteredSupplier" [selectedSupplier]="selectedSupplier"
                 (selectSupplier)="showDialog($any($event))">
               </app-supplier-list>
