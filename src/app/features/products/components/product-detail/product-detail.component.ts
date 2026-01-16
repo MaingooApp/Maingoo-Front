@@ -34,7 +34,7 @@ export class ProductDetailComponent {
   @Output() verFactura = new EventEmitter<Invoice>();
   @Output() delete = new EventEmitter<Product>();
 
-  showMenu: boolean = false;
+
 
   setStorageType(type: 'seco' | 'fresco' | 'congelado') {
     if (this.product) {
@@ -46,10 +46,7 @@ export class ProductDetailComponent {
 
 
 
-  toggleMenu(event: Event) {
-    event.stopPropagation();
-    this.showMenu = !this.showMenu;
-  }
+
 
   onDelete() {
     if (this.product) {
