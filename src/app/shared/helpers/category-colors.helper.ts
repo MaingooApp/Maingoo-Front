@@ -9,7 +9,6 @@ export const getCategoryStyle = (category: string | undefined | null): { [klass:
 		case 'carnes':
 			// Red
 			return { backgroundColor: '#fee2e2', color: '#991b1b' };
-		case 'lacteos':
 		case 'lácteos y huevos':
 			// Blue
 			return { backgroundColor: '#dbeafe', color: '#1e40af' };
@@ -20,7 +19,6 @@ export const getCategoryStyle = (category: string | undefined | null): { [klass:
 			// Purple
 			return { backgroundColor: '#f3e8ff', color: '#6b21a8' };
 		case 'charcutería':
-		case 'charcuteria':
 			// Pink/Rose
 			return { backgroundColor: '#ffe4e6', color: '#881337' };
 		case 'comidas preparadas':
@@ -39,11 +37,9 @@ export const getCategoryStyle = (category: string | undefined | null): { [klass:
 			// Slate
 			return { backgroundColor: '#f1f5f9', color: '#334155' };
 		case 'panadería':
-		case 'panaderia':
 			// Light Orange (Wheat)
 			return { backgroundColor: '#ffedd5', color: '#9a3412' };
 		case 'pastelería y confitería':
-		case 'pasteleria y confiteria':
 			// Pink
 			return { backgroundColor: '#fce7f3', color: '#9d174d' };
 		case 'pescados y mariscos':
@@ -53,7 +49,6 @@ export const getCategoryStyle = (category: string | undefined | null): { [klass:
 			// Yellow
 			return { backgroundColor: '#fefce8', color: '#ca8a04' };
 		case 'salsas y aliños':
-		case 'salsas y alinos':
 			// Lime
 			return { backgroundColor: '#ecfccb', color: '#3f6212' };
 		case 'otros':
