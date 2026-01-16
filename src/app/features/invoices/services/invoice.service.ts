@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { BaseHttpService } from '../../../core/services/base-http.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
+import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
 import { GetInvoice } from '../interface/get-invoice.interface';
 
 /**
@@ -98,11 +98,12 @@ export class InvoiceService extends BaseHttpService {
   }
 
   /**
-   * Obtiene todos los productos del inventario consolidado
+   * Obtiene todos los productos del inventario consolidado agrupados por categoría raíz
    * GET /api/products
+   * @returns Array de grupos de productos, cada uno con rootCategory, productCount y products
    */
-  getProducts(): Observable<Product[]> {
-    return this.get<Product[]>(this.PRODUCTS_URL);
+  getProducts(): Observable<ProductGroup[]> {
+    return this.get<ProductGroup[]>(this.PRODUCTS_URL);
   }
 
   /**

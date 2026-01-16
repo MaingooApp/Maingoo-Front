@@ -28,7 +28,14 @@ export interface ProductCategory {
   id: string;
   name: string;
   description: string | null;
-  category?: ProductCategory; // Parent category
+  depth?: number;
+  path?: string;
+  parent?: {
+    id: string;
+    name: string;
+    depth?: number;
+  };
+  category?: ProductCategory; // Legacy: Parent category (backward compat)
 }
 
 export interface ProductAllergen {
@@ -36,6 +43,25 @@ export interface ProductAllergen {
   name: string;
   code: string;
   description: string;
+}
+
+/**
+ * Categoría raíz que agrupa productos
+ */
+export interface RootCategory {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+/**
+ * Grupo de productos agrupados por categoría raíz
+ * Esta es la nueva estructura devuelta por GET /api/products
+ */
+export interface ProductGroup {
+  rootCategory: RootCategory;
+  productCount: number;
+  products: Product[];
 }
 
 export interface Supplier {

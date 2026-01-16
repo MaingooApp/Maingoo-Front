@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
 import { ButtonModule } from 'primeng/button';
-import { Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
+import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
 import { ModalService } from '@app/shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AddArticleModalComponent } from '../../components/add-article-modal/add-article-modal.component';
@@ -90,10 +90,11 @@ export class ArticlesComponent implements OnInit {
       }
     });
 
-    // Load products for ingredients
+    // Load products for ingredients (flatten from groups)
     this.invoiceService.getProducts().subscribe({
-      next: (products: Product[]) => {
-        this.availableProducts.set(products);
+      next: (productGroups: ProductGroup[]) => {
+        const allProducts = productGroups.flatMap(group => group.products);
+        this.availableProducts.set(allProducts);
       }
     });
   }

@@ -116,21 +116,15 @@
                     </div>
                     <div class="flex items-center gap-2 text-xs text-gray-500">
                       <div class="flex items-center gap-1 flex-wrap">
-                        <ng-container *ngIf="item.subcategory?.category?.name">
-                          <span
-                            class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
-                            [ngStyle]="getCategoryStyle(item.subcategory?.category?.name)">
-                            {{ item.subcategory?.category?.name }}
-                          </span>
-                          <span class="text-gray-300 text-[10px]">•</span>
-                        </ng-container>
-                        <span *ngIf="item.subcategory?.name"
-                          class="px-1.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-wide truncate max-w-[80px]"
-                          [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)">
-                          {{ item.subcategory?.name }}
+                        <!-- Category Path -->
+                        <span *ngIf="item.category?.path" class="text-gray-500 truncate max-w-[150px] text-[10px]">
+                          {{ item.category?.path }}
+                        </span>
+                        <span *ngIf="!item.category?.path && item.category?.name" class="text-gray-500 text-[10px]">
+                          {{ item.category?.name }}
                         </span>
                       </div>
-                      <span class="text-gray-300" *ngIf="item.subcategory?.name">|</span>
+                      <span class="text-gray-300" *ngIf="item.category">|</span>
                       <span class="font-medium text-gray-600 truncate">Stock:
                         {{
                         (item.unit?.toUpperCase() === 'KG' ? item.unitCount : item.stock)
@@ -180,17 +174,13 @@
                       <td>
                         <div class="flex flex-col">
                           <span class="font-bold text-maingoo-deep text-base">{{ item.name }}</span>
-                          <div class="flex items-center gap-1 mt-1 flex-wrap">
-                            <ng-container *ngIf="item.subcategory?.category?.name">
-                              <p-tag [value]="item.subcategory?.category?.name"
-                                [style]="getCategoryStyle(item.subcategory?.category?.name)" [rounded]="true"
-                                styleClass="text-xs font-normal border-0"></p-tag>
-                              <app-icon name="chevron_right" size="xs" class="text-gray-400"></app-icon>
-                            </ng-container>
-                            <p-tag *ngIf="item.subcategory?.name" [value]="item.subcategory?.name"
-                              [style]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
-                              [rounded]="true" styleClass="text-xs font-normal border-0"></p-tag>
-                          </div>
+                          <!-- Category Path -->
+                          <span *ngIf="item.category?.path" class="text-xs text-gray-500 mt-1">
+                            {{ item.category?.path }}
+                          </span>
+                          <span *ngIf="!item.category?.path && item.category?.name" class="text-xs text-gray-500 mt-1">
+                            {{ item.category?.name }}
+                          </span>
                         </div>
                       </td>
                       <td *ngIf="!selectedCategory && !selectedProduct">
@@ -235,22 +225,28 @@
               </div>
             </div>
 
-            <!-- VIEW: Cards Mode (Categories) -->
+            <!-- VIEW: Cards Mode (Root Categories) -->
             <div *ngIf="viewMode === 'cards'" class="grid gap-3 md:gap-6 animate-fade-in" [ngClass]="
               selectedCategory || selectedProduct ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
             ">
-              <div *ngFor="let category of uniqueCategories" (click)="selectCategory(category.name)"
+              <div *ngFor="let group of productGroups" (click)="selectCategory(group.rootCategory.name)"
                 class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-maingoo-sage transition-all cursor-pointer group flex flex-col h-32 justify-between">
                 <div class="flex items-start justify-between mb-4">
                   <h3
                     class="text-lg font-bold mb-2 transition-colors px-3 py-1 rounded-full w-auto inline-block bg-opacity-20"
-                    [ngStyle]="getCategoryStyle(category.name)">
-                    {{ category.name }}
+                    [ngStyle]="getCategoryStyle(group.rootCategory.name)">
+                    {{ group.rootCategory.name }}
                   </h3>
                 </div>
 
-                <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
-                  {{ category.count }} prod.
+                <div class="flex items-center justify-between">
+                  <div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
+                    {{ group.productCount }} prod.
+                  </div>
+                  <p *ngIf="group.rootCategory.description"
+                    class="text-xs text-gray-400 truncate max-w-[60%] text-right hidden md:block">
+                    {{ group.rootCategory.description }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -304,19 +300,10 @@
                           <div class="flex flex-col">
                             <span class="font-bold text-maingoo-deep text-sm">{{ item.name }}</span>
                             <span class="text-xs text-gray-500" *ngIf="item.brand">{{ item.brand }}</span>
-                            <div class="flex items-center gap-1 mt-1 flex-wrap">
-                              <ng-container *ngIf="item.subcategory?.category?.name">
-                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 font-medium">
-                                  {{ item.subcategory?.category?.name }}
-                                </span>
-                                <span class="text-[10px] text-gray-300">/</span>
-                              </ng-container>
-                              <span class="text-[10px] px-1.5 py-0.5 rounded font-medium"
-                                [ngStyle]="getCategoryStyle(item.subcategory?.category?.name || item.subcategory?.name)"
-                                *ngIf="item.subcategory?.name">
-                                {{ item.subcategory?.name }}
-                              </span>
-                            </div>
+                            <!-- Category Path -->
+                            <span *ngIf="item.category?.path" class="text-[10px] text-gray-400 mt-1">
+                              {{ item.category?.path }}
+                            </span>
                           </div>
                         </td>
                         <td class="border-gray-100">
@@ -355,7 +342,8 @@
               <app-product-detail-sidebar class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
                 [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" (close)="hideDialog()"
                 (verFactura)="verFactura($event)"
-                (delete)="confirmarEliminarProducto($event)"></app-product-detail-sidebar>
+                (delete)="confirmarEliminarProducto($event)">
+              </app-product-detail-sidebar>
             </div>
           </div>
 
