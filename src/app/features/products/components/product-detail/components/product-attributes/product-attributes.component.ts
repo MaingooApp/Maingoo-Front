@@ -46,7 +46,9 @@ export class ProductAttributesComponent {
 			'MA': 'Malla',
 			'AE': 'Aerosol',
 			'KG': 'Kilogramo',
-			'BD': 'Bidón'
+			'BD': 'Bidón',
+			'SB': 'Sobre',
+			'PZ': 'Pieza'
 		};
 		return formats[code.toUpperCase()] || code;
 	}

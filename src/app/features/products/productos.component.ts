@@ -21,6 +21,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { firstValueFrom, forkJoin } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
 import { InvoiceService } from '../invoices/services/invoice.service';
+import { ProductService } from './services/product.service';
 
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
@@ -73,6 +74,7 @@ import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-
 export class ProductosComponent implements OnInit, OnDestroy {
   public layoutService = inject(LayoutService);
   private invoiceService = inject(InvoiceService);
+  private productService = inject(ProductService);
   private supplierService = inject(SupplierService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -259,7 +261,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
     this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
 
-    this.invoiceService.getProducts().subscribe({
+    this.productService.getProducts().subscribe({
       next: (productGroups: ProductGroup[]) => {
         // Store groups for category cards display
         this.productGroups = productGroups;
@@ -325,7 +327,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
         if (this.productos.length === 0) return;
 
         this.cargando = true;
-        const deleteObservables = this.productos.map((p) => this.invoiceService.deleteProduct(p.id));
+        const deleteObservables = this.productos.map((p) => this.productService.deleteProduct(p.id));
 
         forkJoin(deleteObservables).subscribe({
           next: () => {
