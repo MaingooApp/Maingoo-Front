@@ -37,4 +37,11 @@ export class ProductService extends BaseHttpService {
 	deleteProduct(id: string): Observable<void> {
 		return this.delete<void>(`${this.PRODUCTS_URL}/${id}`);
 	}
+	/**
+	 * Actualiza los datos de un producto (nombre, formato/unidad, alérgenos)
+	 * PUT /api/products/:id
+	 */
+	updateProduct(id: string, data: { name: string; unit: string; allergenIds: string[] }): Observable<Product> {
+		return this.put<Product>(`${this.PRODUCTS_URL}/${id}`, data);
+	}
 }

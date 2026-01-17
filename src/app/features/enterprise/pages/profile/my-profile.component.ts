@@ -46,8 +46,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
     IconComponent
   ],
   providers: [MessageService],
-  templateUrl: './my-profile.component.html',
-  styleUrl: './my-profile.component.scss'
+  templateUrl: './my-profile.component.html'
 })
 export class MyProfileComponent {
   perfilForm!: FormGroup;
