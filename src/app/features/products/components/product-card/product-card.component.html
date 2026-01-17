@@ -7,15 +7,14 @@
 				{{ group.rootCategory.name }}
 			</h3>
 		</div>
+		<p *ngIf="group.rootCategory.description" class="text-xs text-gray-400 text-left hidden md:block">
+			{{ group.rootCategory.description }}
+		</p>
 
 		<div class="flex items-center justify-between mt-auto">
 			<div class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md w-fit">
 				{{ group.productCount }} prod.
 			</div>
-			<p *ngIf="group.rootCategory.description"
-				class="text-xs text-gray-400 truncate max-w-[60%] text-right hidden md:block">
-				{{ group.rootCategory.description }}
-			</p>
 		</div>
 	</ng-container>
 
