@@ -159,9 +159,50 @@ export class ProductosComponent implements OnInit, OnDestroy {
       return (
         this.normalizeText(p.name).includes(lowerTerm) ||
         (categoryName && this.normalizeText(categoryName).includes(lowerTerm)) ||
+        (p.category?.path && this.normalizeText(p.category.path).includes(lowerTerm)) ||
         (p.eanCode && p.eanCode.includes(lowerTerm))
       );
     });
+  }
+
+  get filteredProductGroups(): ProductGroup[] {
+    if (!this.searchTerm) return this.productGroups;
+    const lowerTerm = this.normalizeText(this.searchTerm);
+
+    return this.productGroups
+      .map(group => {
+        // Filter products within the group
+        const matchingProducts = group.products.filter(p => {
+          const categoryName = p.category?.name;
+          return (
+            this.normalizeText(p.name).includes(lowerTerm) ||
+            (categoryName && this.normalizeText(categoryName).includes(lowerTerm)) ||
+            (p.category?.path && this.normalizeText(p.category.path).includes(lowerTerm)) ||
+            (p.eanCode && p.eanCode.includes(lowerTerm))
+          );
+        });
+
+        // Check if group matches
+        const groupNameMatches = this.normalizeText(group.rootCategory.name).includes(lowerTerm);
+
+        // Return group if name matches OR has matching products
+        // If name matches, show all? Or just matches? Usually just matches is better context, 
+        // but if category name matches, maybe user wants to see all in that category?
+        // Let's stick to showing the group if it has content relevant to search.
+
+        // If we want to show the count of MATCHING products in the card, we'd need to return a modified group.
+        // For now, let's just filter the list of groups.
+
+        if (groupNameMatches || matchingProducts.length > 0) {
+          return {
+            ...group,
+            products: matchingProducts.length > 0 ? matchingProducts : group.products, // If group matches but no products, maybe show all?
+            productCount: matchingProducts.length > 0 ? matchingProducts.length : group.products.length // Update count to reflect matches?
+          };
+        }
+        return null;
+      })
+      .filter(group => group !== null) as ProductGroup[];
   }
 
   get categoryProducts(): Product[] {
@@ -269,8 +310,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
         // Flatten all products from the already normalized groups
         this.productos = this.productGroups.flatMap(group => group.products);
         this.cargando = false;
-        console.log('Grupos de productos cargados:', this.productGroups);
-        console.log('Productos aplanados:', this.productos);
       },
       error: (error: any) => {
         console.error('Error al cargar productos:', error);
@@ -370,7 +409,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
       this.invoiceService.getInvoices({ productId: product.id }).subscribe({
         next: (invoices: Invoice[]) => {
           this.invoices = invoices;
-          console.log('Facturas cargadas:', this.invoices);
           this.updatePriceChart(product);
         },
         error: (error: any) => {

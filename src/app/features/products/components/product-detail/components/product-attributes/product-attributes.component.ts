@@ -27,9 +27,9 @@ export class ProductAttributesComponent implements OnChanges {
 
 	// Mock Price Logic
 	priceOptions = [
+		{ label: 'Precio por formato', value: 'format' },
 		{ label: 'Precio por kilo', value: 'kilo' },
-		{ label: 'Precio por unidad', value: 'unit' },
-		{ label: 'Precio por formato', value: 'format' }
+		{ label: 'Precio por unidad', value: 'unit' }
 	];
 	selectedPriceType: string = 'format';
 
