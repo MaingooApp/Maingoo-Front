@@ -16,6 +16,7 @@ export class ProductListComponent {
 	@Input() products: Product[] = [];
 	@Input() selectedProduct: Product | null = null;
 	@Input() loading: boolean = false;
+	@Input() isNested: boolean = false;
 	@Output() selectProduct = new EventEmitter<Product>();
 
 	onRowClick(product: Product) {
