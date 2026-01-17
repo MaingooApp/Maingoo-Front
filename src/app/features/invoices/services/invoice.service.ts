@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { BaseHttpService } from '../../../core/services/base-http.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
+import { CreateInvoiceDto, DocumentUrlResponse, Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { GetInvoice } from '../interface/get-invoice.interface';
 
 /**
@@ -14,7 +14,7 @@ import { GetInvoice } from '../interface/get-invoice.interface';
 @Injectable({ providedIn: 'root' })
 export class InvoiceService extends BaseHttpService {
   private readonly API_URL = `${environment.urlBackend}api/suppliers/invoices`;
-  private readonly PRODUCTS_URL = `${environment.urlBackend}api/products`;
+
 
   constructor(http: HttpClient) {
     super(http);
@@ -97,28 +97,9 @@ export class InvoiceService extends BaseHttpService {
     return this.get<DocumentUrlResponse>(`${this.API_URL}/${id}/document-url?expiresInHours=${expiresInHours}`);
   }
 
-  /**
-   * Obtiene todos los productos del inventario consolidado agrupados por categoría raíz
-   * GET /api/products
-   * @returns Array de grupos de productos, cada uno con rootCategory, productCount y products
-   */
-  getProducts(): Observable<ProductGroup[]> {
-    return this.get<ProductGroup[]>(this.PRODUCTS_URL);
-  }
 
-  /**
-   * Obtiene un producto específico por su ID
-   * GET /api/products/:id
-   */
-  getProductById(id: string): Observable<Product> {
-    return this.get<Product>(`${this.PRODUCTS_URL}/${id}`);
-  }
 
-  /**
-   * Elimina un producto por su ID
-   * DELETE /api/products/:id
-   */
-  deleteProduct(id: string): Observable<void> {
-    return this.delete<void>(`${this.PRODUCTS_URL}/${id}`);
-  }
+
+
+
 }

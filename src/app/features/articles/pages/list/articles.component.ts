@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
 import { InvoiceService } from '../../../invoices/services/invoice.service';
+import { ProductService } from '../../../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
 import { ModalService } from '@app/shared/services/modal.service';
@@ -31,6 +32,7 @@ interface IngredientRow {
 })
 export class ArticlesComponent implements OnInit {
   private invoiceService = inject(InvoiceService);
+  private productService = inject(ProductService);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
 
@@ -91,7 +93,7 @@ export class ArticlesComponent implements OnInit {
     });
 
     // Load products for ingredients (flatten from groups)
-    this.invoiceService.getProducts().subscribe({
+    this.productService.getProducts().subscribe({
       next: (productGroups: ProductGroup[]) => {
         const allProducts = productGroups.flatMap(group => group.products);
         this.availableProducts.set(allProducts);
