@@ -22,10 +22,8 @@ import { firstValueFrom, forkJoin } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from './services/product.service';
-
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
-
 import { SupplierService } from '@app/features/supplier/services/supplier.service';
 import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
@@ -33,11 +31,9 @@ import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { LayoutService } from '@app/layout/service/layout.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
-
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
-
 import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
 
 @Component({
@@ -264,24 +260,14 @@ export class ProductosComponent implements OnInit, OnDestroy {
     this.productService.getProducts().subscribe({
       next: (productGroups: ProductGroup[]) => {
         // Store groups for category cards display
-        this.productGroups = productGroups;
+        // Process and normalize groups directly
+        this.productGroups = productGroups.map(group => ({
+          ...group,
+          products: group.products.map(p => this.normalizeProductData(p))
+        }));
 
-        // Flatten all products from all groups
-        const allProducts: Product[] = productGroups.flatMap(group => group.products);
-
-        // Map potential snake_case from backend and parse string numbers
-        this.productos = allProducts.map((p) => {
-          let count = (p as any).unit_count ?? p.unitCount;
-
-          if (typeof count === 'string') {
-            count = parseFloat(count.replace(',', '.'));
-          }
-
-          return {
-            ...p,
-            unitCount: count
-          };
-        });
+        // Flatten all products from the already normalized groups
+        this.productos = this.productGroups.flatMap(group => group.products);
         this.cargando = false;
         console.log('Grupos de productos cargados:', this.productGroups);
         console.log('Productos aplanados:', this.productos);
@@ -355,6 +341,25 @@ export class ProductosComponent implements OnInit, OnDestroy {
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
+  }
+
+  private normalizeProductData(p: Product): Product {
+    let count = (p as any).unit_count ?? p.unitCount;
+    let stock = p.stock;
+
+    if (typeof count === 'string') {
+      count = parseFloat((count as string).replace(',', '.'));
+    }
+
+    if (typeof stock === 'string') {
+      stock = parseFloat((stock as string).replace(',', '.'));
+    }
+
+    return {
+      ...p,
+      unitCount: count,
+      stock: stock
+    };
   }
 
   showDialog(product: Product) {
@@ -466,7 +471,6 @@ export class ProductosComponent implements OnInit, OnDestroy {
   getCategoryStyle(category: string | undefined | null): { [klass: string]: any } {
     return getCategoryColor(category);
   }
-
 
 
   filterProductos(event: Event) {
