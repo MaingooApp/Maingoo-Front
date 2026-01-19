@@ -135,7 +135,8 @@
                 </div>
                 <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
                   [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions"
-                  (verFactura)="verFactura($event)">
+                  [priceChartTitle]="priceLabel" (verFactura)="verFactura($event)"
+                  (priceTypeChange)="onPriceTypeChange($event)">
                 </app-product-detail>
               </app-sidebar-shell>
             </div>
@@ -238,8 +239,8 @@
             </button>
           </div>
           <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
-            [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions"
-            (verFactura)="verFactura($event)"></app-product-detail>
+            [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" [priceChartTitle]="priceLabel"
+            (verFactura)="verFactura($event)" (priceTypeChange)="onPriceTypeChange($event)"></app-product-detail>
         </app-sidebar-shell>
       </div>
     </div>

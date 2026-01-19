@@ -26,6 +26,8 @@ export class ProductDetailComponent {
   @Input() relatedInvoices: Invoice[] = [];
   @Input() priceChartData: any;
   @Input() priceChartOptions: any;
+  @Input() priceChartTitle: string = 'Evolución de precio';
 
   @Output() verFactura = new EventEmitter<Invoice>();
+  @Output() priceTypeChange = new EventEmitter<string>();
 }

@@ -409,6 +409,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
       this.invoiceService.getInvoices({ productId: product.id }).subscribe({
         next: (invoices: Invoice[]) => {
           this.invoices = invoices;
+          this.currentPriceType = 'format'; // Reset to default
           this.updatePriceChart(product);
         },
         error: (error: any) => {
@@ -419,23 +420,56 @@ export class ProductosComponent implements OnInit, OnDestroy {
     }
   }
 
+  // State to track current price type (default: 'format')
+  currentPriceType: string = 'format';
+
+  onPriceTypeChange(type: string) {
+    this.currentPriceType = type;
+    if (this.selectedProduct) {
+      this.updatePriceChart(this.selectedProduct);
+    }
+  }
+
   private async updatePriceChart(product: Product) {
     const labels: string[] = [];
     const prices: number[] = [];
 
     const result = await firstValueFrom(this.supplierService.getPriceHistory(product.id));
+
+    // Reverse to show oldest first? result is usually desc?
+    // The original code reversed it, so I assume result is DESC (newest first).
     result.reverse().forEach((price: any) => {
+      let value = Number(price.price);
+
+      // Apply conversion based on currentPriceType
+      if (this.currentPriceType === 'unit' && product.unitCount) {
+        // Safe check for unitCount being valid number > 0
+        const count = typeof product.unitCount === 'string' ? parseFloat(product.unitCount) : product.unitCount;
+        if (count && count > 0) {
+          value = value / count;
+        }
+      } else if (this.currentPriceType === 'kilo') {
+        // Placeholder logic for Kilo - as we don't have weight data, we might need to fallback or use same logic if applicable.
+        // For now, consistent with 'format' or maybe a TODO.
+        // If we want to mimic the mock in attributes component:
+        // basePrice * 1.5; 
+        // But here we have real history. 
+        // Without weight metadata, we can't accurately calculate price/kg from price/format.
+        // We'll leave it as format price for now to avoid showing wrong data, 
+        // or we could inspect 'unit' (e.g. if unit is 'KG', then it is price per kg).
+      }
+
       labels.push(
         new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
       );
-      prices.push(price.price);
+      prices.push(value);
     });
 
     this.priceChartData = {
       labels: labels,
       datasets: [
         {
-          label: 'Precio Unitario',
+          label: this.priceLabel,
           data: prices,
           fill: true,
           borderColor: '#6366f1', // maingoo-indigo equivalent
@@ -490,6 +524,15 @@ export class ProductosComponent implements OnInit, OnDestroy {
         }
       }
     };
+  }
+
+  get priceLabel(): string {
+    switch (this.currentPriceType) {
+      case 'unit': return 'Precio por unidad';
+      case 'kilo': return 'Precio por kilo';
+      case 'format':
+      default: return 'Precio por formato';
+    }
   }
 
   hideDialog() {
