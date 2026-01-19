@@ -1,0 +1,72 @@
+import { Component, EventEmitter, Input, Output, signal, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
+import { IconComponent } from '@shared/components/icon/icon.component';
+import { ButtonModule } from 'primeng/button';
+import { Product } from '@app/core/interfaces/Invoice.interfaces';
+import { ElaborationsContentComponent, IngredientRow } from '../elaborations-content/elaborations-content.component';
+import { ArticlesContentComponent } from '../articles-content/articles-content.component';
+
+@Component({
+	selector: 'app-articles-detail',
+	standalone: true,
+	imports: [
+		CommonModule,
+		FormsModule,
+		SidebarShellComponent,
+		IconComponent,
+		ButtonModule,
+		ElaborationsContentComponent,
+		ArticlesContentComponent
+	],
+	templateUrl: './articles-detail.component.html'
+})
+export class ArticlesDetailComponent implements OnInit {
+	@Input() selectedCategory: string | null = null;
+	@Input() availableProducts: Product[] = [];
+	@Input() articles: { name: string }[] = [];
+	@Output() close = new EventEmitter<void>();
+
+	// Local state for created elaborations
+	elaborations = signal<{ name: string; ingredients: IngredientRow[]; materials: string; steps: string }[]>([]);
+
+	// Form State controlled from here
+	showAddArticleForm = signal<boolean>(false);
+	showAddElaborationForm = signal<boolean>(false);
+
+	ngOnInit() {
+	}
+
+	get categoryDisplayName(): string {
+		if (!this.selectedCategory) return '';
+		return this.selectedCategory === 'mise-en-place' ? 'Mise en place' : this.selectedCategory;
+	}
+
+	toggleAddArticleForm() {
+		this.showAddArticleForm.update(v => !v);
+	}
+
+	toggleAddElaborationForm() {
+		this.showAddElaborationForm.update(v => !v);
+	}
+
+	onLimitArticleForm(value: boolean) {
+		this.showAddArticleForm.set(value);
+	}
+
+	onLimitElaborationForm(value: boolean) {
+		this.showAddElaborationForm.set(value);
+	}
+
+	onSaveElaboration(elaboration: any) {
+		this.elaborations.update(current => [...current, elaboration]);
+		this.showAddElaborationForm.set(false);
+	}
+
+	onClose() {
+		this.showAddArticleForm.set(false);
+		this.showAddElaborationForm.set(false);
+		this.close.emit();
+	}
+}

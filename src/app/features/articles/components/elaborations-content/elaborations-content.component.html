@@ -1,0 +1,122 @@
+<!-- List View -->
+<div *ngIf="!showForm" class="flex flex-col gap-4 animate-fade-in">
+	<div *ngFor="let elaboration of elaborations"
+		class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-500">
+				<app-icon name="skillet" size="md"></app-icon>
+			</div>
+			<div>
+				<h3 class="font-bold text-gray-900">{{ elaboration.name }}</h3>
+				<p class="text-sm text-gray-500">{{ elaboration.ingredients.length }} ingredientes</p>
+			</div>
+		</div>
+		<div class="flex items-center gap-2">
+			<button pButton class="p-button-text p-button-rounded text-gray-400" aria-label="Opciones">
+				<app-icon name="more_vert" size="md"></app-icon>
+			</button>
+		</div>
+	</div>
+
+	<!-- Empty State -->
+	<div *ngIf="elaborations.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+		<div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
+			<app-icon name="skillet" size="xl"></app-icon>
+		</div>
+		<h3 class="text-lg font-medium text-gray-900">No hay elaboraciones</h3>
+		<p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">Crea tu primera elaboración pulsando el botón de
+			arriba.</p>
+	</div>
+</div>
+
+<!-- Creation Form -->
+<div *ngIf="showForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+	<div class="flex flex-col gap-4">
+		<div class="flex flex-col gap-1">
+			<label class="text-sm font-medium text-gray-700">Nombre de elaboración</label>
+			<input pInputText type="text" [ngModel]="newElaborationName()"
+				(ngModelChange)="newElaborationName.set($event)" placeholder="Ej: Salsa de tomate" class="w-full" />
+		</div>
+
+		<!-- Ingredients Section -->
+		<div class="flex flex-col gap-2 transition-all">
+			<label class="text-sm font-medium text-gray-700">Ingredientes</label>
+
+			<div class="flex flex-col gap-3">
+				<div *ngFor="let row of ingredientRows(); let i = index" class="flex gap-3 items-start animate-fade-in">
+					<!-- Type Selector -->
+					<div class="w-1/4 min-w-[140px]">
+						<p-dropdown [options]="ingredientTypes" [(ngModel)]="ingredientRows()[i].type"
+							optionLabel="label" optionValue="value" styleClass="w-full" [appendTo]="'body'">
+						</p-dropdown>
+					</div>
+
+					<!-- Search Item -->
+					<div class="flex-1">
+						<p-dropdown [options]="getAvailableItems(row.type)"
+							[(ngModel)]="ingredientRows()[i].selectedItem" optionLabel="name" [filter]="true"
+							filterBy="name" [showClear]="true"
+							[placeholder]="row.type === 'product' ? 'Buscar ingrediente...' : 'Buscar elaboración...'"
+							styleClass="w-full" [appendTo]="'body'">
+							<ng-template pTemplate="selectedItem" let-selectedOption>
+								<div class="flex align-items-center gap-2" *ngIf="selectedOption">
+									<div>{{ selectedOption.name }}</div>
+								</div>
+							</ng-template>
+							<ng-template let-item pTemplate="item">
+								<div class="flex align-items-center gap-2">
+									<div>{{ item.name }}</div>
+								</div>
+							</ng-template>
+						</p-dropdown>
+					</div>
+
+					<!-- Amount -->
+					<div class="w-24">
+						<input pInputText type="text" [(ngModel)]="ingredientRows()[i].amount" placeholder="Gramos"
+							class="w-full" />
+					</div>
+
+					<!-- Remove Button -->
+					<button pButton
+						class="p-button-text p-button-danger p-button-rounded !w-10 !h-10 flex items-center justify-center"
+						(click)="removeIngredientRow(i)" *ngIf="ingredientRows().length > 1">
+						<app-icon name="delete" size="md"></app-icon>
+					</button>
+				</div>
+			</div>
+
+			<button pButton
+				class="p-button-text p-button-sm self-start mt-1 text-maingoo-sage hover:text-maingoo-deep flex items-center gap-2"
+				(click)="addIngredientRow()">
+				<app-icon name="add" size="sm"></app-icon>
+				<span>Añadir ingrediente o elaboración</span>
+			</button>
+		</div>
+
+		<!-- Materials Section -->
+		<div class="flex flex-col gap-1 transition-all">
+			<label class="text-sm font-medium text-gray-700">Materiales</label>
+			<textarea pInputTextarea [ngModel]="elaborationMaterials()"
+				(ngModelChange)="elaborationMaterials.set($event)" rows="4" class="w-full"
+				placeholder="Tabla de cortar, cuchillos, varillas, bowl metalico, bascula, etc..."
+				[autoResize]="true"></textarea>
+		</div>
+
+		<!-- Step by Step Section -->
+		<div class="flex flex-col gap-1 transition-all">
+			<label class="text-sm font-medium text-gray-700">Paso a paso</label>
+			<textarea pInputTextarea [ngModel]="elaborationSteps()" (ngModelChange)="elaborationSteps.set($event)"
+				rows="4" class="w-full" placeholder="Describe los pasos de la elaboración..."
+				[autoResize]="true"></textarea>
+		</div>
+
+		<div class="flex justify-end gap-2 mt-2">
+			<button pButton label="Cancelar" class="p-button-text" (click)="cancelForm()"></button>
+			<button pButton class="p-button-primary flex items-center gap-2" (click)="onSave()">
+				<span>Generar Elaboración</span>
+				<app-icon name="wand_stars" size="xl"></app-icon>
+			</button>
+		</div>
+	</div>
+</div>

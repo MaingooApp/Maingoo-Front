@@ -1,0 +1,21 @@
+<div *ngIf="showForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+	<div class="flex flex-col gap-4">
+		<div class="flex flex-col gap-1">
+			<label class="text-sm font-medium text-gray-700">Nombre de artículo</label>
+			<input pInputText type="text" [ngModel]="newArticleName()" (ngModelChange)="newArticleName.set($event)"
+				placeholder="Ej: Solomillo de ternera" class="w-full" />
+		</div>
+
+		<div class="flex flex-col gap-1">
+			<label class="text-sm font-medium text-gray-700">Tipo</label>
+			<p-dropdown [options]="articleTypes" [ngModel]="newArticleType()"
+				(ngModelChange)="newArticleType.set($event)" placeholder="Seleccionar tipo" styleClass="w-full"
+				[appendTo]="'body'"></p-dropdown>
+		</div>
+
+		<div class="flex justify-end gap-2 mt-2">
+			<button pButton label="Cancelar" class="p-button-text" (click)="cancelForm()"></button>
+			<button pButton label="Guardar" class="p-button-primary" (click)="save()"></button>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,34 @@
+<app-sidebar-shell [title]="categoryDisplayName" (close)="onClose()"
+	class="h-full border border-gray-200 rounded-2xl shadow-xl overflow-hidden block bg-white">
+	<div header-actions class="flex items-center gap-2">
+		<button *ngIf="selectedCategory === 'articles'" pButton
+			class="p-button-outlined p-button-secondary !border-gray-200 !text-gray-600 hover:!bg-gray-50 !px-4 !h-10 !rounded-xl !font-medium flex items-center gap-2"
+			(click)="toggleAddArticleForm()">
+			<app-icon name="add" size="sm"></app-icon>
+			<span>Añadir artículo</span>
+		</button>
+
+		<button *ngIf="selectedCategory === 'elaborations'" pButton
+			class="p-button-outlined p-button-secondary !border-gray-200 !text-gray-600 hover:!bg-gray-50 !px-4 !h-10 !rounded-xl !font-medium flex items-center gap-2"
+			(click)="toggleAddElaborationForm()">
+			<app-icon name="add" size="sm"></app-icon>
+			<span>Añadir elaboración</span>
+		</button>
+	</div>
+
+	<!-- Content -->
+	<div class="flex-1">
+
+		<!-- Elaborations Content -->
+		<app-elaborations-content *ngIf="selectedCategory === 'elaborations'" [elaborations]="elaborations()"
+			[availableProducts]="availableProducts" [showForm]="showAddElaborationForm()"
+			(limitForm)="onLimitElaborationForm($event)" (save)="onSaveElaboration($event)">
+		</app-elaborations-content>
+
+		<!-- Articles Content -->
+		<app-articles-content *ngIf="selectedCategory === 'articles'" [showForm]="showAddArticleForm()"
+			(limitForm)="onLimitArticleForm($event)">
+		</app-articles-content>
+
+	</div>
+</app-sidebar-shell>
