@@ -25,11 +25,12 @@ interface IngredientRow {
 }
 
 import { ArticlesCardComponent } from './components/articles-card/articles-card.component';
+import { ArticlesDetailComponent } from './components/articles-detail/articles-detail.component';
 
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, InputTextarea, ArticlesCardComponent],
+  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, ArticlesCardComponent, ArticlesDetailComponent],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit {
@@ -45,43 +46,10 @@ export class ArticlesComponent implements OnInit {
 
   // Local state for created articles (temporary)
   articles = signal<{ name: string }[]>([]);
-  // Local state for created elaborations
-  elaborations = signal<{ name: string; ingredients: IngredientRow[]; materials: string; steps: string }[]>([]);
 
   viewMode: 'list' | 'cards' = 'cards';
 
-  // Add Article Form State
-  showAddArticleForm = signal<boolean>(false);
-  newArticleName = signal<string>('');
-  newArticleType = signal<any>(null);
-
-  // Add Elaboration Form State
-  showAddElaborationForm = signal<boolean>(false);
-  newElaborationName = signal<string>('');
-  elaborationSteps = signal<string>('');
-  elaborationMaterials = signal<string>('');
-
-  // Ingredients State
-  ingredientRows = signal<IngredientRow[]>([
-    { type: 'product', selectedItem: null, amount: '' },
-    { type: 'product', selectedItem: null, amount: '' },
-    { type: 'product', selectedItem: null, amount: '' }
-  ]);
-
   availableProducts = signal<Product[]>([]);
-
-  ingredientTypes = [
-    { label: 'Ingrediente', value: 'product' },
-    { label: 'Elaboración', value: 'elaboration' }
-  ];
-
-  articleTypes = [
-    { label: 'Aperitivo', value: 'aperitivo' },
-    { label: 'Entrante', value: 'entrante' },
-    { label: 'Principal', value: 'principal' },
-    { label: 'Postre', value: 'postre' },
-    { label: 'Bebida', value: 'bebida' }
-  ];
 
   ngOnInit() {
     this.invoiceService.getInvoices().subscribe({
@@ -112,83 +80,10 @@ export class ArticlesComponent implements OnInit {
       return;
     }
     this.selectedCategory = category;
-    this.resetForms();
   }
 
   closeDetail() {
     this.selectedCategory = null;
-    this.resetForms();
-  }
-
-  toggleAddArticleForm() {
-    this.showAddArticleForm.update(v => !v);
-  }
-
-  toggleAddElaborationForm() {
-    this.showAddElaborationForm.update(v => !v);
-    if (!this.showAddElaborationForm()) {
-      // If closing, maybe reset? Let's keep it simple for now and rely on manual reset or save.
-    }
-  }
-
-  resetForms() {
-    this.showAddArticleForm.set(false);
-    this.newArticleName.set('');
-    this.newArticleType.set(null);
-    this.showAddElaborationForm.set(false);
-    this.newElaborationName.set('');
-    this.elaborationSteps.set('');
-    this.elaborationMaterials.set('');
-    this.showAddElaborationForm.set(false);
-    this.newElaborationName.set('');
-    // Reset ingredients to 3 empty rows
-    this.ingredientRows.set([
-      { type: 'product', selectedItem: null, amount: '' },
-      { type: 'product', selectedItem: null, amount: '' },
-      { type: 'product', selectedItem: null, amount: '' }
-    ]);
-  }
-
-  addIngredientRow() {
-    this.ingredientRows.update(rows => [
-      ...rows,
-      { type: 'product', selectedItem: null, amount: '' }
-    ]);
-  }
-
-  saveElaboration() {
-    if (!this.newElaborationName().trim()) return;
-
-    this.elaborations.update(current => [
-      ...current,
-      {
-        name: this.newElaborationName(),
-        ingredients: [...this.ingredientRows()],
-        materials: this.elaborationMaterials(),
-        steps: this.elaborationSteps()
-      }
-    ]);
-
-    this.toggleAddElaborationForm(); // Close form
-    this.resetForms(); // Reset fields (although toggle calls reset if we want? No, toggle just flips boolean usually, let's check)
-    // Actually toggle just flips boolean. We want to close and reset.
-    // The previous toggle implementation just updated boolean.
-    // resetForms sets showAddElaborationForm to false.
-    // So just calling resetForms() is enough to close and clear.
-  }
-
-  removeIngredientRow(index: number) {
-    this.ingredientRows.update(rows => rows.filter((_, i) => i !== index));
-  }
-
-  getAvailableItems(type: 'product' | 'elaboration'): any[] {
-    if (type === 'product') {
-      return this.availableProducts();
-    }
-    // For elaborations, we would filter articles by category 'elaborations'
-    // For now assuming articles list contains them or we need to fetch them.
-    // Since we don't have a separate elaborations list loaded yet, we'll use empty or filter articles if available.
-    return this.articles().filter(a => true); // TODO: Filter actual elaborations when available
   }
 
   get categoryDisplayName(): string {
