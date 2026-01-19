@@ -14,68 +14,25 @@
           [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'">
 
           <!-- Elaboraciones Card -->
-          <div (click)="selectCategory('elaborations')" (keydown.enter)="selectCategory('elaborations')" role="button"
-            tabindex="0"
-            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
-            [ngClass]="selectedCategory === 'elaborations' ? 'border-orange-500 shadow-md ring-1 ring-orange-500 bg-orange-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
-            <div class="flex items-center justify-between mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-600' : 'bg-orange-50 text-orange-600'">
-                <app-icon name="skillet" size="xl"></app-icon>
-              </div>
-              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                [ngClass]="selectedCategory === 'elaborations' ? 'bg-orange-100 text-orange-500' : 'bg-gray-50 text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-500'">
-                <app-icon name="arrow_forward" size="md"></app-icon>
-              </div>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Elaboraciones</h3>
-            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Crea y gestiona tus elaboraciones
-              para tus artículos</p>
-          </div>
+          <!-- Elaboraciones Card -->
+          <app-articles-card title="Elaboraciones" description="Crea y gestiona tus elaboraciones para tus artículos"
+            icon="skillet" theme="orange" [isSelected]="selectedCategory === 'elaborations'"
+            (cardClick)="selectCategory('elaborations')">
+          </app-articles-card>
 
           <!-- Artículos Card -->
-          <div (click)="selectCategory('articles')" (keydown.enter)="selectCategory('articles')" role="button"
-            tabindex="0"
-            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
-            [ngClass]="selectedCategory === 'articles' ? 'border-blue-500 shadow-md ring-1 ring-blue-500 bg-blue-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
-            <div class="flex items-center justify-between mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="selectedCategory === 'articles' ? 'bg-blue-100 text-blue-600' : 'bg-blue-50 text-blue-600'">
-                <app-icon name="brunch_dining" size="xl"></app-icon>
-              </div>
-              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                [ngClass]="selectedCategory === 'articles' ? 'bg-blue-100 text-blue-500' : 'bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500'">
-                <app-icon name="arrow_forward" size="md"></app-icon>
-              </div>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Artículos</h3>
-            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Crea y gestiona tus artículos
-              finalizados y listos para la venta</p>
-          </div>
+          <app-articles-card title="Artículos"
+            description="Crea y gestiona tus artículos finalizados y listos para la venta" icon="brunch_dining"
+            theme="blue" [isSelected]="selectedCategory === 'articles'" (cardClick)="selectCategory('articles')">
+          </app-articles-card>
 
 
           <!-- Mise en place Card -->
-          <div (click)="selectCategory('mise-en-place')" (keydown.enter)="selectCategory('mise-en-place')" role="button"
-            tabindex="0"
-            class="bg-white p-6 rounded-2xl border transition-all cursor-pointer group relative overflow-hidden"
-            [ngClass]="selectedCategory === 'mise-en-place' ? 'border-purple-500 shadow-md ring-1 ring-purple-500 bg-purple-50/10' : 'border-gray-100 shadow-sm hover:shadow-md'">
-            <div class="flex items-center justify-between mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="selectedCategory === 'mise-en-place' ? 'bg-purple-100 text-purple-600' : 'bg-purple-50 text-purple-600'">
-                <app-icon name="chef_hat" size="xl"></app-icon>
-              </div>
-              <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                [ngClass]="selectedCategory === 'mise-en-place' ? 'bg-purple-100 text-purple-500' : 'bg-gray-50 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-500'">
-                <app-icon name="arrow_forward" size="md"></app-icon>
-              </div>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-1">Mise en place</h3>
-            <p class="text-sm text-gray-500" [class.line-clamp-1]="selectedCategory">Organiza y distribuye las
-              elaboraciones con tu equipo</p>
-          </div>
+          <!-- Mise en place Card -->
+          <app-articles-card title="Mise en place" description="Organiza y distribuye las elaboraciones con tu equipo"
+            icon="chef_hat" theme="purple" [isSelected]="selectedCategory === 'mise-en-place'"
+            (cardClick)="selectCategory('mise-en-place')">
+          </app-articles-card>
         </div>
 
         <!-- Articles Grid (Only visible when no category is selected) -->

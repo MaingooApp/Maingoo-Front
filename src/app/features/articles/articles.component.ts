@@ -1,17 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
-import { InvoiceService } from '../../../invoices/services/invoice.service';
-import { ProductService } from '../../../products/services/product.service';
+import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
+import { InvoiceService } from '../invoices/services/invoice.service';
+import { ProductService } from '../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
 import { ModalService } from '@app/shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { AddArticleModalComponent } from '../../components/add-article-modal/add-article-modal.component';
+import { AddArticleModalComponent } from './components/add-article-modal/add-article-modal.component';
 import { TableModule } from 'primeng/table';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { ToastService } from '../../shared/services/toast.service';
 
-import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { IconComponent } from '../../shared/components/icon/icon.component';
 
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -24,10 +24,12 @@ interface IngredientRow {
   amount: string;
 }
 
+import { ArticlesCardComponent } from './components/articles-card/articles-card.component';
+
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, InputTextarea],
+  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, InputTextarea, ArticlesCardComponent],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit {
