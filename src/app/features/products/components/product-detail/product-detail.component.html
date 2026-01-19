@@ -2,7 +2,7 @@
 <div class="flex flex-col gap-6">
 
   <!-- Categories, Format, Tags -->
-  <app-product-attributes [product]="product"></app-product-attributes>
+  <app-product-attributes [product]="product" (priceTypeChange)="priceTypeChange.emit($event)"></app-product-attributes>
 
   <!-- Information Sections -->
   <div class="flex flex-col gap-6">
@@ -10,7 +10,8 @@
     <app-product-info [product]="product"></app-product-info>
 
     <!-- Price Evolution Chart -->
-    <app-product-price-chart [data]="priceChartData" [options]="priceChartOptions"></app-product-price-chart>
+    <app-product-price-chart [data]="priceChartData" [options]="priceChartOptions"
+      [title]="priceChartTitle"></app-product-price-chart>
 
     <!-- Related Invoices -->
     <app-product-invoices [invoices]="relatedInvoices" (viewInvoice)="verFactura.emit($event)">

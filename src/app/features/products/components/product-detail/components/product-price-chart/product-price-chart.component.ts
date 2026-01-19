@@ -12,4 +12,5 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 export class ProductPriceChartComponent {
 	@Input() data: any;
 	@Input() options: any;
+	@Input() title: string = 'Evolución de precio';
 }
