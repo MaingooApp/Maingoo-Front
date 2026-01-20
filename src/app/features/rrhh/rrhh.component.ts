@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SectionHeaderComponent } from '@shared/components/section-header/section-header.component';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { IconComponent } from '@shared/components/icon/icon.component';
 
 // PrimeNG Imports
 import { TableModule } from 'primeng/table';
@@ -30,8 +31,8 @@ export interface Employee {
 	standalone: true,
 	imports: [
 		CommonModule,
-		SectionHeaderComponent,
 		EmptyStateComponent,
+		IconComponent,
 		TableModule,
 		ButtonModule,
 		TagModule,
@@ -43,10 +44,27 @@ export interface Employee {
 	],
 	templateUrl: './rrhh.component.html',
 })
-export class RrhhComponent {
+export class RrhhComponent implements OnInit, OnDestroy, AfterViewInit {
+	@ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+	private headerService = inject(SectionHeaderService);
+
 	viewMode: 'list' | 'cards' = 'list';
 	employees: Employee[] = [];
 	filteredEmployees: Employee[] = [];
+
+	ngOnInit() {
+		// Initialize data
+	}
+
+	ngAfterViewInit() {
+		setTimeout(() => {
+			this.headerService.setContent(this.headerTpl);
+		});
+	}
+
+	ngOnDestroy() {
+		this.headerService.reset();
+	}
 
 	// Since we don't have a constructor or lifecycle hooks yet setup for data loading (mock data was inline),
 	// and the mock data was removed, we just start with empty. 
