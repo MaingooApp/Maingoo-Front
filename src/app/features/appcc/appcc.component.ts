@@ -10,6 +10,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ButtonModule } from 'primeng/button';
+import { AppccSectionHeaderDetailComponent } from './components/appcc-section-header-detail/appcc-section-header-detail.component';
 
 interface AppccModule {
   id: string;
@@ -47,7 +48,9 @@ interface EquipmentForm {
     DropdownModule,
     InputTextModule,
     InputSwitchModule,
-    ButtonModule
+    InputSwitchModule,
+    ButtonModule,
+    AppccSectionHeaderDetailComponent
   ],
   templateUrl: './appcc.component.html'
 })

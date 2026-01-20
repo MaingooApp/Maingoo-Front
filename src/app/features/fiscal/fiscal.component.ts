@@ -25,6 +25,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { TextareaModule } from 'primeng/textarea';
+import { FiscalSectionHeaderDetailComponent } from './components/fiscal-section-header-detail/fiscal-section-header-detail.component';
 
 export interface SupplierGroup {
   supplierName: string;
@@ -72,7 +73,8 @@ export interface Manager {
     FileUploadModule,
     CardModule,
     IconComponent,
-    TextareaModule
+    TextareaModule,
+    FiscalSectionHeaderDetailComponent
   ],
   templateUrl: './fiscal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush

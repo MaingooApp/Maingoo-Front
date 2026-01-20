@@ -1,20 +1,19 @@
 import { Component, inject, OnDestroy, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DocumentosSectionHeaderDetailComponent } from './components/documentos-section-header-detail/documentos-section-header-detail.component';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-documentos',
   standalone: true,
-  imports: [CommonModule, EmptyStateComponent],
+  imports: [CommonModule, EmptyStateComponent, DocumentosSectionHeaderDetailComponent],
   template: `
     <div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
       <div class="flex-1 w-full min-w-0 transition-all duration-300">
         <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
         <ng-template #headerTpl>
-          <div class="flex flex-wrap items-center gap-4 w-full md:w-auto">
-            <h2 class="text-2xl font-bold text-maingoo-deep m-0 whitespace-nowrap">Documentos</h2>
-          </div>
+          <app-documentos-section-header-detail></app-documentos-section-header-detail>
         </ng-template>
 
         <!-- Empty State -->

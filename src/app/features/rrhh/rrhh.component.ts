@@ -13,6 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { RrhhSectionHeaderDetailComponent } from './components/rrhh-section-header-detail/rrhh-section-header-detail.component';
 
 export interface Employee {
 	id: string;
@@ -40,7 +41,8 @@ export interface Employee {
 		InputTextModule,
 		IconFieldModule,
 		InputIconModule,
-		TooltipModule
+		TooltipModule,
+		RrhhSectionHeaderDetailComponent
 	],
 	templateUrl: './rrhh.component.html',
 })
