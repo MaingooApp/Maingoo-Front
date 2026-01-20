@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, ViewChild } from '@angular/core';
+import { Component, inject, OnDestroy, ViewChild, AfterViewInit, TemplateRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,7 +18,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
-import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SidebarShellComponent } from '../../shared/components/sidebar-shell/sidebar-shell.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -56,7 +56,6 @@ import { SupplierListComponent } from './components/supplier-list/supplier-list.
     TagModule,
     TooltipModule,
     TooltipModule,
-    SectionHeaderComponent,
     EmptyStateComponent,
     IconComponent,
     SkeletonComponent,
@@ -66,14 +65,16 @@ import { SupplierListComponent } from './components/supplier-list/supplier-list.
   ],
   templateUrl: './supplier.component.html'
 })
-export class SupplierComponent implements OnDestroy {
+export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(SupplierDetailComponent) detailComponent!: SupplierDetailComponent;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
 
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
   private modalService = inject(ModalService);
   private layoutService = inject(LayoutService);
+  private headerService = inject(SectionHeaderService);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
@@ -151,8 +152,15 @@ export class SupplierComponent implements OnDestroy {
     });
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
+  }
+
   ngOnDestroy() {
-    this.layoutService.setPageTitle(''); // Clear title when leaving
+    this.layoutService.setPageTitle('');
+    this.headerService.reset();
   }
 
   // --- Helpers & Utilities ---

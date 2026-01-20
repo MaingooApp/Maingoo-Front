@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, AfterViewInit, signal, inject, computed, ViewChild, TemplateRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,7 @@ import { ConvertNumbers } from '../../shared/helpers/numbers';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
 import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -67,8 +67,6 @@ export interface Manager {
     IconFieldModule,
     InputIconModule,
     TooltipModule,
-
-    SectionHeaderComponent,
     DialogModule,
     FormsModule,
     FileUploadModule,
@@ -79,7 +77,10 @@ export interface Manager {
   templateUrl: './fiscal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DocGeneratorComponent implements OnInit {
+export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  private headerService = inject(SectionHeaderService);
+
   // View Control
   view = signal<'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies'>('hub');
   viewMode = signal<'cards' | 'list'>('cards');
@@ -220,6 +221,16 @@ export class DocGeneratorComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInvoices();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.headerService.reset();
   }
 
   loadInvoices() {

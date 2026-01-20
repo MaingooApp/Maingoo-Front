@@ -1,6 +1,6 @@
 // invoice-summary.component.ts
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, AfterViewInit, signal, ViewChild, computed, TemplateRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { COLUMNS } from '@features/invoices/constants/columns';
@@ -12,7 +12,7 @@ import { Action } from '@shared/interfaces/actions.interface';
 import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
 import { ModalService } from '@shared/services/modal.service';
 import { ToastService } from '@shared/services/toast.service';
-import { SectionHeaderComponent } from '../../../../shared/components/section-header/section-header.component';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LayoutService } from '../../../../layout/service/layout.service';
 import { ButtonModule } from 'primeng/button';
@@ -37,7 +37,6 @@ import { IconComponent } from '@shared/components/icon/icon.component';
     IconFieldModule,
     InputIconModule,
     TablaDinamicaComponent,
-    SectionHeaderComponent,
     EmptyStateComponent,
     DialogModule,
     FormsModule,
@@ -46,8 +45,9 @@ import { IconComponent } from '@shared/components/icon/icon.component';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InvoiceSummaryComponent implements OnInit {
+export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
   invoices = signal<Invoice[]>([]);
   loading = signal(true);
   searchTerm = signal('');
@@ -82,7 +82,8 @@ export class InvoiceSummaryComponent implements OnInit {
     private readonly toastService: ToastService,
     private readonly router: Router,
     private readonly modalService: ModalService,
-    private readonly layoutService: LayoutService
+    private readonly layoutService: LayoutService,
+    private readonly headerService: SectionHeaderService
   ) { }
 
   showMobileSearch = false;
@@ -108,6 +109,13 @@ export class InvoiceSummaryComponent implements OnInit {
 
   ngOnDestroy() {
     this.layoutService.setPageTitle('');
+    this.headerService.reset();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
   }
 
   exportarPdf() {

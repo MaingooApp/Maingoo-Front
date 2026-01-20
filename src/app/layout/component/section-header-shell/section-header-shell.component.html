@@ -1,0 +1,12 @@
+<!-- Global Section Header Shell -->
+<!-- FIXED in the layout, below the topbar. Contains the card styling. -->
+<!-- Content is provided by the active feature via SectionHeaderService. -->
+
+@if (service.visible() && service.content()) {
+<div class="hidden md:block sticky top-16 lg:top-20 z-40 -mx-8 px-8 pt-6 pb-2 backdrop-blur-sm bg-gray-50/80">
+	<div
+		class="bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex flex-col md:flex-row items-center gap-4 justify-between">
+		<ng-container *ngTemplateOutlet="service.content()"></ng-container>
+	</div>
+</div>
+}

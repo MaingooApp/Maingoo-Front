@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SectionHeaderComponent } from '@shared/components/section-header/section-header.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 
 // PrimeNG Imports
 import { DropdownModule } from 'primeng/dropdown';
@@ -42,7 +42,6 @@ interface EquipmentForm {
   imports: [
     CommonModule,
     FormsModule,
-    SectionHeaderComponent,
     IconComponent,
     EmptyStateComponent,
     DropdownModule,
@@ -52,7 +51,10 @@ interface EquipmentForm {
   ],
   templateUrl: './appcc.component.html'
 })
-export class AppccComponent {
+export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
+  private headerService = inject(SectionHeaderService);
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+
   viewMode: 'cards' | 'list' = 'cards';
 
   modules: AppccModule[] = [
@@ -117,6 +119,20 @@ export class AppccComponent {
     { label: 'Atención', value: 'atencion' },
     { label: 'Incidencia', value: 'incidencia' }
   ];
+
+  ngOnInit() {
+    // No special initialization needed
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
+  }
+
+  ngOnDestroy() {
+    this.headerService.reset();
+  }
 
   setViewMode(mode: string) {
     this.viewMode = mode as 'cards' | 'list';

@@ -10,6 +10,7 @@ import { MobileBottomNavComponent } from './mobile-bottom-nav/mobile-bottom-nav.
 import { MobileMenuModalComponent } from './mobile-menu-modal/mobile-menu-modal.component';
 import { ProfilePanelComponent } from './profile-panel/profile-panel.component';
 import { LayoutService } from '../service/layout.service';
+import { SectionHeaderShellComponent } from './section-header-shell/section-header-shell.component';
 
 @Component({
   selector: 'app-layout',
@@ -23,7 +24,8 @@ import { LayoutService } from '../service/layout.service';
     MobileBottomSheetComponent,
     MobileBottomNavComponent,
     MobileMenuModalComponent,
-    ProfilePanelComponent
+    ProfilePanelComponent,
+    SectionHeaderShellComponent
   ],
   templateUrl: './app.layout.html'
 })

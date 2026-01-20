@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from '../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
@@ -30,14 +30,16 @@ import { ArticlesDetailComponent } from './components/articles-detail/articles-d
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, SectionHeaderComponent, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, ArticlesCardComponent, ArticlesDetailComponent],
+  imports: [CommonModule, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, ArticlesCardComponent, ArticlesDetailComponent],
   templateUrl: './articles.component.html',
 })
-export class ArticlesComponent implements OnInit {
+export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private invoiceService = inject(InvoiceService);
   private productService = inject(ProductService);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
+  private headerService = inject(SectionHeaderService);
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
 
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
@@ -95,6 +97,16 @@ export class ArticlesComponent implements OnInit {
 
   onSearch(event: any) {
     this.searchTerm.set(event.target.value);
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
+  }
+
+  ngOnDestroy() {
+    this.headerService.reset();
   }
 
   setViewMode(mode: string) {

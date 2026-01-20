@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ViewChild, AfterViewInit, TemplateRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
@@ -10,7 +10,6 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { SectionHeaderComponent } from '../../shared/components/section-header/section-header.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -29,6 +28,7 @@ import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { LayoutService } from '@app/layout/service/layout.service';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
 import { ProductListComponent } from './components/product-list/product-list.component';
@@ -54,7 +54,6 @@ import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-
     TooltipModule,
     SkeletonModule,
     ChartModule,
-    SectionHeaderComponent,
     EmptyStateComponent,
     ProductDetailComponent,
     IconComponent,
@@ -67,8 +66,9 @@ import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-
   providers: [],
   templateUrl: './productos.component.html'
 })
-export class ProductosComponent implements OnInit, OnDestroy {
+export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   public layoutService = inject(LayoutService);
+  private headerService = inject(SectionHeaderService);
   private invoiceService = inject(InvoiceService);
   private productService = inject(ProductService);
   private supplierService = inject(SupplierService);
@@ -84,6 +84,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
   priceChartOptions: any;
 
   @ViewChild('dt') dt!: Table;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
 
   productos: Product[] = [];
   productGroups: ProductGroup[] = []; // Groups by rootCategory from API
@@ -294,6 +295,13 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
   // --- Initialization & Lifecycle ---
 
+  ngAfterViewInit() {
+    // Register the header template with the global shell (with timeout to avoid ExpressionChangedAfterItHasBeenCheckedError)
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
+  }
+
   async ngOnInit(): Promise<void> {
     this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
@@ -321,6 +329,7 @@ export class ProductosComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.layoutService.setPageTitle('');
+    this.headerService.reset();
   }
 
   // --- Helpers & Utilities ---
