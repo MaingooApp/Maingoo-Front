@@ -35,6 +35,7 @@ import { SupplierDetailComponent } from './components/supplier-detail/supplier-d
 
 import { SupplierCardComponent } from './components/supplier-card/supplier-card.component';
 import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
+import { SupplierSectionHeaderDetailComponent } from './components/supplier-section-header-detail/supplier-section-header-detail.component';
 
 @Component({
   selector: 'app-proveedores',
@@ -55,13 +56,13 @@ import { SupplierListComponent } from './components/supplier-list/supplier-list.
     ChartModule,
     TagModule,
     TooltipModule,
-    TooltipModule,
     EmptyStateComponent,
     IconComponent,
     SkeletonComponent,
     SupplierDetailComponent,
     SupplierCardComponent,
-    SupplierListComponent
+    SupplierListComponent,
+    SupplierSectionHeaderDetailComponent
   ],
   templateUrl: './supplier.component.html'
 })

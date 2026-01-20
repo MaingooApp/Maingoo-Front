@@ -21,17 +21,9 @@
   <!-- DESKTOP HEADER -->
   <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
   <ng-template #headerTpl>
-    <!-- Left: Title & Actions -->
-    <div class="flex flex-wrap items-center gap-4 w-full md:w-auto">
-      <h2 class="text-2xl font-bold text-maingoo-deep m-0 whitespace-nowrap">Facturas y albaranes</h2>
-
-      <!-- Actions -->
-      <div class="flex items-center gap-2">
-        <button pButton label="Subir documento" severity="primary" (click)="openAddInvoiceModal()">
-          <app-icon name="receipt_long" size="md"></app-icon>
-        </button>
-      </div>
-    </div>
+    <app-invoice-summary-section-header-detail (search)="searchTerm.set(getInputValue($event))"
+      (addInvoice)="openAddInvoiceModal()">
+    </app-invoice-summary-section-header-detail>
   </ng-template>
 
   <div class="w-full">

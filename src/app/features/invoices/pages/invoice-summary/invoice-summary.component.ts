@@ -25,6 +25,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add-invoice-modal.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { InvoiceSummarySectionHeaderDetailComponent } from './components/invoice-summary-section-header-detail/invoice-summary-section-header-detail.component';
 
 @Component({
   selector: 'app-invoice-summary',
@@ -41,7 +42,8 @@ import { IconComponent } from '@shared/components/icon/icon.component';
     DialogModule,
     FormsModule,
     FileUploadModule,
-    IconComponent
+    IconComponent,
+    InvoiceSummarySectionHeaderDetailComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

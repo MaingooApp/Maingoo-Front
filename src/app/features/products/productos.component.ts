@@ -35,6 +35,7 @@ import { ProductListComponent } from './components/product-list/product-list.com
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
 import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
+import { ProductsSectionHeaderDetailComponent } from './components/products-section-header-detail/products-section-header-detail.component';
 
 @Component({
   selector: 'app-productos',
@@ -61,7 +62,8 @@ import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-
     ProductListComponent,
     ProductCardComponent,
     SidebarShellComponent,
-    CategoryDetailComponent
+    CategoryDetailComponent,
+    ProductsSectionHeaderDetailComponent
   ],
   providers: [],
   templateUrl: './productos.component.html'

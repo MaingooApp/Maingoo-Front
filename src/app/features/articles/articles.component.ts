@@ -26,11 +26,12 @@ interface IngredientRow {
 
 import { ArticlesCardComponent } from './components/articles-card/articles-card.component';
 import { ArticlesDetailComponent } from './components/articles-detail/articles-detail.component';
+import { ArticlesSectionHeaderDetailComponent } from './components/articles-section-header-detail/articles-section-header-detail.component';
 
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, ArticlesCardComponent, ArticlesDetailComponent],
+  imports: [CommonModule, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, ArticlesCardComponent, ArticlesDetailComponent, ArticlesSectionHeaderDetailComponent],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
