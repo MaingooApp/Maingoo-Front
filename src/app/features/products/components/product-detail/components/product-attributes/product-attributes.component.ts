@@ -102,7 +102,8 @@ export class ProductAttributesComponent implements OnChanges {
 		this.productService.updateProduct(this.product.id, {
 			name: this.product.name,
 			unit: newFormat,
-			allergenIds: this.product.allergens.map(a => a.id)
+			allergenIds: this.product.allergens.map(a => a.id),
+
 		}).subscribe({
 			next: (updatedProduct) => {
 				if (this.product) {
@@ -111,6 +112,8 @@ export class ProductAttributesComponent implements OnChanges {
 			},
 		});
 	}
+
+
 
 	private updateCategoryData() {
 		if (!this.product?.category?.path) {
