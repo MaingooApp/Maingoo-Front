@@ -10,6 +10,9 @@ import { AddInvoiceModalComponent } from '@features/invoices/components/add-invo
 import { LayoutService } from '../../service/layout.service';
 import { filter } from 'rxjs/operators';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { SidebarShellComponent } from './sidebar-shell/sidebar-shell.component';
+import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
+import { SidebarChatComponent } from './sidebar-chat/sidebar-chat.component';
 
 interface QuickAction {
   label: string;
@@ -26,7 +29,7 @@ interface RouteContext {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule, IconComponent],
+  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule, SidebarShellComponent, SidebarMenuComponent, SidebarChatComponent],
   templateUrl: './app.sidebar.html',
 })
 export class AppSidebar {
@@ -45,11 +48,11 @@ export class AppSidebar {
     { label: 'Dashboard', icon: 'monitoring', route: '/' },
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
     { label: 'Almacén', icon: 'warehouse', route: '/productos' },
-    { label: 'Artículos', icon: 'restaurant', route: '/articulos'},
+    { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
     { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
-    { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true},
+    { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true},
+    { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true },
     { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
   ];
 
@@ -296,5 +299,29 @@ export class AppSidebar {
     if (this.layoutService.isProfilePanelActive()) {
       this.layoutService.toggleProfilePanel();
     }
+  }
+
+  /**
+   * Maneja el evento de envío de mensaje desde el componente chat
+   */
+  async onMessageSent(message: string) {
+    await this.chatService.sendMessage(message);
+  }
+
+  /**
+   * Maneja el archivo de cámara desde el componente chat
+   */
+  async onCameraCaptureFile(file: File) {
+    await this.chatService.sendMessage(`[Foto capturada: ${file.name}]`);
+    console.log('Foto capturada:', file);
+  }
+
+  /**
+   * Maneja el archivo seleccionado desde el componente chat
+   */
+  async onFileSelectedFile(file: File) {
+    const fileType = file.type.startsWith('image/') ? 'Imagen' : 'Documento';
+    await this.chatService.sendMessage(`[${fileType} recibido: ${file.name}]`);
+    console.log('Archivo seleccionado:', file);
   }
 }
