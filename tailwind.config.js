@@ -20,6 +20,15 @@ export default {
           sage: '#6B9E86',
           mint: '#F0F7F4'
         }
+      },
+      animation: {
+        'notification-pulse': 'notification-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      },
+      keyframes: {
+        'notification-pulse': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.05)' }
+        }
       }
     }
   }

@@ -16,6 +16,10 @@ import { RippleModule } from 'primeng/ripple';
 import { AppConfigurator } from '../configurator/app.configurator';
 // - IconComponent: componente de iconos Material Symbols
 import { IconComponent } from '../../../shared/components/icon/icon.component';
+// - TopbarShellComponent: contenedor visual del topbar (posición, fondo, bordes)
+import { TopbarShellComponent } from './topbar-shell/topbar-shell.component';
+// - TopbarLeftWelcomeComponent: sección izquierda con logo y mensaje de bienvenida
+import { TopbarLeftWelcomeComponent } from './topbar-left-welcome/topbar-left-welcome.component';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../../service/layout.service';
 // - AuthService: servicio de autenticación que expone métodos como logout()
@@ -37,10 +41,9 @@ import { EnterpriseService, Enterprise } from '../../../features/enterprise/serv
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, RippleModule, IconComponent],
+  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, RippleModule, IconComponent, TopbarShellComponent, TopbarLeftWelcomeComponent],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html',
-  styleUrls: ['./app.topbar.scss']
 })
 export class AppTopbar implements OnInit, OnDestroy {
   // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.

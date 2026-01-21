@@ -1,69 +1,43 @@
 <!-- ==================== TOPBAR PRINCIPAL ==================== -->
-<div
-  class="fixed top-0 left-0 right-0 z-[1000] w-full h-16 md:h-16 lg:h-20 flex items-center justify-center px-0 md:px-4 lg:px-8">
+<app-topbar-shell>
+  <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
+  <app-topbar-left-welcome 
+    [userName]="userName" [businessName]="businessName" [businessType]="businessType">
+  </app-topbar-left-welcome>
+
+  <!-- ========== SECCIÓN DERECHA: Cápsula Flotante ========== -->
   <div
-    class="w-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] border-b-2 border-[#6B9E86]/20 md:border-b-0 shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-3 sm:px-4 md:pl-10 md:pr-4 h-full transition-all duration-300">
-    <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
-    <a routerLink="/" class="flex items-center gap-2 sm:gap-3 md:gap-5 min-w-0">
-      <!-- Logotipo de Maingoo (SIEMPRE VISIBLE) -->
-      <div class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center flex-shrink-0">
-        <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-full h-full object-contain" />
-      </div>
+    class="bg-[#F0F7F4]/80 dark:bg-surface-700/80 backdrop-blur-sm rounded-xl md:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 md:py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:shadow-[0_6px_16px_rgba(26,60,52,0.08)] flex items-center gap-2 sm:gap-3 md:gap-4 transition-all duration-300">
+    <!-- Botón hamburguesa para escritorio - abre/cierra sidebar del chat -->
+    <button type="button" (click)="layoutService.onMenuToggle()" pRipple
+      class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#6B9E86] focus-visible:outline-offset-2"
+      aria-label="Abrir menú del chat" pTooltip="Chat AI" tooltipPosition="bottom" [showDelay]="250"
+      tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+      <app-icon name="chat" size="md"></app-icon>
+    </button>
 
-      <!-- Si hay un título de página en móvil, mostramos solo eso -->
-      <div *ngIf="isMobile && layoutService.pageTitle()" class="flex flex-col min-w-0 animate-fade-in">
-        <h1 class="text-xl font-bold text-[#1A3C34] dark:text-surface-0 truncate m-0">
-          {{ layoutService.pageTitle() }}
-        </h1>
-      </div>
+    <!-- Notificaciones del sistema -->
+    <button type="button" (click)="toggleNotifications()" pRipple
+      class="relative flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#6B9E86] focus-visible:outline-offset-2"
+      aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom" [showDelay]="250"
+      tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+      <app-icon name="notifications" size="md"></app-icon>
+      <!-- Enhanced notification badge -->
+      @if (hasUnreadNotifications) {
+      <span
+        class="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white dark:border-surface-900 text-[10px] font-bold text-white shadow-lg animate-notification-pulse">
+        {{ notificationCount > 9 ? '9+' : notificationCount }}
+      </span>
+      }
+    </button>
 
-      <!-- Si NO hay título o NO es móvil, mostramos la bienvenida -->
-      <div *ngIf="!isMobile || !layoutService.pageTitle()" class="hidden sm:flex flex-col min-w-0">
-        <span class="text-xs sm:text-sm text-[#1A3C34] dark:text-surface-0 truncate font-medium">Bienvenido, <span
-            class="font-semibold">{{ userName }}</span></span>
-        <span class="text-[10px] sm:text-xs text-[#6B9E86] dark:text-[#6B9E86] truncate">
-          <span *ngIf="businessType" class="uppercase font-bold text-[9px] mr-1 opacity-80">{{ businessType }}</span>{{
-          businessName }}
-        </span>
-      </div>
-    </a>
-
-    <!-- ========== SECCIÓN DERECHA: Cápsula Flotante ========== -->
-    <div
-      class="bg-[#F0F7F4]/80 dark:bg-surface-700/80 backdrop-blur-sm rounded-xl md:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 md:py-2 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:shadow-[0_6px_16px_rgba(26,60,52,0.08)] flex items-center gap-2 sm:gap-3 md:gap-4 transition-all duration-300">
-      <!-- Botón hamburguesa para escritorio - abre/cierra sidebar del chat -->
-      <button type="button" (click)="layoutService.onMenuToggle()" pRipple
-        class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
-        aria-label="Abrir menú del chat" pTooltip="Chat AI" tooltipPosition="bottom" [showDelay]="250"
-        tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <app-icon name="chat" size="md"></app-icon>
-      </button>
-
-      <!-- Notificaciones del sistema -->
-      <button type="button" (click)="toggleNotifications()" pRipple
-        class="relative flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
-        aria-label="Notificaciones" pTooltip="Notificaciones" tooltipPosition="bottom" [showDelay]="250"
-        tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <app-icon name="notifications" size="md"></app-icon>
-        <!-- Enhanced notification badge -->
-        @if (hasUnreadNotifications) {
-        <span
-          class="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-gradient-to-br from-red-500 to-red-600 rounded-full border-2 border-white dark:border-surface-900 text-[10px] font-bold text-white shadow-lg notification-pulse">
-          {{ notificationCount > 9 ? '9+' : notificationCount }}
-        </span>
-        }
-      </button>
-
-      <!-- Botón Perfil (oculto en móvil) -->
-      <button type="button" (click)="toggleProfile()" pRipple
-        class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md"
-        aria-label="Mi perfil" pTooltip="Mi perfil" tooltipPosition="bottom" [showDelay]="250"
-        tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
-        <app-icon name="person" size="md"></app-icon>
-      </button>
-    </div>
+    <!-- Botón Perfil (oculto en móvil) -->
+    <button type="button" (click)="toggleProfile()" pRipple
+      class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#6B9E86] focus-visible:outline-offset-2"
+      aria-label="Mi perfil" pTooltip="Mi perfil" tooltipPosition="bottom" [showDelay]="250"
+      tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+      <app-icon name="person" size="md"></app-icon>
+    </button>
   </div>
-</div>
-<!-- Profile Panel -->
-<!-- Profile Panel -->
+</app-topbar-shell>
 <!-- ==================== FIN TOPBAR ==================== -->
