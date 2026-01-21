@@ -33,6 +33,7 @@ import { Subscription } from 'rxjs';
 import { BottomSheetService } from '../../service/bottom-sheet.service';
 
 import { EnterpriseService, Enterprise } from '../../../features/enterprise/services/enterprise.service';
+import { AngleDoubleDownIcon } from "primeng/icons";
 
 // Importaciones principales de Angular y PrimeNG usadas en este componente
 @Component({

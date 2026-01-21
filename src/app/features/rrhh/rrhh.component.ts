@@ -33,7 +33,6 @@ export interface Employee {
 	imports: [
 		CommonModule,
 		EmptyStateComponent,
-		IconComponent,
 		TableModule,
 		ButtonModule,
 		TagModule,
