@@ -7,7 +7,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 	selector: 'app-fiscal-section-header-detail',
 	standalone: true,
 	imports: [CommonModule, InputTextModule, IconComponent],
-	templateUrl: './fiscal-section-header-detail.component.html'
+	templateUrl: './fiscal-section-header-detail.component.html',
 })
 export class FiscalSectionHeaderDetailComponent {
 	@Input() viewMode: 'cards' | 'list' = 'cards';
