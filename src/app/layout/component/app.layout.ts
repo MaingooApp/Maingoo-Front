@@ -4,11 +4,9 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './sidebar/app.sidebar';
-import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
 import { MobileBottomNavComponent } from './mobile-bottom-nav/mobile-bottom-nav.component';
 import { MobileMenuModalComponent } from './mobile-menu-modal/mobile-menu-modal.component';
-import { ProfilePanelComponent } from './profile-panel/profile-panel.component';
 import { LayoutService } from '../service/layout.service';
 import { SectionHeaderShellComponent } from './section-header-shell/section-header-shell.component';
 
@@ -20,11 +18,9 @@ import { SectionHeaderShellComponent } from './section-header-shell/section-head
     AppTopbar,
     AppSidebar,
     RouterModule,
-    NotificationsPanelComponent,
     MobileBottomSheetComponent,
     MobileBottomNavComponent,
     MobileMenuModalComponent,
-    ProfilePanelComponent,
     SectionHeaderShellComponent
   ],
   templateUrl: './app.layout.html'
