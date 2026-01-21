@@ -20,6 +20,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
 import { TopbarShellComponent } from './topbar-shell/topbar-shell.component';
 // - TopbarLeftWelcomeComponent: sección izquierda con logo y mensaje de bienvenida
 import { TopbarLeftWelcomeComponent } from './topbar-left-welcome/topbar-left-welcome.component';
+import { TopbarRightButtonsComponent } from './topbar-right-buttons/topbar-right-buttons.component';
 // - LayoutService: servicio compartido que controla el estado del layout (sidebar, tema, etc.)
 import { LayoutService } from '../../service/layout.service';
 // - AuthService: servicio de autenticación que expone métodos como logout()
@@ -42,7 +43,7 @@ import { AngleDoubleDownIcon } from "primeng/icons";
   // Este es un componente standalone (Angular 14+). Se declaran los módulos/componentes
   // que necesita en la propiedad `imports` en lugar de importarlos desde un NgModule.
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule, TooltipModule, RippleModule, IconComponent, TopbarShellComponent, TopbarLeftWelcomeComponent],
+  imports: [CommonModule, TopbarShellComponent, TopbarLeftWelcomeComponent, TopbarRightButtonsComponent],
   // Template externo: se usa un archivo HTML separado para mejor organización
   templateUrl: './app.topbar.html',
 })
@@ -50,16 +51,8 @@ export class AppTopbar implements OnInit, OnDestroy {
   // Propiedad para ítems de menú si en el futuro se quiere poblar dinámicamente.
   items!: MenuItem[];
 
-  // Estado del menú móvil
-  isMobileMenuOpen = false;
-
   // Información de la empresa
   enterprise: Enterprise | null = null;
-
-  // Detectar si es móvil
-  get isMobile(): boolean {
-    return window.innerWidth < 768;
-  }
 
   get userName(): string | undefined {
     return this.authService.currentUser?.name;
@@ -82,26 +75,15 @@ export class AppTopbar implements OnInit, OnDestroy {
     return types[this.enterprise.type] || this.enterprise.type;
   }
 
-  get currentTime(): string {
-    return new Date().toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
   // Injectamos servicios usados por el topbar:
   // - layoutService: controla el estado del layout (sidebar abierto, tema, etc.)
   // - authService: provee métodos de autenticación, p.ej. logout()
   // - router: para navegar programáticamente (después del logout se redirige al login)
-  // - toastService: para suscribirse a las notificaciones
-  // - elementRef: para detectar clicks fuera del menú móvil
+  // - enterpriseService: para cargar datos de la empresa
   constructor(
     public layoutService: LayoutService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService,
-    private elementRef: ElementRef,
-    private bottomSheetService: BottomSheetService,
     private enterpriseService: EnterpriseService
   ) { }
 
@@ -120,43 +102,6 @@ export class AppTopbar implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     // Limpieza si es necesaria
-  }
-
-  // HostListener para cerrar el menú móvil cuando se hace click fuera
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const clickedInside = this.elementRef.nativeElement.contains(event.target);
-    if (!clickedInside) {
-      if (this.isMobileMenuOpen) {
-        this.isMobileMenuOpen = false;
-      }
-      if (this.layoutService.isProfilePanelActive()) {
-        this.layoutService.toggleProfilePanel();
-      }
-    }
-  }
-
-  // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
-  // Usa una función de actualización inmutable sobre layoutService.layoutConfig
-  // (asumiendo que layoutConfig es un signal/observable con método update).
-  toggleDarkMode() {
-    this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
-  }
-
-  // toggleMobileMenu: alterna el menú desplegable móvil en escritorio
-  // En móvil, ya no se usa porque la navegación se maneja con la bottom nav
-  toggleMobileMenu() {
-    if (!this.isMobile) {
-      // En escritorio: toggle del menú desplegable
-      this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    }
-    // En móvil ya no hacemos nada, la navegación es con la bottom nav
-  }
-
-  // openSettings: método para abrir el panel de configuración del sistema
-  openSettings() {
-    // TODO: Implementar lógica para abrir panel de configuración
-    console.log('Configuración clickeada');
   }
 
   // logout: llama a authService.logout() y luego navega a la página de login.
