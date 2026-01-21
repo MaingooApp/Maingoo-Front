@@ -1,0 +1,38 @@
+<!-- ========== SECCIÓN DERECHA: Botones de Acción ========== -->
+<div
+	class="md:w-96 backdrop-blur-sm rounded-xl md:rounded-2xl px-2 sm:px-3 md:px-4 py-1.5 md:py-2 flex items-center justify-between gap-2 sm:gap-3 md:gap-4 transition-all duration-300">
+
+	<!-- Botón Menú IA - abre/cierra sidebar -->
+	<button type="button" (click)="onMenuToggle()" pRipple
+		class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#6B9E86] focus-visible:outline-offset-2"
+		aria-label="Abrir menú del chat" pTooltip="Menú IA" tooltipPosition="bottom" [showDelay]="250"
+		tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+		<app-icon name="menu" size="md"></app-icon>
+		<app-icon name="smart_toy" size="md"></app-icon>
+	</button>
+
+	<!-- Botón Mi Perfil - navega a /miperfil -->
+	<button type="button" routerLink="/miperfil" pRipple
+		class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#6B9E86] focus-visible:outline-offset-2"
+		aria-label="Mi perfil" pTooltip="Mi perfil" tooltipPosition="bottom" [showDelay]="250"
+		tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+		<app-icon name="person" size="md"></app-icon>
+	</button>
+
+	<!-- Botón Tema claro/oscuro -->
+	<button type="button" (click)="toggleDarkMode()" pRipple
+		class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-[#1A3C34] dark:text-surface-0 hover:bg-[#6B9E86]/10 hover:border-[#6B9E86]/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#6B9E86] focus-visible:outline-offset-2"
+		aria-label="Cambiar tema" [pTooltip]="layoutService.isDarkTheme() ? 'Tema claro' : 'Tema oscuro'"
+		tooltipPosition="bottom" [showDelay]="250"
+		tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+		<app-icon [name]="layoutService.isDarkTheme() ? 'dark_mode' : 'light_mode'" size="md"></app-icon>
+	</button>
+
+	<!-- Botón Cerrar sesión -->
+	<button type="button" (click)="logout()" pRipple
+		class="hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/60 dark:bg-surface-800/60 backdrop-blur-sm border border-gray-200/50 dark:border-surface-700/50 text-red-500 dark:text-red-400 hover:bg-red-50 hover:border-red-200 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-red-500 focus-visible:outline-offset-2"
+		aria-label="Cerrar sesión" pTooltip="Cerrar sesión" tooltipPosition="bottom" [showDelay]="250"
+		tooltipStyleClass="text-[#1A3C34] text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm">
+		<app-icon name="logout" size="md"></app-icon>
+	</button>
+</div>
