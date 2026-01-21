@@ -1,5 +1,5 @@
 <!-- ==================== SIDEBAR PRINCIPAL ==================== -->
-<app-sidebar-shell [shellStyle]="sidebarStyle">
+<app-sidebar-shell>
   <!-- Menú de navegación rápida -->
   <app-sidebar-menu [quickLinks]="quickLinks"></app-sidebar-menu>
 
@@ -44,8 +44,7 @@
   <!-- Contenido según tab activo -->
   @if (activeTab() === 'chat') {
   <!-- Chat de Maingoo AI -->
-  <app-sidebar-chat class="flex-1 min-h-0 flex flex-col" [isCompactMode]="!!isCompactMode"
-    (inputFocused)="onChatInputFocus()">
+  <app-sidebar-chat class="flex-1 min-h-0 flex flex-col">
   </app-sidebar-chat>
   } @else {
   <!-- Notificaciones -->

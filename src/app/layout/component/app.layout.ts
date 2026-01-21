@@ -116,9 +116,7 @@ export class AppLayout {
         this.layoutService.layoutState().staticMenuDesktopInactive &&
         this.layoutService.layoutConfig().menuMode === 'static',
       'layout-overlay-active': this.layoutService.layoutState().overlayMenuActive,
-      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive,
-      'layout-notification-active': this.layoutService.isNotificationPanelActive(),
-      'layout-profile-active': this.layoutService.isProfilePanelActive()
+      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
     };
   }
 

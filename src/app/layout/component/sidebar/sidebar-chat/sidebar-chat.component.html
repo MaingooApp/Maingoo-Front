@@ -1,8 +1,7 @@
 <!-- ========== SECCIÓN CHAT ========== -->
 
 <!-- Área de mensajes expandida -->
-<div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800"
-	[class.hidden]="isCompactMode">
+<div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
 	<!-- Mensajes dinámicos -->
 	@for (message of messages; track message.id; let idx = $index) {
 	@if (message.sender === 'bot') {
@@ -47,7 +46,7 @@
 </div>
 
 <!-- Spacer para modo compacto -->
-<div class="flex-1 bg-[#F0F7F4] dark:bg-surface-800" [class.hidden]="!isCompactMode"></div>
+<!-- Spacer para modo compacto - Eliminado -->
 
 <!-- Acciones rápidas -->
 <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
