@@ -136,10 +136,6 @@ export class AppTopbar implements OnInit, OnDestroy {
     }
   }
 
-  toggleProfile() {
-    this.layoutService.toggleProfilePanel();
-  }
-
   // toggleDarkMode: alterna el tema oscuro en el estado global del layout.
   // Usa una función de actualización inmutable sobre layoutService.layoutConfig
   // (asumiendo que layoutConfig es un signal/observable con método update).
