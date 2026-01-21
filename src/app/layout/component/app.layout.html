@@ -1,9 +1,10 @@
 <div class="layout-wrapper min-h-screen" [ngClass]="containerClass">
   <app-topbar></app-topbar>
+  <app-sidebar></app-sidebar>
 
   <!-- CAPA FONDO (z-index: 0) - Dashboard Scrollable -->
   <div
-    class="layout-main-container flex flex-col h-screen overflow-hidden justify-between px-4 pt-24 pb-0 md:pb-0 transition-[margin-right] duration-300"
+    class="layout-main-container flex flex-col h-screen overflow-hidden justify-between px-0 md:px-4 lg:px-8 pt-24 pb-0 md:pb-0 transition-[margin-right] duration-300"
     [ngClass]="mainContainerClass">
     <app-section-header-shell></app-section-header-shell>
     <div class="layout-main flex-auto overflow-y-auto pb-32 md:pb-8">
@@ -16,6 +17,5 @@
   <app-mobile-menu-modal></app-mobile-menu-modal>
   <app-mobile-bottom-sheet></app-mobile-bottom-sheet>
 
-  <app-sidebar></app-sidebar>
   <div class="layout-mask animate-fadein"></div>
 </div>
