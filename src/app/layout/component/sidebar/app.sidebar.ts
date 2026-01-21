@@ -1,4 +1,4 @@
-import { Component, ElementRef, signal, ViewChild, HostListener } from '@angular/core';
+import { Component, ElementRef, signal, ViewChild, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -8,11 +8,14 @@ import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/c
 import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { LayoutService } from '../../service/layout.service';
+import { ToastService } from '@shared/services/toast.service';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SidebarShellComponent } from './sidebar-shell/sidebar-shell.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { SidebarChatComponent } from './sidebar-chat/sidebar-chat.component';
+import { SidebarNotificationsComponent } from './sidebar-notifications/sidebar-notifications.component';
 
 interface QuickAction {
   label: string;
@@ -29,13 +32,16 @@ interface RouteContext {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule, SidebarShellComponent, SidebarMenuComponent, SidebarChatComponent],
+  imports: [CommonModule, RouterModule, ButtonModule, InputTextModule, FormsModule, SidebarShellComponent, SidebarMenuComponent, SidebarChatComponent, SidebarNotificationsComponent, IconComponent],
   templateUrl: './app.sidebar.html',
 })
-export class AppSidebar {
+export class AppSidebar implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
+
+  // Tab activo: 'chat' o 'notifications'
+  activeTab = signal<'chat' | 'notifications'>('chat');
 
   messageText = '';
   messages: ChatMessage[] = [];
@@ -43,6 +49,10 @@ export class AppSidebar {
   readonly maxMessageLength = 500;
   showAttachmentMenu = false;
   currentYear = new Date().getFullYear();
+
+  // Notificaciones
+  notifications: any[] = [];
+  private notificationsSubscription?: Subscription;
 
   quickLinks = [
     { label: 'Dashboard', icon: 'monitoring', route: '/' },
@@ -157,7 +167,8 @@ export class AppSidebar {
     private chatService: ChatBubbleService,
     private modalService: ModalService,
     public layoutService: LayoutService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     // Actualizar contexto en base a la ruta inicial
     this.updateContextFromRoute(this.router.url);
@@ -182,6 +193,17 @@ export class AppSidebar {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+  }
+
+  ngOnInit(): void {
+    // Suscribirse a las notificaciones
+    this.notificationsSubscription = this.toastService.notifications$.subscribe(notifications => {
+      this.notifications = notifications;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.notificationsSubscription?.unsubscribe();
   }
 
   private updateContextFromRoute(url: string): void {
@@ -323,5 +345,19 @@ export class AppSidebar {
     const fileType = file.type.startsWith('image/') ? 'Imagen' : 'Documento';
     await this.chatService.sendMessage(`[${fileType} recibido: ${file.name}]`);
     console.log('Archivo seleccionado:', file);
+  }
+
+  /**
+   * Limpia todas las notificaciones
+   */
+  clearAllNotifications(): void {
+    this.toastService.clearNotifications();
+  }
+
+  /**
+   * Cambia el tab activo
+   */
+  setActiveTab(tab: 'chat' | 'notifications'): void {
+    this.activeTab.set(tab);
   }
 }

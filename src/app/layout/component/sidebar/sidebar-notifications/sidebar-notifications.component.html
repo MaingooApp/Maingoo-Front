@@ -1,0 +1,74 @@
+<!-- ========== SECCIÓN NOTIFICACIONES ========== -->
+
+<!-- Botón limpiar (solo si hay notificaciones) -->
+@if (notifications.length > 0) {
+<div class="flex-shrink-0 px-4 py-2 bg-[#F0F7F4] dark:bg-surface-800 flex justify-end">
+	<button (click)="clearAllNotifications()"
+		class="text-xs font-medium text-[#6B9E86] hover:text-[#1A3C34] dark:hover:text-white transition-colors">
+		Limpiar todo
+	</button>
+</div>
+}
+
+<!-- Lista de notificaciones -->
+<div class="flex-1 min-h-0 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
+	@if (notifications.length === 0) {
+	<!-- Estado vacío -->
+	<div class="flex flex-col items-center justify-center h-full p-8 text-center">
+		<div
+			class="w-14 h-14 bg-white dark:bg-surface-700 rounded-full flex items-center justify-center mb-4 shadow-sm">
+			<app-icon name="notifications_off" size="xl" class="text-gray-400"></app-icon>
+		</div>
+		<p class="text-sm font-medium text-gray-600 dark:text-surface-300">Sin notificaciones</p>
+		<p class="text-xs mt-1 text-gray-400">No tienes notificaciones pendientes.</p>
+	</div>
+	} @else {
+	<!-- Lista de notificaciones -->
+	<div class="flex flex-col gap-2 p-4">
+		@for (notification of notifications; track notification.id) {
+		<div class="p-3 bg-white dark:bg-surface-700 rounded-xl shadow-sm hover:shadow-md transition-all">
+			<div class="flex gap-3">
+				<!-- Icono de estado -->
+				<div [class]="
+          'w-8 h-8 rounded-full flex items-center justify-center shrink-0 ' +
+          (notification.severity === 'success'
+            ? 'bg-green-100 dark:bg-green-900/30'
+            : notification.severity === 'error'
+              ? 'bg-red-100 dark:bg-red-900/30'
+              : notification.severity === 'warn'
+                ? 'bg-orange-100 dark:bg-orange-900/30'
+                : 'bg-blue-100 dark:bg-blue-900/30')
+        ">
+					<app-icon [name]="getSeverityIcon(notification.severity)" size="sm" [class]="
+              notification.severity === 'success'
+                ? 'text-green-600'
+                : notification.severity === 'error'
+                  ? 'text-red-600'
+                  : notification.severity === 'warn'
+                    ? 'text-orange-600'
+                    : 'text-blue-600'
+            ">
+					</app-icon>
+				</div>
+
+				<!-- Contenido -->
+				<div class="flex-1 min-w-0">
+					<div class="flex justify-between items-start mb-0.5">
+						<p class="text-xs font-semibold text-gray-900 dark:text-surface-0 leading-tight pr-2 truncate">
+							{{ notification.summary }}
+						</p>
+						<span class="text-[10px] text-gray-400 whitespace-nowrap">{{ formatTime(notification.timestamp)
+							}}</span>
+					</div>
+
+					@if (notification.detail) {
+					<p class="text-xs text-gray-600 dark:text-surface-400 leading-relaxed line-clamp-2">{{
+						notification.detail }}</p>
+					}
+				</div>
+			</div>
+		</div>
+		}
+	</div>
+	}
+</div>

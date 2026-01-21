@@ -3,11 +3,55 @@
   <!-- Menú de navegación rápida -->
   <app-sidebar-menu [quickLinks]="quickLinks"></app-sidebar-menu>
 
+  <!-- Tabs: Maingoo AI / Notificaciones -->
+  <div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-900">
+    <div class="flex gap-1 p-1 bg-white/50 dark:bg-surface-800/50 rounded-full">
+      <!-- Tab Maingoo AI -->
+      <button (click)="setActiveTab('chat')"
+        class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200"
+        [class.bg-white]="activeTab() === 'chat'" [class.dark:bg-surface-700]="activeTab() === 'chat'"
+        [class.shadow-sm]="activeTab() === 'chat'" [class.text-[#1A3C34]]="activeTab() === 'chat'"
+        [class.dark:text-surface-0]="activeTab() === 'chat'" [class.text-gray-500]="activeTab() !== 'chat'"
+        [class.dark:text-gray-400]="activeTab() !== 'chat'" [class.hover:text-gray-700]="activeTab() !== 'chat'">
+        <app-icon name="smart_toy" size="sm"></app-icon>
+        <span>Maingoo AI</span>
+      </button>
+
+      <!-- Tab Notificaciones -->
+      <button (click)="setActiveTab('notifications')"
+        class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200 relative"
+        [class.bg-white]="activeTab() === 'notifications'" [class.dark:bg-surface-700]="activeTab() === 'notifications'"
+        [class.shadow-sm]="activeTab() === 'notifications'" [class.text-[#1A3C34]]="activeTab() === 'notifications'"
+        [class.dark:text-surface-0]="activeTab() === 'notifications'"
+        [class.text-gray-500]="activeTab() !== 'notifications'"
+        [class.dark:text-gray-400]="activeTab() !== 'notifications'"
+        [class.hover:text-gray-700]="activeTab() !== 'notifications'">
+        <app-icon name="notifications" size="sm"></app-icon>
+        <span>Notificaciones</span>
+        <!-- Badge de notificaciones -->
+        @if (notifications.length > 0 && activeTab() !== 'notifications') {
+        <span
+          class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+          {{ notifications.length > 9 ? '9+' : notifications.length }}
+        </span>
+        }
+      </button>
+    </div>
+    <div class="h-px bg-gray-300 dark:bg-gray-600 mt-3"></div>
+  </div>
+
+  <!-- Contenido según tab activo -->
+  @if (activeTab() === 'chat') {
   <!-- Chat de Maingoo AI -->
   <app-sidebar-chat [messages]="messages" [isTyping]="isTyping" [isCompactMode]="!!isCompactMode"
     [currentContext]="currentContext" [maxMessageLength]="maxMessageLength" (messageSent)="onMessageSent($event)"
     (quickActionTriggered)="handleQuickAction($event)" (cameraCapture)="onCameraCaptureFile($event)"
     (fileSelected)="onFileSelectedFile($event)" (inputFocused)="onChatInputFocus()">
   </app-sidebar-chat>
+  } @else {
+  <!-- Notificaciones -->
+  <app-sidebar-notifications [notifications]="notifications" (clearAll)="clearAllNotifications()">
+  </app-sidebar-notifications>
+  }
 </app-sidebar-shell>
 <!-- ==================== FIN SIDEBAR ==================== -->
