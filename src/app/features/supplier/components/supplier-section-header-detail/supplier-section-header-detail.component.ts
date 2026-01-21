@@ -8,7 +8,8 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 	selector: 'app-supplier-section-header-detail',
 	standalone: true,
 	imports: [CommonModule, ButtonModule, InputTextModule, IconComponent],
-	templateUrl: './supplier-section-header-detail.component.html'
+	templateUrl: './supplier-section-header-detail.component.html',
+
 })
 export class SupplierSectionHeaderDetailComponent {
 	@Input() supplier: any[] = [];
