@@ -37,36 +37,6 @@ export class AppSidebar implements OnInit, OnDestroy {
     { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
   ];
 
-  get sidebarStyle() {
-    const isNotificationActive = this.layoutService.isNotificationPanelActiveOrAnimating();
-    const isProfileActive = this.layoutService.isProfilePanelActiveOrAnimating();
-
-    // Si ambos están activos
-    if (isNotificationActive && isProfileActive) {
-      return {
-        top: 'calc(6rem + 2 * ((100vh - 10rem) / 3.5) + 2rem)',
-        height: 'auto',
-        bottom: '2rem'
-      };
-    }
-
-    // Si alguno de los dos está activo
-    if (isNotificationActive || isProfileActive) {
-      return {
-        top: 'calc(6rem + ((100vh - 10rem) / 3.5) + 1rem)',
-        height: 'auto',
-        bottom: '2rem'
-      };
-    }
-
-    // Ninguno activo (default)
-    return {};
-  }
-
-  get isCompactMode() {
-    return this.layoutService.isNotificationPanelActiveOrAnimating() && this.layoutService.isProfilePanelActiveOrAnimating();
-  }
-
   constructor(
     public layoutService: LayoutService,
     private toastService: ToastService
@@ -95,19 +65,5 @@ export class AppSidebar implements OnInit, OnDestroy {
    */
   setActiveTab(tab: 'chat' | 'notifications'): void {
     this.activeTab.set(tab);
-  }
-
-  /**
-   * Maneja el foco en el chat (cierra otros paneles si es necesario)
-   */
-  onChatInputFocus() {
-    // Si hay paneles abiertos, cerrarlos para dar espacio al chat
-    if (this.layoutService.isNotificationPanelActive()) {
-      this.layoutService.toggleNotificationPanel();
-    }
-
-    if (this.layoutService.isProfilePanelActive()) {
-      this.layoutService.toggleProfilePanel();
-    }
   }
 }

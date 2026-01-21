@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
@@ -43,12 +43,6 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 	@ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 	@ViewChild('cameraInput') cameraInput!: ElementRef<HTMLInputElement>;
 	@ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
-
-	/** Modo compacto (oculta área de mensajes) */
-	@Input() isCompactMode = false;
-
-	/** Evento cuando el input recibe focus - El padre puede necesitar reaccionar (cerrar otros paneles) */
-	@Output() inputFocused = new EventEmitter<void>();
 
 	// Servicios
 	private router = inject(Router);
@@ -189,7 +183,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 	 * Ejecuta una acción rápida
 	 */
 	async handleQuickAction(action: string): Promise<void> {
-		this.onChatInputFocus();
+		// Ya no necesitamos onChatInputFocus() aqui
 
 		if (action === 'Subir factura') {
 			this.modalService.open(AddInvoiceModalComponent, {
@@ -264,9 +258,10 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 
 	/**
 	 * Maneja el focus del input
+	 * UPDATE: Ya no emitimos evento porque no hay paneles que cerrar
 	 */
 	onChatInputFocus(): void {
-		this.inputFocused.emit();
+		// No-op
 	}
 
 	private scrollToBottom() {

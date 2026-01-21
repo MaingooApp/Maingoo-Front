@@ -19,6 +19,4 @@ import { CommonModule } from '@angular/common';
 	templateUrl: './sidebar-shell.component.html'
 })
 export class SidebarShellComponent {
-	/** Estilos dinámicos para el contenedor (posición, altura, etc.) */
-	@Input() shellStyle: { [key: string]: string | undefined } = {};
 }
