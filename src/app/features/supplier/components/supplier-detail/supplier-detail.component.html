@@ -1,4 +1,4 @@
-<app-sidebar-shell [title]="supplier.name || 'Proveedor'" (close)="close.emit()">
+<app-detail-card-shell [title]="supplier.name || 'Proveedor'" (close)="close.emit()">
 	<div header-actions class="flex items-center gap-1">
 		<button pButton class="p-button-rounded p-button-text"
 			[ngClass]="isEditing ? 'p-button-success' : 'p-button-secondary'"
@@ -82,4 +82,4 @@
 			(viewInvoice)="viewInvoice.emit($event)"></app-supplier-invoices>
 
 	</div>
-</app-sidebar-shell>
+</app-detail-card-shell>

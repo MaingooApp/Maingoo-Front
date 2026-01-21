@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
+import { DetailCardShellComponent } from '@shared/components/detail-card-shell/detail-card-shell.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { ButtonModule } from 'primeng/button';
 import { Product } from '@app/core/interfaces/Invoice.interfaces';
@@ -14,7 +14,7 @@ import { ArticlesContentComponent } from '../articles-content/articles-content.c
 	imports: [
 		CommonModule,
 		FormsModule,
-		SidebarShellComponent,
+		DetailCardShellComponent,
 		IconComponent,
 		ButtonModule,
 		ElaborationsContentComponent,
@@ -43,8 +43,17 @@ export class ArticlesDetailComponent implements OnInit {
 		return this.selectedCategory === 'mise-en-place' ? 'Mise en place' : this.selectedCategory;
 	}
 
+	get isHelper(): boolean {
+		return this.selectedCategory === 'mise-en-place';
+	}
+
 	toggleAddArticleForm() {
 		this.showAddArticleForm.update(v => !v);
+	}
+
+	onEdit() {
+		// Implement edit logic
+		console.log('Edit category');
 	}
 
 	toggleAddElaborationForm() {

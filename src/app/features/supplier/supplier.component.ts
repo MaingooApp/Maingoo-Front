@@ -20,7 +20,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
-import { SidebarShellComponent } from '../../shared/components/sidebar-shell/sidebar-shell.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
