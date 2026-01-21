@@ -72,9 +72,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 			placeholder: '¿Qué necesitas saber hoy?',
 			actions: [
 				{ label: 'Generar informe', icon: 'analytics', action: 'Generar informe del dashboard' },
-				{ label: 'Ver resumen', icon: 'visibility', action: 'Mostrar resumen general' },
-				{ label: 'Análisis ventas', icon: 'bar_chart', action: 'Análisis de ventas' },
-				{ label: 'Estadísticas', icon: 'pie_chart', action: 'Ver estadísticas generales' }
+				{ label: 'Ver resumen', icon: 'visibility', action: 'Mostrar resumen general' }
 			]
 		},
 		'/facturas': {
@@ -82,9 +80,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 			placeholder: 'Pregunta sobre tus facturas...',
 			actions: [
 				{ label: 'Subir factura', icon: 'upload', action: 'Subir factura' },
-				{ label: 'Informe compras', icon: 'bar_chart', action: 'Informe de compras' },
-				{ label: 'Buscar factura', icon: 'search', action: 'Buscar una factura' },
-				{ label: 'Exportar datos', icon: 'download', action: 'Exportar facturas' }
+				{ label: 'Informe compras', icon: 'bar_chart', action: 'Informe de compras' }
 			]
 		},
 		'/proveedores': {
@@ -92,9 +88,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 			placeholder: 'Pregunta sobre tus proveedores...',
 			actions: [
 				{ label: 'Nuevo proveedor', icon: 'add', action: 'Agregar nuevo proveedor' },
-				{ label: 'Análisis', icon: 'pie_chart', action: 'Análisis de proveedores' },
-				{ label: 'Comparar precios', icon: 'attach_money', action: 'Comparar precios de proveedores' },
-				{ label: 'Contactos', icon: 'group', action: 'Ver contactos de proveedores' }
+				{ label: 'Análisis', icon: 'pie_chart', action: 'Análisis de proveedores' }
 			]
 		},
 		'/productos': {
@@ -102,9 +96,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 			placeholder: 'Pregunta sobre tus productos...',
 			actions: [
 				{ label: 'Nuevo producto', icon: 'add', action: 'Agregar nuevo producto' },
-				{ label: 'Stock bajo', icon: 'warning', action: 'Ver productos con stock bajo' },
-				{ label: 'Actualizar precios', icon: 'sync', action: 'Actualizar precios de productos' },
-				{ label: 'Categorías', icon: 'label', action: 'Gestionar categorías' }
+				{ label: 'Stock bajo', icon: 'warning', action: 'Ver productos con stock bajo' }
 			]
 		},
 		'/recetas': {
@@ -112,9 +104,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 			placeholder: 'Pregunta sobre tus recetas...',
 			actions: [
 				{ label: 'Crear receta', icon: 'add', action: 'Crear nueva receta' },
-				{ label: 'Costeo', icon: 'calculate', action: 'Análisis de costeo de recetas' },
-				{ label: 'Ingredientes', icon: 'list', action: 'Ver ingredientes disponibles' },
-				{ label: 'Rentabilidad', icon: 'percent', action: 'Análisis de rentabilidad' }
+				{ label: 'Costeo', icon: 'calculate', action: 'Análisis de costeo de recetas' }
 			]
 		},
 		'/docgenerator': {
@@ -122,9 +112,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 			placeholder: 'Genera documentos...',
 			actions: [
 				{ label: 'Nuevo documento', icon: 'note_add', action: 'Generar nuevo documento' },
-				{ label: 'Plantillas', icon: 'content_copy', action: 'Ver plantillas disponibles' },
-				{ label: 'Mis documentos', icon: 'folder', action: 'Ver mis documentos' },
-				{ label: 'Compartir', icon: 'share', action: 'Compartir documento' }
+				{ label: 'Plantillas', icon: 'content_copy', action: 'Ver plantillas disponibles' }
 			]
 		}
 	};
