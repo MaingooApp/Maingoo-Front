@@ -8,7 +8,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 	selector: 'app-invoice-summary-section-header-detail',
 	standalone: true,
 	imports: [CommonModule, ButtonModule, InputTextModule, IconComponent],
-	templateUrl: './invoice-summary-section-header-detail.component.html'
+	templateUrl: './invoice-summary-section-header-detail.component.html',
 })
 export class InvoiceSummarySectionHeaderDetailComponent {
 	@Output() search = new EventEmitter<Event>();

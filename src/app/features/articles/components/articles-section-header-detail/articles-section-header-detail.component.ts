@@ -7,7 +7,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 	selector: 'app-articles-section-header-detail',
 	standalone: true,
 	imports: [CommonModule, InputTextModule, IconComponent],
-	templateUrl: './articles-section-header-detail.component.html'
+	templateUrl: './articles-section-header-detail.component.html',
 })
 export class ArticlesSectionHeaderDetailComponent {
 	@Input() articles: any[] = [];

@@ -8,7 +8,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 	selector: 'app-rrhh-section-header-detail',
 	standalone: true,
 	imports: [CommonModule, ButtonModule, InputTextModule, IconComponent],
-	templateUrl: './rrhh-section-header-detail.component.html'
+	templateUrl: './rrhh-section-header-detail.component.html',
 })
 export class RrhhSectionHeaderDetailComponent {
 	@Input() viewMode: 'cards' | 'list' = 'cards';

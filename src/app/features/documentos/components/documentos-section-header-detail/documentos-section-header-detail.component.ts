@@ -5,6 +5,6 @@ import { CommonModule } from '@angular/common';
 	selector: 'app-documentos-section-header-detail',
 	standalone: true,
 	imports: [CommonModule],
-	templateUrl: './documentos-section-header-detail.component.html'
+	templateUrl: './documentos-section-header-detail.component.html',
 })
 export class DocumentosSectionHeaderDetailComponent { }
