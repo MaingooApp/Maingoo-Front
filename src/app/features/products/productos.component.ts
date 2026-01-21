@@ -34,7 +34,7 @@ import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/catego
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
-import { SidebarShellComponent } from '@shared/components/sidebar-shell/sidebar-shell.component';
+import { DetailCardShellComponent } from '@shared/components/detail-card-shell/detail-card-shell.component';
 import { ProductsSectionHeaderDetailComponent } from './components/products-section-header-detail/products-section-header-detail.component';
 
 @Component({
@@ -61,7 +61,7 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
     SkeletonComponent,
     ProductListComponent,
     ProductCardComponent,
-    SidebarShellComponent,
+    DetailCardShellComponent,
     CategoryDetailComponent,
     ProductsSectionHeaderDetailComponent
   ],

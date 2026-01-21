@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { SidebarShellComponent } from '../../../../shared/components/sidebar-shell/sidebar-shell.component';
+import { DetailCardShellComponent } from '../../../../shared/components/detail-card-shell/detail-card-shell.component';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
 import { Supplier } from '../../interfaces/supplier.interface';
 import { Invoice } from '../../../../core/interfaces/Invoice.interfaces';
@@ -20,7 +20,7 @@ import { SupplierInvoicesComponent } from './components/supplier-invoices/suppli
 		FormsModule,
 		ButtonModule,
 		TooltipModule,
-		SidebarShellComponent,
+		DetailCardShellComponent,
 		IconComponent,
 		SupplierContactComponent,
 		SupplierDeliveryComponent,

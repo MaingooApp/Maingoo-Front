@@ -112,7 +112,7 @@
             <!-- Product Layer (Product Detail Card) -->
             <div *ngIf="selectedProduct"
               class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative">
-              <app-sidebar-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
+              <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
                 <div header-actions class="flex items-center gap-1">
                   <button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar producto"
                     tooltipPosition="bottom" (click)="confirmarEliminarProducto(selectedProduct)">
@@ -124,7 +124,7 @@
                   [priceChartTitle]="priceLabel" (verFactura)="verFactura($event)"
                   (priceTypeChange)="onPriceTypeChange($event)">
                 </app-product-detail>
-              </app-sidebar-shell>
+              </app-detail-card-shell>
             </div>
           </div>
 
@@ -216,19 +216,11 @@
         (click)="hideDialog()">
         <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
       </div>
-      <div class="flex-1 overflow-hidden relative flex flex-col">
-        <app-sidebar-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
-          <div header-actions class="flex items-center gap-1">
-            <button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar producto"
-              tooltipPosition="bottom" (click)="confirmarEliminarProducto(selectedProduct)">
-              <app-icon name="delete" size="md"></app-icon>
-            </button>
-          </div>
-          <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
-            [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" [priceChartTitle]="priceLabel"
-            (verFactura)="verFactura($event)" (priceTypeChange)="onPriceTypeChange($event)"></app-product-detail>
-        </app-sidebar-shell>
-      </div>
+      <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
+        <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
+          [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" [priceChartTitle]="priceLabel"
+          (verFactura)="verFactura($event)" (priceTypeChange)="onPriceTypeChange($event)"></app-product-detail>
+      </app-detail-card-shell>
     </div>
   </div>
 </ng-container>
