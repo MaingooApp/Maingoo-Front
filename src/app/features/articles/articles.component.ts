@@ -5,24 +5,11 @@ import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from '../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
-import { ModalService } from '@app/shared/services/modal.service';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { AddArticleModalComponent } from './components/add-article-modal/add-article-modal.component';
 import { TableModule } from 'primeng/table';
 import { ToastService } from '../../shared/services/toast.service';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
 
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextarea } from 'primeng/inputtextarea';
-
-interface IngredientRow {
-  type: 'product' | 'elaboration';
-  selectedItem: any;
-  amount: string;
-}
 
 import { ArticlesCardComponent } from './components/articles-card/articles-card.component';
 import { ArticlesDetailComponent } from './components/articles-detail/articles-detail.component';
@@ -31,18 +18,15 @@ import { ArticlesSectionHeaderDetailComponent } from './components/articles-sect
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TableModule, IconComponent, FormsModule, InputTextModule, DropdownModule, ArticlesCardComponent, ArticlesDetailComponent, ArticlesSectionHeaderDetailComponent],
+  imports: [CommonModule, ButtonModule, TableModule, IconComponent, ArticlesCardComponent, ArticlesDetailComponent, ArticlesSectionHeaderDetailComponent],
   templateUrl: './articles.component.html',
 })
 export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private invoiceService = inject(InvoiceService);
   private productService = inject(ProductService);
-  private modalService = inject(ModalService);
   private toastService = inject(ToastService);
   private headerService = inject(SectionHeaderService);
   @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
-
-  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   hasInvoices = false;
   loading = true;

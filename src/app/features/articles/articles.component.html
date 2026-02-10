@@ -15,7 +15,6 @@
           [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'">
 
           <!-- Elaboraciones Card -->
-          <!-- Elaboraciones Card -->
           <app-articles-card title="Elaboraciones" description="Crea y gestiona tus elaboraciones para tus artículos"
             icon="skillet" theme="orange" [isSelected]="selectedCategory === 'elaborations'"
             (cardClick)="selectCategory('elaborations')">
@@ -28,7 +27,6 @@
           </app-articles-card>
 
 
-          <!-- Mise en place Card -->
           <!-- Mise en place Card -->
           <app-articles-card title="Mise en place" description="Organiza y distribuye las elaboraciones con tu equipo"
             icon="chef_hat" theme="purple" [isSelected]="selectedCategory === 'mise-en-place'"
@@ -87,7 +85,7 @@
       <div *ngIf="selectedCategory"
         class="hidden md:flex w-full md:w-3/4 shrink-0 top-4 z-20 flex-col animate-slide-in-right h-[calc(100vh-140px)] sticky">
         <app-articles-detail [selectedCategory]="selectedCategory" [availableProducts]="availableProducts()"
-          (close)="closeDetail()"></app-articles-detail>
+          [articles]="articles()" (close)="closeDetail()"></app-articles-detail>
       </div>
     </div>
   </div>

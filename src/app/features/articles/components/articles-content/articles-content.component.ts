@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { IconComponent } from '@shared/components/icon/icon.component';
 
 @Component({
 	selector: 'app-articles-content',
@@ -13,12 +14,14 @@ import { DropdownModule } from 'primeng/dropdown';
 		FormsModule,
 		ButtonModule,
 		InputTextModule,
-		DropdownModule
+		DropdownModule,
+		IconComponent
 	],
 	templateUrl: './articles-content.component.html'
 })
 export class ArticlesContentComponent {
 	@Input() showForm: boolean = false;
+	@Input() articles: { name: string }[] = [];
 	@Output() limitForm = new EventEmitter<boolean>();
 
 	newArticleName = signal<string>('');
