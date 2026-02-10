@@ -127,7 +127,7 @@ export class ProductDetailComponent implements OnChanges {
       },
       scales: {
         x: { display: true, grid: { display: false } },
-        y: { display: true, beginAtZero: false, grid: { color: '#f3f4f6' } }
+        y: { display: true, beginAtZero: true, min: 0, grid: { color: '#f3f4f6' } }
       }
     };
   }

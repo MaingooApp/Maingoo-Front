@@ -15,7 +15,7 @@ import { Invoice } from '../../../../../../core/interfaces/Invoice.interfaces';
 export class SupplierStatsComponent implements OnChanges {
 	@Input() invoices: Invoice[] = [];
 
-	showStats = false;
+	showStats = true;
 
 	chartData: any;
 	historyChartData: any;
