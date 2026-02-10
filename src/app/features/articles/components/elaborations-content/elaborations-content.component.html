@@ -30,7 +30,7 @@
 </div>
 
 <!-- Creation Form -->
-<div *ngIf="showForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+<div *ngIf="showForm" class="flex flex-col gap-4 animate-fade-in">
 	<div class="flex flex-col gap-4">
 		<div class="flex flex-col gap-1">
 			<label class="text-sm font-medium text-gray-700">Nombre de elaboración</label>
@@ -40,46 +40,54 @@
 
 		<!-- Ingredients Section -->
 		<div class="flex flex-col gap-2 transition-all">
-			<label class="text-sm font-medium text-gray-700">Ingredientes</label>
+			<label class="text-sm font-medium text-gray-700">Productos / Elaboraciones</label>
 
 			<div class="flex flex-col gap-3">
 				<div *ngFor="let row of ingredientRows(); let i = index" class="flex gap-3 items-start animate-fade-in">
-					<!-- Type Selector -->
-					<div class="w-1/4 min-w-[140px]">
+					<!-- Type Selector (20%) -->
+					<div class="flex-[2] min-w-0">
 						<p-dropdown [options]="ingredientTypes" [(ngModel)]="ingredientRows()[i].type"
 							optionLabel="label" optionValue="value" styleClass="w-full" [appendTo]="'body'">
 						</p-dropdown>
 					</div>
 
-					<!-- Search Item -->
-					<div class="flex-1">
-						<p-dropdown [options]="getAvailableItems(row.type)"
-							[(ngModel)]="ingredientRows()[i].selectedItem" optionLabel="name" [filter]="true"
-							filterBy="name" [showClear]="true"
-							[placeholder]="row.type === 'product' ? 'Buscar ingrediente...' : 'Buscar elaboración...'"
-							styleClass="w-full" [appendTo]="'body'">
-							<ng-template pTemplate="selectedItem" let-selectedOption>
-								<div class="flex align-items-center gap-2" *ngIf="selectedOption">
-									<div>{{ selectedOption.name }}</div>
-								</div>
-							</ng-template>
+					<!-- Search Item (40%) -->
+					<div class="flex-[4] min-w-0">
+						<p-autocomplete [(ngModel)]="ingredientRows()[i].selectedItem" [suggestions]="filteredItems"
+							(completeMethod)="filterItems($event, row.type)" optionLabel="name"
+							[placeholder]="row.type === 'product' ? 'Buscar producto...' : 'Buscar elaboración...'"
+							styleClass="w-full"
+							inputStyleClass="w-full border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage placeholder:text-gray-400"
+							[appendTo]="'body'">
 							<ng-template let-item pTemplate="item">
-								<div class="flex align-items-center gap-2">
-									<div>{{ item.name }}</div>
+								<div class="flex items-center gap-2">
+									<span>{{ item.name }}</span>
 								</div>
 							</ng-template>
-						</p-dropdown>
+						</p-autocomplete>
 					</div>
 
-					<!-- Amount -->
-					<div class="w-24">
-						<input pInputText type="text" [(ngModel)]="ingredientRows()[i].amount" placeholder="Gramos"
-							class="w-full" />
+					<!-- Unit Selector (14%) -->
+					<div class="flex-[1.4] min-w-0">
+						<p-dropdown [options]="amountUnits" [(ngModel)]="ingredientRows()[i].unit" optionLabel="label"
+							optionValue="value" styleClass="w-full" [appendTo]="'body'">
+						</p-dropdown>
+					</div>
+					<!-- Amount (14%) -->
+					<div class="flex-[1.4] min-w-0">
+						<input pInputText type="number" [(ngModel)]="ingredientRows()[i].amount"
+							[placeholder]="ingredientRows()[i].unit === 'g' ? 'g' : 'uds'" class="w-full" />
+					</div>
+					<!-- Precio calculado (10%) -->
+					<div class="flex-1 min-w-0 h-[42px] px-2 flex items-center justify-end bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium"
+						[ngClass]="getRowPrice(row) != null ? 'text-gray-900' : 'text-gray-400'">
+						{{ getRowPrice(row) != null ? (getRowPrice(row) | currency:'EUR':'symbol':'1.2-2':'es-ES') : '—'
+						}}
 					</div>
 
 					<!-- Remove Button -->
 					<button pButton
-						class="p-button-text p-button-danger p-button-rounded !w-10 !h-10 flex items-center justify-center"
+						class="p-button-text p-button-danger p-button-rounded !w-10 !h-10 flex items-center justify-center shrink-0"
 						(click)="removeIngredientRow(i)" *ngIf="ingredientRows().length > 1">
 						<app-icon name="delete" size="md"></app-icon>
 					</button>
@@ -90,7 +98,7 @@
 				class="p-button-text p-button-sm self-start mt-1 text-maingoo-sage hover:text-maingoo-deep flex items-center gap-2"
 				(click)="addIngredientRow()">
 				<app-icon name="add" size="sm"></app-icon>
-				<span>Añadir ingrediente o elaboración</span>
+				<span>Añadir producto o elaboración</span>
 			</button>
 		</div>
 

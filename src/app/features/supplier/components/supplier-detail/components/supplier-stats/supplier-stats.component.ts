@@ -9,7 +9,7 @@ import { Invoice } from '../../../../../../core/interfaces/Invoice.interfaces';
 @Component({
 	selector: 'app-supplier-stats',
 	standalone: true,
-	imports: [CommonModule, FormsModule, ChartModule, DropdownModule, IconComponent],
+	imports: [CommonModule, FormsModule, ChartModule, DropdownModule],
 	templateUrl: './supplier-stats.component.html'
 })
 export class SupplierStatsComponent implements OnChanges {
