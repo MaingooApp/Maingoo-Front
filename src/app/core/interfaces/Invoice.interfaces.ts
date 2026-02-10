@@ -19,7 +19,14 @@ export interface Product {
   storageType?: 'seco' | 'fresco' | 'congelado' | null;
   productType?: 'simple' | 'elaborado' | null;
   unitCount?: number | string;
-  lastUnitPrice?: number;
+
+  // Price and Packaging Fields
+  lastUnitPrice?: number | null; // Price per package/format
+  pricePerUnit?: number | null;
+  pricePerKg?: number | null;
+  unitsPerPackage?: number | null;
+  weightPerUnitGrams?: number | null;
+
   supplier?: Supplier | { id: string; name: string; cifNif?: string };
   brand?: string;
 }
