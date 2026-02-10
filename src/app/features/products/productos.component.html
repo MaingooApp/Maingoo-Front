@@ -119,10 +119,7 @@
                     <app-icon name="delete" size="md"></app-icon>
                   </button>
                 </div>
-                <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
-                  [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions"
-                  [priceChartTitle]="priceLabel" (verFactura)="verFactura($event)"
-                  (priceTypeChange)="onPriceTypeChange($event)">
+                <app-product-detail class="w-full h-full" [product]="selectedProduct" (verFactura)="verFactura($event)">
                 </app-product-detail>
               </app-detail-card-shell>
             </div>
@@ -217,9 +214,8 @@
         <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
       </div>
       <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
-        <app-product-detail class="w-full h-full" [product]="selectedProduct" [relatedInvoices]="invoices"
-          [priceChartData]="priceChartData" [priceChartOptions]="priceChartOptions" [priceChartTitle]="priceLabel"
-          (verFactura)="verFactura($event)" (priceTypeChange)="onPriceTypeChange($event)"></app-product-detail>
+        <app-product-detail class="w-full h-full" [product]="selectedProduct"
+          (verFactura)="verFactura($event)"></app-product-detail>
       </app-detail-card-shell>
     </div>
   </div>
