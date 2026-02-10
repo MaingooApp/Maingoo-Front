@@ -25,13 +25,32 @@ export class ProductAttributesComponent implements OnChanges {
 	categoryPath: string[] = [];
 	rootCategoryStyle: { [klass: string]: any } = {};
 
-	// Mock Price Logic
-	priceOptions = [
-		{ label: 'Precio por formato', value: 'format' },
-		{ label: 'Precio por kilo', value: 'kilo' },
-		{ label: 'Precio por unidad', value: 'unit' }
-	];
-	selectedPriceType: string = 'format';
+	// Price Logic
+
+	get pricePerPackage(): string {
+		if (this.product?.lastUnitPrice != null) {
+			return `${this.product.lastUnitPrice.toFixed(2)} €`;
+		}
+		return '0.00 €';
+	}
+
+	get pricePerUnit(): string {
+		if (this.product?.pricePerUnit != null) {
+			return `${this.product.pricePerUnit.toFixed(2)} €`;
+		}
+		// Fallback calculation if only package price and count are known
+		if (this.product?.lastUnitPrice != null && this.product?.unitsPerPackage) {
+			return `${(this.product.lastUnitPrice / this.product.unitsPerPackage).toFixed(2)} €`;
+		}
+		return '0.00 €';
+	}
+
+	get pricePerKg(): string {
+		if (this.product?.pricePerKg != null) {
+			return `${this.product.pricePerKg.toFixed(2)} €`;
+		}
+		return '0.00 €';
+	}
 
 	// Format Options
 	formatOptions: { label: string; value: string }[] = [];
@@ -65,29 +84,6 @@ export class ProductAttributesComponent implements OnChanges {
 			label: value,
 			value: key
 		})).sort((a, b) => a.label.localeCompare(b.label));
-	}
-
-	onPriceTypeChange(type: string) {
-		this.selectedPriceType = type;
-		this.priceTypeChange.emit(type);
-	}
-
-	get currentPrice(): string {
-		// Mock calculations based on type
-		// In a real app, this would use product prices
-		if (!this.product) return '0.00 €';
-
-		const basePrice = 10.50; // Mock base price
-
-		switch (this.selectedPriceType) {
-			case 'kilo':
-				return `${(basePrice * 1.5).toFixed(2)} €/kg`;
-			case 'unit':
-				return `${(basePrice / 5).toFixed(2)} €/ud`;
-			case 'format':
-			default:
-				return `${basePrice.toFixed(2)} €`;
-		}
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
