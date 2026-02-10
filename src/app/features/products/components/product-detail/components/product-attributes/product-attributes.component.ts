@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
@@ -77,7 +77,7 @@ export class ProductAttributesComponent implements OnChanges {
 		'PZ': 'Pieza'
 	};
 
-	@Output() priceTypeChange = new EventEmitter<string>();
+
 
 	constructor() {
 		this.formatOptions = Object.entries(this.formatsMap).map(([key, value]) => ({

@@ -4,12 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
 import { ButtonModule } from 'primeng/button';
-import { ChartModule } from 'primeng/chart';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -17,13 +13,11 @@ import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { ToastService } from '../../shared/services/toast.service';
-import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from './services/product.service';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
-import { SupplierService } from '@app/features/supplier/services/supplier.service';
 import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -46,15 +40,11 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
     TableModule,
     ButtonModule,
     InputTextModule,
-    DropdownModule,
-    MultiSelectModule,
     TagModule,
-    DialogModule,
     ConfirmDialogModule,
     ToastModule,
     TooltipModule,
     SkeletonModule,
-    ChartModule,
     EmptyStateComponent,
     ProductDetailComponent,
     IconComponent,
@@ -71,9 +61,7 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
 export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   public layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
-  private invoiceService = inject(InvoiceService);
   private productService = inject(ProductService);
-  private supplierService = inject(SupplierService);
   private toastService = inject(ToastService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
@@ -81,9 +69,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
-
-  priceChartData: any;
-  priceChartOptions: any;
 
   @ViewChild('dt') dt!: Table;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
@@ -383,9 +368,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // New Implementation for Invoice Logic
-  invoices: Invoice[] = [];
-
   private normalizeText(text: string): string {
     return text
       .toLowerCase()
@@ -412,137 +394,14 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     };
   }
 
+  /**
+   * Toggles product detail panel. Invoice/chart loading is now handled by ProductDetailComponent.
+   */
   showDialog(product: Product) {
     if (this.selectedProduct?.id === product.id) {
       this.hideDialog();
     } else {
       this.selectedProduct = product;
-      this.invoiceService.getInvoices({ productId: product.id }).subscribe({
-        next: (invoices: Invoice[]) => {
-          this.invoices = invoices;
-          this.currentPriceType = 'format'; // Reset to default
-          this.updatePriceChart(product);
-        },
-        error: (error: any) => {
-          console.error('Error al cargar facturas:', error);
-          this.toastService.error('Error', 'No se pudieron cargar las facturas.');
-        }
-      });
-    }
-  }
-
-  // State to track current price type (default: 'format')
-  currentPriceType: string = 'format';
-
-  onPriceTypeChange(type: string) {
-    this.currentPriceType = type;
-    if (this.selectedProduct) {
-      this.updatePriceChart(this.selectedProduct);
-    }
-  }
-
-  private async updatePriceChart(product: Product) {
-    const labels: string[] = [];
-    const prices: number[] = [];
-
-    const result = await firstValueFrom(this.supplierService.getPriceHistory(product.id));
-
-    // Reverse to show oldest first? result is usually desc?
-    // The original code reversed it, so I assume result is DESC (newest first).
-    result.reverse().forEach((price: any) => {
-      let value = Number(price.price);
-
-      // Apply conversion based on currentPriceType
-      if (this.currentPriceType === 'unit' && product.unitCount) {
-        // Safe check for unitCount being valid number > 0
-        const count = typeof product.unitCount === 'string' ? parseFloat(product.unitCount) : product.unitCount;
-        if (count && count > 0) {
-          value = value / count;
-        }
-      } else if (this.currentPriceType === 'kilo') {
-        // Placeholder logic for Kilo - as we don't have weight data, we might need to fallback or use same logic if applicable.
-        // For now, consistent with 'format' or maybe a TODO.
-        // If we want to mimic the mock in attributes component:
-        // basePrice * 1.5; 
-        // But here we have real history. 
-        // Without weight metadata, we can't accurately calculate price/kg from price/format.
-        // We'll leave it as format price for now to avoid showing wrong data, 
-        // or we could inspect 'unit' (e.g. if unit is 'KG', then it is price per kg).
-      }
-
-      labels.push(
-        new Date(price.date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      );
-      prices.push(value);
-    });
-
-    this.priceChartData = {
-      labels: labels,
-      datasets: [
-        {
-          label: this.priceLabel,
-          data: prices,
-          fill: true,
-          borderColor: '#6366f1', // maingoo-indigo equivalent
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
-          tension: 0.4,
-          pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#6366f1',
-          pointHoverBackgroundColor: '#6366f1',
-          pointHoverBorderColor: '#ffffff'
-        }
-      ]
-    };
-
-    this.priceChartOptions = {
-      responsive: true,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          mode: 'index',
-          intersect: false,
-          callbacks: {
-            label: function (context: any) {
-              let label = context.dataset.label || '';
-              if (label) {
-                label += ': ';
-              }
-              if (context.parsed.y !== null) {
-                label += new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(
-                  context.parsed.y
-                );
-              }
-              return label;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          display: true,
-          grid: {
-            display: false
-          }
-        },
-        y: {
-          display: true,
-          beginAtZero: false,
-          grid: {
-            color: '#f3f4f6'
-          }
-        }
-      }
-    };
-  }
-
-  get priceLabel(): string {
-    switch (this.currentPriceType) {
-      case 'unit': return 'Precio por unidad';
-      case 'kilo': return 'Precio por kilo';
-      case 'format':
-      default: return 'Precio por formato';
     }
   }
 
