@@ -39,7 +39,6 @@
 			</div>
 		</div>
 
-		<!-- Price (New Mock Fields) -->
 		<div class="col-span-2 grid grid-cols-3 gap-4">
 			<!-- Price per Package -->
 			<div class="flex flex-col gap-1.5">
@@ -67,7 +66,13 @@
 					{{ pricePerKg }}
 				</div>
 			</div>
+			<!-- Last Updated -->
+			<div class="col-span-2 flex justify-start -mb-2">
+				<p><strong class="text-maingoo-deep">Precio actualizado el:</strong> {{ product?.updatedAt | date: 'dd/MM/yyyy HH:mm'
+				}}</p>
+			</div>
 		</div>
+
 
 		<!-- Storage (Almacenaje) -->
 		<div class="flex flex-col gap-1.5">
