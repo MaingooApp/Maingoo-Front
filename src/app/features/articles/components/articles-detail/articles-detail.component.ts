@@ -40,7 +40,12 @@ export class ArticlesDetailComponent implements OnInit {
 
 	get categoryDisplayName(): string {
 		if (!this.selectedCategory) return '';
-		return this.selectedCategory === 'mise-en-place' ? 'Mise en place' : this.selectedCategory;
+		const names: Record<string, string> = {
+			'elaborations': 'Elaboraciones',
+			'articles': 'Artículos',
+			'mise-en-place': 'Mise en place'
+		};
+		return names[this.selectedCategory] ?? this.selectedCategory;
 	}
 
 	get isHelper(): boolean {
