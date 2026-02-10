@@ -52,6 +52,12 @@ export class ProductPriceChartComponent implements OnChanges {
 		// Apply transformation based on selected type
 		if (newData.datasets) {
 			newData.datasets.forEach((dataset: any) => {
+				// Update label based on selection
+				const selectedOption = this.priceOptions.find(o => o.value === this.selectedPriceType);
+				if (selectedOption) {
+					dataset.label = selectedOption.label;
+				}
+
 				if (dataset.data) {
 					dataset.data = dataset.data.map((value: number) => {
 						switch (this.selectedPriceType) {
@@ -59,9 +65,8 @@ export class ProductPriceChartComponent implements OnChanges {
 								if (this.product?.unitsPerPackage) {
 									return Number((value / this.product.unitsPerPackage).toFixed(2));
 								}
-								// Fallback (e.g., if unitsPerPackage is missing, assume 1? Or show 0?)
-								// For now, if no unit count, maybe just return value or 0
-								return value;
+								// If unitsPerPackage is missing, it doesn't apply -> return 0
+								return 0;
 							case 'kg':
 								// Logic: value is Price/Package (lastUnitPrice)
 								// product.pricePerKg is relative to current lastUnitPrice.
@@ -71,7 +76,8 @@ export class ProductPriceChartComponent implements OnChanges {
 									const ratio = this.product.pricePerKg / this.product.lastUnitPrice;
 									return Number((value * ratio).toFixed(2));
 								}
-								return value;
+								// If pricePerKg is missing, it doesn't apply -> return 0
+								return 0;
 							case 'package':
 							default:
 								return value;
