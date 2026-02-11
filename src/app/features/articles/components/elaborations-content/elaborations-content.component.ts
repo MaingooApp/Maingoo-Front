@@ -10,7 +10,7 @@ import { InputTextarea } from 'primeng/inputtextarea';
 import { Product } from '@app/core/interfaces/Invoice.interfaces';
 
 export interface IngredientRow {
-	type: 'product' | 'elaboration';
+	type: 'ingredient' | 'elaboration' | 'consumable';
 	selectedItem: any;
 	amount: string;
 	unit: 'g' | 'ud';
@@ -42,13 +42,46 @@ export class ElaborationsContentComponent {
 	// Form State
 	newElaborationName = signal<string>('');
 	elaborationSteps = signal<string>('');
-	elaborationMaterials = signal<string>('');
+
+	// Selección de utensilios y maquinaria
+	selectedUtensils = signal<string[]>([]);
+	selectedMachinery = signal<string[]>([]);
+
+	// Listas predefinidas de utensilios
+	predefinedUtensils: string[] = [
+		'Tabla de cortar', 'Cuchillo cebollero', 'Cuchillo puntilla', 'Cuchillo de sierra',
+		'Pelador', 'Mandolina', 'Rallador', 'Tijeras de cocina',
+		'Espátula', 'Espátula de silicona', 'Lengua de silicona',
+		'Varillas manuales', 'Cucharón', 'Espumadera', 'Pinzas',
+		'Colador', 'Colador chino', 'Tamiz',
+		'Bowl metálico', 'Bowl de cristal', 'Gastronorm',
+		'Sartén', 'Olla', 'Cazo', 'Rondón', 'Bandeja de horno',
+		'Manga pastelera', 'Boquillas', 'Rodillo',
+		'Báscula', 'Termómetro', 'Probeta',
+		'Papel de horno', 'Film transparente', 'Papel de aluminio',
+		'Guantes', 'Trapo', 'Bayeta'
+	];
+
+	// Listas predefinidas de maquinaria
+	predefinedMachinery: string[] = [
+		'Horno convección', 'Horno mixto (rational)', 'Microondas',
+		'Plancha', 'Freidora', 'Cocina de inducción', 'Cocina de gas',
+		'Thermomix', 'Robot de cocina', 'Batidora de vaso', 'Batidora de mano',
+		'Amasadora', 'Cortadora', 'Picadora',
+		'Abatidor', 'Cámara de vacío', 'Envasadora al vacío',
+		'Roner (sous vide)', 'Sifón ISI',
+		'Lavavajillas industrial', 'Campana extractora',
+		'Cámara frigorífica', 'Congelador', 'Nevera',
+		'Salamandra', 'Soplete', 'Deshidratador'
+	];
+
+	// Sugerencias filtradas para utensilios y maquinaria
+	filteredUtensils: string[] = [];
+	filteredMachinery: string[] = [];
 
 	// Ingredients State
 	ingredientRows = signal<IngredientRow[]>([
-		{ type: 'product', selectedItem: null, amount: '', unit: 'g' },
-		{ type: 'product', selectedItem: null, amount: '', unit: 'g' },
-		{ type: 'product', selectedItem: null, amount: '', unit: 'g' }
+		{ type: 'ingredient', selectedItem: null, amount: '', unit: 'g' }
 	]);
 
 	// Opciones de unidad de medida
@@ -61,7 +94,8 @@ export class ElaborationsContentComponent {
 	filteredItems: any[] = [];
 
 	ingredientTypes = [
-		{ label: 'Producto', value: 'product' },
+		{ label: 'Ingrediente', value: 'ingredient' },
+		{ label: 'Consumible', value: 'consumable' },
 		{ label: 'Elaboración', value: 'elaboration' }
 	];
 
@@ -73,18 +107,19 @@ export class ElaborationsContentComponent {
 	resetForm() {
 		this.newElaborationName.set('');
 		this.elaborationSteps.set('');
-		this.elaborationMaterials.set('');
+		this.selectedUtensils.set([]);
+		this.selectedMachinery.set([]);
 		this.ingredientRows.set([
-			{ type: 'product', selectedItem: null, amount: '', unit: 'g' },
-			{ type: 'product', selectedItem: null, amount: '', unit: 'g' },
-			{ type: 'product', selectedItem: null, amount: '', unit: 'g' }
+			{ type: 'ingredient', selectedItem: null, amount: '', unit: 'g' },
+			{ type: 'ingredient', selectedItem: null, amount: '', unit: 'g' },
+			{ type: 'ingredient', selectedItem: null, amount: '', unit: 'g' }
 		]);
 	}
 
 	addIngredientRow() {
 		this.ingredientRows.update(rows => [
 			...rows,
-			{ type: 'product', selectedItem: null, amount: '', unit: 'g' }
+			{ type: 'ingredient', selectedItem: null, amount: '', unit: 'g' }
 		]);
 	}
 
@@ -92,8 +127,8 @@ export class ElaborationsContentComponent {
 		this.ingredientRows.update(rows => rows.filter((_, i) => i !== index));
 	}
 
-	getAvailableItems(type: 'product' | 'elaboration'): any[] {
-		if (type === 'product') {
+	getAvailableItems(type: 'ingredient' | 'elaboration' | 'consumable'): any[] {
+		if (type === 'ingredient' || type === 'consumable') {
 			return this.availableProducts;
 		}
 		return this.elaborations;
@@ -102,12 +137,56 @@ export class ElaborationsContentComponent {
 	/**
 	 * Filtra los items disponibles según la búsqueda del autocomplete.
 	 */
-	filterItems(event: any, type: 'product' | 'elaboration') {
+	filterItems(event: any, type: 'ingredient' | 'elaboration' | 'consumable') {
 		const query = event.query.toLowerCase();
 		const items = this.getAvailableItems(type);
 		this.filteredItems = items.filter((item: any) =>
 			item.name.toLowerCase().includes(query)
 		);
+	}
+
+	/** Filtra utensilios disponibles (excluye ya seleccionados). */
+	filterUtensils(event: any) {
+		const query = event.query.toLowerCase();
+		const selected = this.selectedUtensils();
+		this.filteredUtensils = this.predefinedUtensils.filter(u =>
+			u.toLowerCase().includes(query) && !selected.includes(u)
+		);
+	}
+
+	/** Filtra maquinaria disponible (excluye ya seleccionada). */
+	filterMachinery(event: any) {
+		const query = event.query.toLowerCase();
+		const selected = this.selectedMachinery();
+		this.filteredMachinery = this.predefinedMachinery.filter(m =>
+			m.toLowerCase().includes(query) && !selected.includes(m)
+		);
+	}
+
+	/** Añade un utensilio seleccionado. */
+	addUtensil(event: any) {
+		const value = typeof event === 'string' ? event : event?.value;
+		if (value && !this.selectedUtensils().includes(value)) {
+			this.selectedUtensils.update(list => [...list, value]);
+		}
+	}
+
+	/** Añade una maquinaria seleccionada. */
+	addMachinery(event: any) {
+		const value = typeof event === 'string' ? event : event?.value;
+		if (value && !this.selectedMachinery().includes(value)) {
+			this.selectedMachinery.update(list => [...list, value]);
+		}
+	}
+
+	/** Elimina un utensilio de la selección. */
+	removeUtensil(index: number) {
+		this.selectedUtensils.update(list => list.filter((_, i) => i !== index));
+	}
+
+	/** Elimina una maquinaria de la selección. */
+	removeMachinery(index: number) {
+		this.selectedMachinery.update(list => list.filter((_, i) => i !== index));
 	}
 
 	/**
@@ -119,8 +198,8 @@ export class ElaborationsContentComponent {
 		const amount = parseFloat(row.amount);
 		if (!row.selectedItem || !amount || amount <= 0) return null;
 
-		// Solo aplica para productos (las elaboraciones no tienen precio directo)
-		if (row.type !== 'product') return null;
+		// Solo aplica para ingredientes y consumibles (las elaboraciones no tienen precio directo)
+		if (row.type !== 'ingredient' && row.type !== 'consumable') return null;
 
 		const product = row.selectedItem as Product;
 
@@ -147,7 +226,8 @@ export class ElaborationsContentComponent {
 		this.save.emit({
 			name: this.newElaborationName(),
 			ingredients: [...this.ingredientRows()],
-			materials: this.elaborationMaterials(),
+			utensils: [...this.selectedUtensils()],
+			machinery: [...this.selectedMachinery()],
 			steps: this.elaborationSteps()
 		});
 

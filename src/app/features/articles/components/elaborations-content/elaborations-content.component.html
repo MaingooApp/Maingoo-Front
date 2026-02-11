@@ -40,10 +40,11 @@
 
 		<!-- Ingredients Section -->
 		<div class="flex flex-col gap-2 transition-all">
-			<label class="text-sm font-medium text-gray-700">Productos / Elaboraciones</label>
+			<label class="text-sm font-medium text-gray-700">Ingrediente / Consumible / Elaboración</label>
 
 			<div class="flex flex-col gap-3">
-				<div *ngFor="let row of ingredientRows(); let i = index" class="flex gap-3 items-start animate-fade-in">
+				<div *ngFor="let row of ingredientRows(); let i = index"
+					class="flex gap-3 items-stretch animate-fade-in">
 					<!-- Type Selector (20%) -->
 					<div class="flex-[2] min-w-0">
 						<p-dropdown [options]="ingredientTypes" [(ngModel)]="ingredientRows()[i].type"
@@ -55,7 +56,7 @@
 					<div class="flex-[4] min-w-0">
 						<p-autocomplete [(ngModel)]="ingredientRows()[i].selectedItem" [suggestions]="filteredItems"
 							(completeMethod)="filterItems($event, row.type)" optionLabel="name"
-							[placeholder]="row.type === 'product' ? 'Buscar producto...' : 'Buscar elaboración...'"
+							[placeholder]="row.type === 'ingredient' ? 'Huevos, aceite, vinagre, sal...' : row.type === 'consumable' ? 'Bolsa de vacio, envase take-away...' : 'Salsa bechamel, caldo...'"
 							styleClass="w-full"
 							inputStyleClass="w-full border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage placeholder:text-gray-400"
 							[appendTo]="'body'">
@@ -79,7 +80,7 @@
 							[placeholder]="ingredientRows()[i].unit === 'g' ? 'g' : 'uds'" class="w-full" />
 					</div>
 					<!-- Precio calculado (10%) -->
-					<div class="flex-1 min-w-0 h-[42px] px-2 flex items-center justify-end bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium"
+					<div class="flex-1 min-w-0 px-2 flex items-center justify-end bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium"
 						[ngClass]="getRowPrice(row) != null ? 'text-gray-900' : 'text-gray-400'">
 						{{ getRowPrice(row) != null ? (getRowPrice(row) | currency:'EUR':'symbol':'1.2-2':'es-ES') : '—'
 						}}
@@ -87,7 +88,7 @@
 
 					<!-- Remove Button -->
 					<button pButton
-						class="p-button-text p-button-danger p-button-rounded !w-10 !h-10 flex items-center justify-center shrink-0"
+						class="p-button-text p-button-danger p-button-rounded !w-10 !h-10 flex items-center justify-center shrink-0 self-center"
 						(click)="removeIngredientRow(i)" *ngIf="ingredientRows().length > 1">
 						<app-icon name="delete" size="md"></app-icon>
 					</button>
@@ -102,13 +103,44 @@
 			</button>
 		</div>
 
-		<!-- Materials Section -->
-		<div class="flex flex-col gap-1 transition-all">
-			<label class="text-sm font-medium text-gray-700">Materiales</label>
-			<textarea pInputTextarea [ngModel]="elaborationMaterials()"
-				(ngModelChange)="elaborationMaterials.set($event)" rows="4" class="w-full"
-				placeholder="Tabla de cortar, cuchillos, varillas, bowl metalico, bascula, etc..."
-				[autoResize]="true"></textarea>
+		<!-- Utensilios & Maquinaria Section -->
+		<div class="flex gap-4">
+			<!-- Utensilios -->
+			<div class="flex-1 flex flex-col gap-2 transition-all">
+				<label class="text-sm font-medium text-gray-700">Utensilios</label>
+				<p-autocomplete [suggestions]="filteredUtensils" (completeMethod)="filterUtensils($event)"
+					(onSelect)="addUtensil($event)" placeholder="Tabla, cuchillo, varillas, etc..." styleClass="w-full"
+					inputStyleClass="w-full" [appendTo]="'body'">
+				</p-autocomplete>
+				<!-- Chips seleccionados -->
+				<div class="flex flex-wrap gap-1.5" *ngIf="selectedUtensils().length > 0">
+					<span *ngFor="let item of selectedUtensils(); let i = index"
+						class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium border border-green-200">
+						{{ item }}
+						<button (click)="removeUtensil(i)" class="hover:text-green-900 cursor-pointer">
+							<app-icon name="close" size="xs"></app-icon>
+						</button>
+					</span>
+				</div>
+			</div>
+			<!-- Maquinaria -->
+			<div class="flex-1 flex flex-col gap-2 transition-all">
+				<label class="text-sm font-medium text-gray-700">Maquinaria</label>
+				<p-autocomplete [suggestions]="filteredMachinery" (completeMethod)="filterMachinery($event)"
+					(onSelect)="addMachinery($event)" placeholder="Horno, abatidor, báscula, etc..." styleClass="w-full"
+					inputStyleClass="w-full" [appendTo]="'body'">
+				</p-autocomplete>
+				<!-- Chips seleccionados -->
+				<div class="flex flex-wrap gap-1.5" *ngIf="selectedMachinery().length > 0">
+					<span *ngFor="let item of selectedMachinery(); let i = index"
+						class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-200">
+						{{ item }}
+						<button (click)="removeMachinery(i)" class="hover:text-blue-900 cursor-pointer">
+							<app-icon name="close" size="xs"></app-icon>
+						</button>
+					</span>
+				</div>
+			</div>
 		</div>
 
 		<!-- Step by Step Section -->
