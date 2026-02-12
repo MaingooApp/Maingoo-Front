@@ -9,7 +9,6 @@ import { IconComponent } from '@shared/components/icon/icon.component';
   selector: 'app-access',
   standalone: true,
   imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, IconComponent],
-  templateUrl: './access.html',
-  styleUrls: ['./access.scss']
+  templateUrl: './access.html'
 })
 export class Access { }
