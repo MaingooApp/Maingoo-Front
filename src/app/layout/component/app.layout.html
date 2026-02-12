@@ -1,13 +1,20 @@
-<div class="layout-wrapper h-screen " [ngClass]="containerClass">
-  <app-topbar></app-topbar>
-  <app-sidebar></app-sidebar>
+<div class="layout-wrapper flex flex-col h-screen overflow-hidden" [ngClass]="containerClass">
 
-  <!-- CAPA FONDO (z-index: 0) - Dashboard Scrollable -->
-  <app-main [containerClass]="mainContainerClass">
-    <router-outlet></router-outlet>
-  </app-main>
+  <!-- ═══════ CONTENEDOR 1: TOPBAR (Rojo) ═══════ -->
+  <div class="flex-none border-4 border-red-500">
+    <app-topbar></app-topbar>
+  </div>
 
-  <!-- CAPA FRENTE (z-index: 10+) - Mobile Components -->
+  <!-- ═══════ CONTENEDOR 2: MAIN + SIDEBAR (Azul) ═══════ -->
+  <div class="flex-auto overflow-hidden border-4 border-blue-500 relative">
+    <app-sidebar></app-sidebar>
+
+    <app-main [containerClass]="mainContainerClass">
+      <router-outlet></router-outlet>
+    </app-main>
+  </div>
+
+  <!-- Mobile Components (capas flotantes, no afectan layout) -->
   <app-mobile-bottom-nav></app-mobile-bottom-nav>
   <app-mobile-menu-modal></app-mobile-menu-modal>
   <app-mobile-bottom-sheet></app-mobile-bottom-sheet>

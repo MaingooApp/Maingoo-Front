@@ -1,13 +1,17 @@
 <!-- ==================== MAIN CONTENT SHELL ==================== -->
-<!-- Contenedor principal: debajo del topbar, se adapta al sidebar -->
-<div class="layout-main-container flex flex-col h-[calc(100vh-var(--topbar-height))] overflow-hidden px-0 md:px-4 lg:px-8 mt-[var(--topbar-height)] pb-0 md:pb-0 transition-[margin-right] duration-300 border-2 border-red-500"
+<!-- Contenedor principal: ocupa el espacio restante del Bottom Container -->
+<div class="layout-main-container flex flex-col h-full overflow-hidden transition-[margin-right] duration-300"
 	[ngClass]="containerClass">
 
-	<!-- Cabecera de sección (dinámica por ruta) -->
-	<app-section-header-shell></app-section-header-shell>
+	<div class="flex flex-col flex-auto h-full overflow-hidden">
+		<!-- Cabecera de sección (dinámica por ruta) -->
+		<div>
+			<app-section-header-shell></app-section-header-shell>
+		</div>
 
-	<!-- Área de contenido principal con scroll -->
-	<div class="layout-main flex-auto overflow-y-auto pb-32 md:pb-8">
-		<ng-content></ng-content>
+		<!-- Área de contenido principal con scroll -->
+		<div class="layout-main flex-auto overflow-y-auto overflow-x-hidden">
+			<ng-content></ng-content>
+		</div>
 	</div>
 </div>

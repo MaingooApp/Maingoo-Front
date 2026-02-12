@@ -1,10 +1,9 @@
 <!-- ==================== TOPBAR SHELL - CONTENEDOR VISUAL ==================== -->
-<!-- Contenedor externo: posición fija y centrado -->
-<div
-	class="fixed top-0 left-0 right-0 z-[1000] w-full h-[var(--topbar-height)] flex items-center justify-center px-0 md:px-4 lg:px-8 border-2 border-red-500">
+<!-- Contenedor externo: ocupa todo el ancho del contenedor padre -->
+<div class="w-full h-[var(--topbar-height)] flex items-center justify-center">
 	<!-- Contenedor interno: fondo, bordes y sombras -->
 	<div
-		class="w-full h-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] border-b-2 border-[#6B9E86]/20 md:border-b-0 shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between px-3 sm:px-4 md:pl-10 md:pr-0 transition-all duration-300">
+		class="w-full h-full bg-white dark:bg-surface-900 rounded-none md:rounded-[var(--content-border-radius)] border-b-2 border-[#6B9E86]/20 md:border-b-0 shadow-[0_4px_20px_rgba(26,60,52,0.08)] flex items-center justify-between transition-all duration-300">
 		<!-- Proyección del contenido del topbar -->
 		<ng-content></ng-content>
 	</div>
