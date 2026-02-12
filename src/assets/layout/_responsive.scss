@@ -1,4 +1,5 @@
 @media screen and (min-width: 1960px) {
+
     .layout-main,
     .landing-wrapper {
         width: 1504px;
@@ -41,7 +42,7 @@
 
         &.layout-static {
             .layout-main-container {
-                margin-right: 26rem;
+                margin-right: 24rem;
             }
 
             &.layout-static-inactive {
@@ -58,7 +59,7 @@
                 &.layout-notification-active,
                 &.layout-profile-active {
                     .layout-main-container {
-                        margin-right: 26rem;
+                        margin-right: 24rem;
                     }
                 }
             }
