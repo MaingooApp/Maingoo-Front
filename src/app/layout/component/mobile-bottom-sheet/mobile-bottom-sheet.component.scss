@@ -20,7 +20,7 @@
 // ========== BACKDROP ==========
 .bottom-sheet-backdrop {
   position: fixed;
-  top: 64px; // Mismo que el chat modal, debajo del topbar
+  top: var(--topbar-height); // Usa la variable CSS del topbar
   left: 0;
   right: 0;
   bottom: 0;
@@ -38,7 +38,7 @@
 // ========== CHAT MODAL CONTAINER ==========
 .chat-modal-container {
   position: fixed;
-  top: 64px; // Altura del topbar (ajusta según tu header)
+  top: var(--topbar-height); // Usa la variable CSS del topbar
   left: 0;
   right: 0;
   bottom: 0;
@@ -179,6 +179,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -189,6 +190,7 @@
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -201,17 +203,21 @@
     transform: translateX(0) scale(1);
     opacity: 1;
   }
+
   20% {
     transform: translateX(4px) scale(1.1);
   }
+
   40% {
     transform: translateX(20px) scale(0);
     opacity: 0;
   }
+
   50% {
     transform: translateX(-20px) scale(0);
     opacity: 0;
   }
+
   100% {
     transform: translateX(0) scale(1);
     opacity: 1;

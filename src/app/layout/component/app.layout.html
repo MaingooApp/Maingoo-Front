@@ -3,14 +3,9 @@
   <app-sidebar></app-sidebar>
 
   <!-- CAPA FONDO (z-index: 0) - Dashboard Scrollable -->
-  <div
-    class="layout-main-container flex flex-col h-screen overflow-hidden justify-between px-0 md:px-4 lg:px-8 pt-24 pb-0 md:pb-0 transition-[margin-right] duration-300"
-    [ngClass]="mainContainerClass">
-    <app-section-header-shell></app-section-header-shell>
-    <div class="layout-main flex-auto overflow-y-auto pb-32 md:pb-8">
-      <router-outlet></router-outlet>
-    </div>
-  </div>
+  <app-main [containerClass]="mainContainerClass">
+    <router-outlet></router-outlet>
+  </app-main>
 
   <!-- CAPA FRENTE (z-index: 10+) - Mobile Components -->
   <app-mobile-bottom-nav></app-mobile-bottom-nav>

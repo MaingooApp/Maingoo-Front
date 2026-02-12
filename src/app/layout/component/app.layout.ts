@@ -8,7 +8,7 @@ import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-
 import { MobileBottomNavComponent } from './mobile-bottom-nav/mobile-bottom-nav.component';
 import { MobileMenuModalComponent } from './mobile-menu-modal/mobile-menu-modal.component';
 import { LayoutService } from '../service/layout.service';
-import { SectionHeaderShellComponent } from './section-header-shell/section-header-shell.component';
+import { AppMain } from './main/app.main';
 
 @Component({
   selector: 'app-layout',
@@ -21,7 +21,7 @@ import { SectionHeaderShellComponent } from './section-header-shell/section-head
     MobileBottomSheetComponent,
     MobileBottomNavComponent,
     MobileMenuModalComponent,
-    SectionHeaderShellComponent
+    AppMain
   ],
   templateUrl: './app.layout.html'
 })

@@ -9,7 +9,6 @@ import { IconComponent } from '@shared/components/icon/icon.component';
   selector: 'app-error',
   imports: [ButtonModule, RippleModule, RouterModule, AppFloatingConfigurator, ButtonModule, IconComponent],
   standalone: true,
-  templateUrl: './error.html',
-  styleUrls: ['./error.scss']
+  templateUrl: './error.html'
 })
 export class Error { }

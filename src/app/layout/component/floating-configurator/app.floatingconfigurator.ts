@@ -9,8 +9,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 @Component({
   selector: 'app-floating-configurator',
   imports: [ButtonModule, StyleClassModule, AppConfigurator, IconComponent],
-  templateUrl: './app.floatingconfigurator.html',
-  styleUrls: ['./app.floatingconfigurator.scss']
+  templateUrl: './app.floatingconfigurator.html'
 })
 export class AppFloatingConfigurator {
   LayoutService = inject(LayoutService);
