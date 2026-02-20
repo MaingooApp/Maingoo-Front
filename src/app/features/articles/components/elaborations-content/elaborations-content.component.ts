@@ -59,7 +59,7 @@ export class ElaborationsContentComponent {
 		'Manga pastelera', 'Boquillas', 'Rodillo',
 		'Báscula', 'Termómetro', 'Probeta',
 		'Papel de horno', 'Film transparente', 'Papel de aluminio',
-		'Guantes', 'Trapo', 'Bayeta'
+		'Guantes', 'Trapo', 'Bayeta', "Vaso medidor"
 	];
 
 	// Listas predefinidas de maquinaria
