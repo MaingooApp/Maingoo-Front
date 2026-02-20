@@ -1,41 +1,52 @@
 <div class="space-y-3">
-	<h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
-		<app-icon name="info" size="md" class="text-maingoo-sage"></app-icon>
-		Detalles del producto
-	</h3>
-	<div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 text-sm text-gray-700">
-		<div class="flex flex-col gap-1">
-			<div class="flex items-center gap-2">
-				<label class="font-bold text-maingoo-deep">Descripción:</label>
-				<button *ngIf="!isEditing" (click)="startEditing()"
-					class="text-maingoo-sage hover:text-maingoo-deep transition-colors p-1 rounded-full hover:bg-gray-100">
-					<app-icon name="edit" size="xs"></app-icon>
-				</button>
-			</div>
+  <h3 class="text-lg font-semibold flex items-center gap-2 text-maingoo-deep">
+    <app-icon name="info" size="md" class="text-maingoo-sage"></app-icon>
+    Detalles del producto
+  </h3>
+  <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-2 text-sm text-gray-700">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center gap-2">
+        <label class="font-bold text-maingoo-deep">Descripción:</label>
+        <ng-container *ngxPermissionsOnly="[P.ProductsWrite]">
+          <button
+            *ngIf="!isEditing"
+            (click)="startEditing()"
+            class="text-maingoo-sage hover:text-maingoo-deep transition-colors p-1 rounded-full hover:bg-gray-100">
+            <app-icon name="edit" size="xs"></app-icon>
+          </button>
+        </ng-container>
+      </div>
 
-			<div *ngIf="!isEditing" class="text-gray-600 min-h-[1.5rem]">
-				{{ product?.description || 'Sin descripción' }}
-			</div>
+      <div *ngIf="!isEditing" class="text-gray-600 min-h-[1.5rem]">
+        {{ product?.description || 'Sin descripción' }}
+      </div>
 
-			<div *ngIf="isEditing" class="flex flex-col gap-2 animate-fade-in">
-				<textarea pInputTextarea [(ngModel)]="tempDescription" rows="3"
-					class="w-full text-sm p-2 border border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-1 focus:ring-maingoo-sage outline-none transition-all hover:border-gray-300 bg-white"
-					placeholder="Añadir descripción..." [autoResize]="true"></textarea>
-				<div class="flex justify-end gap-2">
-					<button (click)="cancelEditing()"
-						class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 font-medium transition-colors">
-						Cancelar
-					</button>
-					<button (click)="saveDescription()"
-						class="text-xs px-3 py-1.5 rounded-lg bg-maingoo-deep text-white hover:bg-maingoo-deep/90 font-medium transition-colors flex items-center gap-1">
-						<app-icon name="check" size="xs"></app-icon>
-						Guardar
-					</button>
-				</div>
-			</div>
-		</div>
-		<p><strong class="text-maingoo-deep">Producto añadido el:</strong> {{ product?.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-		</p>
-
-	</div>
+      <div *ngIf="isEditing" class="flex flex-col gap-2 animate-fade-in">
+        <textarea
+          pInputTextarea
+          [(ngModel)]="tempDescription"
+          rows="3"
+          class="w-full text-sm p-2 border border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-1 focus:ring-maingoo-sage outline-none transition-all hover:border-gray-300 bg-white"
+          placeholder="Añadir descripción..."
+          [autoResize]="true"></textarea>
+        <div class="flex justify-end gap-2">
+          <button
+            (click)="cancelEditing()"
+            class="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 font-medium transition-colors">
+            Cancelar
+          </button>
+          <button
+            (click)="saveDescription()"
+            class="text-xs px-3 py-1.5 rounded-lg bg-maingoo-deep text-white hover:bg-maingoo-deep/90 font-medium transition-colors flex items-center gap-1">
+            <app-icon name="check" size="xs"></app-icon>
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+    <p>
+      <strong class="text-maingoo-deep">Producto añadido el:</strong>
+      {{ product?.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+    </p>
+  </div>
 </div>

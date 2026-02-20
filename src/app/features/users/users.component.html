@@ -1,0 +1,263 @@
+<p-confirmDialog></p-confirmDialog>
+
+<div class="flex flex-col gap-6 relative items-start p-6 -m-6">
+  <div class="flex-1 w-full min-w-0">
+    <!-- GLOBAL HEADER TEMPLATE -->
+    <ng-template #headerTpl>
+      <div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-4 shrink-0">
+          <h2 class="text-2xl font-bold text-maingoo-deep m-0 whitespace-nowrap">Gestión de usuarios</h2>
+        </div>
+        <div class="flex items-center justify-end shrink-0 gap-3">
+          <input
+            *ngIf="users().length > 0"
+            type="text"
+            pInputText
+            placeholder="Buscar usuario..."
+            (input)="filterUsers($event)"
+            class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-96 placeholder:text-gray-400 placeholder:text-base text-left" />
+          <ng-container *ngxPermissionsOnly="[P.UsersWrite]">
+            <button pButton label="Nuevo usuario" severity="primary" (click)="openCreateForm()">
+              <app-icon name="person_add" size="md" class="mr-2"></app-icon>
+            </button>
+          </ng-container>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- EMPTY STATE -->
+    <div *ngIf="!loading() && users().length === 0; else mainContent">
+      <app-empty-state icon="group" title="No hay usuarios" description="No se encontraron usuarios en tu empresa.">
+      </app-empty-state>
+      <ng-container *ngxPermissionsOnly="[P.UsersWrite]">
+        <div class="flex justify-center mt-4">
+          <button pButton label="Crear primer usuario" severity="primary" (click)="openCreateForm()">
+            <app-icon name="person_add" size="md" class="mr-2"></app-icon>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
+    <ng-template #mainContent>
+      <!-- LOADING -->
+      <app-skeleton *ngIf="loading()" mode="list" [count]="6"></app-skeleton>
+
+      <!-- CONTENT -->
+      <ng-container *ngIf="!loading()">
+        <div class="flex flex-row gap-6 w-full items-start">
+          <!-- LEFT: User List -->
+          <div
+            [ngClass]="selectedUser() || showCreateForm() ? 'w-full md:w-1/3' : 'flex-1 min-w-0'"
+            class="transition-all duration-300">
+            <div class="flex flex-col gap-3">
+              <div
+                *ngFor="let user of filteredUsers()"
+                class="bg-white rounded-xl border border-gray-100 p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-maingoo-sage/30"
+                [ngClass]="{ 'ring-2 ring-maingoo-sage border-maingoo-sage shadow-md': selectedUser()?.id === user.id }"
+                (click)="selectUser(user)">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center text-maingoo-sage font-bold text-sm">
+                    {{ user.name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-maingoo-deep text-sm truncate m-0">{{ user.name }}</p>
+                    <p class="text-xs text-gray-500 truncate m-0">{{ user.email }}</p>
+                  </div>
+                  <span
+                    class="bg-maingoo-sage/10 text-maingoo-sage text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                    {{ user.permissions.length }} permisos
+                  </span>
+                </div>
+              </div>
+
+              <div
+                *ngIf="filteredUsers().length === 0 && users().length > 0"
+                class="text-center text-gray-400 py-8 text-sm">
+                No se encontraron usuarios con ese término.
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: Detail Panel (Desktop) — Permissions OR Create Form -->
+          <div
+            *ngIf="selectedUser() || showCreateForm()"
+            class="hidden md:flex w-full md:w-2/3 shrink-0 sticky top-4 rounded-2xl overflow-hidden shadow-2xl z-20 flex-col bg-white">
+            <ng-container *ngIf="selectedUser() && !showCreateForm()">
+              <ng-container *ngTemplateOutlet="permissionPanel"></ng-container>
+            </ng-container>
+            <ng-container *ngIf="showCreateForm()">
+              <ng-container *ngTemplateOutlet="createPanel"></ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+    </ng-template>
+  </div>
+
+  <!-- MOBILE: Bottom Sheet — Permissions -->
+  <ng-container *ngIf="selectedUser() && !showCreateForm()">
+    <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeDetail()"></div>
+      <div
+        class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+        <div
+          class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+          (click)="closeDetail()">
+          <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        </div>
+        <div class="flex-1 overflow-hidden relative flex flex-col">
+          <ng-container *ngTemplateOutlet="permissionPanel"></ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- MOBILE: Bottom Sheet — Create Form -->
+  <ng-container *ngIf="showCreateForm()">
+    <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCreateForm()"></div>
+      <div
+        class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+        <div
+          class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+          (click)="closeCreateForm()">
+          <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+        </div>
+        <div class="flex-1 overflow-hidden relative flex flex-col">
+          <ng-container *ngTemplateOutlet="createPanel"></ng-container>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- SHARED PERMISSION PANEL TEMPLATE -->
+<ng-template #permissionPanel>
+  <app-detail-card-shell [title]="selectedUser()!.name" (close)="closeDetail()">
+    <div header-actions class="flex items-center gap-1">
+      <button
+        *ngxPermissionsOnly="[P.UsersDelete]"
+        pButton
+        class="p-button-rounded p-button-text p-button-danger"
+        pTooltip="Eliminar usuario"
+        tooltipPosition="bottom"
+        (click)="confirmDeleteUser(selectedUser()!)">
+        <app-icon name="delete" size="md"></app-icon>
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-6 py-4">
+      <div *ngFor="let group of permissionGroups()" class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+        <div class="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
+          <app-icon [name]="getPermissionIcon(group.module)" size="md" class="text-maingoo-sage"></app-icon>
+          <span class="font-semibold text-maingoo-deep text-sm">{{ group.label }}</span>
+          <span class="text-xs text-gray-400 ml-auto">
+            {{ group.permissions.length }} permiso{{ group.permissions.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div
+            *ngFor="let perm of group.permissions"
+            class="flex items-center gap-3 p-2 rounded-lg hover:bg-white transition-colors cursor-pointer"
+            (click)="togglePermission(perm.id)">
+            <p-checkbox
+              [binary]="true"
+              [ngModel]="isPermissionSelected(perm.id)"
+              (onChange)="togglePermission(perm.id)"
+              class="pointer-events-none">
+            </p-checkbox>
+            <div class="flex flex-col">
+              <span class="text-sm font-medium text-gray-800">
+                {{ getPermissionLabel(perm.name) }}
+              </span>
+              <span class="text-[11px] text-gray-400 font-mono">{{ perm.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Actions -->
+    <div
+      *ngxPermissionsOnly="[P.PermissionsAssign]"
+      class="sticky bottom-0 bg-white border-t border-gray-100 p-4 flex justify-end gap-3">
+      <button
+        pButton
+        label="Descartar"
+        class="p-button-text p-button-secondary"
+        (click)="closeDetail()"
+        [disabled]="saving()"></button>
+      <button
+        pButton
+        label="Guardar permisos"
+        severity="primary"
+        (click)="savePermissions()"
+        [disabled]="!hasChanges() || saving()"
+        [loading]="saving()">
+        <app-icon name="save" size="md" class="mr-2"></app-icon>
+      </button>
+    </div>
+  </app-detail-card-shell>
+</ng-template>
+
+<!-- SHARED CREATE USER PANEL TEMPLATE -->
+<ng-template #createPanel>
+  <app-detail-card-shell title="Nuevo usuario" (close)="closeCreateForm()">
+    <div class="flex flex-col gap-5 py-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-gray-700">Nombre</label>
+        <input
+          type="text"
+          pInputText
+          placeholder="Nombre completo"
+          [ngModel]="newUserName()"
+          (ngModelChange)="newUserName.set($event)"
+          class="w-full border-gray-200 rounded-lg" />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-gray-700">Email</label>
+        <input
+          type="email"
+          pInputText
+          placeholder="correo@empresa.com"
+          [ngModel]="newUserEmail()"
+          (ngModelChange)="newUserEmail.set($event)"
+          class="w-full border-gray-200 rounded-lg" />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-sm font-medium text-gray-700">Contraseña</label>
+        <input
+          type="password"
+          pInputText
+          placeholder="Mínimo 8 caracteres"
+          [ngModel]="newUserPassword()"
+          (ngModelChange)="newUserPassword.set($event)"
+          class="w-full border-gray-200 rounded-lg" />
+        <span *ngIf="newUserPassword().length > 0 && newUserPassword().length < 8" class="text-xs text-red-500"
+          >Mínimo 8 caracteres</span
+        >
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="sticky bottom-0 bg-white border-t border-gray-100 p-4 flex justify-end gap-3">
+      <button
+        pButton
+        label="Cancelar"
+        class="p-button-text p-button-secondary"
+        (click)="closeCreateForm()"
+        [disabled]="creating()"></button>
+      <button
+        pButton
+        label="Crear usuario"
+        severity="primary"
+        (click)="createUser()"
+        [disabled]="!isCreateFormValid || creating()"
+        [loading]="creating()">
+        <app-icon name="person_add" size="md" class="mr-2"></app-icon>
+      </button>
+    </div>
+  </app-detail-card-shell>
+</ng-template>

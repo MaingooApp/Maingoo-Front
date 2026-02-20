@@ -11,48 +11,52 @@ import { SupplierContactComponent } from './components/supplier-contact/supplier
 import { SupplierDeliveryComponent } from './components/supplier-delivery/supplier-delivery.component';
 import { SupplierStatsComponent } from './components/supplier-stats/supplier-stats.component';
 import { SupplierInvoicesComponent } from './components/supplier-invoices/supplier-invoices.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '../../../../core/constants/permissions.enum';
 
 @Component({
-	selector: 'app-supplier-detail',
-	standalone: true,
-	imports: [
-		CommonModule,
-		FormsModule,
-		ButtonModule,
-		TooltipModule,
-		DetailCardShellComponent,
-		IconComponent,
-		SupplierContactComponent,
-		SupplierDeliveryComponent,
-		SupplierStatsComponent,
-		SupplierInvoicesComponent
-	],
-	templateUrl: './supplier-detail.component.html'
+  selector: 'app-supplier-detail',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    TooltipModule,
+    DetailCardShellComponent,
+    IconComponent,
+    SupplierContactComponent,
+    SupplierDeliveryComponent,
+    SupplierStatsComponent,
+    SupplierInvoicesComponent,
+    NgxPermissionsModule
+  ],
+  templateUrl: './supplier-detail.component.html'
 })
 export class SupplierDetailComponent {
-	@Input({ required: true }) supplier!: Supplier;
-	@Input() invoices: Invoice[] = [];
+  readonly P = AppPermission;
+  @Input({ required: true }) supplier!: Supplier;
+  @Input() invoices: Invoice[] = [];
 
-	@Output() close = new EventEmitter<void>();
-	@Output() save = new EventEmitter<Supplier>();
-	@Output() delete = new EventEmitter<Supplier>();
-	@Output() viewInvoice = new EventEmitter<Invoice>();
+  @Output() close = new EventEmitter<void>();
+  @Output() save = new EventEmitter<Supplier>();
+  @Output() delete = new EventEmitter<Supplier>();
+  @Output() viewInvoice = new EventEmitter<Invoice>();
 
-	isEditing = false;
+  isEditing = false;
 
-	toggleEdit() {
-		if (this.isEditing) {
-			this.save.emit(this.supplier);
-		} else {
-			this.isEditing = true;
-		}
-	}
+  toggleEdit() {
+    if (this.isEditing) {
+      this.save.emit(this.supplier);
+    } else {
+      this.isEditing = true;
+    }
+  }
 
-	confirmDelete() {
-		this.delete.emit(this.supplier);
-	}
+  confirmDelete() {
+    this.delete.emit(this.supplier);
+  }
 
-	onSaveSuccess() {
-		this.isEditing = false;
-	}
+  onSaveSuccess() {
+    this.isEditing = false;
+  }
 }

@@ -1,6 +1,16 @@
 // invoice-summary.component.ts
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, AfterViewInit, signal, ViewChild, computed, TemplateRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  signal,
+  ViewChild,
+  computed,
+  TemplateRef
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { COLUMNS } from '@features/invoices/constants/columns';
@@ -26,6 +36,8 @@ import { TableModule } from 'primeng/table';
 import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add-invoice-modal.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { InvoiceSummarySectionHeaderDetailComponent } from './components/invoice-summary-section-header-detail/invoice-summary-section-header-detail.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '../../../../core/constants/permissions.enum';
 
 @Component({
   selector: 'app-invoice-summary',
@@ -43,11 +55,13 @@ import { InvoiceSummarySectionHeaderDetailComponent } from './components/invoice
     FormsModule,
     FileUploadModule,
     IconComponent,
-    InvoiceSummarySectionHeaderDetailComponent
+    InvoiceSummarySectionHeaderDetailComponent,
+    NgxPermissionsModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit {
+  readonly P = AppPermission;
   @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
   invoices = signal<Invoice[]>([]);
@@ -86,7 +100,7 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
     private readonly modalService: ModalService,
     private readonly layoutService: LayoutService,
     private readonly headerService: SectionHeaderService
-  ) { }
+  ) {}
 
   showMobileSearch = false;
 

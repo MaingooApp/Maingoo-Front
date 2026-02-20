@@ -2,14 +2,20 @@
   <!-- MOBILE HEADER (Search & Controls) -->
   <div class="md:hidden flex items-center justify-between w-full relative z-20">
     <!-- Search Input (Expandable) -->
-    <div class="transition-all duration-300 ease-out h-12 flex items-center"
+    <div
+      class="transition-all duration-300 ease-out h-12 flex items-center"
       [ngClass]="showMobileSearch ? 'w-full z-30' : 'w-12 relative'">
       <div class="relative flex items-center w-full h-full">
-        <input #mobileSearchInput type="text" pInputText placeholder="Buscar factura..."
+        <input
+          #mobileSearchInput
+          type="text"
+          pInputText
+          placeholder="Buscar factura..."
           class="w-full pl-4 pr-14 py-2 rounded-full border border-gray-200 shadow-sm transition-all opacity-0 scale-95 pointer-events-none h-10"
           [ngClass]="{ '!opacity-100 !scale-100 !pointer-events-auto': showMobileSearch }"
           (input)="searchTerm.set(getInputValue($event))" />
-        <button type="button"
+        <button
+          type="button"
           class="absolute right-0 w-12 h-12 z-20 flex items-center justify-center text-maingoo-dark-green rounded-full active:bg-gray-100 transition-colors"
           (click)="showMobileSearch = !showMobileSearch; showMobileSearch && mobileSearchInput.focus()">
           <i class="pi text-xl" [ngClass]="showMobileSearch ? 'pi-times' : 'pi-search'"></i>
@@ -21,14 +27,17 @@
   <!-- DESKTOP HEADER -->
   <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
   <ng-template #headerTpl>
-    <app-invoice-summary-section-header-detail (search)="searchTerm.set(getInputValue($event))"
+    <app-invoice-summary-section-header-detail
+      (search)="searchTerm.set(getInputValue($event))"
       (addInvoice)="openAddInvoiceModal()">
     </app-invoice-summary-section-header-detail>
   </ng-template>
 
   <div class="w-full">
     <div *ngIf="invoices().length === 0; else tablaFacturas">
-      <app-empty-state icon="inbox" title="No hay facturas registradas"
+      <app-empty-state
+        icon="inbox"
+        title="No hay facturas registradas"
         description="Cuando registres una factura, aparecerá aquí.">
       </app-empty-state>
     </div>
@@ -36,9 +45,15 @@
     <ng-template #tablaFacturas>
       <!-- Desktop Table -->
       <div class="hidden md:block card rounded-xl shadow-md p-6 bg-white">
-        <app-tabla-dinamica [data]="invoices()" [columns]="columns" [loading]="loading()"
-          [globalFilterFields]="['supplier.name', 'invoiceNumber']" [actions]="actions()"
-          (actionClick)="handleAccion($event)" [exportPdf]="true" [exportFilename]="'facturas'">
+        <app-tabla-dinamica
+          [data]="invoices()"
+          [columns]="columns"
+          [loading]="loading()"
+          [globalFilterFields]="['supplier.name', 'invoiceNumber']"
+          [actions]="actions()"
+          (actionClick)="handleAccion($event)"
+          [exportPdf]="true"
+          [exportFilename]="'facturas'">
         </app-tabla-dinamica>
       </div>
 
@@ -54,7 +69,9 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
-              <tr *ngFor="let invoice of filteredInvoices()" (click)="verDetalle(invoice)"
+              <tr
+                *ngFor="let invoice of filteredInvoices()"
+                (click)="verDetalle(invoice)"
                 class="bg-white active:bg-gray-50 transition-colors cursor-pointer">
                 <td class="px-4 py-3 font-medium text-gray-900 truncate max-w-[140px]">
                   {{ invoice.supplier.name || 'Sin nombre' }}
@@ -80,14 +97,19 @@
   <!-- FAB: Exportar PDF (Bottom Left) -->
   <button
     class="md:hidden fixed bottom-24 left-6 w-14 h-14 rounded-full bg-red-500 text-white shadow-[0_4px_20px_rgba(239,68,68,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)] hover:bg-red-600"
-    (click)="exportarPdf()" pTooltip="Exportar PDF" tooltipPosition="right">
+    (click)="exportarPdf()"
+    pTooltip="Exportar PDF"
+    tooltipPosition="right">
     <app-icon name="picture_as_pdf" size="xl"></app-icon>
   </button>
 
   <!-- FAB: Subir Documento (Bottom Right) -->
   <button
+    *ngxPermissionsOnly="[P.DocumentsWrite]"
     class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
-    (click)="openAddInvoiceModal()" pTooltip="Subir documento" tooltipPosition="left">
+    (click)="openAddInvoiceModal()"
+    pTooltip="Subir documento"
+    tooltipPosition="left">
     <app-icon name="add" size="xl"></app-icon>
   </button>
 </div>

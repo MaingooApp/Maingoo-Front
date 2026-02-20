@@ -11,7 +11,11 @@
 
     <!-- Menu Grid -->
     <div class="menu-grid">
-      <button *ngFor="let item of menuItems" type="button" class="menu-item" (click)="navigateTo(item.route, $event)"
+      <button
+        *ngFor="let item of filteredMenuItems"
+        type="button"
+        class="menu-item"
+        (click)="navigateTo(item.route, $event)"
         [attr.aria-label]="'Navegar a ' + item.label">
         <i [class]="item.icon + ' menu-icon'" aria-hidden="true"></i>
         <span class="menu-label">{{ item.label }}</span>

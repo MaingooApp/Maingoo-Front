@@ -13,8 +13,16 @@ import { SidebarNotificationsComponent } from './sidebar-notifications/sidebar-n
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, SidebarShellComponent, SidebarMenuComponent, SidebarChatComponent, SidebarNotificationsComponent, IconComponent],
-  templateUrl: './app.sidebar.html',
+  imports: [
+    CommonModule,
+    RouterModule,
+    SidebarShellComponent,
+    SidebarMenuComponent,
+    SidebarChatComponent,
+    SidebarNotificationsComponent,
+    IconComponent
+  ],
+  templateUrl: './app.sidebar.html'
 })
 export class AppSidebar implements OnInit, OnDestroy {
   // Tab activo: 'chat' o 'notifications'
@@ -27,24 +35,30 @@ export class AppSidebar implements OnInit, OnDestroy {
   // Acciones rápidas (Menú de navegación)
   quickLinks = [
     { label: 'Dashboard', icon: 'monitoring', route: '/' },
-    { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores' },
-    { label: 'Almacén', icon: 'warehouse', route: '/productos' },
-    { label: 'Artículos', icon: 'restaurant', route: '/articulos' },
+    { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores', permissions: ['suppliers.read'] },
+    { label: 'Almacén', icon: 'warehouse', route: '/productos', permissions: ['products.read'] },
+    { label: 'Artículos', icon: 'restaurant', route: '/articulos', permissions: ['products.read'] },
     { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
     { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
     { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true },
     { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
+    {
+      label: 'Usuarios',
+      icon: 'manage_accounts',
+      route: '/usuarios',
+      permissions: ['users.read', 'permissions.assign']
+    }
   ];
 
   constructor(
     public layoutService: LayoutService,
     private toastService: ToastService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // Suscribirse a las notificaciones
-    this.notificationsSubscription = this.toastService.notifications$.subscribe(notifications => {
+    this.notificationsSubscription = this.toastService.notifications$.subscribe((notifications) => {
       this.notifications = notifications;
     });
   }

@@ -30,6 +30,8 @@ import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { ModalService } from '../../shared/services/modal.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '../../core/constants/permissions.enum';
 import { SupplierDetailComponent } from './components/supplier-detail/supplier-detail.component';
 
 import { SupplierCardComponent } from './components/supplier-card/supplier-card.component';
@@ -61,11 +63,13 @@ import { SupplierSectionHeaderDetailComponent } from './components/supplier-sect
     SupplierDetailComponent,
     SupplierCardComponent,
     SupplierListComponent,
-    SupplierSectionHeaderDetailComponent
+    SupplierSectionHeaderDetailComponent,
+    NgxPermissionsModule
   ],
   templateUrl: './supplier.component.html'
 })
 export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
+  readonly P = AppPermission;
   @ViewChild(SupplierDetailComponent) detailComponent!: SupplierDetailComponent;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
 
@@ -126,14 +130,12 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
     { field: 'commercialName', header: 'Nombre Comercial', type: 'text', filter: true }
   ] as const;
 
-  actions = [
-    { action: 'delete', icon: 'delete', color: 'danger', tooltip: 'Eliminar proveedor' }
-  ] as const;
+  actions = [{ action: 'delete', icon: 'delete', color: 'danger', tooltip: 'Eliminar proveedor' }] as const;
 
   constructor(
     private confirmDialog: ConfirmDialogService,
     private toastService: ToastService
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
@@ -278,4 +280,3 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 }
-
