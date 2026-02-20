@@ -30,6 +30,8 @@ import { ProductCardComponent } from './components/product-card/product-card.com
 import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
 import { DetailCardShellComponent } from '@shared/components/detail-card-shell/detail-card-shell.component';
 import { ProductsSectionHeaderDetailComponent } from './components/products-section-header-detail/products-section-header-detail.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '../../core/constants/permissions.enum';
 
 @Component({
   selector: 'app-productos',
@@ -53,12 +55,14 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
     ProductCardComponent,
     DetailCardShellComponent,
     CategoryDetailComponent,
-    ProductsSectionHeaderDetailComponent
+    ProductsSectionHeaderDetailComponent,
+    NgxPermissionsModule
   ],
   providers: [],
   templateUrl: './productos.component.html'
 })
 export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
+  readonly P = AppPermission;
   public layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
   private productService = inject(ProductService);
@@ -158,9 +162,9 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     const lowerTerm = this.normalizeText(this.searchTerm);
 
     return this.productGroups
-      .map(group => {
+      .map((group) => {
         // Filter products within the group
-        const matchingProducts = group.products.filter(p => {
+        const matchingProducts = group.products.filter((p) => {
           const categoryName = p.category?.name;
           return (
             this.normalizeText(p.name).includes(lowerTerm) ||
@@ -174,7 +178,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         const groupNameMatches = this.normalizeText(group.rootCategory.name).includes(lowerTerm);
 
         // Return group if name matches OR has matching products
-        // If name matches, show all? Or just matches? Usually just matches is better context, 
+        // If name matches, show all? Or just matches? Usually just matches is better context,
         // but if category name matches, maybe user wants to see all in that category?
         // Let's stick to showing the group if it has content relevant to search.
 
@@ -190,13 +194,13 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         return null;
       })
-      .filter(group => group !== null) as ProductGroup[];
+      .filter((group) => group !== null) as ProductGroup[];
   }
 
   get categoryProducts(): Product[] {
     if (!this.selectedCategory) return [];
     // Find the group with the matching root category name
-    const group = this.productGroups.find(g => g.rootCategory.name === this.selectedCategory);
+    const group = this.productGroups.find((g) => g.rootCategory.name === this.selectedCategory);
     if (!group) return [];
 
     // Apply search filter if any
@@ -276,10 +280,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-
-
-
-
   // --- Initialization & Lifecycle ---
 
   ngAfterViewInit() {
@@ -297,13 +297,13 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
       next: (productGroups: ProductGroup[]) => {
         // Store groups for category cards display
         // Process and normalize groups directly
-        this.productGroups = productGroups.map(group => ({
+        this.productGroups = productGroups.map((group) => ({
           ...group,
-          products: group.products.map(p => this.normalizeProductData(p))
+          products: group.products.map((p) => this.normalizeProductData(p))
         }));
 
         // Flatten all products from the already normalized groups
-        this.productos = this.productGroups.flatMap(group => group.products);
+        this.productos = this.productGroups.flatMap((group) => group.products);
         this.cargando = false;
       },
       error: (error: any) => {
@@ -422,7 +422,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   getCategoryStyle(category: string | undefined | null): { [klass: string]: any } {
     return getCategoryColor(category);
   }
-
 
   filterProductos(event: Event) {
     const value = (event.target as HTMLInputElement).value;

@@ -3,33 +3,46 @@
     <!-- Mobile Header Controls -->
     <div class="flex md:hidden justify-between items-start mb-4 sticky top-0 z-20 pointer-events-none">
       <!-- Left: Search -->
-      <div class="pointer-events-auto flex items-center gap-2 transition-all duration-300 ease-out"
-        [class.w-full]="showMobileSearch" [class.mr-[105px]]="showMobileSearch">
+      <div
+        class="pointer-events-auto flex items-center gap-2 transition-all duration-300 ease-out"
+        [class.w-full]="showMobileSearch"
+        [class.mr-[105px]]="showMobileSearch">
         <button
           class="flex items-center justify-center rounded-full w-12 h-12 text-gray-600 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 transition-all duration-200"
-          [class.bg-maingoo-sage]="showMobileSearch" [class.text-white]="showMobileSearch"
-          [class.border-transparent]="showMobileSearch" (click)="showMobileSearch = !showMobileSearch">
+          [class.bg-maingoo-sage]="showMobileSearch"
+          [class.text-white]="showMobileSearch"
+          [class.border-transparent]="showMobileSearch"
+          (click)="showMobileSearch = !showMobileSearch">
           <app-icon name="search" size="md"></app-icon>
         </button>
 
-        <input *ngIf="showMobileSearch" type="text" pInputText placeholder="Buscar proveedor..."
+        <input
+          *ngIf="showMobileSearch"
+          type="text"
+          pInputText
+          placeholder="Buscar proveedor..."
           class="flex-1 h-12 shadow-lg rounded-full border-none pl-5 pr-4 text-base animate-fade-in bg-white/95 backdrop-blur-sm"
-          (input)="filterSuppliers($event)" autofocus />
+          (input)="filterSuppliers($event)"
+          autofocus />
       </div>
 
       <!-- Right: View Toggle Switch -->
       <div
         class="pointer-events-auto absolute right-0 top-0 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 rounded-full h-12 p-1 flex items-center gap-1">
         <!-- Grid Option -->
-        <button (click)="setViewMode('grid')"
-          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300" [ngClass]="
+        <button
+          (click)="setViewMode('grid')"
+          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
+          [ngClass]="
             viewMode === 'grid' ? 'bg-maingoo-sage text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
           ">
           <app-icon name="grid_view" size="md"></app-icon>
         </button>
         <!-- List Option -->
-        <button (click)="setViewMode('list')"
-          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300" [ngClass]="
+        <button
+          (click)="setViewMode('list')"
+          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
+          [ngClass]="
             viewMode === 'list' ? 'bg-maingoo-sage text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
           ">
           <app-icon name="view_list" size="md"></app-icon>
@@ -39,8 +52,12 @@
 
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
-      <app-supplier-section-header-detail [supplier]="supplier" [viewMode]="viewMode"
-        (viewModeChange)="setViewMode($event)" (search)="filterSuppliers($event)" (addInvoice)="openAddInvoiceModal()">
+      <app-supplier-section-header-detail
+        [supplier]="supplier"
+        [viewMode]="viewMode"
+        (viewModeChange)="setViewMode($event)"
+        (search)="filterSuppliers($event)"
+        (addInvoice)="openAddInvoiceModal()">
       </app-supplier-section-header-detail>
     </ng-template>
 
@@ -50,7 +67,9 @@
       <div [ngClass]="selectedSupplier ? 'w-full md:w-1/4' : 'flex-1 min-w-0'" class="transition-all duration-300">
         <!-- SECTION: Empty State -->
         <div *ngIf="!cargando && supplier.length === 0; else contenidoPrincipal">
-          <app-empty-state icon="local_shipping" title="No hay proveedores registrados"
+          <app-empty-state
+            icon="local_shipping"
+            title="No hay proveedores registrados"
             description="Cuando escanees o subas una factura, ese proveedor, aparecerá aquí.">
           </app-empty-state>
         </div>
@@ -60,7 +79,6 @@
           <ng-container *ngIf="cargando">
             <app-skeleton *ngIf="viewMode === 'grid'" mode="grid" [count]="8"></app-skeleton>
 
-
             <app-skeleton *ngIf="viewMode === 'list'" mode="list" [count]="6"></app-skeleton>
           </ng-container>
 
@@ -68,17 +86,23 @@
           <ng-container *ngIf="!cargando">
             <!-- VIEW: Grid Mode -->
             <ng-container *ngIf="viewMode === 'grid'">
-              <div class="grid gap-6"
+              <div
+                class="grid gap-6"
                 [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
-                <app-supplier-card *ngFor="let item of filteredSupplier" [supplier]="item"
-                  [isSelected]="selectedSupplier?.id === item.id" (cardClick)="showDialog($any($event))">
+                <app-supplier-card
+                  *ngFor="let item of filteredSupplier"
+                  [supplier]="item"
+                  [isSelected]="selectedSupplier?.id === item.id"
+                  (cardClick)="showDialog($any($event))">
                 </app-supplier-card>
               </div>
             </ng-container>
 
             <!-- VIEW: List Mode -->
             <div *ngIf="viewMode === 'list'">
-              <app-supplier-list [suppliers]="filteredSupplier" [selectedSupplier]="selectedSupplier"
+              <app-supplier-list
+                [suppliers]="filteredSupplier"
+                [selectedSupplier]="selectedSupplier"
                 (selectSupplier)="showDialog($any($event))">
               </app-supplier-list>
             </div>
@@ -103,7 +127,8 @@
           <div
             class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
             <!-- Drag Handle Area -->
-            <div class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+            <div
+              class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
               (click)="hideDialog()">
               <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
             </div>
@@ -119,9 +144,15 @@
 
     <!-- SHARED CONTENT TEMPLATE -->
     <ng-template #detailContent>
-      <app-supplier-detail #detailComponent [supplier]="selectedSupplier!" [invoices]="supplierInvoices"
-        (close)="hideDialog()" (save)="saveSupplier($event)" (delete)="confirmDelete($event)"
-        (viewInvoice)="viewInvoice($event)" class="h-full block">
+      <app-supplier-detail
+        #detailComponent
+        [supplier]="selectedSupplier!"
+        [invoices]="supplierInvoices"
+        (close)="hideDialog()"
+        (save)="saveSupplier($event)"
+        (delete)="confirmDelete($event)"
+        (viewInvoice)="viewInvoice($event)"
+        class="h-full block">
       </app-supplier-detail>
     </ng-template>
 
@@ -145,8 +176,13 @@
 
     <!-- Mobile FAB (Floating Action Button) -->
     <button
+      *ngxPermissionsOnly="[P.DocumentsWrite]"
       class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-10 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
-      (click)="openAddInvoiceModal()" pTooltip="Subir factura" tooltipPosition="left" aria-label="Añadir factura">
+      (click)="openAddInvoiceModal()"
+      pTooltip="Subir factura"
+      tooltipPosition="left"
+      aria-label="Añadir factura">
       <app-icon name="add" size="xl"></app-icon>
     </button>
   </div>
+</div>

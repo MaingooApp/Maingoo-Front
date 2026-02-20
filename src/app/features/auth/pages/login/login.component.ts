@@ -58,12 +58,7 @@ export class Login {
     this.authService.login(email, password).subscribe({
       next: (response) => {
         console.log('Login exitoso:', response);
-        // Redirigir según el rol
-        if (response.user.roleName === 'admin') {
-          this.router.navigate(['/']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        this.router.navigate(['/']);
         this.cargando = false;
       },
       error: (error) => {

@@ -5,6 +5,7 @@ import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScroll
 import { provideServiceWorker } from '@angular/service-worker';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { NgxPermissionsModule } from 'ngx-permissions';
 import Aura from '@primeng/themes/aura';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
@@ -40,7 +41,8 @@ export const appConfig: ApplicationConfig = {
           deps: [HttpClient]
         }
       }),
-      DynamicDialogModule
+      DynamicDialogModule,
+      NgxPermissionsModule.forRoot()
     ),
     providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } }, translation: primengEs }),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),

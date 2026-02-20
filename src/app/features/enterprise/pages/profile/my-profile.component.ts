@@ -26,6 +26,8 @@ import { MessageService } from 'primeng/api';
 import { Enterprise, EnterpriseService } from '../../services/enterprise.service';
 import { AuthService } from '../../../auth/services/auth-service.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '@app/core/constants/permissions.enum';
 
 @Component({
   selector: 'app-my-profile',
@@ -43,12 +45,14 @@ import { IconComponent } from '@shared/components/icon/icon.component';
     TabViewModule,
     TabViewModule,
     ToastModule,
-    IconComponent
+    IconComponent,
+    NgxPermissionsModule
   ],
   providers: [MessageService],
   templateUrl: './my-profile.component.html'
 })
 export class MyProfileComponent {
+  readonly P = AppPermission;
   perfilForm!: FormGroup;
   passwordForm!: FormGroup;
   currentEnterprise?: Enterprise;
@@ -59,7 +63,7 @@ export class MyProfileComponent {
     private authService: AuthService,
     private messageService: MessageService,
     private router: Router
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.perfilForm = this.fb.group({
@@ -111,14 +115,14 @@ export class MyProfileComponent {
 
       return !passwordValid
         ? {
-          passwordPolicy: {
-            hasMinLength,
-            hasUpperCase,
-            hasLowerCase,
-            hasNumber,
-            hasSpecialChar
+            passwordPolicy: {
+              hasMinLength,
+              hasUpperCase,
+              hasLowerCase,
+              hasNumber,
+              hasSpecialChar
+            }
           }
-        }
         : null;
     };
   }

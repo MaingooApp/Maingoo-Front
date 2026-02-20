@@ -1,40 +1,60 @@
 <app-detail-card-shell [title]="categoryDisplayName" (close)="onClose()">
-	<div header-actions class="flex items-center gap-1">
-		<!-- Añadir elaboración -->
-		<button *ngIf="selectedCategory === 'elaborations'" pButton label="Añadir elaboración" severity="primary"
-			(click)="toggleAddElaborationForm()" class="whitespace-nowrap">
-			<app-icon name="add" size="md" class="mr-2"></app-icon>
-		</button>
-		<!-- Añadir artículo -->
-		<button *ngIf="selectedCategory === 'articles'" pButton label="Añadir artículo" severity="primary"
-			(click)="toggleAddArticleForm()" class="whitespace-nowrap">
-			<app-icon name="add" size="md" class="mr-2"></app-icon>
-		</button>
-	</div>
+  <div header-actions class="flex items-center gap-1">
+    <ng-container *ngxPermissionsOnly="[P.ProductsWrite]">
+      <!-- Añadir elaboración -->
+      <button
+        *ngIf="selectedCategory === 'elaborations'"
+        pButton
+        label="Añadir elaboración"
+        severity="primary"
+        (click)="toggleAddElaborationForm()"
+        class="whitespace-nowrap">
+        <app-icon name="add" size="md" class="mr-2"></app-icon>
+      </button>
+      <!-- Añadir artículo -->
+      <button
+        *ngIf="selectedCategory === 'articles'"
+        pButton
+        label="Añadir artículo"
+        severity="primary"
+        (click)="toggleAddArticleForm()"
+        class="whitespace-nowrap">
+        <app-icon name="add" size="md" class="mr-2"></app-icon>
+      </button>
+    </ng-container>
+  </div>
 
-	<!-- Content -->
-	<div class="flex flex-col gap-4">
+  <!-- Content -->
+  <div class="flex flex-col gap-4">
+    <!-- Elaborations Content -->
+    <app-elaborations-content
+      *ngIf="selectedCategory === 'elaborations'"
+      [elaborations]="elaborations()"
+      [availableProducts]="availableProducts"
+      [showForm]="showAddElaborationForm()"
+      (limitForm)="onLimitElaborationForm($event)"
+      (save)="onSaveElaboration($event)">
+    </app-elaborations-content>
 
-		<!-- Elaborations Content -->
-		<app-elaborations-content *ngIf="selectedCategory === 'elaborations'" [elaborations]="elaborations()"
-			[availableProducts]="availableProducts" [showForm]="showAddElaborationForm()"
-			(limitForm)="onLimitElaborationForm($event)" (save)="onSaveElaboration($event)">
-		</app-elaborations-content>
+    <!-- Articles Content -->
+    <app-articles-content
+      *ngIf="selectedCategory === 'articles'"
+      [showForm]="showAddArticleForm()"
+      [articles]="articles"
+      (limitForm)="onLimitArticleForm($event)">
+    </app-articles-content>
 
-		<!-- Articles Content -->
-		<app-articles-content *ngIf="selectedCategory === 'articles'" [showForm]="showAddArticleForm()"
-			[articles]="articles" (limitForm)="onLimitArticleForm($event)">
-		</app-articles-content>
-
-		<!-- Mise en place Content -->
-		<div *ngIf="selectedCategory === 'mise-en-place'"
-			class="flex flex-col items-center justify-center py-12 text-center">
-			<div class="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center text-purple-400 mb-4">
-				<app-icon name="chef_hat" size="xl"></app-icon>
-			</div>
-			<h3 class="text-lg font-medium text-gray-900">Mise en place</h3>
-			<p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">Próximamente podrás organizar y distribuir las
-				elaboraciones con tu equipo.</p>
-		</div>
-	</div>
+    <!-- Mise en place Content -->
+    <div
+      *ngIf="selectedCategory === 'mise-en-place'"
+      class="flex flex-col items-center justify-center py-12 text-center">
+      <div class="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center text-purple-400 mb-4">
+        <app-icon name="chef_hat" size="xl"></app-icon>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900">Mise en place</h3>
+      <p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">
+        Próximamente podrás organizar y distribuir las elaboraciones con tu equipo.
+      </p>
+    </div>
+  </div>
 </app-detail-card-shell>

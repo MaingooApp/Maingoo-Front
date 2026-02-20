@@ -3,31 +3,34 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '@app/core/constants/permissions.enum';
 
 @Component({
-	selector: 'app-supplier-section-header-detail',
-	standalone: true,
-	imports: [CommonModule, ButtonModule, InputTextModule, IconComponent],
-	templateUrl: './supplier-section-header-detail.component.html',
-
+  selector: 'app-supplier-section-header-detail',
+  standalone: true,
+  imports: [CommonModule, ButtonModule, InputTextModule, IconComponent, NgxPermissionsModule],
+  templateUrl: './supplier-section-header-detail.component.html'
 })
 export class SupplierSectionHeaderDetailComponent {
-	@Input() supplier: any[] = [];
-	@Input() viewMode: 'grid' | 'list' = 'grid';
+  @Input() supplier: any[] = [];
+  @Input() viewMode: 'grid' | 'list' = 'grid';
 
-	@Output() viewModeChange = new EventEmitter<'grid' | 'list'>();
-	@Output() search = new EventEmitter<Event>();
-	@Output() addInvoice = new EventEmitter<void>();
+  @Output() viewModeChange = new EventEmitter<'grid' | 'list'>();
+  @Output() search = new EventEmitter<Event>();
+  @Output() addInvoice = new EventEmitter<void>();
 
-	setViewMode(mode: 'grid' | 'list') {
-		this.viewModeChange.emit(mode);
-	}
+  readonly P = AppPermission;
 
-	onSearch(event: Event) {
-		this.search.emit(event);
-	}
+  setViewMode(mode: 'grid' | 'list') {
+    this.viewModeChange.emit(mode);
+  }
 
-	onAddInvoice() {
-		this.addInvoice.emit();
-	}
+  onSearch(event: Event) {
+    this.search.emit(event);
+  }
+
+  onAddInvoice() {
+    this.addInvoice.emit();
+  }
 }

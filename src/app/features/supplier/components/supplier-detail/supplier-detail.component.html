@@ -1,85 +1,110 @@
 <app-detail-card-shell [title]="supplier.name || 'Proveedor'" (close)="close.emit()">
-	<div header-actions class="flex items-center gap-1">
-		<button pButton class="p-button-rounded p-button-text"
-			[ngClass]="isEditing ? 'p-button-success' : 'p-button-secondary'"
-			[pTooltip]="isEditing ? 'Guardar cambios' : 'Editar proveedor'" tooltipPosition="bottom"
-			(click)="toggleEdit()">
-			<app-icon [name]="isEditing ? 'check' : 'edit'" size="md"></app-icon>
-		</button>
-		<button pButton class="p-button-rounded p-button-text p-button-danger" pTooltip="Eliminar proveedor"
-			tooltipPosition="bottom" (click)="confirmDelete()">
-			<app-icon name="delete" size="md"></app-icon>
-		</button>
-	</div>
+  <div header-actions class="flex items-center gap-1">
+    <button
+      *ngxPermissionsOnly="[P.SuppliersWrite]"
+      pButton
+      class="p-button-rounded p-button-text"
+      [ngClass]="isEditing ? 'p-button-success' : 'p-button-secondary'"
+      [pTooltip]="isEditing ? 'Guardar cambios' : 'Editar proveedor'"
+      tooltipPosition="bottom"
+      (click)="toggleEdit()">
+      <app-icon [name]="isEditing ? 'check' : 'edit'" size="md"></app-icon>
+    </button>
+    <button
+      *ngxPermissionsOnly="[P.SuppliersDelete]"
+      pButton
+      class="p-button-rounded p-button-text p-button-danger"
+      pTooltip="Eliminar proveedor"
+      tooltipPosition="bottom"
+      (click)="confirmDelete()">
+      <app-icon name="delete" size="md"></app-icon>
+    </button>
+  </div>
 
-	<div (click)="$event.stopPropagation()">
-		<!-- Editable Name -->
-		<div *ngIf="isEditing" class="mb-4 pt-4">
-			<label class="text-sm text-gray-500 mb-1 block">Nombre del proveedor</label>
-			<input type="text" [(ngModel)]="supplier.name"
-				class="text-xl font-bold text-maingoo-deep leading-tight w-full bg-white border border-maingoo-sage rounded-lg focus:outline-none focus:ring-2 focus:ring-maingoo-sage/30 px-3 py-2" />
-		</div>
+  <div (click)="$event.stopPropagation()">
+    <!-- Editable Name -->
+    <div *ngIf="isEditing" class="mb-4 pt-4">
+      <label class="text-sm text-gray-500 mb-1 block">Nombre del proveedor</label>
+      <input
+        type="text"
+        [(ngModel)]="supplier.name"
+        class="text-xl font-bold text-maingoo-deep leading-tight w-full bg-white border border-maingoo-sage rounded-lg focus:outline-none focus:ring-2 focus:ring-maingoo-sage/30 px-3 py-2" />
+    </div>
 
-		<!-- Properties Section -->
-		<div class="flex flex-col gap-2" [ngClass]="{'pt-4': !isEditing}">
-			<!-- Address -->
-			<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]" *ngIf="supplier.address">
-				<div class="flex items-center gap-2 text-gray-400 text-sm">
-					<app-icon name="location_on" size="md" class="text-maingoo-sage"></app-icon>
-					<span>Dirección</span>
-				</div>
-				<div class="flex items-center -ml-2">
-					<input type="text" [(ngModel)]="supplier.address" [readonly]="!isEditing" placeholder="Vacío"
-						class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
-						[ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
-				</div>
-			</div>
+    <!-- Properties Section -->
+    <div class="flex flex-col gap-2" [ngClass]="{ 'pt-4': !isEditing }">
+      <!-- Address -->
+      <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]" *ngIf="supplier.address">
+        <div class="flex items-center gap-2 text-gray-400 text-sm">
+          <app-icon name="location_on" size="md" class="text-maingoo-sage"></app-icon>
+          <span>Dirección</span>
+        </div>
+        <div class="flex items-center -ml-2">
+          <input
+            type="text"
+            [(ngModel)]="supplier.address"
+            [readonly]="!isEditing"
+            placeholder="Vacío"
+            class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+            [ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
+        </div>
+      </div>
 
-			<!-- Sanitary & CIF -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-					<div class="flex items-center gap-2 text-gray-400 text-sm">
-						<app-icon name="description" size="md" class="text-maingoo-sage"></app-icon>
-						<span>Reg. Sanitario</span>
-						<a href="https://rgsa-web-aesan.mscbs.es/rgsa/formulario_principal_js.jsp" target="_blank"
-							class="text-gray-400 hover:text-maingoo-sage transition-colors flex items-center relative z-10 cursor-pointer"
-							title="Ver Registro Sanitario (AESAN)" (click)="$event.stopPropagation()">
-							<app-icon name="open_in_new" size="xs"></app-icon>
-						</a>
-					</div>
-					<div class="flex items-center -ml-2">
-						<input type="text" [(ngModel)]="supplier.sanitaryRegistrationNumber" [readonly]="!isEditing"
-							placeholder="Vacío"
-							class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
-							[ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
-					</div>
-				</div>
+      <!-- Sanitary & CIF -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+          <div class="flex items-center gap-2 text-gray-400 text-sm">
+            <app-icon name="description" size="md" class="text-maingoo-sage"></app-icon>
+            <span>Reg. Sanitario</span>
+            <a
+              href="https://rgsa-web-aesan.mscbs.es/rgsa/formulario_principal_js.jsp"
+              target="_blank"
+              class="text-gray-400 hover:text-maingoo-sage transition-colors flex items-center relative z-10 cursor-pointer"
+              title="Ver Registro Sanitario (AESAN)"
+              (click)="$event.stopPropagation()">
+              <app-icon name="open_in_new" size="xs"></app-icon>
+            </a>
+          </div>
+          <div class="flex items-center -ml-2">
+            <input
+              type="text"
+              [(ngModel)]="supplier.sanitaryRegistrationNumber"
+              [readonly]="!isEditing"
+              placeholder="Vacío"
+              class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+              [ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
+          </div>
+        </div>
 
-				<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-					<div class="flex items-center gap-2 text-gray-400 text-sm">
-						<app-icon name="badge" size="md" class="text-maingoo-sage"></app-icon>
-						<span>CIF/NIF</span>
-					</div>
-					<div class="flex items-center -ml-2">
-						<input type="text" [(ngModel)]="supplier.cifNif" [readonly]="!isEditing"
-							class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
-							[ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
+          <div class="flex items-center gap-2 text-gray-400 text-sm">
+            <app-icon name="badge" size="md" class="text-maingoo-sage"></app-icon>
+            <span>CIF/NIF</span>
+          </div>
+          <div class="flex items-center -ml-2">
+            <input
+              type="text"
+              [(ngModel)]="supplier.cifNif"
+              [readonly]="!isEditing"
+              class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+              [ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
+          </div>
+        </div>
+      </div>
+    </div>
 
-		<!-- Contact & Delivery -->
-		<div class="flex flex-col gap-2 mt-2">
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-				<app-supplier-contact [supplier]="supplier" [isEditing]="isEditing"></app-supplier-contact>
-				<app-supplier-delivery [supplier]="supplier" [isEditing]="isEditing"></app-supplier-delivery>
-			</div>
-		</div>
+    <!-- Contact & Delivery -->
+    <div class="flex flex-col gap-2 mt-2">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <app-supplier-contact [supplier]="supplier" [isEditing]="isEditing"></app-supplier-contact>
+        <app-supplier-delivery [supplier]="supplier" [isEditing]="isEditing"></app-supplier-delivery>
+      </div>
+    </div>
 
-		<app-supplier-stats [invoices]="invoices"></app-supplier-stats>
-		<app-supplier-invoices [invoices]="invoices" [supplier]="supplier"
-			(viewInvoice)="viewInvoice.emit($event)"></app-supplier-invoices>
-
-	</div>
+    <app-supplier-stats [invoices]="invoices"></app-supplier-stats>
+    <app-supplier-invoices
+      [invoices]="invoices"
+      [supplier]="supplier"
+      (viewInvoice)="viewInvoice.emit($event)"></app-supplier-invoices>
+  </div>
 </app-detail-card-shell>

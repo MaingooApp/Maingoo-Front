@@ -1,25 +1,29 @@
 <!-- ========== SECCIÓN MENÚ DE NAVEGACIÓN ========== -->
 <div class="flex-shrink-0 px-4 pt-4 pb-3 bg-[#F0F7F4] dark:bg-surface-900">
-	<!-- Etiqueta MENU -->
-	<div class="mb-3">
-		<p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">Menú</p>
-		<div class="h-px bg-gray-300 dark:bg-gray-600 mt-2"></div>
-	</div>
+  <!-- Etiqueta MENU -->
+  <div class="mb-3">
+    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-0">Menú</p>
+    <div class="h-px bg-gray-300 dark:bg-gray-600 mt-2"></div>
+  </div>
 
-	<!-- Chips compactos (Siempre visibles) -->
-	<div class="grid grid-cols-3 gap-2">
-		@for (link of quickLinks; track link.route) {
-		<a [routerLink]="link.route" routerLinkActive="!text-[#6B9E86] !shadow-[0_6px_16px_rgba(26,60,52,0.1)]"
-			class="flex items-center justify-center gap-1 px-2 py-2 rounded-full border-0 transition-all duration-200 cursor-pointer"
-			[ngClass]="link.comingSoon 
-         ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' 
-         : 'bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_6px_16px_rgba(26,60,52,0.1)]'">
-			<app-icon [name]="link.icon" size="sm"></app-icon>
-			<span class="text-[10px] font-medium whitespace-nowrap">{{ link.label }}</span>
-			@if (link.comingSoon) {
-			<app-icon name="construction" size="xs" class="text-amber-500"></app-icon>
-			}
-		</a>
-		}
-	</div>
+  <!-- Chips compactos (Siempre visibles) -->
+  <div class="grid grid-cols-3 gap-2">
+    @for (link of filteredLinks; track link.route) {
+      <a
+        [routerLink]="link.route"
+        routerLinkActive="!text-[#6B9E86] !shadow-[0_6px_16px_rgba(26,60,52,0.1)]"
+        class="flex items-center justify-center gap-1 px-2 py-2 rounded-full border-0 transition-all duration-200 cursor-pointer"
+        [ngClass]="
+          link.comingSoon
+            ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
+            : 'bg-white dark:bg-surface-700 text-[#1A3C34] dark:text-surface-0 shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:text-[#6B9E86] hover:shadow-[0_6px_16px_rgba(26,60,52,0.1)]'
+        ">
+        <app-icon [name]="link.icon" size="sm"></app-icon>
+        <span class="text-[10px] font-medium whitespace-nowrap">{{ link.label }}</span>
+        @if (link.comingSoon) {
+          <app-icon name="construction" size="xs" class="text-amber-500"></app-icon>
+        }
+      </a>
+    }
+  </div>
 </div>

@@ -4,6 +4,7 @@ import { BaseHttpService } from '../../../core/services/base-http.service';
 import { environment } from '../../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { AuthTokens, LoginResponse, RegisterResponse, User } from '../interfaces/auth.interface';
+import { NgxPermissionsService } from 'ngx-permissions';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService extends BaseHttpService {
@@ -11,7 +12,10 @@ export class AuthService extends BaseHttpService {
   private userSubject = new BehaviorSubject<User | null>(null);
   public authState$ = this.userSubject.asObservable();
 
-  constructor(http: HttpClient) {
+  constructor(
+    http: HttpClient,
+    private ngxPermissionsService: NgxPermissionsService
+  ) {
     super(http);
     this.loadUserFromStorage();
   }
@@ -24,6 +28,7 @@ export class AuthService extends BaseHttpService {
       try {
         const user = JSON.parse(userStr);
         this.userSubject.next(user);
+        this.ngxPermissionsService.loadPermissions(user.permissions || []);
       } catch (error) {
         console.error('Error al cargar usuario del storage:', error);
         this.clearStorage();
@@ -64,6 +69,7 @@ export class AuthService extends BaseHttpService {
       tap((response) => {
         this.saveToStorage(response.tokens, response.user);
         this.userSubject.next(response.user);
+        this.ngxPermissionsService.loadPermissions(response.user.permissions || []);
       })
     );
   }
@@ -72,6 +78,7 @@ export class AuthService extends BaseHttpService {
     return new Observable((observer) => {
       this.clearStorage();
       this.userSubject.next(null);
+      this.ngxPermissionsService.flushPermissions();
       observer.next();
       observer.complete();
     });
@@ -85,15 +92,15 @@ export class AuthService extends BaseHttpService {
     };
     return this.post<RegisterResponse>(`${this.API_URL}/register`, body).pipe(
       tap((response) => {
-        // Opcionalmente podrías auto-loguear al usuario después del registro
         this.saveToStorage(response.tokens, response.user);
         this.userSubject.next(response.user);
+        this.ngxPermissionsService.loadPermissions(response.user.permissions || []);
       })
     );
   }
 
-  getUserRole(): string | null {
-    return this.currentUser?.roleName || null;
+  hasPermission(permission: string): boolean {
+    return !!this.ngxPermissionsService.getPermission(permission);
   }
 
   getEnterpriseId(): string | null {
@@ -135,16 +142,10 @@ export class AuthService extends BaseHttpService {
     );
   }
 
-  /**
-   * Actualiza la contraseña del usuario autenticado
-   * @param currentPassword Contraseña actual
-   * @param newPassword Nueva contraseña
-   * @returns Observable<void>
-   */
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
-    return this.put<void>(`${this.API_URL}/profile`, { 
-      currentPassword, 
-      password: newPassword 
+    return this.put<void>(`${this.API_URL}/profile`, {
+      currentPassword,
+      password: newPassword
     });
   }
 }
