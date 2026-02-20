@@ -5,7 +5,9 @@ export interface Supplier {
   address?: string | null;
   phoneNumber?: string | null;
   commercialName?: string | null;
+  commercialEmail?: string | null;
   commercialPhoneNumber?: string | null;
+  orderDays?: string | null;
   deliveryDays?: string | null;
   minPriceDelivery?: number | null;
   sanitaryRegistrationNumber?: string | null;
@@ -19,7 +21,9 @@ export interface CreateSupplierDto {
   address?: string;
   phoneNumber?: string;
   commercialName?: string;
+  commercialEmail?: string;
   commercialPhoneNumber?: string;
+  orderDays?: string;
   deliveryDays?: string;
   minPriceDelivery?: number;
   sanitaryRegistrationNumber?: string;
@@ -28,11 +32,13 @@ export interface CreateSupplierDto {
 export interface UpdateSupplierDto {
   name?: string;
   cifNif?: string;
-  address?: string;
-  phoneNumber?: string;
-  commercialName?: string;
-  commercialPhoneNumber?: string;
-  deliveryDays?: string;
-  minPriceDelivery?: number;
-  sanitaryRegistrationNumber?: string;
+  address?: string | null;
+  phoneNumber?: string | null;
+  commercialName?: string | null;
+  commercialEmail?: string | null;
+  commercialPhoneNumber?: string | null;
+  orderDays?: string | null;
+  deliveryDays?: string | null;
+  minPriceDelivery?: number | null;
+  sanitaryRegistrationNumber?: string | null;
 }

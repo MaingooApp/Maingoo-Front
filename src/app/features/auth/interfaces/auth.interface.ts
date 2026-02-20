@@ -2,8 +2,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  roleId: string;
-  roleName: string;
+  permissions: string[];
   enterpriseId: string;
   phonePrefix: string | null;
   phoneNumber: string | null;

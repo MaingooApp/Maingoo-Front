@@ -6,13 +6,16 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
-import { AppFloatingConfigurator } from '../../../../layout/component/app.floatingconfigurator';
+import { AppFloatingConfigurator } from '../../../../layout/component/floating-configurator/app.floatingconfigurator';
 import { AuthService } from '../../services/auth-service.service';
+
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
+    CommonModule,
     ButtonModule,
     CheckboxModule,
     InputTextModule,
@@ -55,12 +58,7 @@ export class Login {
     this.authService.login(email, password).subscribe({
       next: (response) => {
         console.log('Login exitoso:', response);
-        // Redirigir según el rol
-        if (response.user.roleName === 'admin') {
-          this.router.navigate(['/']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        this.router.navigate(['/']);
         this.cargando = false;
       },
       error: (error) => {

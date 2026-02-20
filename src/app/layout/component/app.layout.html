@@ -1,17 +1,23 @@
-<div class="layout-wrapper min-h-screen" [ngClass]="containerClass">
-  <app-topbar></app-topbar>
-  
-  <!-- CAPA FONDO (z-index: 0) - Dashboard Scrollable -->
-  <div class="layout-main-container flex flex-col min-h-screen justify-between px-8 pt-24 pb-32 md:pb-8 transition-[margin-right] duration-300" [ngClass]="mainContainerClass">
-    <div class="layout-main flex-auto pb-8">
-      <router-outlet></router-outlet>
-    </div>
+<div class="layout-wrapper flex flex-col h-screen overflow-hidden" [ngClass]="containerClass">
+
+  <!-- ═══════ CONTENEDOR 1: TOPBAR (Rojo) ═══════ -->
+  <div class="flex-none">
+    <app-topbar></app-topbar>
   </div>
-  
-  <!-- CAPA FRENTE (z-index: 10) - Mobile Bottom Sheet (Chat) -->
+
+  <!-- ═══════ CONTENEDOR 2: MAIN + SIDEBAR (Azul) ═══════ -->
+  <div class="flex-auto overflow-hidden relative">
+    <app-sidebar></app-sidebar>
+
+    <app-main [containerClass]="mainContainerClass">
+      <router-outlet></router-outlet>
+    </app-main>
+  </div>
+
+  <!-- Mobile Components (capas flotantes, no afectan layout) -->
+  <app-mobile-bottom-nav></app-mobile-bottom-nav>
+  <app-mobile-menu-modal></app-mobile-menu-modal>
   <app-mobile-bottom-sheet></app-mobile-bottom-sheet>
-  
-  <app-notifications-panel></app-notifications-panel>
-  <app-sidebar></app-sidebar>
+
   <div class="layout-mask animate-fadein"></div>
 </div>

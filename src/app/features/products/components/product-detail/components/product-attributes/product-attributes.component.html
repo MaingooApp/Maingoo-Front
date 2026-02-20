@@ -1,0 +1,110 @@
+<div class="flex flex-col gap-4">
+	<div class="grid grid-cols-2 gap-4">
+		<!-- Category Hierarchy -->
+		<div *ngIf="product?.category" class="flex flex-col gap-1.5">
+			<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Categoría</span>
+			<div class="flex items-center gap-1 flex-wrap">
+				<ng-container *ngFor="let catName of categoryPath; let last = last">
+					<p-tag [value]="catName" [style]="rootCategoryStyle" [rounded]="true"
+						styleClass="text-sm font-normal border-0 px-3 py-1"></p-tag>
+				</ng-container>
+			</div>
+		</div>
+
+		<!-- Format -->
+		<div *ngIf="product?.unit" class="flex flex-col gap-1.5">
+			<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Formato</span>
+			<div class="w-full">
+				<p-select [options]="formatOptions" [ngModel]="product!.unit" (ngModelChange)="updateFormat($event)"
+					optionLabel="label" optionValue="value" styleClass="w-full !border-0 !bg-transparent !p-0"
+					panelStyleClass="!text-sm">
+
+					<!-- Selected Item Template (Flat style) -->
+					<ng-template pTemplate="selectedItem" let-selectedOption>
+						<div class="flex items-center">
+							<span class="text-sm font-medium text-gray-700">
+								{{ selectedOption ? selectedOption.label : getFormatName(product!.unit) }}
+							</span>
+						</div>
+					</ng-template>
+
+					<!-- Item Template -->
+					<ng-template let-item pTemplate="item">
+						<div class="flex items-center gap-2">
+							<span>{{item.label}}</span>
+							<span class="text-xs text-gray-400">({{item.value}})</span>
+						</div>
+					</ng-template>
+				</p-select>
+			</div>
+		</div>
+
+		<div class="col-span-2 grid grid-cols-3 gap-4">
+			<!-- Price per Package -->
+			<div class="flex flex-col gap-1.5">
+				<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Precio Paquete</span>
+				<div
+					class="h-10 px-3 flex items-center bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium text-sm">
+					{{ pricePerPackage }}
+				</div>
+			</div>
+
+			<!-- Price per Unit -->
+			<div class="flex flex-col gap-1.5">
+				<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Precio Unidad</span>
+				<div
+					class="h-10 px-3 flex items-center bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium text-sm">
+					{{ pricePerUnit }}
+				</div>
+			</div>
+
+			<!-- Price per Kg -->
+			<div class="flex flex-col gap-1.5">
+				<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Precio Kg</span>
+				<div
+					class="h-10 px-3 flex items-center bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium text-sm">
+					{{ pricePerKg }}
+				</div>
+			</div>
+			<!-- Last Updated -->
+			<div class="col-span-2 flex justify-start -mb-2">
+				<p><strong class="text-maingoo-deep">Precio actualizado el:</strong> {{ product?.updatedAt | date: 'dd/MM/yyyy HH:mm'
+				}}</p>
+			</div>
+		</div>
+
+
+		<!-- Storage (Almacenaje) -->
+		<div class="flex flex-col gap-1.5">
+			<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Almacenaje</span>
+			<div class="flex flex-wrap gap-2">
+				<p-tag value="Seco" [rounded]="true" (click)="setStorageType('seco')"
+					[styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'seco' ? 'bg-orange-100 text-orange-700 ring-2 ring-orange-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
+				</p-tag>
+				<p-tag value="Fresco" [rounded]="true" (click)="setStorageType('fresco')"
+					[styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'fresco' ? ' text-maingoo-deep ring-2 ring-maingoo-sage' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
+				</p-tag>
+				<p-tag value="Congelado" [rounded]="true" (click)="setStorageType('congelado')"
+					[styleClass]="'text-sm font-normal border-0 px-3 py-1 cursor-pointer transition-all ' + (product?.storageType === 'congelado' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200')">
+				</p-tag>
+			</div>
+		</div>
+
+		<!-- Allergens Tags -->
+		<div class="flex flex-col gap-1.5">
+			<span class="text-[10px] uppercase tracking-wider font-bold text-gray-400">Alérgenos</span>
+			<div class="flex flex-wrap gap-2">
+				<ng-container *ngIf="product?.allergens && product!.allergens.length > 0; else noAllergens">
+					<p-tag *ngFor="let alergeno of product?.allergens" [value]="alergeno.name" severity="warn"
+						[rounded]="true" [pTooltip]="alergeno.description" tooltipPosition="top"
+						styleClass="text-xs font-normal border-0 px-2 py-0.5 bg-orange-100/80 text-orange-800">
+						<app-icon name="warning" size="xs" class="mr-1"></app-icon>
+					</p-tag>
+				</ng-container>
+				<ng-template #noAllergens>
+					<span class="text-sm text-gray-400 italic">Sin alérgenos</span>
+				</ng-template>
+			</div>
+		</div>
+	</div>
+</div>

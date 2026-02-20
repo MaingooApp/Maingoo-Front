@@ -1,4 +1,5 @@
 @media screen and (min-width: 1960px) {
+
     .layout-main,
     .landing-wrapper {
         width: 1504px;
@@ -19,10 +20,9 @@
                 transform: translateX(100%);
                 right: 0;
                 top: 0;
-                height: 100vh;
+                height: 100%;
                 border-top-right-radius: 0;
                 border-bottom-right-radius: 0;
-                border-left: 1px solid var(--surface-border);
                 transition:
                     transform 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99),
                     right 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);
@@ -41,7 +41,7 @@
 
         &.layout-static {
             .layout-main-container {
-                margin-right: 26rem;
+                margin-right: 24rem;
             }
 
             &.layout-static-inactive {
@@ -52,13 +52,13 @@
 
                 .layout-main-container {
                     margin-right: 0;
-                    padding-right: 2rem;
+                    padding-right: 0;
                 }
 
                 &.layout-notification-active,
                 &.layout-profile-active {
                     .layout-main-container {
-                        margin-right: 26rem;
+                        margin-right: 24rem;
                     }
                 }
             }
@@ -85,7 +85,7 @@
             transform: translateX(100%);
             right: 0;
             top: 0;
-            height: 100vh;
+            height: 100%;
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
             transition:

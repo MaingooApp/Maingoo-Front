@@ -1,82 +1,103 @@
 <app-floating-configurator />
 <div
-  class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
-  <div class="flex flex-col items-center justify-center">
-    <div
-      style="
-        border-radius: 56px;
-        padding: 0.3rem;
-        background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 60%);
-      ">
-      <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
-        <div class="text-center mb-8">
-          <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="mb-8 w-32 shrink-0 mx-auto" />
+  class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen w-full p-4 sm:p-6 overflow-hidden relative">
+  <!-- Decorative Background Elements (optional subtle blobs) -->
+  <div class="absolute top-[-10%] left-[-10%] w-[400px] h-[400px] bg-primary-100/30 rounded-full blur-3xl -z-10"></div>
+  <div
+    class="absolute bottom-[-10%] right-[-10%] w-[300px] h-[300px] bg-primary-50/40 rounded-full blur-3xl -z-10"></div>
 
-          <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Bienvenido a Maingoo</div>
-          <span class="text-muted-color font-medium">Inicia sesión para continuar</span>
-        </div>
+  <!-- Login Card -->
+  <div
+    class="w-full max-w-md bg-white dark:bg-surface-900 rounded-3xl shadow-xl flex flex-col overflow-hidden sm:mx-auto">
+    <!-- Header Section -->
+    <div class="px-8 pt-10 pb-6 text-center">
+      <div
+        class="mb-10 inline-flex items-center justify-center w-36 h-36 rounded-[2.5rem] bg-gradient-to-br from-primary-50/50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/10 shadow-sm transition-all hover:scale-110 hover:shadow-md">
+        <img
+          src="assets/images/maingoo_logo.svg"
+          alt="Maingoo Logo"
+          class="w-24 h-24 drop-shadow-sm transition-transform" />
+      </div>
+      <h2 class="text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2 tracking-tight">¡Hola de nuevo!</h2>
+      <p class="text-surface-500 dark:text-surface-400 text-base">Ingresa tus datos para continuar</p>
+    </div>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <!-- Email -->
-          <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
-            >Usuario</label
-          >
+    <!-- Form Section -->
+    <div class="px-8 pb-10">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+        <!-- Email Input -->
+        <div class="flex flex-col gap-2">
+          <label for="email" class="font-medium text-surface-900 dark:text-surface-0">Usuario o Email</label>
           <input
             pInputText
-            id="email1"
-            type="email"
-            placeholder="Nombre de usuario"
+            id="email"
             formControlName="email"
-            class="w-full md:w-[30rem] mb-4" />
-          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-            <small class="text-red-500 block mb-4"> Ingresa un email válido </small>
-          }
+            class="w-full px-4 py-3 rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 focus:border-primary-500 transition-colors"
+            placeholder="ej. usuario@maingoo.tech" />
+          <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500">
+            Ingresa un usuario válido
+          </small>
+        </div>
 
-          <!-- Password -->
-          <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2"
-            >Contraseña</label
-          >
-          <p-password
-            id="password1"
-            formControlName="password"
-            placeholder="Contraseña"
-            [toggleMask]="true"
-            styleClass="mb-4"
-            [fluid]="true"
-            [feedback]="false"></p-password>
-          @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-            <small class="text-red-500 block mb-4"> La contraseña es obligatoria </small>
-          }
-
-          <!-- Opcional: checkbox -->
-          <div class="flex items-center justify-between mt-2 mb-8 gap-8">
-            <div class="flex items-center">
-              <p-checkbox formControlName="rememberMe" id="rememberme1" binary class="mr-2"></p-checkbox>
-              <label for="rememberme1">Recordar contraseña</label>
-            </div>
-            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
-              >¿Olvidaste tu contraseña?</span
-            >
-          </div>
-
-          <!-- Botón -->
-          <button
-            pButton
-            type="submit"
-            label="Iniciar sesión"
-            class="w-full"
-            [disabled]="cargando || loginForm.invalid"></button>
-
-          <div class="flex items-center justify-center mt-8">
+        <!-- Password Input -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label for="password" class="font-medium text-surface-900 dark:text-surface-0">Contraseña</label>
             <a
-              href="https://maingoo.tech/#contact"
-              target="_blank"
-              class="font-medium no-underline ml-2 text-right cursor-pointer text-primary"
-              >¿No tienes cuenta?</a
-            >
+              class="text-sm font-medium text-primary-600 hover:text-primary-700 cursor-pointer no-underline transition-colors"
+              tabindex="0">
+              ¿Olvidaste tu contraseña?
+            </a>
           </div>
-        </form>
+          <p-password
+            id="password"
+            formControlName="password"
+            [feedback]="false"
+            [toggleMask]="true"
+            styleClass="w-full"
+            inputStyleClass="w-full px-4 py-3 rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 focus:border-primary-500 transition-colors"
+            placeholder="••••••••"></p-password>
+          <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500">
+            La contraseña es obligatoria
+          </small>
+        </div>
+
+        <!-- Remember Me Checkbox -->
+        <div class="flex items-center gap-2 mt-1">
+          <p-checkbox
+            formControlName="rememberMe"
+            [binary]="true"
+            inputId="rememberMe"
+            styleClass="mt-0.5"></p-checkbox>
+          <label for="rememberMe" class="text-surface-700 dark:text-surface-300 cursor-pointer select-none"
+            >Recordar mi sesión</label
+          >
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          pButton
+          pRipple
+          type="submit"
+          [loading]="cargando"
+          label="Iniciar Sesión"
+          class="w-full py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-primary-500/30 mt-2 hover:scale-[1.02] active:scale-[0.98] transition-all"></button>
+      </form>
+
+      <!-- Footer / Sign Up Link -->
+      <div class="mt-8 text-center text-sm text-surface-500 dark:text-surface-400">
+        ¿No tienes una cuenta?
+        <a
+          href="https://maingoo.tech/#contact"
+          target="_blank"
+          class="font-bold text-primary-600 hover:text-primary-700 no-underline ml-1 transition-colors">
+          Contáctanos
+        </a>
       </div>
     </div>
+  </div>
+
+  <div class="absolute bottom-4 text-xs text-surface-400 dark:text-surface-600 text-center w-full opacity-70">
+    &copy; 2026 Maingoo Tech. Todos los derechos reservados.
   </div>
 </div>

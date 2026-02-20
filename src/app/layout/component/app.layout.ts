@@ -3,17 +3,27 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
-import { AppSidebar } from './app.sidebar';
-import { NotificationsPanelComponent } from './notifications-panel/notifications-panel.component';
+import { AppSidebar } from './sidebar/app.sidebar';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
+import { MobileBottomNavComponent } from './mobile-bottom-nav/mobile-bottom-nav.component';
+import { MobileMenuModalComponent } from './mobile-menu-modal/mobile-menu-modal.component';
 import { LayoutService } from '../service/layout.service';
+import { AppMain } from './main/app.main';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, NotificationsPanelComponent, MobileBottomSheetComponent],
-  templateUrl: './app.layout.html',
-  styleUrls: ['./app.layout.scss']
+  imports: [
+    CommonModule,
+    AppTopbar,
+    AppSidebar,
+    RouterModule,
+    MobileBottomSheetComponent,
+    MobileBottomNavComponent,
+    MobileMenuModalComponent,
+    AppMain
+  ],
+  templateUrl: './app.layout.html'
 })
 export class AppLayout {
   overlayMenuOpenSubscription: Subscription;
@@ -106,9 +116,7 @@ export class AppLayout {
         this.layoutService.layoutState().staticMenuDesktopInactive &&
         this.layoutService.layoutConfig().menuMode === 'static',
       'layout-overlay-active': this.layoutService.layoutState().overlayMenuActive,
-      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive,
-      'layout-notification-active': this.layoutService.isNotificationPanelActive(),
-      'layout-profile-active': this.layoutService.isProfilePanelActive()
+      'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
     };
   }
 

@@ -1,0 +1,26 @@
+<div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">
+	<!-- Left: Title & Actions -->
+	<div class="flex items-center gap-4 shrink-0">
+		<h2 class="text-2xl font-bold text-maingoo-deep m-0 whitespace-nowrap">APPCC</h2>
+		<span
+			class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">DEMO</span>
+
+		<!-- View Switcher -->
+		<div class="bg-gray-100 p-1 rounded-lg flex items-center gap-1 shrink-0">
+			<button (click)="setViewMode('cards')"
+				class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
+				[ngClass]="viewMode === 'cards' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+				<app-icon name="grid_view" size="md"></app-icon>
+			</button>
+			<button (click)="setViewMode('list')"
+				class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
+				[ngClass]="viewMode === 'list' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+				<app-icon name="list" size="md"></app-icon>
+			</button>
+		</div>
+	</div>
+
+	<!-- Right: Placeholder for consistency -->
+	<div class="flex items-center justify-end shrink-0">
+	</div>
+</div>

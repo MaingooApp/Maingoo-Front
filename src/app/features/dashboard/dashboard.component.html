@@ -1,11 +1,569 @@
-<div class="grid grid-cols-12 gap-8">
-  <app-stats-widget class="contents" />
-  <div class="col-span-12 xl:col-span-6">
-    <app-recent-sales-widget />
-    <app-best-selling-widget />
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+
+  <!-- KPI Slots Row: flex column en móvil, row en desktop -->
+  <div class="w-full flex flex-col md:flex-row gap-4">
+    <!-- Slot Actividad -->
+    <app-kpi-slot *ngIf="actividadSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
+      (slideChange)="onSlideChange($event)" (retry)="onRetryActividad()">
+    </app-kpi-slot>
+
+    <!-- Slot Incidencias -->
+    <app-kpi-slot *ngIf="incidenciasSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
+      (slideChange)="onSlideChange($event)" (retry)="onRetryIncidencias()">
+    </app-kpi-slot>
+
+    <!-- Actions Required Card (Moved to Top) -->
+    <!-- Slot Acciones (Moved from Card) -->
+    <app-kpi-slot *ngIf="actionsSlot$ | async as slot" [slot]="slot" (slotClick)="onSlotClick($event)"
+      (slideChange)="onSlideChange($event)">
+    </app-kpi-slot>
   </div>
-  <div class="col-span-12 xl:col-span-6">
-    <app-revenue-stream-widget />
-    <app-notifications-widget />
+
+  <!-- Main Content Layout: Cards + Panel Lateral -->
+  <div class="flex flex-row gap-6 w-full items-start">
+
+    <!-- Left: Dashboard Cards Grid -->
+    <div class="flex-1 min-w-0">
+      <div class="w-full grid gap-6"
+        [ngClass]="activePanel ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+
+
+
+
+        <!-- Métricas Proveedores Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'suppliers'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="local_shipping" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Proveedores</h3>
+                <p class="text-gray-400 text-xs m-0">Esta semana</p>
+              </div>
+            </div>
+            <!-- Botón ver más métricas -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('suppliers')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
+          </div>
+
+          <!-- Pie Chart Container -->
+          <div class="flex-1 flex items-center justify-center">
+            <!-- Loading state -->
+            <div *ngIf="supplierChartLoading" class="flex flex-col items-center gap-3">
+              <app-skeleton shape="circle" size="140px"></app-skeleton>
+              <app-skeleton width="120px" height="12px"></app-skeleton>
+            </div>
+
+            <!-- Chart (solo si hay datos) -->
+            <p-chart *ngIf="!supplierChartLoading && supplierChartData && supplierChartTotal > 0" type="doughnut"
+              [data]="supplierChartData" [options]="supplierChartOptions" class="w-full h-full">
+            </p-chart>
+
+            <!-- Empty state -->
+            <div *ngIf="!supplierChartLoading && supplierChartTotal === 0" class="text-center">
+              <p class="text-gray-400 text-sm">Sin datos para este período</p>
+            </div>
+          </div>
+
+          <!-- Total footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Total facturado</span>
+            <span *ngIf="!supplierChartLoading" class="text-sm font-bold text-maingoo-deep">{{
+              formatCurrency(supplierChartTotal) }}</span>
+            <app-skeleton *ngIf="supplierChartLoading" width="80px" height="16px"></app-skeleton>
+          </div>
+        </div>
+
+        <!-- Métricas Productos Card - Pie Chart de Categorías -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'products'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="inventory_2" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Almacén</h3>
+                <p class="text-gray-400 text-xs m-0">Todas las categorías</p>
+              </div>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('products')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
+          </div>
+
+          <!-- Pie Chart Container -->
+          <div class="flex-1 flex items-center justify-center">
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          </div>
+        </div>
+
+        <!-- Métricas Artículos Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'articles'}">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="restaurant" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Artículos</h3>
+                <p class="text-gray-400 text-xs m-0">Análisis de artículos</p>
+              </div>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('articles')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center">
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          </div>
+        </div>
+
+        <!-- Ventas Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'sales'}">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="payments" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Ventas</h3>
+                <p class="text-gray-400 text-xs m-0">Tendencia del día</p>
+              </div>
+            </div>
+            <!-- Badge fake data -->
+            <div class="flex items-center gap-3">
+              <!-- Badge fake data -->
+              <span
+                class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">DEMO</span>
+              <!-- Botón ver más -->
+              <button
+                class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+                (click)="openPanel('sales')">
+                <span>Ver más</span>
+                <app-icon name="arrow_forward" size="xs"
+                  class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+              </button>
+            </div>
+          </div>
+          <!-- Sales Chart -->
+          <div class="flex-1 flex flex-col justify-center gap-3">
+            <!-- Current -->
+            <div>
+              <p class="text-xs text-gray-500 font-medium mb-0.5">{{ salesData.current.day }} {{ salesData.current.time
+                }}</p>
+              <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-bold text-maingoo-deep">{{ salesData.current.amount |
+                  currency:'EUR':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Last Week -->
+            <div>
+              <div class="flex justify-between items-center text-xs text-gray-500 mb-0.5">
+                <span>{{ salesData.current.day }} pasado</span>
+                <span
+                  [ngClass]="salesData.lastWeek.diff >= 0 ? 'text-green-600 bg-green-50 px-1.5 py-0.5 rounded' : 'text-red-500 bg-red-50 px-1.5 py-0.5 rounded'">
+                  {{ salesData.lastWeek.diff > 0 ? '+' : ''}}{{ salesData.lastWeek.diff }}%
+                </span>
+              </div>
+              <span class="text-lg font-semibold text-gray-700 block leading-none">{{ salesData.lastWeek.amount |
+                currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <!-- Average -->
+            <div>
+              <span class="text-xs text-gray-500 block mb-0.5">Media histórica {{ salesData.current.day }}</span>
+              <span class="text-lg font-semibold text-gray-700 block leading-none">{{ salesData.average.amount |
+                currency:'EUR':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'staff'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="group" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Equipo</h3>
+                <p class="text-gray-400 text-xs m-0">Horario de hoy</p>
+              </div>
+            </div>
+            <!-- Badge fake data -->
+            <div class="flex items-center gap-3">
+              <!-- Badge fake data -->
+              <span
+                class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">DEMO</span>
+              <!-- Botón ver más -->
+              <button
+                class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+                (click)="openPanel('staff')">
+                <span>Ver más</span>
+                <app-icon name="arrow_forward" size="xs"
+                  class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Staff Schedule List -->
+          <div class="flex-1 flex flex-col gap-2 overflow-auto">
+            <div *ngFor="let staff of staffSchedule"
+              class="flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-maingoo-sage/20 flex items-center justify-center">
+                  <app-icon name="person" size="sm" class="text-maingoo-sage"></app-icon>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-sm font-medium text-maingoo-deep">{{ staff.name }}</span>
+                  <span class="text-xs text-gray-400">{{ staff.role }}</span>
+                </div>
+              </div>
+              <span class="text-xs font-medium text-maingoo-sage bg-maingoo-sage/10 px-2 py-1 rounded-full">{{
+                staff.shift }}</span>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Total empleados hoy</span>
+            <span class="text-sm font-bold text-maingoo-deep">{{ staffSchedule.length }}</span>
+          </div>
+        </div>
+
+        <!-- Gestoría Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          [ngClass]="{'ring-maingoo-sage': activePanel === 'gestoria'}">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="description" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">Gestoría</h3>
+                <p class="text-gray-400 text-xs m-0">Facturas esta semana</p>
+              </div>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('gestoria')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
+          </div>
+
+          <!-- Invoice List Container -->
+          <div class="flex-1 flex items-center justify-center">
+            <!-- Empty state (sin facturas esta semana) -->
+            <div class="text-center">
+              <p class="text-gray-400 text-sm">Sin datos para este período</p>
+            </div>
+          </div>
+
+          <!-- Total footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Total facturas</span>
+            <span class="text-sm font-bold text-maingoo-deep">0</span>
+          </div>
+        </div>
+
+        <!-- APPCC Card -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <app-icon name="shield" size="xl" class="text-maingoo-sage"></app-icon>
+              </div>
+              <div>
+                <h3 class="font-bold text-maingoo-deep text-base m-0">APPCC</h3>
+                <p class="text-gray-400 text-xs m-0">Tareas de hoy</p>
+              </div>
+            </div>
+            <!-- Badge fake data -->
+            <div class="flex items-center gap-3">
+              <!-- Badge fake data -->
+              <span
+                class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 uppercase tracking-wide">DEMO</span>
+              <!-- Botón ver más -->
+              <button
+                class="flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+                (click)="openPanel('appcc')">
+                <span>Ver más</span>
+                <app-icon name="arrow_forward" size="xs"
+                  class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tasks List by Category -->
+          <div class="flex-1 flex flex-col gap-3 overflow-auto">
+            <!-- Diarias -->
+            <div>
+              <p class="text-xs font-semibold text-gray-500 mb-1">Diarias</p>
+              <div class="flex flex-col gap-1">
+                <div *ngFor="let item of appccTasks.diarias"
+                  class="flex items-center gap-2 p-1.5 rounded bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0"
+                    [ngClass]="item.done ? 'bg-maingoo-sage border-maingoo-sage' : 'border-gray-300'">
+                    <app-icon *ngIf="item.done" name="check" size="xs" class="text-white"></app-icon>
+                  </div>
+                  <span class="text-xs" [ngClass]="item.done ? 'text-gray-400 line-through' : 'text-maingoo-deep'">{{
+                    item.task }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- Semanales -->
+            <div>
+              <p class="text-xs font-semibold text-gray-500 mb-1">Semanales</p>
+              <div class="flex flex-col gap-1">
+                <div *ngFor="let item of appccTasks.semanales"
+                  class="flex items-center gap-2 p-1.5 rounded bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0"
+                    [ngClass]="item.done ? 'bg-maingoo-sage border-maingoo-sage' : 'border-gray-300'">
+                    <app-icon *ngIf="item.done" name="check" size="xs" class="text-white"></app-icon>
+                  </div>
+                  <span class="text-xs" [ngClass]="item.done ? 'text-gray-400 line-through' : 'text-maingoo-deep'">{{
+                    item.task }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- Mensuales -->
+            <div>
+              <p class="text-xs font-semibold text-gray-500 mb-1">Mensuales</p>
+              <div class="flex flex-col gap-1">
+                <div *ngFor="let item of appccTasks.mensuales"
+                  class="flex items-center gap-2 p-1.5 rounded bg-gray-50 hover:bg-gray-100 transition-colors">
+                  <div class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0"
+                    [ngClass]="item.done ? 'bg-maingoo-sage border-maingoo-sage' : 'border-gray-300'">
+                    <app-icon *ngIf="item.done" name="check" size="xs" class="text-white"></app-icon>
+                  </div>
+                  <span class="text-xs" [ngClass]="item.done ? 'text-gray-400 line-through' : 'text-maingoo-deep'">{{
+                    item.task }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span class="text-xs text-gray-500">Completadas</span>
+            <span class="text-sm font-bold text-maingoo-deep">{{ completedAppccTasks }} / {{ totalAppccTasks }}</span>
+          </div>
+        </div>
+
+        <!-- Tareas Card (Vacía) -->
+        <div
+          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div
+              class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <app-icon name="folder" size="xl" class="text-maingoo-sage"></app-icon>
+            </div>
+            <div>
+              <h3 class="font-bold text-maingoo-deep text-base m-0">Docs</h3>
+              <p class="text-gray-400 text-xs m-0">Pendientes del día</p>
+            </div>
+            <!-- Botón ver más -->
+            <button
+              class="ml-auto flex items-center gap-1.5 text-xs text-maingoo-sage hover:text-maingoo-deep transition-colors font-medium group/btn"
+              (click)="openPanel('docs')">
+              <span>Ver más</span>
+              <app-icon name="arrow_forward" size="xs"
+                class="group-hover/btn:translate-x-0.5 transition-transform"></app-icon>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center">
+            <p class="text-gray-400 text-sm italic">Próximamente</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Panel Lateral Genérico -->
+    <ng-container *ngIf="activePanel">
+      <!-- DESKTOP: Side Panel -->
+      <div
+        class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl z-20 flex-col bg-white min-h-[400px]">
+
+        <!-- Panel Header -->
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center">
+              <app-icon
+                [name]="activePanel === 'suppliers' ? 'local_shipping' : activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : activePanel === 'staff' ? 'group' : activePanel === 'appcc' ? 'shield' : activePanel === 'docs' ? 'folder' : 'bar_chart'"
+                size="xl" class="text-maingoo-sage"></app-icon>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-maingoo-deep m-0">
+                {{ activePanel === 'suppliers' ? 'Proveedores' :
+                activePanel === 'products' ? 'Productos' :
+                activePanel === 'articles' ? 'Artículos' :
+                activePanel === 'gestoria' ? 'Gestoría' :
+                activePanel === 'staff' ? 'Personal' :
+                activePanel === 'appcc' ? 'APPCC' :
+                activePanel === 'docs' ? 'Documentos' :
+                'Ventas' }}
+              </h2>
+              <p class="text-xs text-gray-400 m-0">Análisis detallado</p>
+            </div>
+          </div>
+          <!-- Close Button -->
+          <button
+            class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-red-600 transition-all"
+            (click)="closePanel()">
+            <app-icon name="close" size="md"></app-icon>
+          </button>
+        </div>
+
+        <!-- Panel Content -->
+        <div class="p-6 flex-1 flex flex-col overflow-auto">
+          <!-- Suppliers Panel - Bar Chart de Gasto Mensual -->
+          <ng-container *ngIf="activePanel === 'suppliers'">
+            <!-- Filtros -->
+            <div class="flex flex-wrap gap-4 mb-6">
+              <!-- Selector de Año -->
+              <div class="flex flex-col gap-1">
+                <label class="text-xs text-gray-500 font-medium">Año</label>
+                <p-dropdown [options]="yearOptions" [(ngModel)]="selectedYear" (onChange)="onYearChange()"
+                  optionLabel="label" optionValue="value" styleClass="w-28" placeholder="Año">
+                </p-dropdown>
+              </div>
+
+              <!-- Selector de Proveedor -->
+              <div class="flex flex-col gap-1 flex-1 min-w-[200px]">
+                <label class="text-xs text-gray-500 font-medium">Proveedor</label>
+                <p-dropdown [options]="supplierOptions" [(ngModel)]="selectedSupplierId"
+                  (onChange)="onSupplierFilterChange()" optionLabel="label" optionValue="value" [filter]="true"
+                  filterPlaceholder="Buscar..." styleClass="w-full" placeholder="Seleccionar proveedor">
+                </p-dropdown>
+              </div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="flex-1">
+              <h4 class="text-sm font-semibold text-maingoo-deep mb-3">Gasto Mensual</h4>
+              <p-chart *ngIf="monthlyExpenseChartData" type="bar" [data]="monthlyExpenseChartData"
+                [options]="monthlyExpenseChartOptions" height="350px">
+              </p-chart>
+
+              <!-- Empty state -->
+              <div *ngIf="!monthlyExpenseChartData" class="flex items-center justify-center h-[350px]">
+                <p class="text-gray-400 text-sm italic">Sin datos para el período seleccionado</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- Products/Articles Panel - Placeholder -->
+          <ng-container *ngIf="activePanel !== 'suppliers'">
+            <div class="flex-1 flex items-center justify-center">
+              <div class="text-center">
+                <app-icon
+                  [name]="activePanel === 'products' ? 'inventory_2' : activePanel === 'articles' ? 'restaurant' : activePanel === 'gestoria' ? 'description' : activePanel === 'sales' ? 'payments' : activePanel === 'staff' ? 'group' : activePanel === 'appcc' ? 'shield' : activePanel === 'docs' ? 'folder' : 'bar_chart'"
+                  size="6xl" class="text-gray-200 mb-4"></app-icon>
+                <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
+                <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- MOBILE: Bottom Sheet -->
+      <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closePanel()"></div>
+        <div
+          class="relative w-full h-[70vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+          <div class="w-full flex justify-center pt-4 pb-2 shrink-0 cursor-grab" (click)="closePanel()">
+            <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+          </div>
+          <div class="px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+            <h2 class="text-lg font-bold text-maingoo-deep m-0">
+              {{ activePanel === 'suppliers' ? 'Métricas Proveedores' :
+              activePanel === 'products' ? 'Métricas Productos' :
+              activePanel === 'articles' ? 'Métricas Artículos' :
+              activePanel === 'gestoria' ? 'Métricas Gestoría' :
+              activePanel === 'staff' ? 'Métricas Personal' :
+              activePanel === 'appcc' ? 'Métricas APPCC' :
+              activePanel === 'docs' ? 'Métricas Documentos' :
+              'Métricas Ventas' }}
+            </h2>
+            <button class="text-gray-400" (click)="closePanel()">
+              <app-icon name="close" size="md"></app-icon>
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center p-6">
+            <div class="text-center">
+              <app-icon
+                [name]="activePanel === 'suppliers' ? 'pie_chart' : activePanel === 'products' ? 'inventory_2' : activePanel === 'gestoria' ? 'description' : activePanel === 'sales' ? 'payments' : activePanel === 'staff' ? 'group' : activePanel === 'appcc' ? 'shield' : activePanel === 'docs' ? 'folder' : 'restaurant'"
+                size="5xl" class="text-gray-200 mb-4"></app-icon>
+              <h3 class="text-lg font-bold text-maingoo-deep m-0">Más métricas</h3>
+              <p class="text-gray-400 text-sm italic mt-1">Próximamente</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
   </div>
 </div>
+
+<style>
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0.5;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+</style>

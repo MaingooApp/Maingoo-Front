@@ -13,9 +13,11 @@ import { ToastService } from '@shared/services/toast.service';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { DocumentAnalysisService } from '@app/core/services/document-analysis.service';
 import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
+import { IconComponent } from '@shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-add-invoice-modal',
+  standalone: true,
   imports: [
     InputTextModule,
     FluidModule,
@@ -23,7 +25,8 @@ import { interval, Subscription, switchMap, takeWhile } from 'rxjs';
     SelectModule,
     ReactiveFormsModule,
     TextareaModule,
-    FileUploadModule
+    FileUploadModule,
+    IconComponent
   ],
   templateUrl: './add-invoice-modal.component.html',
   styleUrl: './add-invoice-modal.component.scss',
@@ -37,6 +40,9 @@ export class AddInvoiceModalComponent {
   private readonly _ref = inject(DynamicDialogRef);
   private readonly documentAnalysisService = inject(DocumentAnalysisService);
 
+  // Límite máximo de archivos
+  private readonly MAX_FILES = 50;
+
   readonly documentTypesList = Object.values(documentTypes);
 
   readonly hasDeliveryNotesOptions = [
@@ -44,7 +50,8 @@ export class AddInvoiceModalComponent {
     { label: 'No', value: false }
   ];
 
-  selectedFile = signal<File | null>(null);
+  // Ahora manejamos múltiples archivos
+  selectedFiles = signal<File[]>([]);
   isInvoice = computed(() => this.documentTypeSig() === DocumentType.INVOICE);
 
   form = this._fb.group({
@@ -62,27 +69,41 @@ export class AddInvoiceModalComponent {
 
   readonly isFormValid = computed(() => this.formStatusSig() === 'VALID');
 
-  readonly canSubmit = computed(() => this.isFormValid() && !!this.selectedFile());
+  // Ahora verificamos que haya al menos un archivo seleccionado
+  readonly canSubmit = computed(() => this.isFormValid() && this.selectedFiles().length > 0);
 
-  private pollingSubscription?: Subscription;
+  // Etiqueta dinámica del botón según cantidad de archivos
+  readonly submitButtonLabel = computed(() => {
+    const count = this.selectedFiles().length;
+    if (count === 0) return 'Subir documentos';
+    if (count === 1) return 'Subir 1 documento';
+    return `Subir ${count} documentos`;
+  });
+
+  private pollingSubscriptions: Subscription[] = [];
 
   onClear() {
-    this.selectedFile.set(null);
+    this.selectedFiles.set([]);
   }
 
-  onFileSelect(event: any) {
-    const files = event.files as File[];
-    const file = files?.[0];
+  onRemoveFile(event: { file: File }) {
+    const currentFiles = this.selectedFiles();
+    const updatedFiles = currentFiles.filter((f) => f.name !== event.file.name || f.size !== event.file.size);
+    this.selectedFiles.set(updatedFiles);
+  }
 
-    if (!file) {
-      this.selectedFile.set(null);
-      return;
-    }
+  onFileSelect(event: { files: File[] }) {
+    const newFiles = event.files;
+    const currentFiles = this.selectedFiles();
+    const validFiles: File[] = [];
 
-    if (file.size > 20 * 1024 * 1024) {
-      this.fileUpload.clear();
-      this._toastService.warn('Archivo muy grande', 'El archivo no puede superar los 20MB');
-      this.selectedFile.set(null);
+    // Verificar límite total de archivos (existentes + nuevos)
+    const totalFiles = currentFiles.length + newFiles.length;
+    if (totalFiles > this.MAX_FILES) {
+      this._toastService.warn(
+        'Límite excedido',
+        `Solo puedes subir un máximo de ${this.MAX_FILES} archivos. Ya tienes ${currentFiles.length} seleccionados.`
+      );
       return;
     }
 
@@ -96,27 +117,44 @@ export class AddInvoiceModalComponent {
       'application/pdf'
     ];
 
-    const fileType = file.type.toLowerCase();
-    const fileName = file.name.toLowerCase();
+    for (const file of newFiles) {
+      // Verificar si ya existe (por nombre y tamaño)
+      const isDuplicate = currentFiles.some((f) => f.name === file.name && f.size === file.size);
+      if (isDuplicate) {
+        this._toastService.warn('Archivo duplicado', `"${file.name}" ya está seleccionado`);
+        continue;
+      }
 
-    if (!fileType || (!validTypes.includes(fileType) && !fileName.match(/\.(jpg|jpeg|png|webp|heic|heif|pdf)$/))) {
-      this._toastService.warn('Formato inválido', 'Selecciona una imagen o PDF válido');
-      this.fileUpload.clear();
-      this.selectedFile.set(null);
-      return;
+      // Verificar tamaño
+      if (file.size > 20 * 1024 * 1024) {
+        this._toastService.warn('Archivo muy grande', `"${file.name}" supera los 20MB y fue ignorado`);
+        continue;
+      }
+
+      // Verificar tipo
+      const fileType = file.type.toLowerCase();
+      const fileName = file.name.toLowerCase();
+
+      if (!fileType || (!validTypes.includes(fileType) && !fileName.match(/\.(jpg|jpeg|png|webp|heic|heif|pdf)$/))) {
+        this._toastService.warn('Formato inválido', `"${file.name}" no es un formato válido`);
+        continue;
+      }
+
+      validFiles.push(file);
     }
 
-    this.selectedFile.set(file);
+    // Acumular los nuevos archivos válidos con los existentes
+    this.selectedFiles.set([...currentFiles, ...validFiles]);
   }
 
   onSubmit() {
     if (!this.canSubmit()) return;
 
-    const file = this.selectedFile();
+    const files = this.selectedFiles();
     const { documentType, hasDeliveryNotes } = this.form.value;
 
     if (
-      !file ||
+      files.length === 0 ||
       documentType === null ||
       documentType === undefined ||
       hasDeliveryNotes === null ||
@@ -124,20 +162,43 @@ export class AddInvoiceModalComponent {
     )
       return;
 
-    this.uploadInvoice(file, { documentType, hasDeliveryNotes });
+    this.uploadInvoices(files, { documentType, hasDeliveryNotes });
     this._ref.close({ uploaded: true });
   }
 
-  private uploadInvoice(file: File, data: { documentType: string; hasDeliveryNotes: boolean }) {
-    this.documentAnalysisService.submitInvoiceForAnalysis(file, data).subscribe({
+  private uploadInvoices(files: File[], data: { documentType: string; hasDeliveryNotes: boolean }) {
+    this.documentAnalysisService.submitBatchForAnalysis(files, data).subscribe({
       next: (response) => {
-        this._toastService.success('Documento subido', 'El documento está siendo analizado por IA...', 3000);
-        this.startPollingDocumentStatus(response.documentId);
+        const successCount = response.success;
+        const failedCount = response.failed;
+
+        if (successCount > 0) {
+          this._toastService.success(
+            'Documentos subidos',
+            `${successCount} documento${successCount > 1 ? 's están siendo analizados' : ' está siendo analizado'} por IA...`,
+            3000
+          );
+        }
+
+        if (failedCount > 0) {
+          this._toastService.warn(
+            'Algunos archivos fallaron',
+            `${failedCount} archivo${failedCount > 1 ? 's no pudieron' : ' no pudo'} subirse`,
+            5000
+          );
+        }
+
+        // Iniciar polling para cada documento exitoso
+        response.results
+          .filter((r) => r.success)
+          .forEach((result) => {
+            this.startPollingDocumentStatus(result.documentId);
+          });
       },
       error: (error) => {
-        console.error('Error al subir documento:', error);
+        console.error('Error al subir documentos:', error);
 
-        let errorDetail = 'No se pudo subir el archivo. ';
+        let errorDetail = 'No se pudieron subir los archivos. ';
 
         if (error?.status === 0) {
           errorDetail += 'No hay conexión con el servidor. Verifica tu conexión a internet.';
@@ -155,7 +216,7 @@ export class AddInvoiceModalComponent {
   }
 
   private startPollingDocumentStatus(documentId: string) {
-    this.pollingSubscription = interval(3000)
+    const subscription = interval(3000)
       .pipe(
         switchMap(() => this.documentAnalysisService.getDocumentById(documentId)),
         takeWhile((doc) => doc.status === 'PENDING' || doc.status === 'PROCESSING', true)
@@ -163,11 +224,15 @@ export class AddInvoiceModalComponent {
       .subscribe({
         next: (document) => {
           if (document.status === 'DONE') {
-            this._toastService.success('Análisis completo', 'El documento ha sido analizado correctamente', 5000);
+            this._toastService.success(
+              'Análisis completo',
+              `El documento "${document.filename}" ha sido analizado correctamente`,
+              5000
+            );
           } else if (document.status === 'FAILED') {
             this._toastService.error(
               'Error en análisis',
-              document.errorReason || 'El análisis del documento ha fallado',
+              document.errorReason || `El análisis de "${document.filename}" ha fallado`,
               5000
             );
           }
@@ -177,6 +242,8 @@ export class AddInvoiceModalComponent {
           this._toastService.error('Error', 'No se pudo verificar el estado del análisis', 5000);
         }
       });
+
+    this.pollingSubscriptions.push(subscription);
   }
 
   closeModal() {
@@ -184,8 +251,7 @@ export class AddInvoiceModalComponent {
   }
 
   ngOnDestroy() {
-    if (this.pollingSubscription) {
-      this.pollingSubscription.unsubscribe();
-    }
+    this.pollingSubscriptions.forEach((sub) => sub.unsubscribe());
   }
 }
+

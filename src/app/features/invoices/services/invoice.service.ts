@@ -2,9 +2,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { BaseHttpService } from '../../../core/services/base-http.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
-import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product } from '@app/core/interfaces/Invoice.interfaces';
+import { CreateInvoiceDto, DocumentUrlResponse, Invoice } from '@app/core/interfaces/Invoice.interfaces';
+import { GetInvoice } from '../interface/get-invoice.interface';
 
 /**
  * Servicio para gestionar facturas
@@ -13,7 +14,7 @@ import { CreateInvoiceDto, DocumentUrlResponse, Invoice, Product } from '@app/co
 @Injectable({ providedIn: 'root' })
 export class InvoiceService extends BaseHttpService {
   private readonly API_URL = `${environment.urlBackend}api/suppliers/invoices`;
-  private readonly PRODUCTS_URL = `${environment.urlBackend}api/products`;
+
 
   constructor(http: HttpClient) {
     super(http);
@@ -33,9 +34,19 @@ export class InvoiceService extends BaseHttpService {
    * GET /api/suppliers/invoices
    * @param restaurantId Filtro opcional por restaurante
    */
-  getInvoices(restaurantId?: string): Observable<Invoice[]> {
-    const url = restaurantId ? `${this.API_URL}?restaurantId=${restaurantId}` : this.API_URL;
-    return this.get<Invoice[]>(url);
+  getInvoices(params: GetInvoice = {}): Observable<Invoice[]> {
+    const url = `${this.API_URL}`;
+    let httpParams = new HttpParams();
+
+    // Iteramos sobre las claves del objeto params para construir los HttpParams
+    Object.keys(params).forEach(key => {
+      const value = (params as any)[key];
+      if (value !== undefined && value !== null) {
+        httpParams = httpParams.set(key, value);
+      }
+    });
+
+    return this.get<Invoice[]>(url, {}, httpParams);
   }
 
   /**
@@ -86,19 +97,9 @@ export class InvoiceService extends BaseHttpService {
     return this.get<DocumentUrlResponse>(`${this.API_URL}/${id}/document-url?expiresInHours=${expiresInHours}`);
   }
 
-  /**
-   * Obtiene todos los productos del inventario consolidado
-   * GET /api/products
-   */
-  getProducts(): Observable<Product[]> {
-    return this.get<Product[]>(this.PRODUCTS_URL);
-  }
 
-  /**
-   * Obtiene un producto específico por su ID
-   * GET /api/products/:id
-   */
-  getProductById(id: string): Observable<Product> {
-    return this.get<Product>(`${this.PRODUCTS_URL}/${id}`);
-  }
+
+
+
+
 }

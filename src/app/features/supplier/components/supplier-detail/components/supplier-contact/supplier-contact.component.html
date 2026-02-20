@@ -1,0 +1,63 @@
+<div class="group w-full">
+	<!-- Inline Toggle Header -->
+	<div class="grid grid-cols-[130px_1fr] items-center py-1 min-h-[32px] cursor-pointer"
+		(click)="!isEditing && (showContact = !showContact)">
+		<div class="flex items-center gap-2 text-gray-400 text-sm">
+			<app-icon name="business_center" size="md" class="text-maingoo-sage"></app-icon>
+			<span>Contacto</span>
+		</div>
+		<div class="flex items-center">
+			<span *ngIf="!isEditing && hasEmptyContactFields" class="text-xs text-maingoo-sage/80 italic">
+				{{ showContact ? 'ocultar campos' : 'mostrar campos' }}
+			</span>
+		</div>
+	</div>
+
+	<div class="overflow-hidden transition-all duration-300 ease-in-out">
+		<div class="flex flex-col gap-1 py-1 pl-6">
+			<!-- Persona de contacto -->
+			<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+				*ngIf="supplier.commercialName || isEditing || showContact">
+				<div class="flex items-center gap-2 text-gray-400 text-sm">
+					<app-icon name="person" size="md" class="text-maingoo-sage"></app-icon>
+					<span>Persona</span>
+				</div>
+				<div class="flex items-center -ml-2">
+					<input type="text" [(ngModel)]="supplier!.commercialName" [readonly]="!isEditing"
+						placeholder="Vacío"
+						class="bg-transparent border border-transparent text-maingoo-deep focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+						[ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
+				</div>
+			</div>
+
+			<!-- Telefono -->
+			<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+				*ngIf="supplier.phoneNumber || isEditing || showContact">
+				<div class="flex items-center gap-2 text-gray-400 text-sm">
+					<app-icon name="phone" size="md" class="text-maingoo-sage"></app-icon>
+					<span>Teléfono</span>
+				</div>
+				<div class="flex items-center -ml-2">
+					<input type="text" [(ngModel)]="supplier!.phoneNumber" [readonly]="!isEditing" placeholder="Vacío"
+						class="bg-transparent border border-transparent text-maingoo-deep focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+						[ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
+				</div>
+			</div>
+
+			<!-- Email -->
+			<div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]"
+				*ngIf="supplier.commercialEmail || isEditing || showContact">
+				<div class="flex items-center gap-2 text-gray-400 text-sm">
+					<app-icon name="mail" size="md" class="text-maingoo-sage"></app-icon>
+					<span>Email</span>
+				</div>
+				<div class="flex items-center -ml-2">
+					<input type="text" [(ngModel)]="supplier!.commercialEmail" [readonly]="!isEditing"
+						placeholder="Vacío"
+						class="bg-transparent border border-transparent text-maingoo-deep focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm"
+						[ngClass]="{ 'hover:border-maingoo-sage/30 focus:border-maingoo-sage': isEditing }" />
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

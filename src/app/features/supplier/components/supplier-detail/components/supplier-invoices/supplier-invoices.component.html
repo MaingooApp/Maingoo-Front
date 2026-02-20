@@ -1,0 +1,54 @@
+<div class="mt-8 border-t border-gray-200 pt-6">
+	<div (click)="showInvoices = !showInvoices"
+		class="flex justify-between items-center cursor-pointer group select-none">
+		<h3
+			class="text-xs text-maingoo-deep/60 uppercase tracking-wider font-semibold group-hover:text-maingoo-sage transition-colors">
+			Facturas Asociadas
+		</h3>
+		<app-icon name="expand_more"
+			class="text-gray-400 group-hover:text-maingoo-sage transition-transform duration-300"
+			[ngClass]="{ 'rotate-180': showInvoices }" size="md"></app-icon>
+	</div>
+
+	<div class="overflow-hidden transition-all duration-300 ease-in-out"
+		[style.max-height]="showInvoices ? '500px' : '0'">
+		<div class="pt-4 flex flex-col gap-2">
+			<!-- Loading State -->
+			<div *ngIf="invoices.length === 0 && !supplier" class="text-center py-4 text-gray-400 text-sm">
+				Cargando facturas...
+			</div>
+
+			<!-- No Invoices -->
+			<div *ngIf="invoices.length === 0" class="text-gray-400 text-sm italic py-2">
+				No hay facturas registradas.
+			</div>
+
+			<!-- Invoice List -->
+			<div *ngFor="let invoice of invoices"
+				class="flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-maingoo-sage transition-colors cursor-pointer group relative"
+				(click)="viewInvoice.emit(invoice)" pTooltip="Ver factura" tooltipPosition="top">
+				<div class="flex items-center gap-3">
+					<div
+						class="w-8 h-8 rounded-full bg-white text-maingoo-sage flex items-center justify-center border border-maingoo-sage/10">
+						<app-icon name="description" size="sm"></app-icon>
+					</div>
+					<div class="flex flex-col">
+						<span
+							class="text-maingoo-deep text-sm font-medium group-hover:text-maingoo-sage transition-colors">{{
+							invoice.invoiceNumber || 'Sin número' }}</span>
+						<span class="text-gray-500 text-xs">{{ invoice.date | date: 'dd/MM/yyyy' }}</span>
+					</div>
+				</div>
+				<div class="flex items-center gap-3">
+					<span class="text-maingoo-deep font-bold text-sm block">{{ invoice.amount | currency: 'EUR'
+						}}</span>
+					<button pButton
+						class="p-button-rounded p-button-text p-button-sm text-maingoo-sage hover:bg-white md:hidden"
+						(click)="viewInvoice.emit(invoice); $event.stopPropagation()">
+						<app-icon name="visibility" size="sm"></app-icon>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

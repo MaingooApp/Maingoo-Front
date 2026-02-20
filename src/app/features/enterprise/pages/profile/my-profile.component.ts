@@ -10,6 +10,7 @@ import {
   ValidatorFn,
   Validators
 } from '@angular/forms';
+import { Router } from '@angular/router';
 
 // PrimeNG
 import { ButtonModule } from 'primeng/button';
@@ -20,8 +21,13 @@ import { FluidModule } from 'primeng/fluid';
 import { PasswordModule } from 'primeng/password';
 import { PopoverModule } from 'primeng/popover';
 import { TabViewModule } from 'primeng/tabview';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { Enterprise, EnterpriseService } from '../../services/enterprise.service';
 import { AuthService } from '../../../auth/services/auth-service.service';
+import { IconComponent } from '@shared/components/icon/icon.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '@app/core/constants/permissions.enum';
 
 @Component({
   selector: 'app-my-profile',
@@ -36,12 +42,17 @@ import { AuthService } from '../../../auth/services/auth-service.service';
     FluidModule,
     PasswordModule,
     PopoverModule,
-    TabViewModule
+    TabViewModule,
+    TabViewModule,
+    ToastModule,
+    IconComponent,
+    NgxPermissionsModule
   ],
-  templateUrl: './my-profile.component.html',
-  styleUrl: './my-profile.component.scss'
+  providers: [MessageService],
+  templateUrl: './my-profile.component.html'
 })
 export class MyProfileComponent {
+  readonly P = AppPermission;
   perfilForm!: FormGroup;
   passwordForm!: FormGroup;
   currentEnterprise?: Enterprise;
@@ -49,7 +60,9 @@ export class MyProfileComponent {
   constructor(
     private fb: FormBuilder,
     private enterpriseService: EnterpriseService,
-    private authService: AuthService
+    private authService: AuthService,
+    private messageService: MessageService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -147,12 +160,21 @@ export class MyProfileComponent {
     this.enterpriseService.updateEnterprise(this.currentEnterprise.id, datos).subscribe({
       next: (enterprise) => {
         this.currentEnterprise = enterprise;
-        console.log('✅ Perfil de empresa actualizado correctamente');
-        // Aquí puedes lanzar un toast de éxito
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Perfil actualizado',
+          detail: 'Los datos de la empresa se han actualizado correctamente',
+          life: 3000
+        });
       },
       error: (error) => {
         console.error('❌ Error al actualizar el perfil de la empresa:', error);
-        // También puedes mostrar un toast de error aquí
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al actualizar',
+          detail: 'No se pudo actualizar el perfil de la empresa. Inténtalo de nuevo.',
+          life: 5000
+        });
       }
     });
   }
@@ -160,22 +182,40 @@ export class MyProfileComponent {
   cambiarPassword() {
     if (this.passwordForm.invalid) {
       this.passwordForm.markAllAsTouched();
-      console.error('Formulario de contraseña inválido');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Formulario incompleto',
+        detail: 'Por favor, completa todos los campos correctamente',
+        life: 3000
+      });
       return;
     }
 
-    // TODO: Implementar llamada al endpoint de cambio de contraseña
-    const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value;
+    const { currentPassword, newPassword } = this.passwordForm.value;
 
-    if (newPassword !== confirmPassword) {
-      console.error('Las contraseñas no coinciden');
-      // TODO: Mostrar mensaje de error al usuario
-      return;
-    }
-
-    console.log('Cambio de contraseña pendiente de implementar');
-    // TODO: Llamar al servicio de autenticación para cambiar la contraseña
-    // this.authService.changePassword(currentPassword, newPassword).subscribe({...});
+    // Llamar al servicio de autenticación para cambiar la contraseña
+    this.authService.changePassword(currentPassword, newPassword).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Contraseña actualizada',
+          detail: 'Tu contraseña se ha cambiado correctamente',
+          life: 3000
+        });
+        // Resetear el formulario después de actualizar
+        this.passwordForm.reset();
+      },
+      error: (error: any) => {
+        console.error('❌ Error al cambiar la contraseña:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al cambiar contraseña',
+          detail:
+            error?.error?.message || 'No se pudo actualizar la contraseña. Verifica los datos e inténtalo de nuevo.',
+          life: 5000
+        });
+      }
+    });
   }
 
   async cargarPerfil() {
@@ -220,5 +260,10 @@ export class MyProfileComponent {
         console.error('❌ Error al cargar el perfil de la empresa:', error);
       }
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/auth/login']);
   }
 }

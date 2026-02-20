@@ -1,0 +1,53 @@
+<!-- List View -->
+<div *ngIf="!showForm" class="flex flex-col gap-4 animate-fade-in">
+	<div *ngFor="let article of articles"
+		class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+				<app-icon name="brunch_dining" size="md"></app-icon>
+			</div>
+			<div>
+				<h3 class="font-bold text-gray-900">{{ article.name }}</h3>
+				<p class="text-sm text-gray-500">Artículo</p>
+			</div>
+		</div>
+		<div class="flex items-center gap-2">
+			<button pButton class="p-button-text p-button-rounded text-gray-400" aria-label="Opciones">
+				<app-icon name="more_vert" size="md"></app-icon>
+			</button>
+		</div>
+	</div>
+
+	<!-- Empty State -->
+	<div *ngIf="articles.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+		<div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
+			<app-icon name="brunch_dining" size="xl"></app-icon>
+		</div>
+		<h3 class="text-lg font-medium text-gray-900">No hay artículos</h3>
+		<p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">Crea tu primer artículo pulsando el botón de
+			arriba.</p>
+	</div>
+</div>
+
+<!-- Creation Form -->
+<div *ngIf="showForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+	<div class="flex flex-col gap-4">
+		<div class="flex flex-col gap-1">
+			<label class="text-sm font-medium text-gray-700">Nombre de artículo</label>
+			<input pInputText type="text" [ngModel]="newArticleName()" (ngModelChange)="newArticleName.set($event)"
+				placeholder="Ej: Solomillo de ternera" class="w-full" />
+		</div>
+
+		<div class="flex flex-col gap-1">
+			<label class="text-sm font-medium text-gray-700">Tipo</label>
+			<p-dropdown [options]="articleTypes" [ngModel]="newArticleType()"
+				(ngModelChange)="newArticleType.set($event)" placeholder="Seleccionar tipo" styleClass="w-full"
+				[appendTo]="'body'"></p-dropdown>
+		</div>
+
+		<div class="flex justify-end gap-2 mt-2">
+			<button pButton label="Cancelar" class="p-button-text" (click)="cancelForm()"></button>
+			<button pButton label="Guardar" class="p-button-primary" (click)="save()"></button>
+		</div>
+	</div>
+</div>

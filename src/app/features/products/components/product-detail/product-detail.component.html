@@ -1,0 +1,20 @@
+<!-- Main Content -->
+<div class="flex flex-col gap-6">
+
+  <!-- Categories, Format, Tags -->
+  <app-product-attributes [product]="product"></app-product-attributes>
+
+  <!-- Information Sections -->
+  <div class="flex flex-col gap-6">
+    <!-- Main Info -->
+    <app-product-info [product]="product"></app-product-info>
+
+    <!-- Price Evolution Chart -->
+    <app-product-price-chart [data]="priceChartData" [options]="priceChartOptions" [product]="product"
+      [title]="'Evolución de precio'"></app-product-price-chart>
+
+    <!-- Related Invoices -->
+    <app-product-invoices [invoices]="invoices" (viewInvoice)="verFactura.emit($event)">
+    </app-product-invoices>
+  </div>
+</div>

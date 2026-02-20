@@ -1,44 +1,115 @@
-<div *ngIf="invoices().length === 0; else tablaFacturas" class="card rounded-xl p-10 shadow-md">
-  <div class="flex justify-end mb-4">
-    <button
-      pButton
-      label="Subir documento"
-      icon="pi pi-receipt"
-      severity="primary"
-      (click)="openAddInvoiceModal()"></button>
-  </div>
-  <div class="text-center">
-    <i class="pi pi-inbox text-gray-300 mb-6" style="font-size: 6rem"></i>
-    <h2 class="text-2xl font-semibold mb-2">No hay facturas registradas</h2>
-    <p class="text-gray-500">Cuando registres una factura, aparecerá aquí.</p>
-  </div>
-</div>
-
-<ng-template #tablaFacturas>
-  <div>
-    <div class="card rounded-xl shadow-md p-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-semibold flex items-center gap-2">Facturas y albaranes</h2>
-
-        <!-- Botón a la derecha -->
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
+  <!-- MOBILE HEADER (Search & Controls) -->
+  <div class="md:hidden flex items-center justify-between w-full relative z-20">
+    <!-- Search Input (Expandable) -->
+    <div
+      class="transition-all duration-300 ease-out h-12 flex items-center"
+      [ngClass]="showMobileSearch ? 'w-full z-30' : 'w-12 relative'">
+      <div class="relative flex items-center w-full h-full">
+        <input
+          #mobileSearchInput
+          type="text"
+          pInputText
+          placeholder="Buscar factura..."
+          class="w-full pl-4 pr-14 py-2 rounded-full border border-gray-200 shadow-sm transition-all opacity-0 scale-95 pointer-events-none h-10"
+          [ngClass]="{ '!opacity-100 !scale-100 !pointer-events-auto': showMobileSearch }"
+          (input)="searchTerm.set(getInputValue($event))" />
         <button
-          pButton
-          label="Subir documento"
-          icon="pi pi-receipt"
-          severity="primary"
-          (click)="openAddInvoiceModal()"></button>
+          type="button"
+          class="absolute right-0 w-12 h-12 z-20 flex items-center justify-center text-maingoo-dark-green rounded-full active:bg-gray-100 transition-colors"
+          (click)="showMobileSearch = !showMobileSearch; showMobileSearch && mobileSearchInput.focus()">
+          <i class="pi text-xl" [ngClass]="showMobileSearch ? 'pi-times' : 'pi-search'"></i>
+        </button>
       </div>
-
-      <app-tabla-dinamica
-        [data]="invoices()"
-        [columns]="columns"
-        [loading]="loading()"
-        [globalFilterFields]="['supplier.name', 'invoiceNumber']"
-        [actions]="actions()"
-        (actionClick)="handleAccion($event)"
-        [exportPdf]="true"
-        [exportFilename]="'facturas'">
-      </app-tabla-dinamica>
     </div>
   </div>
-</ng-template>
+
+  <!-- DESKTOP HEADER -->
+  <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
+  <ng-template #headerTpl>
+    <app-invoice-summary-section-header-detail
+      (search)="searchTerm.set(getInputValue($event))"
+      (addInvoice)="openAddInvoiceModal()">
+    </app-invoice-summary-section-header-detail>
+  </ng-template>
+
+  <div class="w-full">
+    <div *ngIf="invoices().length === 0; else tablaFacturas">
+      <app-empty-state
+        icon="inbox"
+        title="No hay facturas registradas"
+        description="Cuando registres una factura, aparecerá aquí.">
+      </app-empty-state>
+    </div>
+
+    <ng-template #tablaFacturas>
+      <!-- Desktop Table -->
+      <div class="hidden md:block card rounded-xl shadow-md p-6 bg-white">
+        <app-tabla-dinamica
+          [data]="invoices()"
+          [columns]="columns"
+          [loading]="loading()"
+          [globalFilterFields]="['supplier.name', 'invoiceNumber']"
+          [actions]="actions()"
+          (actionClick)="handleAccion($event)"
+          [exportPdf]="true"
+          [exportFilename]="'facturas'">
+        </app-tabla-dinamica>
+      </div>
+
+      <!-- Mobile Simplified Table (Excel-like) -->
+      <div class="md:hidden w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th class="px-4 py-3 font-medium">Proveedor</th>
+                <th class="px-3 py-3 font-medium text-right">Fecha</th>
+                <th class="px-4 py-3 font-medium text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr
+                *ngFor="let invoice of filteredInvoices()"
+                (click)="verDetalle(invoice)"
+                class="bg-white active:bg-gray-50 transition-colors cursor-pointer">
+                <td class="px-4 py-3 font-medium text-gray-900 truncate max-w-[140px]">
+                  {{ invoice.supplier.name || 'Sin nombre' }}
+                  <div class="text-[10px] text-gray-400 font-normal mt-0.5">{{ invoice.invoiceNumber }}</div>
+                </td>
+                <td class="px-3 py-3 text-right text-gray-500 whitespace-nowrap">
+                  {{ invoice.date | date: 'dd/MM/yy' }}
+                </td>
+                <td class="px-4 py-3 text-right font-bold text-maingoo-deep whitespace-nowrap">
+                  {{ invoice.amount | currency: 'EUR' }}
+                </td>
+              </tr>
+              <tr *ngIf="filteredInvoices().length === 0">
+                <td colspan="3" class="px-4 py-8 text-center text-gray-500">No se encontraron facturas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- FAB: Exportar PDF (Bottom Left) -->
+  <button
+    class="md:hidden fixed bottom-24 left-6 w-14 h-14 rounded-full bg-red-500 text-white shadow-[0_4px_20px_rgba(239,68,68,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)] hover:bg-red-600"
+    (click)="exportarPdf()"
+    pTooltip="Exportar PDF"
+    tooltipPosition="right">
+    <app-icon name="picture_as_pdf" size="xl"></app-icon>
+  </button>
+
+  <!-- FAB: Subir Documento (Bottom Right) -->
+  <button
+    *ngxPermissionsOnly="[P.DocumentsWrite]"
+    class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
+    (click)="openAddInvoiceModal()"
+    pTooltip="Subir documento"
+    tooltipPosition="left">
+    <app-icon name="add" size="xl"></app-icon>
+  </button>
+</div>

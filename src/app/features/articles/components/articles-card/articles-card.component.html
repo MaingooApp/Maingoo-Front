@@ -1,0 +1,14 @@
+<app-card-shell [isSelected]="isSelected" (click)="handleClick()">
+	<div class="flex items-center justify-between mb-4">
+		<div class="w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+			[ngClass]="themeClasses.iconBg">
+			<app-icon [name]="icon" size="xl"></app-icon>
+		</div>
+		<div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+			[ngClass]="themeClasses.arrowBg">
+			<app-icon name="arrow_forward" size="md"></app-icon>
+		</div>
+	</div>
+	<h3 class="text-lg font-bold text-gray-900 mb-1">{{ title }}</h3>
+	<p class="text-sm text-gray-500" [class.line-clamp-1]="isSelected">{{ description }}</p>
+</app-card-shell>

@@ -1,6 +1,16 @@
 // invoice-summary.component.ts
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  signal,
+  ViewChild,
+  computed,
+  TemplateRef
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { COLUMNS } from '@features/invoices/constants/columns';
@@ -12,6 +22,9 @@ import { Action } from '@shared/interfaces/actions.interface';
 import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
 import { ModalService } from '@shared/services/modal.service';
 import { ToastService } from '@shared/services/toast.service';
+import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LayoutService } from '../../../../layout/service/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -21,6 +34,10 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add-invoice-modal.component';
+import { IconComponent } from '@shared/components/icon/icon.component';
+import { InvoiceSummarySectionHeaderDetailComponent } from './components/invoice-summary-section-header-detail/invoice-summary-section-header-detail.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '../../../../core/constants/permissions.enum';
 
 @Component({
   selector: 'app-invoice-summary',
@@ -33,23 +50,44 @@ import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add
     IconFieldModule,
     InputIconModule,
     TablaDinamicaComponent,
+    EmptyStateComponent,
     DialogModule,
     FormsModule,
-    FileUploadModule
+    FileUploadModule,
+    IconComponent,
+    InvoiceSummarySectionHeaderDetailComponent,
+    NgxPermissionsModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InvoiceSummaryComponent implements OnInit {
+export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit {
+  readonly P = AppPermission;
   @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
   invoices = signal<Invoice[]>([]);
   loading = signal(true);
+  searchTerm = signal('');
+
+  filteredInvoices = computed(() => {
+    const term = this.searchTerm().toLowerCase();
+    const allInvoices = this.invoices();
+
+    if (!term) return allInvoices;
+
+    return allInvoices.filter(
+      (inv) =>
+        (inv.supplier?.name || '').toLowerCase().includes(term) ||
+        (inv.invoiceNumber || '').toLowerCase().includes(term)
+    );
+  });
+
   ConvertNumbers = ConvertNumbers;
 
   columns = COLUMNS;
 
   actions = signal<Action[]>([
-    { icon: 'pi pi-eye', action: 'editar', tooltip: 'Ver detalle', color: 'primary' },
-    { icon: 'pi pi-trash', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
+    { icon: 'visibility', action: 'editar', tooltip: 'Ver detalle', color: 'primary' },
+    { icon: 'delete', action: 'eliminar', tooltip: 'Eliminar', color: 'danger' }
   ]);
 
   private _dynamicDialogRef: DynamicDialogRef | null = null;
@@ -59,10 +97,19 @@ export class InvoiceSummaryComponent implements OnInit {
     private readonly confirmDialog: ConfirmDialogService,
     private readonly toastService: ToastService,
     private readonly router: Router,
-    private readonly modalService: ModalService
+    private readonly modalService: ModalService,
+    private readonly layoutService: LayoutService,
+    private readonly headerService: SectionHeaderService
   ) {}
 
+  showMobileSearch = false;
+
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
+
   ngOnInit(): void {
+    this.layoutService.setPageTitle('Facturas y albaranes');
     this.invoiceService.getInvoices().subscribe({
       next: (data: Invoice[]) => {
         this.invoices.set(data);
@@ -74,6 +121,23 @@ export class InvoiceSummaryComponent implements OnInit {
         this.toastService.error('Error', 'No se pudieron cargar las facturas.');
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.layoutService.setPageTitle('');
+    this.headerService.reset();
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.headerService.setContent(this.headerTpl);
+    });
+  }
+
+  exportarPdf() {
+    if (this.tablaRef) {
+      this.tablaRef.exportarComoPdf();
+    }
   }
 
   verDetalle(factura: Invoice) {
@@ -117,6 +181,10 @@ export class InvoiceSummaryComponent implements OnInit {
     } else if (event.action === 'eliminar') {
       this.confirmarEliminacion(event.row);
     }
+  }
+
+  getInputValue(event: Event): string {
+    return (event.target as HTMLInputElement).value;
   }
 
   openAddInvoiceModal() {

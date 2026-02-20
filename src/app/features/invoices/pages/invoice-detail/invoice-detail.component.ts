@@ -11,6 +11,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { InvoiceService } from '../../services/invoice.service';
+import { IconComponent } from '@shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -22,7 +23,8 @@ import { InvoiceService } from '../../services/invoice.service';
     InputTextModule,
     IconFieldModule,
     InputIconModule,
-    DocumentTypePipe
+    DocumentTypePipe,
+    IconComponent
   ],
   templateUrl: './invoice-detail.component.html'
 })
@@ -39,7 +41,7 @@ export class InvoiceDetailComponent implements OnInit {
     private router: Router,
     private invoiceService: InvoiceService,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   ngOnInit() {
     const facturaId = this.route.snapshot.paramMap.get('id');

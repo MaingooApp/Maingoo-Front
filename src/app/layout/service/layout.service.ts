@@ -15,10 +15,6 @@ interface LayoutState {
   configSidebarVisible?: boolean;
   staticMenuMobileActive?: boolean;
   menuHoverActive?: boolean;
-  notificationPanelActive?: boolean;
-  notificationPanelAnimating?: boolean;
-  profilePanelActive?: boolean;
-  profilePanelAnimating?: boolean;
 }
 
 interface MenuChangeEvent {
@@ -43,11 +39,7 @@ export class LayoutService {
     overlayMenuActive: false,
     configSidebarVisible: false,
     staticMenuMobileActive: false,
-    menuHoverActive: false,
-    notificationPanelActive: false,
-    notificationPanelAnimating: false,
-    profilePanelActive: false,
-    profilePanelAnimating: false
+    menuHoverActive: false
   };
 
   layoutConfig = signal<layoutConfig>(this._config);
@@ -84,6 +76,9 @@ export class LayoutService {
 
   transitionComplete = signal<boolean>(false);
 
+  // Signal para el título de la página (para mostrar en mobile topbar)
+  pageTitle = signal<string>('');
+
   private initialized = false;
 
   constructor() {
@@ -106,6 +101,10 @@ export class LayoutService {
     });
   }
 
+  setPageTitle(title: string) {
+    this.pageTitle.set(title);
+  }
+
   private handleDarkModeTransition(config: layoutConfig): void {
     if ((document as any).startViewTransition) {
       this.startViewTransition(config);
@@ -124,7 +123,7 @@ export class LayoutService {
       .then(() => {
         this.onTransitionEnd();
       })
-      .catch(() => {});
+      .catch(() => { });
   }
 
   toggleDarkMode(config?: layoutConfig): void {
@@ -167,75 +166,6 @@ export class LayoutService {
         this.overlayOpen.next(null);
       }
     }
-  }
-  
-  toggleNotificationPanel() {
-    const isCurrentlyActive = this.layoutState().notificationPanelActive;
-    
-    if (isCurrentlyActive) {
-      // Si se está cerrando, marcar como animando primero
-      this.layoutState.update((prev) => ({
-        ...prev,
-        notificationPanelAnimating: true,
-        notificationPanelActive: false
-      }));
-      
-      // Esperar a que termine la animación (400ms) antes de permitir cambios en el sidebar
-      setTimeout(() => {
-        this.layoutState.update((prev) => ({
-          ...prev,
-          notificationPanelAnimating: false
-        }));
-      }, 400);
-    } else {
-      // Si se está abriendo, cambiar inmediatamente
-      this.layoutState.update((prev) => ({
-        ...prev,
-        notificationPanelActive: true,
-        notificationPanelAnimating: false
-      }));
-    }
-  }
-  
-  isNotificationPanelActive() {
-    return this.layoutState().notificationPanelActive;
-  }
-  
-  isNotificationPanelActiveOrAnimating() {
-    return this.layoutState().notificationPanelActive || this.layoutState().notificationPanelAnimating;
-  }
-
-  toggleProfilePanel() {
-    const isCurrentlyActive = this.layoutState().profilePanelActive;
-    
-    if (isCurrentlyActive) {
-      this.layoutState.update((prev) => ({
-        ...prev,
-        profilePanelAnimating: true,
-        profilePanelActive: false
-      }));
-      
-      setTimeout(() => {
-        this.layoutState.update((prev) => ({
-          ...prev,
-          profilePanelAnimating: false
-        }));
-      }, 400);
-    } else {
-      this.layoutState.update((prev) => ({
-        ...prev,
-        profilePanelActive: true,
-        profilePanelAnimating: false
-      }));
-    }
-  }
-
-  isProfilePanelActive() {
-    return this.layoutState().profilePanelActive;
-  }
-
-  isProfilePanelActiveOrAnimating() {
-    return this.layoutState().profilePanelActive || this.layoutState().profilePanelAnimating;
   }
 
   isDesktop() {

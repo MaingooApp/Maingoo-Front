@@ -3,21 +3,46 @@ import { DocumentType } from '../enums/documents.enum';
 export interface Product {
   id: string;
   name: string;
-  eanCode: string;
+  originalName?: string;
+  eanCode: string | null;
   description: string | null;
-  categoryId: string;
+  categoryId?: string;
+  subcategoryId?: string; // Kept for backward compat if needed, but likely replaced by categoryId
   unit: string;
-  category: ProductCategory;
+  category?: ProductCategory;
+  subcategory?: ProductCategory; // Kept for backward compat
   allergens: ProductAllergen[];
   createdAt: string;
   updatedAt: string;
   stock: number;
+  idealStock?: number | null;
+  storageType?: 'seco' | 'fresco' | 'congelado' | null;
+  productType?: 'simple' | 'elaborado' | null;
+  unitCount?: number | string;
+
+  // Price and Packaging Fields
+  lastUnitPrice?: number | null; // Price per package/format
+  pricePerUnit?: number | null;
+  pricePerKg?: number | null;
+  unitsPerPackage?: number | null;
+  weightPerUnitGrams?: number | null;
+
+  supplier?: Supplier | { id: string; name: string; cifNif?: string };
+  brand?: string;
 }
 
 export interface ProductCategory {
   id: string;
   name: string;
   description: string | null;
+  depth?: number;
+  path?: string;
+  parent?: {
+    id: string;
+    name: string;
+    depth?: number;
+  };
+  category?: ProductCategory; // Legacy: Parent category (backward compat)
 }
 
 export interface ProductAllergen {
@@ -25,6 +50,25 @@ export interface ProductAllergen {
   name: string;
   code: string;
   description: string;
+}
+
+/**
+ * Categoría raíz que agrupa productos
+ */
+export interface RootCategory {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+/**
+ * Grupo de productos agrupados por categoría raíz
+ * Esta es la nueva estructura devuelta por GET /api/products
+ */
+export interface ProductGroup {
+  rootCategory: RootCategory;
+  productCount: number;
+  products: Product[];
 }
 
 export interface Supplier {
