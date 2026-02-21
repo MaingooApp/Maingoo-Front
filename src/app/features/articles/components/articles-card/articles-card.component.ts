@@ -17,6 +17,8 @@ export class ArticlesCardComponent {
 	@Input() icon: string = '';
 	@Input() theme: ArticleCardTheme = 'blue';
 	@Input() isSelected: boolean = false;
+	/** Etiqueta opcional que se muestra como badge (ej: 'Demo') */
+	@Input() badge: string = '';
 
 	@Output() cardClick = new EventEmitter<void>();
 
