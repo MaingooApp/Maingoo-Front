@@ -32,7 +32,7 @@
 
         <!-- Métricas Proveedores Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'suppliers'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -86,7 +86,7 @@
 
         <!-- Métricas Productos Card - Pie Chart de Categorías -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'products'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -118,7 +118,7 @@
 
         <!-- Métricas Artículos Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'articles'}">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -147,7 +147,7 @@
 
         <!-- Ventas Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'sales'}">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -211,7 +211,7 @@
 
         <!-- Personal Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'staff'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -268,7 +268,7 @@
 
         <!-- Gestoría Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6"
           [ngClass]="{'ring-maingoo-sage': activePanel === 'gestoria'}">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
@@ -309,7 +309,7 @@
 
         <!-- APPCC Card -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
           <!-- Header -->
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -396,7 +396,7 @@
 
         <!-- Tareas Card (Vacía) -->
         <div
-          class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
+          class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 group relative h-[200px] md:h-[calc((100vh-220px)/2)] flex flex-col p-6">
           <div class="flex items-center gap-3 mb-4">
             <div
               class="w-10 h-10 rounded-full bg-maingoo-sage/10 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -426,7 +426,7 @@
     <ng-container *ngIf="activePanel">
       <!-- DESKTOP: Side Panel -->
       <div
-        class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-xl overflow-hidden shadow-2xl z-20 flex-col bg-white min-h-[400px]">
+        class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-2xl z-20 flex-col bg-white min-h-[400px]">
 
         <!-- Panel Header -->
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">

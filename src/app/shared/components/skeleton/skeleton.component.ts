@@ -31,7 +31,7 @@ import { SkeletonModule } from 'primeng/skeleton';
     <div *ngIf="mode === 'grid'" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       <div
         *ngFor="let i of items"
-        class="rounded-xl overflow-hidden shadow-sm bg-white p-4 flex flex-col gap-3 min-h-[180px]"
+        class="rounded-content overflow-hidden shadow-sm bg-white p-4 flex flex-col gap-3 min-h-[180px]"
       >
         <!-- Header -->
         <div class="flex flex-col gap-2">
@@ -58,7 +58,7 @@ import { SkeletonModule } from 'primeng/skeleton';
     </div>
 
     <!-- MODO: List (filas) -->
-    <div *ngIf="mode === 'list'" class="rounded-xl shadow-sm overflow-hidden bg-white">
+    <div *ngIf="mode === 'list'" class="rounded-content shadow-sm overflow-hidden bg-white">
       <div
         *ngFor="let i of items"
         class="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4"

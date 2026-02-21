@@ -6,7 +6,7 @@
 
 	<div *ngIf="invoices.length > 0; else noInvoices" class="space-y-2">
 		<div *ngFor="let invoice of invoices"
-			class="p-3 bg-white border border-gray-200 rounded-xl hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
+			class="p-3 bg-white border border-gray-200 rounded-content hover:border-maingoo-sage transition-colors flex justify-between items-center group cursor-pointer"
 			(click)="viewInvoice.emit(invoice)">
 			<div class="flex flex-col">
 				<span class="font-medium text-maingoo-deep text-sm">{{ invoice.supplier.name || 'Proveedor desconocido'
@@ -23,7 +23,7 @@
 
 	<ng-template #noInvoices>
 		<div
-			class="p-4 rounded-xl bg-gray-50 text-gray-500 text-sm text-center italic border border-dashed border-gray-200">
+			class="p-4 rounded-content bg-gray-50 text-gray-500 text-sm text-center italic border border-dashed border-gray-200">
 			No se han encontrado facturas para este producto.
 		</div>
 	</ng-template>

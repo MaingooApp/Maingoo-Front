@@ -40,7 +40,7 @@
           <div *ngIf="articles().length > 0 && viewMode === 'cards'"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full animate-fade-in">
             <div *ngFor="let article of articles()"
-              class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+              class="bg-white rounded-content shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
               <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
                   <app-icon name="brunch_dining" size="xl"></app-icon>
@@ -51,7 +51,7 @@
           </div>
 
           <div *ngIf="articles().length > 0 && viewMode === 'list'"
-            class="w-full bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
+            class="w-full bg-white rounded-content shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
             <p-table [value]="articles()" [rowHover]="true" styleClass="p-datatable-sm">
               <ng-template pTemplate="header">
                 <tr>

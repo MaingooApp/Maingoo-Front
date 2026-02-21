@@ -1,7 +1,7 @@
 <!-- List View -->
 <div *ngIf="!showForm" class="flex flex-col gap-4 animate-fade-in">
 	<div *ngFor="let article of articles"
-		class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
+		class="bg-white p-4 rounded-content shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow cursor-pointer">
 		<div class="flex items-center gap-3">
 			<div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
 				<app-icon name="brunch_dining" size="md"></app-icon>
@@ -30,7 +30,7 @@
 </div>
 
 <!-- Creation Form -->
-<div *ngIf="showForm" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
+<div *ngIf="showForm" class="bg-white rounded-content shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in">
 	<div class="flex flex-col gap-4">
 		<div class="flex flex-col gap-1">
 			<label class="text-sm font-medium text-gray-700">Nombre de artículo</label>

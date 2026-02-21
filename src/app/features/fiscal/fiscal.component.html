@@ -16,7 +16,7 @@
                 <div *ngIf="viewMode() === 'cards'" class="grid gap-6 animate-fade-in"
                     [ngClass]="view() !== 'hub' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
                     <!-- Mi Gestor Card -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3 bg-gray-50/50"
+                    <div class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3 bg-gray-50/50"
                         [ngClass]="view() === 'manager' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
                         (click)="setView('manager')">
 
@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <!-- Invoice Card -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+                    <div class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
                         [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
                         (click)="setView('invoices')">
                         <div class="flex items-center gap-3">
@@ -67,7 +67,7 @@
 
 
                     <!-- Payroll Card -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+                    <div class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
                         [ngClass]="view() === 'payroll' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
                         (click)="setView('payroll')">
                         <div class="flex items-center gap-3">
@@ -89,7 +89,7 @@
                     </div>
 
                     <!-- Supplies Card -->
-                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+                    <div class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
                         [ngClass]="view() === 'supplies' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
                         (click)="setView('supplies')">
                         <div class="flex items-center gap-3">
@@ -115,7 +115,7 @@
                 <div *ngIf="viewMode() === 'list'" class="flex flex-col gap-3 animate-fade-in w-full">
 
                     <!-- Mi Gestor List Item -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between relative"
+                    <div class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between relative"
                         [ngClass]="view() === 'manager' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
                         (click)="setView('manager')">
 
@@ -143,7 +143,7 @@
                     </div>
 
                     <!-- Invoice List Item -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
+                    <div class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
                         [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
                         (click)="setView('invoices')">
                         <div class="flex items-center gap-4">
@@ -162,7 +162,7 @@
                     </div>
 
                     <!-- Payroll List Item -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
+                    <div class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
                         [ngClass]="view() === 'payroll' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
                         (click)="setView('payroll')">
                         <div class="flex items-center gap-4">
@@ -180,7 +180,7 @@
                     </div>
 
                     <!-- Supplies List Item -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
+                    <div class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
                         [ngClass]="view() === 'supplies' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
                         (click)="setView('supplies')">
                         <div class="flex items-center gap-4">
@@ -206,7 +206,7 @@
                 class="shrink-0 sticky top-32 flex flex-col ">
 
                 <div
-                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
                     <!-- Drawer Header -->
                     <div
                         class="px-6 py-4 flex justify-between items-center bg-gray-50 border-b border-gray-100 shrink-0">
@@ -329,7 +329,7 @@
                                     <textarea pInputTextarea [autoResize]="true" [(ngModel)]="manager().notes"
                                         [readonly]="!isEditingManager()" rows="4"
                                         placeholder="Añade notas sobre tu gestor..."
-                                        class="w-full bg-gray-50 border-0 rounded-xl p-4 text-sm text-gray-700 leading-relaxed focus:ring-0 focus:shadow-none resize-none transition-all"
+                                        class="w-full bg-gray-50 border-0 rounded-content p-4 text-sm text-gray-700 leading-relaxed focus:ring-0 focus:shadow-none resize-none transition-all"
                                         [ngClass]="{ 'bg-white border border-gray-200 focus:border-maingoo-sage': isEditingManager(), 'hover:bg-gray-100': !isEditingManager() }"></textarea>
                                 </div>
                             </div>
@@ -344,7 +344,7 @@
                 class="shrink-0 sticky top-32 flex flex-col ">
 
                 <div
-                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
                     <!-- Drawer Header -->
                     <div
                         class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
@@ -390,7 +390,7 @@
                             <!-- Grouped List -->
                             <div class="flex-1 overflow-y-auto p-4 space-y-4">
                                 <div *ngFor="let yearGroup of groupedInvoices()"
-                                    class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm transition-all duration-300">
+                                    class="bg-white rounded-content border border-gray-100 overflow-hidden shadow-sm transition-all duration-300">
 
                                     <!-- Year Header -->
                                     <div (click)="toggleGroup(yearGroup)"
@@ -517,7 +517,7 @@
                 class="shrink-0 sticky top-32 flex flex-col ">
 
                 <div
-                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
                     <!-- Drawer Header -->
                     <div
                         class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
@@ -563,7 +563,7 @@
                 class="shrink-0 sticky top-32 flex flex-col ">
 
                 <div
-                    class="bg-white rounded-2xl shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+                    class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
                     <!-- Drawer Header -->
                     <div
                         class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">

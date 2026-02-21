@@ -32,7 +32,7 @@
           <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
         </div>
         <div
-          class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3"
+          class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-content rounded-tl-none p-3"
           role="article" aria-label="Mensaje de Maingoo AI">
           <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
         </div>
@@ -41,7 +41,7 @@
       <!-- Mensaje del USUARIO -->
       <div *ngIf="message.sender === 'user'"
         class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
-        <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3"
+        <div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-content rounded-tr-none p-3"
           role="article" aria-label="Tu mensaje">
           <p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
         </div>
@@ -57,7 +57,7 @@
       <div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
         <img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
       </div>
-      <div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
+      <div class="bg-white dark:bg-surface-700 rounded-content rounded-tl-none p-3 shadow-sm">
         <div class="flex space-x-1">
           <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce" aria-hidden="true"></div>
           <div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]" aria-hidden="true"></div>

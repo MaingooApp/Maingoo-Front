@@ -36,7 +36,7 @@ import { SkeletonComponent } from '../../../../shared/components/skeleton/skelet
 	template: `
     <!-- Container principal del slot -->
     <div 
-      class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden 
+      class="bg-white rounded-content shadow-sm border border-gray-100 overflow-hidden 
              hover:shadow-md hover:border-gray-200 transition-all duration-200
              min-w-[280px] max-w-[340px]"
       [attr.aria-label]="getSlotAriaLabel()"
