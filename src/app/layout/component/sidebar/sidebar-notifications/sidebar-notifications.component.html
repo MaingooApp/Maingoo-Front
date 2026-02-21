@@ -2,7 +2,7 @@
 
 <!-- Botón limpiar (solo si hay notificaciones) -->
 @if (notifications.length > 0) {
-<div class="flex-shrink-0 px-4 py-2 bg-[#F0F7F4] dark:bg-surface-800 flex justify-end">
+<div class="flex-shrink-0 px-4 py-2 flex justify-end">
 	<button (click)="clearAllNotifications()"
 		class="text-xs font-medium text-[#6B9E86] hover:text-[#1A3C34] dark:hover:text-white transition-colors">
 		Limpiar todo
@@ -11,7 +11,7 @@
 }
 
 <!-- Lista de notificaciones -->
-<div class="flex-1 min-h-0 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
+<div class="flex-1 min-h-0 overflow-y-auto">
 	@if (notifications.length === 0) {
 	<!-- Estado vacío -->
 	<div class="flex flex-col items-center justify-center h-full p-8 text-center">

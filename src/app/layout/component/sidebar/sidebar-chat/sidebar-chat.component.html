@@ -1,7 +1,7 @@
 <!-- ========== SECCIÓN CHAT ========== -->
 
 <!-- Área de mensajes expandida -->
-<div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
+<div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto">
 	<!-- Mensajes dinámicos -->
 	@for (message of messages; track message.id; let idx = $index) {
 	@if (message.sender === 'bot') {
@@ -18,7 +18,8 @@
 	} @else {
 	<!-- Mensaje del USUARIO -->
 	<div class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
-		<div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-content rounded-tr-none p-3">
+		<div
+			class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-content rounded-tr-none p-3">
 			<p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
 		</div>
 		<div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
@@ -49,7 +50,7 @@
 <!-- Spacer para modo compacto - Eliminado -->
 
 <!-- Acciones rápidas -->
-<div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
+<div class="flex-shrink-0 px-4 py-3">
 	<div class="grid grid-cols-2 gap-2">
 		@for (action of currentContext.actions; track action.label) {
 		<button (click)="handleQuickAction(action.action)"
@@ -62,7 +63,7 @@
 </div>
 
 <!-- Input de mensaje expandido -->
-<div class="flex-shrink-0 p-4 bg-[#F0F7F4] dark:bg-surface-800">
+<div class="flex-shrink-0 p-4">
 	<div class="flex items-center gap-3">
 		<!-- Botón de adjuntar con menú desplegable -->
 		<div class="relative" id="attachment-menu-container">
