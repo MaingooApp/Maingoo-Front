@@ -45,10 +45,6 @@ export const appRoutes: Routes = [
       { path: 'gestoria', component: DocGeneratorComponent },
       { path: 'appcc', loadComponent: () => import('./features/appcc/appcc.component').then((m) => m.AppccComponent) },
       { path: 'rrhh', loadComponent: () => import('./features/rrhh/rrhh.component').then((m) => m.RrhhComponent) },
-      {
-        path: 'documentos',
-        loadComponent: () => import('./features/documentos/documentos.component').then((m) => m.DocumentosComponent)
-      },
       { path: 'miperfil', component: MyProfileComponent },
       {
         path: 'usuarios',
