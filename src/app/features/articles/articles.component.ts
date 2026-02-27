@@ -10,7 +10,6 @@ import { ToastService } from '../../shared/services/toast.service';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
 
-
 import { ArticlesCardComponent } from './components/articles-card/articles-card.component';
 import { ArticlesDetailComponent } from './components/articles-detail/articles-detail.component';
 import { ArticlesSectionHeaderDetailComponent } from './components/articles-section-header-detail/articles-section-header-detail.component';
@@ -18,8 +17,16 @@ import { ArticlesSectionHeaderDetailComponent } from './components/articles-sect
 @Component({
   selector: 'app-articles',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TableModule, IconComponent, ArticlesCardComponent, ArticlesDetailComponent, ArticlesSectionHeaderDetailComponent],
-  templateUrl: './articles.component.html',
+  imports: [
+    CommonModule,
+    ButtonModule,
+    TableModule,
+    IconComponent,
+    ArticlesCardComponent,
+    ArticlesDetailComponent,
+    ArticlesSectionHeaderDetailComponent
+  ],
+  templateUrl: './articles.component.html'
 })
 export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private invoiceService = inject(InvoiceService);
@@ -27,6 +34,7 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private toastService = inject(ToastService);
   private headerService = inject(SectionHeaderService);
   @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('articlesDetailComponent') articlesDetailComponent?: ArticlesDetailComponent;
 
   hasInvoices = false;
   loading = true;
@@ -52,7 +60,7 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
     // Load products for ingredients (flatten from groups)
     this.productService.getProducts().subscribe({
       next: (productGroups: ProductGroup[]) => {
-        const allProducts = productGroups.flatMap(group => group.products);
+        const allProducts = productGroups.flatMap((group) => group.products);
         this.availableProducts.set(allProducts);
       }
     });
@@ -96,5 +104,9 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   setViewMode(mode: string) {
     this.viewMode = mode as 'list' | 'cards';
+  }
+
+  onAddPreparation() {
+    this.articlesDetailComponent?.onAddPreparation();
   }
 }

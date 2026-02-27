@@ -1,12 +1,10 @@
-import { Component, EventEmitter, Input, Output, signal, inject, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { DetailCardShellComponent } from '@shared/components/detail-card-shell/detail-card-shell.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { ButtonModule } from 'primeng/button';
 import { Product } from '@app/core/interfaces/Invoice.interfaces';
-import { ElaborationsContentComponent, IngredientRow } from '../elaborations-content/elaborations-content.component';
-import { ArticlesContentComponent } from '../articles-content/articles-content.component';
+import { PreparationsContentComponent } from '../preparations-content/preparations-content.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '@app/core/constants/permissions.enum';
 
@@ -15,31 +13,30 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     DetailCardShellComponent,
     IconComponent,
     ButtonModule,
-    ElaborationsContentComponent,
-    ArticlesContentComponent,
+    PreparationsContentComponent,
     NgxPermissionsModule
   ],
   templateUrl: './articles-detail.component.html'
 })
-export class ArticlesDetailComponent implements OnInit {
+export class ArticlesDetailComponent {
   readonly P = AppPermission;
   @Input() selectedCategory: string | null = null;
   @Input() availableProducts: Product[] = [];
-  @Input() articles: { name: string }[] = [];
   @Output() close = new EventEmitter<void>();
 
-  // Local state for created elaborations
-  elaborations = signal<{ name: string; ingredients: IngredientRow[]; materials: string; steps: string }[]>([]);
+  @ViewChild('preparationsComponent') preparationsComponent?: PreparationsContentComponent;
 
-  // Form State controlled from here
-  showAddArticleForm = signal<boolean>(false);
-  showAddElaborationForm = signal<boolean>(false);
-
-  ngOnInit() {}
+  get shellTitle(): string {
+    const prep = this.preparationsComponent?.selectedPreparation();
+    if (prep) return prep.name;
+    if (this.preparationsComponent?.isEditMode()) {
+      return this.preparationsComponent.type === 'elaboration' ? 'Nueva elaboración' : 'Nuevo artículo';
+    }
+    return this.categoryDisplayName;
+  }
 
   get categoryDisplayName(): string {
     if (!this.selectedCategory) return '';
@@ -51,39 +48,22 @@ export class ArticlesDetailComponent implements OnInit {
     return names[this.selectedCategory] ?? this.selectedCategory;
   }
 
-  get isHelper(): boolean {
-    return this.selectedCategory === 'mise-en-place';
+  onAddPreparation() {
+    this.preparationsComponent?.startCreate();
   }
 
-  toggleAddArticleForm() {
-    this.showAddArticleForm.update((v) => !v);
-  }
-
-  onEdit() {
-    // Implement edit logic
-    console.log('Edit category');
-  }
-
-  toggleAddElaborationForm() {
-    this.showAddElaborationForm.update((v) => !v);
-  }
-
-  onLimitArticleForm(value: boolean) {
-    this.showAddArticleForm.set(value);
-  }
-
-  onLimitElaborationForm(value: boolean) {
-    this.showAddElaborationForm.set(value);
-  }
-
-  onSaveElaboration(elaboration: any) {
-    this.elaborations.update((current) => [...current, elaboration]);
-    this.showAddElaborationForm.set(false);
+  onDeletePreparation() {
+    const prep = this.preparationsComponent?.selectedPreparation();
+    if (prep) {
+      this.preparationsComponent?.deletePreparation(prep);
+    }
   }
 
   onClose() {
-    this.showAddArticleForm.set(false);
-    this.showAddElaborationForm.set(false);
+    if (this.preparationsComponent?.isShellOpen) {
+      this.preparationsComponent.closeDetail();
+      return;
+    }
     this.close.emit();
   }
 }

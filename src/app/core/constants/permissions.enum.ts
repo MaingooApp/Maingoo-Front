@@ -22,5 +22,19 @@ export enum AppPermission {
 
   ProductsRead = 'products.read',
   ProductsWrite = 'products.write',
-  ProductsDelete = 'products.delete'
+  ProductsDelete = 'products.delete',
+
+  FoodPreparationsRead = 'food-preparations.read',
+  FoodPreparationsWrite = 'food-preparations.write',
+  FoodPreparationsDelete = 'food-preparations.delete',
+
+  FoodPreparationTypesRead = 'food-preparation-types.read',
+
+  UtensilsRead = 'utensils.read',
+  UtensilsWrite = 'utensils.write',
+  UtensilsDelete = 'utensils.delete',
+
+  MachineryRead = 'machinery.read',
+  MachineryWrite = 'machinery.write',
+  MachineryDelete = 'machinery.delete'
 }

@@ -1,9 +1,14 @@
-<div class="flex flex-col gap-6 relative items-start  min-h-screen p-6 -m-6">
+<div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
-      <app-articles-section-header-detail [articles]="articles()" [viewMode]="viewMode"
-        (viewModeChange)="setViewMode($event)" (search)="onSearch($event)">
+      <app-articles-section-header-detail
+        [articles]="articles()"
+        [viewMode]="viewMode"
+        [selectedCategory]="selectedCategory"
+        (viewModeChange)="setViewMode($event)"
+        (search)="onSearch($event)"
+        (addPreparation)="onAddPreparation()">
       </app-articles-section-header-detail>
     </ng-template>
 
@@ -11,35 +16,48 @@
       <!-- Left Side -->
       <div class="flex-1 min-w-0 transition-all duration-300">
         <!-- Main Categories Cards -->
-        <div class="grid gap-6 mb-8 w-full transition-all duration-300"
+        <div
+          class="grid gap-6 mb-8 w-full transition-all duration-300"
           [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'">
-
           <!-- Elaboraciones Card -->
-          <app-articles-card title="Elaboraciones" description="Crea y gestiona tus elaboraciones para tus artículos"
-            icon="skillet" theme="orange" [isSelected]="selectedCategory === 'elaborations'"
+          <app-articles-card
+            title="Elaboraciones"
+            description="Crea y gestiona tus elaboraciones para tus artículos"
+            icon="skillet"
+            theme="orange"
+            [isSelected]="selectedCategory === 'elaborations'"
             (cardClick)="selectCategory('elaborations')">
           </app-articles-card>
 
           <!-- Artículos Card -->
-          <app-articles-card title="Artículos"
-            description="Crea y gestiona tus artículos finalizados y listos para la venta" icon="brunch_dining"
-            theme="blue" [isSelected]="selectedCategory === 'articles'" (cardClick)="selectCategory('articles')">
+          <app-articles-card
+            title="Artículos"
+            description="Crea y gestiona tus artículos finalizados y listos para la venta"
+            icon="brunch_dining"
+            theme="blue"
+            [isSelected]="selectedCategory === 'articles'"
+            (cardClick)="selectCategory('articles')">
           </app-articles-card>
 
-
           <!-- Mise en place Card -->
-          <app-articles-card title="Mise en place" description="Organiza y distribuye las elaboraciones con tu equipo"
-            icon="chef_hat" theme="purple" badge="Demo" [isSelected]="selectedCategory === 'mise-en-place'"
+          <app-articles-card
+            title="Mise en place"
+            description="Organiza y distribuye las elaboraciones con tu equipo"
+            icon="chef_hat"
+            theme="purple"
+            badge="Demo"
+            [isSelected]="selectedCategory === 'mise-en-place'"
             (cardClick)="selectCategory('mise-en-place')">
           </app-articles-card>
         </div>
 
         <!-- Articles Grid (Only visible when no category is selected) -->
         <div *ngIf="!selectedCategory">
-
-          <div *ngIf="articles().length > 0 && viewMode === 'cards'"
+          <div
+            *ngIf="articles().length > 0 && viewMode === 'cards'"
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full animate-fade-in">
-            <div *ngFor="let article of articles()"
+            <div
+              *ngFor="let article of articles()"
               class="bg-white rounded-content shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
               <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
@@ -50,7 +68,8 @@
             </div>
           </div>
 
-          <div *ngIf="articles().length > 0 && viewMode === 'list'"
+          <div
+            *ngIf="articles().length > 0 && viewMode === 'list'"
             class="w-full bg-white rounded-content shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
             <p-table [value]="articles()" [rowHover]="true" styleClass="p-datatable-sm">
               <ng-template pTemplate="header">
@@ -82,10 +101,14 @@
       </div>
 
       <!-- Right Side (Detail Panel) -->
-      <div *ngIf="selectedCategory"
+      <div
+        *ngIf="selectedCategory"
         class="hidden md:flex w-full md:w-3/4 shrink-0 top-4 z-20 flex-col animate-slide-in-right h-[calc(100vh-140px)] sticky">
-        <app-articles-detail [selectedCategory]="selectedCategory" [availableProducts]="availableProducts()"
-          [articles]="articles()" (close)="closeDetail()"></app-articles-detail>
+        <app-articles-detail
+          #articlesDetailComponent
+          [selectedCategory]="selectedCategory"
+          [availableProducts]="availableProducts()"
+          (close)="closeDetail()"></app-articles-detail>
       </div>
     </div>
   </div>
