@@ -5,6 +5,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 import { ButtonModule } from 'primeng/button';
 import { Product } from '@app/core/interfaces/Invoice.interfaces';
 import { PreparationsContentComponent } from '../preparations-content/preparations-content.component';
+import { CatalogContentComponent } from '../catalog-content/catalog-content.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '@app/core/constants/permissions.enum';
 
@@ -17,6 +18,7 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
     IconComponent,
     ButtonModule,
     PreparationsContentComponent,
+    CatalogContentComponent,
     NgxPermissionsModule
   ],
   templateUrl: './articles-detail.component.html'
@@ -25,6 +27,7 @@ export class ArticlesDetailComponent {
   readonly P = AppPermission;
   @Input() selectedCategory: string | null = null;
   @Input() availableProducts: Product[] = [];
+  @Input() searchTerm: string = '';
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('preparationsComponent') preparationsComponent?: PreparationsContentComponent;
@@ -43,7 +46,9 @@ export class ArticlesDetailComponent {
     const names: Record<string, string> = {
       elaborations: 'Elaboraciones',
       articles: 'Artículos',
-      'mise-en-place': 'Mise en place'
+      'mise-en-place': 'Mise en place',
+      utensils: 'Utensilios',
+      machinery: 'Maquinaria'
     };
     return names[this.selectedCategory] ?? this.selectedCategory;
   }

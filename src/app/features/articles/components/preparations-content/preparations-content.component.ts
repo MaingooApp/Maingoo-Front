@@ -57,8 +57,8 @@ export class PreparationsContentComponent implements OnInit {
   private toastService = inject(ToastService);
 
   @Input() availableProducts: Product[] = [];
-  /** 'elaboration' or 'article' — determines which FoodPreparationType to filter by */
   @Input() type: 'elaboration' | 'article' = 'elaboration';
+  @Input() searchTerm: string = '';
 
   // ─── Dynamic labels based on type ─────────────────────────────────────────
   get typeLabel(): string {
@@ -75,6 +75,12 @@ export class PreparationsContentComponent implements OnInit {
   preparations = signal<FoodPreparation[]>([]);
   allElaborations = signal<FoodPreparation[]>([]);
   preparationType = signal<FoodPreparationType | null>(null);
+
+  get filteredPreparations(): FoodPreparation[] {
+    const term = (this.searchTerm ?? '').toLowerCase().trim();
+    if (!term) return this.preparations();
+    return this.preparations().filter((p) => p.name.toLowerCase().includes(term));
+  }
 
   // ─── Shell State ────────────────────────────────────────────────────────────
   selectedPreparation = signal<FoodPreparation | null>(null);

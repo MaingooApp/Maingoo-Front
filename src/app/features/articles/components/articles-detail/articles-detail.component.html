@@ -29,7 +29,8 @@
       #preparationsComponent
       *ngIf="selectedCategory === 'elaborations'"
       type="elaboration"
-      [availableProducts]="availableProducts">
+      [availableProducts]="availableProducts"
+      [searchTerm]="searchTerm">
     </app-preparations-content>
 
     <!-- Articles -->
@@ -37,7 +38,8 @@
       #preparationsComponent
       *ngIf="selectedCategory === 'articles'"
       type="article"
-      [availableProducts]="availableProducts">
+      [availableProducts]="availableProducts"
+      [searchTerm]="searchTerm">
     </app-preparations-content>
 
     <!-- Mise en place (placeholder) -->
@@ -52,5 +54,13 @@
         Próximamente podrás organizar y distribuir las elaboraciones con tu equipo.
       </p>
     </div>
+
+    <!-- Utensils -->
+    <app-catalog-content *ngIf="selectedCategory === 'utensils'" type="utensil" [searchTerm]="searchTerm">
+    </app-catalog-content>
+
+    <!-- Machinery -->
+    <app-catalog-content *ngIf="selectedCategory === 'machinery'" type="machinery" [searchTerm]="searchTerm">
+    </app-catalog-content>
   </div>
 </app-detail-card-shell>

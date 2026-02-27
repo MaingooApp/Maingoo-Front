@@ -13,6 +13,8 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 import { ArticlesCardComponent } from './components/articles-card/articles-card.component';
 import { ArticlesDetailComponent } from './components/articles-detail/articles-detail.component';
 import { ArticlesSectionHeaderDetailComponent } from './components/articles-section-header-detail/articles-section-header-detail.component';
+import { NgxPermissionsModule } from 'ngx-permissions';
+import { AppPermission } from '@app/core/constants/permissions.enum';
 
 @Component({
   selector: 'app-articles',
@@ -24,11 +26,13 @@ import { ArticlesSectionHeaderDetailComponent } from './components/articles-sect
     IconComponent,
     ArticlesCardComponent,
     ArticlesDetailComponent,
-    ArticlesSectionHeaderDetailComponent
+    ArticlesSectionHeaderDetailComponent,
+    NgxPermissionsModule
   ],
   templateUrl: './articles.component.html'
 })
 export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
+  readonly P = AppPermission;
   private invoiceService = inject(InvoiceService);
   private productService = inject(ProductService);
   private toastService = inject(ToastService);

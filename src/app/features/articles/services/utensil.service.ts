@@ -28,4 +28,20 @@ export class UtensilService extends BaseHttpService {
   createUtensil(name: string): Observable<Utensil> {
     return this.post<Utensil>(this.BASE_URL, { name });
   }
+
+  /**
+   * Actualiza un utensilio
+   * PATCH /api/food-preparations/utensils/:id
+   */
+  updateUtensil(id: string, name: string): Observable<Utensil> {
+    return this.patch<Utensil>(`${this.BASE_URL}/${id}`, { name });
+  }
+
+  /**
+   * Elimina un utensilio
+   * DELETE /api/food-preparations/utensils/:id
+   */
+  deleteUtensil(id: string): Observable<void> {
+    return this.delete<void>(`${this.BASE_URL}/${id}`);
+  }
 }

@@ -2,7 +2,7 @@
 <!-- VIEW 1: Card List (shown when no card is selected and not creating)       -->
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 <div *ngIf="!isShellOpen" class="flex flex-col gap-3 animate-fade-in">
-  <ng-container *ngFor="let prep of preparations()">
+  <ng-container *ngFor="let prep of filteredPreparations">
     <div
       (click)="openDetail(prep)"
       class="bg-white p-4 rounded-content shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-all cursor-pointer">
