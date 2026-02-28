@@ -44,7 +44,7 @@
 
     <ng-template #tablaFacturas>
       <!-- Desktop Table -->
-      <div class="hidden md:block card rounded-xl shadow-md p-6 bg-white">
+      <div class="hidden md:block card rounded-content shadow-md p-6 bg-white">
         <app-tabla-dinamica
           [data]="invoices()"
           [columns]="columns"
@@ -58,7 +58,7 @@
       </div>
 
       <!-- Mobile Simplified Table (Excel-like) -->
-      <div class="md:hidden w-full overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+      <div class="md:hidden w-full overflow-hidden rounded-content border border-gray-100 bg-white shadow-sm">
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left">
             <thead class="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">

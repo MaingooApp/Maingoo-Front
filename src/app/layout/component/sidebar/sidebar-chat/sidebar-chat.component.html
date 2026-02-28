@@ -1,7 +1,7 @@
 <!-- ========== SECCIÓN CHAT ========== -->
 
 <!-- Área de mensajes expandida -->
-<div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto bg-[#F0F7F4] dark:bg-surface-800">
+<div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto">
 	<!-- Mensajes dinámicos -->
 	@for (message of messages; track message.id; let idx = $index) {
 	@if (message.sender === 'bot') {
@@ -11,14 +11,15 @@
 			<img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
 		</div>
 		<div
-			class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-2xl rounded-tl-none p-3">
+			class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-content rounded-tl-none p-3">
 			<p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
 		</div>
 	</div>
 	} @else {
 	<!-- Mensaje del USUARIO -->
 	<div class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
-		<div class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-2xl rounded-tr-none p-3">
+		<div
+			class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-content rounded-tr-none p-3">
 			<p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
 		</div>
 		<div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
@@ -34,7 +35,7 @@
 		<div class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0">
 			<img src="assets/images/maingoo_logo.svg" alt="Maingoo Logo" class="w-6 h-6 object-contain" />
 		</div>
-		<div class="bg-white dark:bg-surface-700 rounded-2xl rounded-tl-none p-3 shadow-sm">
+		<div class="bg-white dark:bg-surface-700 rounded-content rounded-tl-none p-3 shadow-sm">
 			<div class="flex space-x-1">
 				<div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce"></div>
 				<div class="w-2 h-2 bg-[#6B9E86] rounded-full animate-bounce [animation-delay:0.1s]"></div>
@@ -49,7 +50,7 @@
 <!-- Spacer para modo compacto - Eliminado -->
 
 <!-- Acciones rápidas -->
-<div class="flex-shrink-0 px-4 py-3 bg-[#F0F7F4] dark:bg-surface-800">
+<div class="flex-shrink-0 px-4 py-3">
 	<div class="grid grid-cols-2 gap-2">
 		@for (action of currentContext.actions; track action.label) {
 		<button (click)="handleQuickAction(action.action)"
@@ -62,7 +63,7 @@
 </div>
 
 <!-- Input de mensaje expandido -->
-<div class="flex-shrink-0 p-4 bg-[#F0F7F4] dark:bg-surface-800">
+<div class="flex-shrink-0 p-4">
 	<div class="flex items-center gap-3">
 		<!-- Botón de adjuntar con menú desplegable -->
 		<div class="relative" id="attachment-menu-container">
@@ -75,7 +76,7 @@
 			<!-- Menú desplegable -->
 			@if (showAttachmentMenu) {
 			<div
-				class="absolute bottom-full left-0 mb-2 bg-white dark:bg-surface-900 rounded-xl shadow-lg border border-gray-200 dark:border-surface-700 py-2 min-w-[160px] z-50">
+				class="absolute bottom-full left-0 mb-2 bg-white dark:bg-surface-900 rounded-content shadow-lg border border-gray-200 dark:border-surface-700 py-2 min-w-[160px] z-50">
 				<button (click)="handleCameraCapture(); showAttachmentMenu = false"
 					class="w-full px-4 py-2 text-left text-sm text-[#1A3C34] dark:text-surface-0 hover:bg-[#F0F7F4] dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
 					<app-icon name="photo_camera" size="md" class="text-[#6B9E86] dark:text-[#8BC4A8]"></app-icon>
@@ -101,7 +102,7 @@
 		<textarea #messageInput [(ngModel)]="messageText" (keydown)="handleKeyDown($event)" (input)="autoResize()"
 			(focus)="onChatInputFocus()" [placeholder]="currentContext.placeholder" [maxlength]="maxMessageLength"
 			rows="1"
-			class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-white/50 dark:bg-surface-700/50 rounded-2xl placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[#1A3C34] dark:text-surface-0 resize-none overflow-hidden max-h-32">
+			class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-white/50 dark:bg-surface-700/50 rounded-content placeholder:text-gray-500 dark:placeholder:text-gray-400 text-[#1A3C34] dark:text-surface-0 resize-none overflow-hidden max-h-32">
     </textarea>
 
 		<!-- Botón de enviar circular -->

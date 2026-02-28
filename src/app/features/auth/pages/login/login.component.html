@@ -32,7 +32,7 @@
             pInputText
             id="email"
             formControlName="email"
-            class="w-full px-4 py-3 rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 focus:border-primary-500 transition-colors"
+            class="w-full px-4 py-3 rounded-content border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 focus:border-primary-500 transition-colors"
             placeholder="ej. usuario@maingoo.tech" />
           <small *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-red-500">
             Ingresa un usuario válido
@@ -55,7 +55,7 @@
             [feedback]="false"
             [toggleMask]="true"
             styleClass="w-full"
-            inputStyleClass="w-full px-4 py-3 rounded-xl border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 focus:border-primary-500 transition-colors"
+            inputStyleClass="w-full px-4 py-3 rounded-content border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800 focus:border-primary-500 transition-colors"
             placeholder="••••••••"></p-password>
           <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-red-500">
             La contraseña es obligatoria
@@ -81,7 +81,7 @@
           type="submit"
           [loading]="cargando"
           label="Iniciar Sesión"
-          class="w-full py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-primary-500/30 mt-2 hover:scale-[1.02] active:scale-[0.98] transition-all"></button>
+          class="w-full py-3.5 rounded-content font-bold text-lg shadow-lg shadow-primary-500/30 mt-2 hover:scale-[1.02] active:scale-[0.98] transition-all"></button>
       </form>
 
       <!-- Footer / Sign Up Link -->

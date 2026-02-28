@@ -14,6 +14,9 @@ export default {
       '2xl': '1920px'
     },
     extend: {
+      borderRadius: {
+        content: 'var(--content-border-radius)'
+      },
       colors: {
         maingoo: {
           deep: '#1A3C34',

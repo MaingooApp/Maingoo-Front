@@ -157,7 +157,7 @@
             <!-- Product Layer (Product Detail Card) -->
             <div
               *ngIf="selectedProduct"
-              class="flex-1 h-full rounded-2xl overflow-hidden shadow-2xl bg-white flex flex-col relative">
+              class="flex-1 h-full rounded-content overflow-hidden shadow-2xl bg-white flex flex-col relative">
               <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
                 <div header-actions class="flex items-center gap-1">
                   <button

@@ -1,50 +1,48 @@
-<app-detail-card-shell [title]="categoryDisplayName" (close)="onClose()">
+<app-detail-card-shell [title]="shellTitle" (close)="onClose()">
   <div header-actions class="flex items-center gap-1">
-    <ng-container *ngxPermissionsOnly="[P.ProductsWrite]">
-      <!-- Añadir elaboración -->
+    <ng-container *ngxPermissionsOnly="[P.FoodPreparationsWrite]">
       <button
-        *ngIf="selectedCategory === 'elaborations'"
+        *ngIf="preparationsComponent?.selectedPreparation() && !preparationsComponent?.isEditMode()"
         pButton
-        label="Añadir elaboración"
-        severity="primary"
-        (click)="toggleAddElaborationForm()"
-        class="whitespace-nowrap">
-        <app-icon name="add" size="md" class="mr-2"></app-icon>
+        class="p-button-text p-button-rounded text-gray-500 hover:text-maingoo-sage"
+        aria-label="Editar"
+        (click)="preparationsComponent?.toggleEditMode()">
+        <app-icon name="edit" size="md"></app-icon>
       </button>
-      <!-- Añadir artículo -->
+    </ng-container>
+    <ng-container *ngxPermissionsOnly="[P.FoodPreparationsDelete]">
       <button
-        *ngIf="selectedCategory === 'articles'"
+        *ngIf="preparationsComponent?.selectedPreparation() && !preparationsComponent?.isEditMode()"
         pButton
-        label="Añadir artículo"
-        severity="primary"
-        (click)="toggleAddArticleForm()"
-        class="whitespace-nowrap">
-        <app-icon name="add" size="md" class="mr-2"></app-icon>
+        class="p-button-rounded p-button-text p-button-danger"
+        aria-label="Eliminar"
+        (click)="onDeletePreparation()">
+        <app-icon name="delete" size="md"></app-icon>
       </button>
     </ng-container>
   </div>
 
   <!-- Content -->
   <div class="flex flex-col gap-4">
-    <!-- Elaborations Content -->
-    <app-elaborations-content
+    <!-- Elaborations -->
+    <app-preparations-content
+      #preparationsComponent
       *ngIf="selectedCategory === 'elaborations'"
-      [elaborations]="elaborations()"
+      type="elaboration"
       [availableProducts]="availableProducts"
-      [showForm]="showAddElaborationForm()"
-      (limitForm)="onLimitElaborationForm($event)"
-      (save)="onSaveElaboration($event)">
-    </app-elaborations-content>
+      [searchTerm]="searchTerm">
+    </app-preparations-content>
 
-    <!-- Articles Content -->
-    <app-articles-content
+    <!-- Articles -->
+    <app-preparations-content
+      #preparationsComponent
       *ngIf="selectedCategory === 'articles'"
-      [showForm]="showAddArticleForm()"
-      [articles]="articles"
-      (limitForm)="onLimitArticleForm($event)">
-    </app-articles-content>
+      type="article"
+      [availableProducts]="availableProducts"
+      [searchTerm]="searchTerm">
+    </app-preparations-content>
 
-    <!-- Mise en place Content -->
+    <!-- Mise en place (placeholder) -->
     <div
       *ngIf="selectedCategory === 'mise-en-place'"
       class="flex flex-col items-center justify-center py-12 text-center">
@@ -56,5 +54,13 @@
         Próximamente podrás organizar y distribuir las elaboraciones con tu equipo.
       </p>
     </div>
+
+    <!-- Utensils -->
+    <app-catalog-content *ngIf="selectedCategory === 'utensils'" type="utensil" [searchTerm]="searchTerm">
+    </app-catalog-content>
+
+    <!-- Machinery -->
+    <app-catalog-content *ngIf="selectedCategory === 'machinery'" type="machinery" [searchTerm]="searchTerm">
+    </app-catalog-content>
   </div>
 </app-detail-card-shell>

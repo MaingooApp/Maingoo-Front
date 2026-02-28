@@ -1,10 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, AfterViewInit, signal, inject, computed, ViewChild, TemplateRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  signal,
+  inject,
+  computed,
+  ViewChild,
+  TemplateRef
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
 import { InvoiceService } from '../invoices/services/invoice.service';
+import { GestorService } from './services/gestor.service';
+import { Gestor } from './interfaces/gestor.interface';
 
 import { ConvertNumbers } from '../../shared/helpers/numbers';
 
@@ -48,15 +61,6 @@ export interface GroupedInvoices {
   expanded: boolean;
 }
 
-export interface Manager {
-  name: string;
-  company: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  notes?: string;
-}
-
 @Component({
   selector: 'app-fiscal',
   standalone: true,
@@ -88,11 +92,9 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
   viewMode = signal<'cards' | 'list'>('cards');
 
   // Invoice Data
-
   invoices = signal<Invoice[]>([]);
   loading = signal(true);
   ConvertNumbers = ConvertNumbers;
-
 
   // Search
   searchTerm = signal('');
@@ -101,16 +103,27 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
   showDeleteVerificationModal = signal(false);
   deleteVerificationText = signal('');
 
-  // Manager Data
-  manager = signal<Manager>({
+  // Gestor Data
+  gestor = signal<Gestor | null>(null);
+  gestorLoading = signal(false);
+  isEditingManager = signal(false);
+
+  // Local form fields for editing
+  gestorForm = signal<{
+    name: string;
+    business: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+    notes: string;
+  }>({
     name: '',
-    company: '',
+    business: '',
     email: '',
-    phone: '',
+    phoneNumber: '',
     address: '',
     notes: ''
   });
-  isEditingManager = signal(false);
 
   // Derived: Grouped Invoices
   groupedInvoices = computed(() => {
@@ -120,10 +133,11 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     // Filter First
     if (term) {
       const normalizedTerm = this.normalizeText(term);
-      invoices = invoices.filter(inv =>
-        this.normalizeText(inv.supplier?.name || '').includes(normalizedTerm) ||
-        this.normalizeText(inv.invoiceNumber || '').includes(normalizedTerm) ||
-        (inv.amount?.toString() || '').includes(normalizedTerm)
+      invoices = invoices.filter(
+        (inv) =>
+          this.normalizeText(inv.supplier?.name || '').includes(normalizedTerm) ||
+          this.normalizeText(inv.invoiceNumber || '').includes(normalizedTerm) ||
+          (inv.amount?.toString() || '').includes(normalizedTerm)
       );
     }
 
@@ -140,28 +154,28 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
       return '4º Trimestre (Oct - Dic)';
     };
 
-    invoices.forEach(inv => {
+    invoices.forEach((inv) => {
       const date = new Date(inv.date);
       const year = date.getFullYear();
       const quarterName = getQuarter(date);
       const supplierName = inv.supplier?.name || 'Proveedor Desconocido';
 
       // 1. Find or Create Year Group
-      let yearGroup = grouped.find(g => g.year === year);
+      let yearGroup = grouped.find((g) => g.year === year);
       if (!yearGroup) {
-        yearGroup = { year, quarters: [], total: 0, expanded: true }; // Default expanded latest year logic below
+        yearGroup = { year, quarters: [], total: 0, expanded: true };
         grouped.push(yearGroup);
       }
 
       // 2. Find or Create Quarter Group
-      let quarterGroup = yearGroup.quarters.find(q => q.name === quarterName);
+      let quarterGroup = yearGroup.quarters.find((q) => q.name === quarterName);
       if (!quarterGroup) {
         quarterGroup = { name: quarterName, suppliers: [], total: 0, expanded: true };
         yearGroup.quarters.push(quarterGroup);
       }
 
       // 3. Find or Create Supplier Group
-      let supplierGroup = quarterGroup.suppliers.find(s => s.supplierName === supplierName);
+      let supplierGroup = quarterGroup.suppliers.find((s) => s.supplierName === supplierName);
       if (!supplierGroup) {
         supplierGroup = { supplierName, invoices: [], total: 0, expanded: false };
         quarterGroup.suppliers.push(supplierGroup);
@@ -178,33 +192,25 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     // Sort Structures
-    grouped.sort((a, b) => b.year - a.year); // Descending Years
+    grouped.sort((a, b) => b.year - a.year);
 
-    grouped.forEach(y => {
-      // Sort Quarters (Q4 -> Q1)
+    grouped.forEach((y) => {
       y.quarters.sort((a, b) => b.name.localeCompare(a.name));
-
-      y.quarters.forEach(q => {
-        // Sort Suppliers (Alphabetical or by Total?) -> Alphabetical for now
+      y.quarters.forEach((q) => {
         q.suppliers.sort((a, b) => a.supplierName.localeCompare(b.supplierName));
-
-        // Sort Invoices inside Supplier (Newest first)
-        q.suppliers.forEach(s => {
+        q.suppliers.forEach((s) => {
           s.invoices.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         });
       });
     });
 
-    // Expand behavior: 
-    // If searching, expand all to show results. 
-    // If not searching, expand only first year.
     const shouldExpandAll = !!term;
-    grouped.forEach((g, index) => g.expanded = shouldExpandAll || index === 0);
+    grouped.forEach((g, index) => (g.expanded = shouldExpandAll || index === 0));
     if (shouldExpandAll) {
-      grouped.forEach(y => {
-        y.quarters.forEach(q => {
+      grouped.forEach((y) => {
+        y.quarters.forEach((q) => {
           q.expanded = true;
-          q.suppliers.forEach(s => s.expanded = true);
+          q.suppliers.forEach((s) => (s.expanded = true));
         });
       });
     }
@@ -214,15 +220,17 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private _dynamicDialogRef: DynamicDialogRef | null = null;
   private invoiceService = inject(InvoiceService);
+  private gestorService = inject(GestorService);
   private confirmDialog = inject(ConfirmDialogService);
   private router = inject(Router);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     this.loadInvoices();
+    this.loadGestor();
   }
 
   ngAfterViewInit(): void {
@@ -233,6 +241,89 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.headerService.reset();
+  }
+
+  loadGestor() {
+    this.gestorLoading.set(true);
+    this.gestorService.getGestors().subscribe({
+      next: (gestors: Gestor[]) => {
+        const gestor = gestors.length > 0 ? gestors[0] : null;
+        this.gestor.set(gestor);
+        if (gestor) {
+          this.gestorForm.set({
+            name: gestor.name ?? '',
+            business: gestor.business ?? '',
+            email: gestor.email ?? '',
+            phoneNumber: gestor.phoneNumber ?? '',
+            address: gestor.address ?? '',
+            notes: gestor.notes ?? ''
+          });
+        }
+        this.gestorLoading.set(false);
+      },
+      error: () => {
+        this.gestorLoading.set(false);
+        this.toastService.error('Error', 'No se pudo cargar la información del gestor.');
+      }
+    });
+  }
+
+  startEditingManager() {
+    const g = this.gestor();
+    this.gestorForm.set({
+      name: g?.name ?? '',
+      business: g?.business ?? '',
+      email: g?.email ?? '',
+      phoneNumber: g?.phoneNumber ?? '',
+      address: g?.address ?? '',
+      notes: g?.notes ?? ''
+    });
+    this.isEditingManager.set(true);
+  }
+
+  saveGestor() {
+    const form = this.gestorForm();
+    const existing = this.gestor();
+    const dto = {
+      name: form.name,
+      business: form.business || undefined,
+      email: form.email || undefined,
+      phoneNumber: form.phoneNumber || undefined,
+      address: form.address || undefined,
+      notes: form.notes || undefined
+    };
+
+    if (existing?.id) {
+      this.gestorService.updateGestor(existing.id, dto).subscribe({
+        next: (updated: Gestor) => {
+          this.gestor.set(updated);
+          this.isEditingManager.set(false);
+          this.toastService.success('Gestor actualizado', 'Los datos del gestor se han guardado correctamente.');
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudo actualizar el gestor.');
+        }
+      });
+    } else {
+      this.gestorService.createGestor(dto).subscribe({
+        next: (created: Gestor) => {
+          this.gestor.set(created);
+          this.isEditingManager.set(false);
+          this.toastService.success('Gestor creado', 'El gestor ha sido añadido correctamente.');
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudo crear el gestor.');
+        }
+      });
+    }
+  }
+
+  cancelEditManager() {
+    this.isEditingManager.set(false);
+  }
+
+  updateForm(field: string, value: string) {
+    this.gestorForm.update((f) => ({ ...f, [field]: value }));
   }
 
   loadInvoices() {
@@ -261,7 +352,6 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     this.viewMode.set(mode as 'cards' | 'list');
   }
 
-  // Invoice Logic
   verDetalle(factura: Invoice) {
     this.router.navigate(['/facturas/detalle', factura.id]);
   }
@@ -297,8 +387,6 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-
-
   openAddInvoiceModal() {
     this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
       width: '960px',
@@ -317,12 +405,12 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private normalizeText(text: string): string {
-    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
   }
 
-  /**
-   * Muestra diálogo de confirmación para borrar todas las facturas (paso 1)
-   */
   confirmarBorrarTodas() {
     const totalFacturas = this.invoices().length;
     if (totalFacturas === 0) return;
@@ -333,7 +421,6 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
         acceptLabel: 'Sí, continuar',
         rejectLabel: 'Cancelar',
         onAccept: () => {
-          // Paso 2: Mostrar modal de verificación con texto
           this.deleteVerificationText.set('');
           this.showDeleteVerificationModal.set(true);
         }
@@ -341,9 +428,6 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  /**
-   * Verifica el texto de confirmación y procede a borrar (paso 2)
-   */
   verificarYBorrar() {
     const textoEsperado = 'Borrar Facturas';
     if (this.deleteVerificationText() !== textoEsperado) {
@@ -356,20 +440,14 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     this.borrarTodasLasFacturas();
   }
 
-  /**
-   * Cancela el modal de verificación
-   */
   cancelarVerificacion() {
     this.showDeleteVerificationModal.set(false);
     this.deleteVerificationText.set('');
   }
 
-  /**
-   * Elimina todas las facturas secuencialmente
-   */
   borrarTodasLasFacturas() {
     const facturas = this.invoices();
-    const facturasConId = facturas.filter(f => f.id);
+    const facturasConId = facturas.filter((f) => f.id);
 
     if (facturasConId.length === 0) {
       this.toastService.warn('Atención', 'No hay facturas para eliminar.');
@@ -380,17 +458,18 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     let eliminadas = 0;
     let errores = 0;
 
-    // Eliminar facturas secuencialmente para evitar problemas de concurrencia
     const eliminarSiguiente = (index: number) => {
       if (index >= facturasConId.length) {
-        // Finalizado
         this.loading.set(false);
         if (errores === 0) {
           this.toastService.success('Completado', `Se eliminaron ${eliminadas} facturas correctamente.`);
           this.invoices.set([]);
         } else {
-          this.toastService.warn('Completado con errores', `Se eliminaron ${eliminadas} facturas. ${errores} fallaron.`);
-          this.loadInvoices(); // Recargar para ver el estado actual
+          this.toastService.warn(
+            'Completado con errores',
+            `Se eliminaron ${eliminadas} facturas. ${errores} fallaron.`
+          );
+          this.loadInvoices();
         }
         return;
       }

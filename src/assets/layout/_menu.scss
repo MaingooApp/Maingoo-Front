@@ -5,8 +5,8 @@
     z-index: 999;
     overflow-y: auto;
     user-select: none;
-    top: 0;
-    right: 0;
+    top: 15px;
+    right: 14px;
     transition:
         transform var(--layout-section-transition-duration),
         right var(--layout-section-transition-duration),
@@ -14,7 +14,6 @@
         height 0.4s cubic-bezier(0.05, 0.74, 0.2, 0.99);
     background-color: var(--surface-overlay);
     border-radius: var(--content-border-radius);
-    padding: 0;
 }
 
 .layout-menu {

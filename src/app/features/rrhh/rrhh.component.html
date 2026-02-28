@@ -11,7 +11,7 @@
 		<!-- KPI Cards -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 			<div *ngFor="let kpi of kpis"
-				class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
+				class="bg-white p-4 rounded-content border border-gray-100 shadow-sm flex items-center justify-between">
 				<div>
 					<span class="block text-gray-500 text-sm font-medium mb-1">{{kpi.label}}</span>
 					<span class="text-2xl font-bold text-gray-800">{{kpi.value}}</span>
@@ -25,7 +25,7 @@
 		<!-- Cards View -->
 		<div *ngIf="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 			<div *ngFor="let employee of filteredEmployees"
-				class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col items-center text-center relative group">
+				class="bg-white rounded-content border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col items-center text-center relative group">
 				<!-- Status Badge -->
 				<div class="absolute top-4 right-4">
 					<p-tag [severity]="getSeverity(employee.status)" [rounded]="true"></p-tag>
@@ -75,7 +75,7 @@
 
 		<!-- Employee Table (List View) -->
 		<div *ngIf="viewMode === 'list'"
-			class="card bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+			class="card bg-white border border-gray-100 rounded-content shadow-sm overflow-hidden">
 			<p-table #dt [value]="filteredEmployees" [rows]="10" [paginator]="true"
 				[globalFilterFields]="['name', 'role', 'department', 'email']" [tableStyle]="{ 'min-width': '75rem' }"
 				[rowHover]="true" dataKey="id"

@@ -1,4 +1,4 @@
-<div class="card rounded-xl shadow-md p-6" *ngIf="!loading && factura">
+<div class="card rounded-content shadow-md p-6" *ngIf="!loading && factura">
   <div class="flex flex-wrap gap-2 mb-6">
     <button pButton label="Volver" (click)="volver()">
       <app-icon name="arrow_back" size="md"></app-icon>
@@ -87,7 +87,7 @@
   </div>
 </div>
 
-<div class="p-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md text-center" *ngIf="loading">
+<div class="p-8 max-w-4xl mx-auto bg-white rounded-content shadow-md text-center" *ngIf="loading">
   <app-icon name="progress_activity" size="5xl" class="text-primary animate-spin"></app-icon>
   <p class="mt-4 text-gray-600">Cargando factura...</p>
 </div>

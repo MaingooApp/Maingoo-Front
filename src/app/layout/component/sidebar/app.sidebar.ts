@@ -42,7 +42,6 @@ export class AppSidebar implements OnInit, OnDestroy {
     { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
     { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true },
-    { label: 'Docs', icon: 'folder', route: '/documentos', comingSoon: true },
     {
       label: 'Usuarios',
       icon: 'manage_accounts',
@@ -54,7 +53,7 @@ export class AppSidebar implements OnInit, OnDestroy {
   constructor(
     public layoutService: LayoutService,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Suscribirse a las notificaciones

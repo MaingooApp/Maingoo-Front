@@ -34,6 +34,12 @@ export class BaseHttpService {
     });
   }
 
+  protected patch<T>(url: string, body: any, headers?: { [key: string]: string }): Observable<T> {
+    return this.http.patch<T>(url, body, {
+      headers: this.createHeaders(headers)
+    });
+  }
+
   protected delete<T>(url: string, headers?: { [key: string]: string }): Observable<T> {
     return this.http.delete<T>(url, {
       headers: this.createHeaders(headers)

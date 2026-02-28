@@ -1,0 +1,106 @@
+<div *ngxPermissionsOnly="[writePermission]" class="flex gap-3 items-stretch mb-4 animate-fade-in">
+  <input
+    pInputText
+    type="text"
+    [ngModel]="newItemName()"
+    (ngModelChange)="newItemName.set($event)"
+    [placeholder]="'Nuevo ' + typeLabel + '...'"
+    class="flex-1"
+    (keydown.enter)="onCreate()" />
+  <button
+    pButton
+    class="p-button-primary flex items-center gap-2 shrink-0"
+    (click)="onCreate()"
+    [disabled]="isSaving() || !newItemName().trim()">
+    <app-icon name="add" size="sm"></app-icon>
+    <span>Añadir</span>
+  </button>
+</div>
+
+<div *ngIf="isLoading()" class="flex items-center gap-2 text-gray-400 py-8 justify-center">
+  <app-icon name="hourglass_empty" size="md"></app-icon>
+  <span class="text-sm">Cargando {{ typeLabelPlural }}...</span>
+</div>
+
+<div *ngIf="!isLoading()" class="flex flex-col gap-2 animate-fade-in">
+  <div *ngIf="items().length === 0" class="flex flex-col items-center justify-center py-12 text-center">
+    <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
+      <app-icon [name]="typeIcon" size="xl"></app-icon>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900">No hay {{ typeLabelPlural }}</h3>
+    <p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">
+      Añade tu primer {{ typeLabel }} usando el campo de arriba.
+    </p>
+  </div>
+
+  <ng-container *ngFor="let item of filteredItems">
+    <div
+      *ngIf="editingId() !== item.id"
+      class="bg-white p-3 rounded-content shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-all group">
+      <div class="flex items-center gap-3">
+        <div
+          class="w-9 h-9 rounded-full flex items-center justify-center"
+          [ngClass]="type === 'utensil' ? 'bg-green-50 text-green-500' : 'bg-teal-50 text-teal-500'">
+          <app-icon [name]="typeIcon" size="md"></app-icon>
+        </div>
+        <span class="font-medium text-gray-900">{{ item.name }}</span>
+        <span
+          *ngIf="!item.enterpriseId"
+          class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-gray-100 text-gray-500">
+          Global
+        </span>
+        <span
+          *ngIf="item.enterpriseId"
+          class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-green-50 text-green-600">
+          Privado
+        </span>
+      </div>
+
+      <div
+        *ngIf="item.enterpriseId"
+        class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <ng-container *ngxPermissionsOnly="[writePermission]">
+          <button
+            pButton
+            class="p-button-text p-button-rounded p-button-sm text-gray-400 hover:text-maingoo-sage"
+            (click)="startEdit(item)">
+            <app-icon name="edit" size="sm"></app-icon>
+          </button>
+        </ng-container>
+        <ng-container *ngxPermissionsOnly="[deletePermission]">
+          <button pButton class="p-button-text p-button-rounded p-button-sm p-button-danger" (click)="onDelete(item)">
+            <app-icon name="delete" size="sm"></app-icon>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+
+    <div
+      *ngIf="editingId() === item.id"
+      class="bg-white p-3 rounded-content shadow-md border-2 border-maingoo-sage flex items-center gap-3 animate-fade-in">
+      <div
+        class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+        [ngClass]="type === 'utensil' ? 'bg-green-100 text-green-600' : 'bg-teal-100 text-teal-600'">
+        <app-icon [name]="typeIcon" size="md"></app-icon>
+      </div>
+      <input
+        pInputText
+        type="text"
+        [ngModel]="editingName()"
+        (ngModelChange)="editingName.set($event)"
+        class="flex-1"
+        (keydown.enter)="saveEdit()"
+        (keydown.escape)="cancelEdit()" />
+      <button
+        pButton
+        class="p-button-text p-button-rounded p-button-sm text-green-600"
+        (click)="saveEdit()"
+        [disabled]="isSaving() || !editingName().trim()">
+        <app-icon name="check" size="sm"></app-icon>
+      </button>
+      <button pButton class="p-button-text p-button-rounded p-button-sm text-gray-400" (click)="cancelEdit()">
+        <app-icon name="close" size="sm"></app-icon>
+      </button>
+    </div>
+  </ng-container>
+</div>
