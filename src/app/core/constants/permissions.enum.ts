@@ -1,4 +1,7 @@
 export enum AppPermission {
+  AdminSuper = 'admin.super',
+  AgentUse = 'agent.use',
+
   UsersRead = 'users.read',
   UsersWrite = 'users.write',
   UsersDelete = 'users.delete',

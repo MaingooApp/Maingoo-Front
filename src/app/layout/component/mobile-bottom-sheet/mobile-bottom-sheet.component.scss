@@ -113,6 +113,19 @@
   margin-bottom: 0;
 }
 
+// ========== CONVERSATION LIST ==========
+.chat-conversations {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: var(--maingoo-soft-mint);
+
+  :host-context(.app-dark) & {
+    background-color: #1f2937;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
 // ========== QUICK ACTIONS ==========
 .quick-actions-container {
   flex-shrink: 0;

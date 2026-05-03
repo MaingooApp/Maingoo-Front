@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BottomSheetService } from '../../../layout/service/bottom-sheet.service';
-import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
+import {
+  ChatBubbleService,
+  ChatMessage
+} from '../../../shared/components/chat-bubble/chat-bubble.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -29,6 +32,8 @@ interface RouteContext {
 })
 export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
+  @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('cameraInput') cameraInput?: ElementRef<HTMLInputElement>;
 
   // Constantes de configuración
   private readonly SCROLL_DELAY = 100;
@@ -140,6 +145,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
         setTimeout(() => this.scrollToBottom(), this.SCROLL_DELAY);
       }
     });
+
   }
 
   ngOnDestroy() {
@@ -185,7 +191,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       // Limpiar input inmediatamente
       input.value = '';
 
-      // Enviar mensaje usando el servicio de chat (conecta a n8n)
+      // Enviar mensaje usando el servicio de chat (conecta al ms-agent via gateway)
       await this.chatService.sendMessage(message);
     } catch (error) {
       console.error('Error al enviar mensaje:', error);
@@ -193,6 +199,55 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       input.value = message;
       this.isSending = false;
     }
+  }
+
+  handleFileUpload(): void {
+    this.fileInput?.nativeElement.click();
+  }
+
+  handleCameraCapture(): void {
+    this.cameraInput?.nativeElement.click();
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      await this.chatService.sendAttachment(file);
+    } catch (error) {
+      console.error('Error al adjuntar archivo:', error);
+    } finally {
+      input.value = '';
+    }
+  }
+
+  async onCameraCapture(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      await this.chatService.sendAttachment(
+        file,
+        'Analiza la imagen adjunta y ayúdame con la información relevante.'
+      );
+    } catch (error) {
+      console.error('Error al adjuntar imagen:', error);
+    } finally {
+      input.value = '';
+    }
+  }
+
+  startNewConversation(): void {
+    this.chatService.startNewConversation(true);
   }
 
   closeChat(event?: Event): void {

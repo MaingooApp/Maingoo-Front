@@ -1,5 +1,15 @@
 <!-- ========== SECCIÓN CHAT ========== -->
 
+<!-- Controles de conversación -->
+<div class="flex-shrink-0 px-4 pt-3 pb-2 border-b border-gray-200/70 dark:border-surface-700">
+	<div class="flex items-center mb-1">
+		<button (click)="startNewConversation()"
+			class="px-3 py-1.5 text-xs font-semibold rounded-full bg-[#1A3C34] text-white hover:bg-[#6B9E86] transition-colors">
+			Nuevo chat
+		</button>
+	</div>
+</div>
+
 <!-- Área de mensajes expandida -->
 <div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto">
 	<!-- Mensajes dinámicos -->
@@ -12,7 +22,7 @@
 		</div>
 		<div
 			class="max-w-[80%] bg-white dark:bg-surface-700 text-gray-800 dark:text-surface-0 shadow-sm rounded-content rounded-tl-none p-3">
-			<p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+			<p class="m-0 whitespace-pre-line break-words text-sm leading-relaxed">{{ message.text }}</p>
 		</div>
 	</div>
 	} @else {
@@ -20,7 +30,7 @@
 	<div class="flex items-start space-x-2 mb-3 justify-end animate-[fadeIn_0.3s_ease-out]">
 		<div
 			class="max-w-[80%] bg-[#6B9E86] dark:bg-[#1A3C34] text-white shadow-sm rounded-content rounded-tr-none p-3">
-			<p class="m-0 text-sm leading-relaxed">{{ message.text }}</p>
+			<p class="m-0 whitespace-pre-line break-words text-sm leading-relaxed">{{ message.text }}</p>
 		</div>
 		<div class="w-6 h-6 bg-[#1A3C34] dark:bg-[#6B9E86] rounded-full flex items-center justify-center flex-shrink-0">
 			<app-icon name="person" size="xs" class="text-white"></app-icon>

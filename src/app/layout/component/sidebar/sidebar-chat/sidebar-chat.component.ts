@@ -4,7 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { IconComponent } from '@shared/components/icon/icon.component';
-import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/chat-bubble.service';
+import {
+	ChatBubbleService,
+	ChatMessage
+} from '@shared/components/chat-bubble/chat-bubble.service';
 import { ModalService } from '@shared/services/modal.service';
 import { AddInvoiceModalComponent } from '@features/invoices/components/add-invoice-modal/add-invoice-modal.component';
 
@@ -210,7 +213,10 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 		const input = event.target as HTMLInputElement;
 		if (input.files && input.files.length > 0) {
 			const file = input.files[0];
-			await this.chatService.sendMessage(`[Foto capturada: ${file.name}]`);
+			await this.chatService.sendAttachment(
+				file,
+				'Analiza la imagen adjunta y ayúdame con la información relevante.'
+			);
 			input.value = '';
 		}
 	}
@@ -229,8 +235,7 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 		const input = event.target as HTMLInputElement;
 		if (input.files && input.files.length > 0) {
 			const file = input.files[0];
-			const fileType = file.type.startsWith('image/') ? 'Imagen' : 'Documento';
-			await this.chatService.sendMessage(`[${fileType} recibido: ${file.name}]`);
+			await this.chatService.sendAttachment(file);
 			input.value = '';
 		}
 	}
@@ -269,5 +274,9 @@ export class SidebarChatComponent implements OnInit, OnDestroy {
 		if (messagesContainer) {
 			messagesContainer.scrollTop = messagesContainer.scrollHeight;
 		}
+	}
+
+	async startNewConversation(): Promise<void> {
+		this.chatService.startNewConversation(true);
 	}
 }

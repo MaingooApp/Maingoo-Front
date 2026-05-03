@@ -5,6 +5,8 @@ import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { LayoutService } from '../../../service/layout.service';
+import { AuthService } from '@features/auth/services/auth-service.service';
+import { AppPermission } from '@core/constants/permissions.enum';
 
 /**
  * TopbarRightButtonsComponent
@@ -24,6 +26,7 @@ import { LayoutService } from '../../../service/layout.service';
 })
 export class TopbarRightButtonsComponent {
 	layoutService = inject(LayoutService);
+  private readonly authService = inject(AuthService);
 
 	/** Evento para toggle del menú/sidebar */
 	@Output() menuToggle = new EventEmitter<void>();
@@ -56,4 +59,11 @@ export class TopbarRightButtonsComponent {
 	logout(): void {
 		this.logoutClick.emit();
 	}
+
+  canUseAgent(): boolean {
+    return (
+      this.authService.hasPermission(AppPermission.AgentUse) ||
+      this.authService.hasPermission(AppPermission.AdminSuper)
+    );
+  }
 }
