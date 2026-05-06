@@ -47,7 +47,10 @@ export interface FoodPreparation {
   preparationUtensils?: { utensil: Utensil }[];
   preparationMachinery?: { machinery: Machinery }[];
   _count?: { ingredients: number; subPreparations: number };
-  estimatedCost?: number;
+  estimatedTotalCost?: number;
+  estimatedOutputGrams?: number;
+  estimatedCostPerKg?: number | null;
+  costWarnings?: string[];
 }
 
 // ─── DTOs (para creación / actualización) ────────────────────────────────────

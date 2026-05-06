@@ -125,10 +125,26 @@
 
     <!-- Estimated Cost -->
     <div
-      *ngIf="detail.estimatedCost"
-      class="flex items-center justify-between bg-orange-50 rounded-lg px-4 py-2 border border-orange-200">
-      <span class="text-sm font-medium text-orange-700">Coste estimado</span>
-      <span class="text-lg font-bold text-orange-700">{{ detail.estimatedCost | number: '1.2-2' }} €</span>
+      *ngIf="detail.estimatedTotalCost != null"
+      class="flex flex-wrap items-center justify-between gap-3 bg-orange-50 rounded-lg px-4 py-2 border border-orange-200">
+      <div class="flex flex-col">
+        <span class="text-sm font-medium text-orange-700">Coste total estimado</span>
+        <span *ngIf="detail.estimatedOutputGrams != null" class="text-xs text-orange-600">
+          Salida estimada: {{ detail.estimatedOutputGrams | number: '1.0-2' }} g
+        </span>
+      </div>
+      <div class="flex flex-col items-end">
+        <span class="text-lg font-bold text-orange-700">{{ detail.estimatedTotalCost | number: '1.2-2' }} €</span>
+        <span *ngIf="detail.estimatedCostPerKg != null" class="text-xs font-semibold text-orange-600">
+          {{ detail.estimatedCostPerKg | number: '1.2-2' }} €/kg
+        </span>
+      </div>
+    </div>
+
+    <div
+      *ngIf="detail.costWarnings?.length"
+      class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
+      <div *ngFor="let warning of detail.costWarnings">{{ warning }}</div>
     </div>
 
     <!-- Empty detail -->
@@ -170,7 +186,8 @@
           <div class="flex-[2] min-w-0">
             <p-select
               [options]="ingredientTypes"
-              [(ngModel)]="ingredientRows()[i].type"
+              [ngModel]="row.type"
+              (ngModelChange)="updateIngredientRow(i, { type: $event, selectedItem: null })"
               optionLabel="label"
               optionValue="value"
               styleClass="w-full"
@@ -181,7 +198,8 @@
           <!-- Search Item (40%) -->
           <div class="flex-[4] min-w-0">
             <p-autocomplete
-              [(ngModel)]="ingredientRows()[i].selectedItem"
+              [ngModel]="row.selectedItem"
+              (ngModelChange)="updateIngredientRow(i, { selectedItem: $event })"
               [suggestions]="filteredItems"
               (completeMethod)="filterItems($event, row.type)"
               optionLabel="name"
@@ -203,7 +221,8 @@
           <div class="flex-[1.4] min-w-0">
             <p-select
               [options]="amountUnits"
-              [(ngModel)]="ingredientRows()[i].unit"
+              [ngModel]="row.unit"
+              (ngModelChange)="updateIngredientRow(i, { unit: $event })"
               optionLabel="label"
               optionValue="value"
               styleClass="w-full"
@@ -215,8 +234,9 @@
             <input
               pInputText
               type="text"
-              [(ngModel)]="ingredientRows()[i].amount"
-              [placeholder]="ingredientRows()[i].unit === 'g' ? 'g' : 'uds'"
+              [ngModel]="row.amount"
+              (ngModelChange)="updateIngredientRow(i, { amount: $event })"
+              [placeholder]="row.unit === 'g' ? 'g' : 'uds'"
               class="w-full" />
           </div>
           <!-- Precio calculado (10%) -->

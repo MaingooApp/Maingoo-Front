@@ -213,7 +213,7 @@ export class PreparationsContentComponent implements OnInit {
     });
 
     const subRows: IngredientRow[] = (detail.subPreparations ?? []).map((sub) => {
-      const fullPrep = this.preparations().find((e) => e.id === sub.oldFoodPreparationId);
+      const fullPrep = this.allElaborations().find((e) => e.id === sub.oldFoodPreparationId);
       return {
         type: 'elaboration' as const,
         selectedItem:
@@ -307,6 +307,10 @@ export class PreparationsContentComponent implements OnInit {
     this.ingredientRows.update((rows) => rows.filter((_, i) => i !== index));
   }
 
+  updateIngredientRow(index: number, patch: Partial<IngredientRow>) {
+    this.ingredientRows.update((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
+
   getAvailableItems(type: 'ingredient' | 'elaboration'): any[] {
     return type === 'ingredient' ? this.availableProducts : this.allElaborations();
   }
@@ -327,10 +331,18 @@ export class PreparationsContentComponent implements OnInit {
     const amount = parseFloat(row.amount);
     if (!row.selectedItem || !amount || amount <= 0) return null;
 
-    // Sub-elaboration: use estimatedCost from the backend
+    // Sub-elaboration: use backend cost estimates for the selected amount.
     if (row.type === 'elaboration') {
       const elab = row.selectedItem as FoodPreparation;
-      return elab?.estimatedCost ?? null;
+      if (row.unit === 'g') {
+        return elab.estimatedCostPerKg != null ? (amount / 1000) * elab.estimatedCostPerKg : null;
+      }
+
+      if (row.unit === 'ud') {
+        return elab.estimatedTotalCost != null ? amount * elab.estimatedTotalCost : null;
+      }
+
+      return null;
     }
 
     // Ingredient: calculate from product prices
