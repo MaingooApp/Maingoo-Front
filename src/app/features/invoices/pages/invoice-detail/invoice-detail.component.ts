@@ -41,7 +41,7 @@ export class InvoiceDetailComponent implements OnInit {
     private router: Router,
     private invoiceService: InvoiceService,
     private toastService: ToastService
-  ) { }
+  ) {}
 
   ngOnInit() {
     const facturaId = this.route.snapshot.paramMap.get('id');

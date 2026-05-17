@@ -4,17 +4,17 @@ import { SkeletonModule } from 'primeng/skeleton';
 
 /**
  * SkeletonComponent - Componente unificado para estados de carga
- * 
+ *
  * Soporta 3 modos:
  * - 'single': Skeleton individual personalizable
  * - 'grid': Grid de tarjetas skeleton (N tarjetas)
  * - 'list': Lista de filas skeleton (N filas)
  */
 @Component({
-	selector: 'app-skeleton',
-	standalone: true,
-	imports: [CommonModule, SkeletonModule],
-	template: `
+  selector: 'app-skeleton',
+  standalone: true,
+  imports: [CommonModule, SkeletonModule],
+  template: `
     <!-- MODO: Single (elemento individual) -->
     <p-skeleton
       *ngIf="mode === 'single'"
@@ -31,8 +31,7 @@ import { SkeletonModule } from 'primeng/skeleton';
     <div *ngIf="mode === 'grid'" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       <div
         *ngFor="let i of items"
-        class="rounded-content overflow-hidden shadow-sm bg-white p-4 flex flex-col gap-3 min-h-[180px]"
-      >
+        class="mg-surface rounded-content overflow-hidden shadow-sm p-4 flex flex-col gap-3 min-h-[180px]">
         <!-- Header -->
         <div class="flex flex-col gap-2">
           <p-skeleton width="70%" height="1.25rem"></p-skeleton>
@@ -58,11 +57,8 @@ import { SkeletonModule } from 'primeng/skeleton';
     </div>
 
     <!-- MODO: List (filas) -->
-    <div *ngIf="mode === 'list'" class="rounded-content shadow-sm overflow-hidden bg-white">
-      <div
-        *ngFor="let i of items"
-        class="border-b border-gray-100 last:border-0 p-4 flex items-center gap-4"
-      >
+    <div *ngIf="mode === 'list'" class="mg-surface rounded-content shadow-sm overflow-hidden">
+      <div *ngFor="let i of items" class="border-b border-surface last:border-0 p-4 flex items-center gap-4">
         <!-- Avatar/Icon -->
         <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
 
@@ -77,69 +73,69 @@ import { SkeletonModule } from 'primeng/skeleton';
       </div>
     </div>
   `,
-	styles: []
+  styles: []
 })
 export class SkeletonComponent {
-	/**
-	 * Modo del skeleton
-	 * @default 'single'
-	 */
-	@Input() mode: 'single' | 'grid' | 'list' = 'single';
+  /**
+   * Modo del skeleton
+   * @default 'single'
+   */
+  @Input() mode: 'single' | 'grid' | 'list' = 'single';
 
-	/**
-	 * Número de items (solo para mode='grid' o mode='list')
-	 * @default 8 para grid, 6 para list
-	 */
-	@Input() count?: number;
+  /**
+   * Número de items (solo para mode='grid' o mode='list')
+   * @default 8 para grid, 6 para list
+   */
+  @Input() count?: number;
 
-	/**
-	 * Ancho del skeleton (solo para mode='single')
-	 * @default undefined (100% del contenedor)
-	 */
-	@Input() width?: string;
+  /**
+   * Ancho del skeleton (solo para mode='single')
+   * @default undefined (100% del contenedor)
+   */
+  @Input() width?: string;
 
-	/**
-	 * Alto del skeleton (solo para mode='single')
-	 * @default undefined
-	 */
-	@Input() height?: string;
+  /**
+   * Alto del skeleton (solo para mode='single')
+   * @default undefined
+   */
+  @Input() height?: string;
 
-	/**
-	 * Forma del skeleton (solo para mode='single')
-	 * @default 'rectangle'
-	 */
-	@Input() shape: 'rectangle' | 'circle' = 'rectangle';
+  /**
+   * Forma del skeleton (solo para mode='single')
+   * @default 'rectangle'
+   */
+  @Input() shape: 'rectangle' | 'circle' = 'rectangle';
 
-	/**
-	 * Tamaño del skeleton (solo para mode='single' y shape='circle')
-	 * @default undefined
-	 */
-	@Input() size?: string;
+  /**
+   * Tamaño del skeleton (solo para mode='single' y shape='circle')
+   * @default undefined
+   */
+  @Input() size?: string;
 
-	/**
-	 * Border radius personalizado (solo para mode='single')
-	 * @default undefined
-	 */
-	@Input() borderRadius?: string;
+  /**
+   * Border radius personalizado (solo para mode='single')
+   * @default undefined
+   */
+  @Input() borderRadius?: string;
 
-	/**
-	 * Clases CSS adicionales (solo para mode='single')
-	 * @default undefined
-	 */
-	@Input() styleClass?: string;
+  /**
+   * Clases CSS adicionales (solo para mode='single')
+   * @default undefined
+   */
+  @Input() styleClass?: string;
 
-	/**
-	 * Tipo de animación
-	 * @default 'wave'
-	 */
-	@Input() animation: 'wave' | 'none' = 'wave';
+  /**
+   * Tipo de animación
+   * @default 'wave'
+   */
+  @Input() animation: 'wave' | 'none' = 'wave';
 
-	/**
-	 * Array auxiliar para *ngFor en modos grid/list
-	 */
-	get items(): number[] {
-		const defaultCount = this.mode === 'grid' ? 8 : 6;
-		const itemCount = this.count ?? defaultCount;
-		return Array.from({ length: itemCount }, (_, i) => i + 1);
-	}
+  /**
+   * Array auxiliar para *ngFor en modos grid/list
+   */
+  get items(): number[] {
+    const defaultCount = this.mode === 'grid' ? 8 : 6;
+    const itemCount = this.count ?? defaultCount;
+    return Array.from({ length: itemCount }, (_, i) => i + 1);
+  }
 }

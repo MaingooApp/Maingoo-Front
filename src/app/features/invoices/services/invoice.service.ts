@@ -15,7 +15,6 @@ import { GetInvoice } from '../interface/get-invoice.interface';
 export class InvoiceService extends BaseHttpService {
   private readonly API_URL = `${environment.urlBackend}api/suppliers/invoices`;
 
-
   constructor(http: HttpClient) {
     super(http);
   }
@@ -39,7 +38,7 @@ export class InvoiceService extends BaseHttpService {
     let httpParams = new HttpParams();
 
     // Iteramos sobre las claves del objeto params para construir los HttpParams
-    Object.keys(params).forEach(key => {
+    Object.keys(params).forEach((key) => {
       const value = (params as any)[key];
       if (value !== undefined && value !== null) {
         httpParams = httpParams.set(key, value);
@@ -96,10 +95,4 @@ export class InvoiceService extends BaseHttpService {
   getDocumentUrl(id: string, expiresInHours: number = 24): Observable<DocumentUrlResponse> {
     return this.get<DocumentUrlResponse>(`${this.API_URL}/${id}/document-url?expiresInHours=${expiresInHours}`);
   }
-
-
-
-
-
-
 }

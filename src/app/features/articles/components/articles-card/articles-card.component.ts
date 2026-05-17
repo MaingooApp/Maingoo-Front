@@ -29,14 +29,14 @@ export class ArticlesCardComponent {
           iconBg: this.isSelected ? 'bg-orange-100 text-orange-600' : 'bg-orange-50 text-orange-600',
           arrowBg: this.isSelected
             ? 'bg-orange-100 text-orange-500'
-            : 'bg-gray-50 text-gray-400 group-hover:bg-orange-50 group-hover:text-orange-500'
+            : 'bg-surface-50 dark:bg-surface-800 mg-text-muted group-hover:bg-orange-50 group-hover:text-orange-500'
         };
       case 'purple':
         return {
           iconBg: this.isSelected ? 'bg-purple-100 text-purple-600' : 'bg-purple-50 text-purple-600',
           arrowBg: this.isSelected
             ? 'bg-purple-100 text-purple-500'
-            : 'bg-gray-50 text-gray-400 group-hover:bg-purple-50 group-hover:text-purple-500'
+            : 'bg-surface-50 dark:bg-surface-800 mg-text-muted group-hover:bg-purple-50 group-hover:text-purple-500'
         };
       case 'blue':
       default:
@@ -44,21 +44,21 @@ export class ArticlesCardComponent {
           iconBg: this.isSelected ? 'bg-blue-100 text-blue-600' : 'bg-blue-50 text-blue-600',
           arrowBg: this.isSelected
             ? 'bg-blue-100 text-blue-500'
-            : 'bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-blue-500'
+            : 'bg-surface-50 dark:bg-surface-800 mg-text-muted group-hover:bg-blue-50 group-hover:text-blue-500'
         };
       case 'green':
         return {
           iconBg: this.isSelected ? 'bg-green-100 text-green-600' : 'bg-green-50 text-green-600',
           arrowBg: this.isSelected
             ? 'bg-green-100 text-green-500'
-            : 'bg-gray-50 text-gray-400 group-hover:bg-green-50 group-hover:text-green-500'
+            : 'bg-surface-50 dark:bg-surface-800 mg-text-muted group-hover:bg-green-50 group-hover:text-green-500'
         };
       case 'teal':
         return {
           iconBg: this.isSelected ? 'bg-teal-100 text-teal-600' : 'bg-teal-50 text-teal-600',
           arrowBg: this.isSelected
             ? 'bg-teal-100 text-teal-500'
-            : 'bg-gray-50 text-gray-400 group-hover:bg-teal-50 group-hover:text-teal-500'
+            : 'bg-surface-50 dark:bg-surface-800 mg-text-muted group-hover:bg-teal-50 group-hover:text-teal-500'
         };
     }
   }

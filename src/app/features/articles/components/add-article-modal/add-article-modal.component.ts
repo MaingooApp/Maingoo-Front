@@ -8,32 +8,25 @@ import { CommonModule } from '@angular/common';
 import { IconComponent } from '@app/shared/components/icon/icon.component';
 
 @Component({
-	selector: 'app-add-article-modal',
-	standalone: true,
-	imports: [
-		CommonModule,
-		ReactiveFormsModule,
-		InputTextModule,
-		ButtonModule,
-		FluidModule,
-		IconComponent
-	],
-	templateUrl: './add-article-modal.component.html',
-	host: { class: 'block' },
-	changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'app-add-article-modal',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, InputTextModule, ButtonModule, FluidModule, IconComponent],
+  templateUrl: './add-article-modal.component.html',
+  host: { class: 'block' },
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddArticleModalComponent {
-	private _ref = inject(DynamicDialogRef);
+  private _ref = inject(DynamicDialogRef);
 
-	nameControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
+  nameControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
 
-	closeModal() {
-		this._ref.close();
-	}
+  closeModal() {
+    this._ref.close();
+  }
 
-	onSubmit() {
-		if (this.nameControl.valid) {
-			this._ref.close({ created: true, name: this.nameControl.value });
-		}
-	}
+  onSubmit() {
+    if (this.nameControl.valid) {
+      this._ref.close({ created: true, name: this.nameControl.value });
+    }
+  }
 }

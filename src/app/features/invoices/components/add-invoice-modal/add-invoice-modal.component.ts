@@ -254,4 +254,3 @@ export class AddInvoiceModalComponent {
     this.pollingSubscriptions.forEach((sub) => sub.unsubscribe());
   }
 }
-

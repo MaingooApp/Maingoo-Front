@@ -5,7 +5,7 @@ import { SectionHeaderService } from '../../service/section-header.service';
 /**
  * Shell component for the global Section Header.
  * FIXED in the layout, below the topbar.
- * Contains the card styling (bg-white, rounded, shadow).
+ * Contains the semantic surface styling, rounded corners and shadow.
  * Content is provided by the active feature via SectionHeaderService.
  */
 @Component({
@@ -17,4 +17,3 @@ import { SectionHeaderService } from '../../service/section-header.service';
 export class SectionHeaderShellComponent {
   service = inject(SectionHeaderService);
 }
-

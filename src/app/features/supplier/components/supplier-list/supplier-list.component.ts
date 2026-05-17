@@ -7,17 +7,17 @@ import { Supplier } from '../../interfaces/supplier.interface';
 import { ListShellComponent } from '@shared/components/list-shell/list-shell.component';
 
 @Component({
-	selector: 'app-supplier-list',
-	standalone: true,
-	imports: [CommonModule, TableModule, ButtonModule, IconComponent, ListShellComponent],
-	templateUrl: './supplier-list.component.html'
+  selector: 'app-supplier-list',
+  standalone: true,
+  imports: [CommonModule, TableModule, ButtonModule, IconComponent, ListShellComponent],
+  templateUrl: './supplier-list.component.html'
 })
 export class SupplierListComponent {
-	@Input() suppliers: Supplier[] = [];
-	@Input() selectedSupplier: Supplier | null = null;
-	@Output() selectSupplier = new EventEmitter<Supplier>();
+  @Input() suppliers: Supplier[] = [];
+  @Input() selectedSupplier: Supplier | null = null;
+  @Output() selectSupplier = new EventEmitter<Supplier>();
 
-	onRowClick(supplier: Supplier) {
-		this.selectSupplier.emit(supplier);
-	}
+  onRowClick(supplier: Supplier) {
+    this.selectSupplier.emit(supplier);
+  }
 }

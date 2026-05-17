@@ -11,4 +11,4 @@ import { IconComponent } from '@shared/components/icon/icon.component';
   standalone: true,
   templateUrl: './error.html'
 })
-export class Error { }
+export class Error {}

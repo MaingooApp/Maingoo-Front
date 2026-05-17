@@ -24,7 +24,16 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, KpiSlotComponent, ChartModule, DropdownModule, SkeletonModule, IconComponent, SkeletonComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    KpiSlotComponent,
+    ChartModule,
+    DropdownModule,
+    SkeletonModule,
+    IconComponent,
+    SkeletonComponent
+  ],
   templateUrl: './dashboard.component.html'
 })
 export class Dashboard implements OnInit {
@@ -50,14 +59,11 @@ export class Dashboard implements OnInit {
   supplierChartLoading = true;
   supplierChartTotal = 0;
 
-
   /** Período fijo para el gráfico de proveedores (siempre semana actual) */
   private readonly supplierPeriod = 'week';
 
   /** Almacén de todas las facturas para filtrar localmente */
   private allInvoices: Invoice[] = [];
-
-
 
   /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' */
   activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | 'appcc' | 'docs' | null = null;
@@ -84,7 +90,7 @@ export class Dashboard implements OnInit {
     { name: 'Carlos Ruiz', role: 'Cocinero/a', shift: '08:00 - 16:00' },
     { name: 'Ana Martínez', role: 'Encargado/a', shift: '09:00 - 17:00' },
     { name: 'Luis Fernández', role: 'Ayudante cocina', shift: '12:00 - 20:00' },
-    { name: 'Elena López', role: 'Camarero/a', shift: '16:00 - 00:00' },
+    { name: 'Elena López', role: 'Camarero/a', shift: '16:00 - 00:00' }
   ];
 
   /** Datos fake de tareas APPCC para el dashboard */
@@ -94,33 +100,29 @@ export class Dashboard implements OnInit {
       { task: 'Control de aceite freidora', done: true },
       { task: 'Limpieza de plancha', done: false },
       { task: 'Limpieza de superficies', done: false },
-      { task: 'Verificar fechas de caducidad', done: false },
+      { task: 'Verificar fechas de caducidad', done: false }
     ],
     semanales: [
       { task: 'Limpieza profunda de horno', done: false },
       { task: 'Limpieza de cámaras frigoríficas', done: false },
-      { task: 'Revisión de stock de productos', done: true },
+      { task: 'Revisión de stock de productos', done: true }
     ],
     mensuales: [
       { task: 'Calibración de termómetros', done: false },
-      { task: 'Revisión de extintores', done: false },
+      { task: 'Revisión de extintores', done: false }
     ]
   };
 
   /** Contador de tareas APPCC completadas */
   get completedAppccTasks(): number {
-    return [
-      ...this.appccTasks.diarias,
-      ...this.appccTasks.semanales,
-      ...this.appccTasks.mensuales
-    ].filter(t => t.done).length;
+    return [...this.appccTasks.diarias, ...this.appccTasks.semanales, ...this.appccTasks.mensuales].filter(
+      (t) => t.done
+    ).length;
   }
 
   /** Total de tareas APPCC */
   get totalAppccTasks(): number {
-    return this.appccTasks.diarias.length +
-      this.appccTasks.semanales.length +
-      this.appccTasks.mensuales.length;
+    return this.appccTasks.diarias.length + this.appccTasks.semanales.length + this.appccTasks.mensuales.length;
   }
 
   /** Datos de ventas para la card */
@@ -148,28 +150,26 @@ export class Dashboard implements OnInit {
     this.salesData.current.time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
     // Fake data logic
-    this.salesData.current.amount = 1250.50;
-    this.salesData.lastWeek.amount = 1100.20;
-    this.salesData.average.amount = 1150.00; // Media histórica
+    this.salesData.current.amount = 1250.5;
+    this.salesData.lastWeek.amount = 1100.2;
+    this.salesData.average.amount = 1150.0; // Media histórica
 
     // Calcular diferencia porcentual del día actual vs semana pasada
-    const diff = ((this.salesData.current.amount - this.salesData.lastWeek.amount) / this.salesData.lastWeek.amount) * 100;
+    const diff =
+      ((this.salesData.current.amount - this.salesData.lastWeek.amount) / this.salesData.lastWeek.amount) * 100;
     this.salesData.lastWeek.diff = Math.round(diff);
   }
 
-
-
-
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
-    '#6B9080',  // maingoo-sage
-    '#F59E0B',  // amber-500
-    '#3B82F6',  // blue-500
-    '#8B5CF6',  // violet-500
-    '#EC4899',  // pink-500
-    '#10B981',  // emerald-500
-    '#F97316',  // orange-500
-    '#9CA3AF'   // gray-400 (para "Otros")
+    '#6B9080',
+    '#F59E0B', // amber-500
+    '#3B82F6', // blue-500
+    '#8B5CF6', // violet-500
+    '#EC4899', // pink-500
+    '#10B981', // emerald-500
+    '#F97316', // orange-500
+    '#9CA3AF' // para "Otros"
   ];
 
   /** Slot inicial en estado loading para Actividad */
@@ -209,18 +209,14 @@ export class Dashboard implements OnInit {
    * Carga el slot de Actividad con estado loading inicial
    */
   loadActividadSlot(): void {
-    this.actividadSlot$ = this.kpiSlotService.getActividadSlot$().pipe(
-      startWith(this.loadingSlotActividad)
-    );
+    this.actividadSlot$ = this.kpiSlotService.getActividadSlot$().pipe(startWith(this.loadingSlotActividad));
   }
 
   /**
    * Carga el slot de Incidencias con estado loading inicial
    */
   loadIncidenciasSlot(): void {
-    this.incidenciasSlot$ = this.kpiSlotService.getIncidenciasSlot$().pipe(
-      startWith(this.loadingSlotIncidencias)
-    );
+    this.incidenciasSlot$ = this.kpiSlotService.getIncidenciasSlot$().pipe(startWith(this.loadingSlotIncidencias));
   }
 
   /**
@@ -228,8 +224,8 @@ export class Dashboard implements OnInit {
    */
   loadActionsSlot(): void {
     this.actionsSlot$ = this.supplierService.listSuppliers().pipe(
-      map(suppliers => {
-        const missingSanitaryReg = suppliers.filter(s => !s.sanitaryRegistrationNumber).length;
+      map((suppliers) => {
+        const missingSanitaryReg = suppliers.filter((s) => !s.sanitaryRegistrationNumber).length;
 
         const slot: KpiSlotVM = {
           id: 'acciones',
@@ -286,8 +282,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-
-
   /**
    * Actualiza el gráfico de proveedores con las facturas de la semana actual
    */
@@ -307,7 +301,7 @@ export class Dashboard implements OnInit {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    return invoices.filter(invoice => {
+    return invoices.filter((invoice) => {
       const invoiceDate = new Date(invoice.date);
 
       switch (period) {
@@ -337,7 +331,7 @@ export class Dashboard implements OnInit {
 
     // Obtener años únicos de las facturas
     const years = new Set<number>();
-    this.allInvoices.forEach(inv => {
+    this.allInvoices.forEach((inv) => {
       const year = new Date(inv.date).getFullYear();
       years.add(year);
     });
@@ -345,15 +339,15 @@ export class Dashboard implements OnInit {
     // Crear opciones de año ordenadas descendentemente
     this.yearOptions = Array.from(years)
       .sort((a, b) => b - a)
-      .map(y => ({ label: y.toString(), value: y }));
+      .map((y) => ({ label: y.toString(), value: y }));
 
-    if (this.yearOptions.length > 0 && !this.yearOptions.find(y => y.value === this.selectedYear)) {
+    if (this.yearOptions.length > 0 && !this.yearOptions.find((y) => y.value === this.selectedYear)) {
       this.selectedYear = this.yearOptions[0].value;
     }
 
     // Obtener proveedores únicos de las facturas
     const suppliersMap = new Map<string, string>();
-    this.allInvoices.forEach(inv => {
+    this.allInvoices.forEach((inv) => {
       if (inv.supplier?.id && inv.supplier?.name) {
         suppliersMap.set(inv.supplier.id, inv.supplier.name);
       }
@@ -379,7 +373,7 @@ export class Dashboard implements OnInit {
     const monthLabels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
     // Filtrar facturas por año
-    const yearInvoices = this.allInvoices.filter(inv => {
+    const yearInvoices = this.allInvoices.filter((inv) => {
       const invoiceYear = new Date(inv.date).getFullYear();
       return invoiceYear === this.selectedYear;
     });
@@ -388,7 +382,7 @@ export class Dashboard implements OnInit {
       // STACKED BAR: Crear un dataset por cada proveedor
       const suppliersData = new Map<string, { name: string; monthlyTotals: number[] }>();
 
-      yearInvoices.forEach(inv => {
+      yearInvoices.forEach((inv) => {
         const supplierId = inv.supplier?.id || 'unknown';
         const supplierName = inv.supplier?.name || 'Desconocido';
         const month = new Date(inv.date).getMonth();
@@ -408,7 +402,7 @@ export class Dashboard implements OnInit {
         .map(([id, data]) => ({
           id,
           name: data.name,
-          monthlyTotals: data.monthlyTotals.map(t => Math.round(t * 100) / 100),
+          monthlyTotals: data.monthlyTotals.map((t) => Math.round(t * 100) / 100),
           total: data.monthlyTotals.reduce((sum, t) => sum + t, 0)
         }))
         .sort((a, b) => b.total - a.total)
@@ -452,7 +446,7 @@ export class Dashboard implements OnInit {
           y: {
             stacked: true,
             beginAtZero: true,
-            grid: { color: '#f3f4f6' },
+            grid: { color: this.getCssVariable('--p-surface-200', '#e5e7eb') },
             ticks: {
               stepSize: 500,
               autoSkip: false,
@@ -464,15 +458,15 @@ export class Dashboard implements OnInit {
       };
     } else {
       // SINGLE BAR: Un solo proveedor seleccionado
-      const filteredInvoices = yearInvoices.filter(inv => inv.supplier?.id === this.selectedSupplierId);
+      const filteredInvoices = yearInvoices.filter((inv) => inv.supplier?.id === this.selectedSupplierId);
 
       const monthlyTotals = new Array(12).fill(0);
-      filteredInvoices.forEach(inv => {
+      filteredInvoices.forEach((inv) => {
         const month = new Date(inv.date).getMonth();
         monthlyTotals[month] += parseFloat(inv.amount) || 0;
       });
 
-      const roundedTotals = monthlyTotals.map(t => Math.round(t * 100) / 100);
+      const roundedTotals = monthlyTotals.map((t) => Math.round(t * 100) / 100);
 
       // Usar el color consistente del proveedor
       const supplierColor = this.getSupplierColor(this.selectedSupplierId);
@@ -509,7 +503,7 @@ export class Dashboard implements OnInit {
           x: { grid: { display: false } },
           y: {
             beginAtZero: true,
-            grid: { color: '#f3f4f6' },
+            grid: { color: this.getCssVariable('--p-surface-200', '#e5e7eb') },
             ticks: {
               stepSize: 500,
               callback: (value: number) => this.formatCurrency(value)
@@ -536,8 +530,6 @@ export class Dashboard implements OnInit {
     this.updateMonthlyExpenseChart();
   }
 
-
-
   /**
    * Procesa las facturas y agrupa por proveedor para el pie chart
    */
@@ -547,7 +539,7 @@ export class Dashboard implements OnInit {
     // Agrupar facturas por proveedor y sumar importes (usando ID como clave)
     const supplierTotals = new Map<string, { id: string; name: string; total: number }>();
 
-    invoices.forEach(invoice => {
+    invoices.forEach((invoice) => {
       const supplierId = invoice.supplier?.id || 'unknown';
       const supplierName = invoice.supplier?.name || 'Sin proveedor';
       const amount = parseFloat(invoice.amount) || 0;
@@ -561,17 +553,14 @@ export class Dashboard implements OnInit {
     });
 
     // Convertir a array y ordenar por total (descendente)
-    const sortedSuppliers = Array.from(supplierTotals.values())
-      .sort((a, b) => b.total - a.total);
+    const sortedSuppliers = Array.from(supplierTotals.values()).sort((a, b) => b.total - a.total);
 
     // Tomar los top 6 y agrupar el resto en "Otros"
     const MAX_SUPPLIERS = 6;
     let chartSuppliers = sortedSuppliers.slice(0, MAX_SUPPLIERS);
 
     if (sortedSuppliers.length > MAX_SUPPLIERS) {
-      const otrosTotal = sortedSuppliers
-        .slice(MAX_SUPPLIERS)
-        .reduce((sum, s) => sum + s.total, 0);
+      const otrosTotal = sortedSuppliers.slice(MAX_SUPPLIERS).reduce((sum, s) => sum + s.total, 0);
 
       chartSuppliers.push({ id: 'otros', name: 'Otros', total: otrosTotal });
     }
@@ -580,9 +569,9 @@ export class Dashboard implements OnInit {
     this.supplierChartTotal = chartSuppliers.reduce((sum, s) => sum + s.total, 0);
 
     // Generar datos del chart con colores consistentes basados en ID
-    const labels = chartSuppliers.map(s => s.name);
-    const data = chartSuppliers.map(s => Math.round(s.total * 100) / 100);
-    const colors = chartSuppliers.map(s => this.getSupplierColor(s.id));
+    const labels = chartSuppliers.map((s) => s.name);
+    const data = chartSuppliers.map((s) => Math.round(s.total * 100) / 100);
+    const colors = chartSuppliers.map((s) => this.getSupplierColor(s.id));
 
     // Guardar resumen para el panel lateral
     this.supplierSummary = chartSuppliers.map((s) => ({
@@ -597,7 +586,7 @@ export class Dashboard implements OnInit {
         {
           data: data,
           backgroundColor: colors,
-          hoverBackgroundColor: colors.map(c => this.darkenColor(c)),
+          hoverBackgroundColor: colors.map((c) => this.darkenColor(c)),
           borderWidth: 0
         }
       ]
@@ -622,10 +611,6 @@ export class Dashboard implements OnInit {
     };
   }
 
-
-
-
-
   /**
    * Genera un color consistente para un proveedor basado en su ID
    */
@@ -634,13 +619,21 @@ export class Dashboard implements OnInit {
     let hash = 0;
     for (let i = 0; i < supplierId.length; i++) {
       const char = supplierId.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convertir a 32bit integer
     }
 
     // Usar el hash para seleccionar un color del array
     const index = Math.abs(hash) % this.CHART_COLORS.length;
     return this.CHART_COLORS[index];
+  }
+
+  private getCssVariable(name: string, fallback: string): string {
+    if (!isPlatformBrowser(this.platformId)) {
+      return fallback;
+    }
+
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
   }
 
   /**
@@ -650,9 +643,9 @@ export class Dashboard implements OnInit {
     const num = parseInt(hex.replace('#', ''), 16);
     const amt = -25;
     const R = Math.max(0, (num >> 16) + amt);
-    const G = Math.max(0, ((num >> 8) & 0x00FF) + amt);
-    const B = Math.max(0, (num & 0x0000FF) + amt);
-    return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+    const G = Math.max(0, ((num >> 8) & 0x00ff) + amt);
+    const B = Math.max(0, (num & 0x0000ff) + amt);
+    return `#${((1 << 24) | (R << 16) | (G << 8) | B).toString(16).slice(1)}`;
   }
 
   /**

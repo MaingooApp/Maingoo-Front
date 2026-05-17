@@ -11,4 +11,4 @@ import { IconComponent } from '@shared/components/icon/icon.component';
   imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule, IconComponent],
   templateUrl: './access.html'
 })
-export class Access { }
+export class Access {}

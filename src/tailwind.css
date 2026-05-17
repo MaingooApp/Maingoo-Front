@@ -4,156 +4,195 @@
 
 /* ==================== TYPOGRAPHY (migrado de _typography.scss) ==================== */
 @layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 1.5rem 0 1rem 0;
+    font-family: inherit;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--text-color);
+  }
 
-	h1,
-	h2,
-	h3,
-	h4,
-	h5,
-	h6 {
-		margin: 1.5rem 0 1rem 0;
-		font-family: inherit;
-		font-weight: 700;
-		line-height: 1.5;
-		color: var(--text-color);
-	}
+  h1:first-child,
+  h2:first-child,
+  h3:first-child,
+  h4:first-child,
+  h5:first-child,
+  h6:first-child {
+    margin-top: 0;
+  }
 
-	h1:first-child,
-	h2:first-child,
-	h3:first-child,
-	h4:first-child,
-	h5:first-child,
-	h6:first-child {
-		margin-top: 0;
-	}
+  h1 {
+    font-size: 2.5rem;
+  }
 
-	h1 {
-		font-size: 2.5rem;
-	}
+  h2 {
+    font-size: 2rem;
+  }
 
-	h2 {
-		font-size: 2rem;
-	}
+  h3 {
+    font-size: 1.75rem;
+  }
 
-	h3 {
-		font-size: 1.75rem;
-	}
+  h4 {
+    font-size: 1.5rem;
+  }
 
-	h4 {
-		font-size: 1.5rem;
-	}
+  h5 {
+    font-size: 1.25rem;
+  }
 
-	h5 {
-		font-size: 1.25rem;
-	}
+  h6 {
+    font-size: 1rem;
+  }
 
-	h6 {
-		font-size: 1rem;
-	}
+  mark {
+    background: #fff8e1;
+    padding: 0.25rem 0.4rem;
+    border-radius: var(--content-border-radius);
+    font-family: monospace;
+  }
 
-	mark {
-		background: #fff8e1;
-		padding: 0.25rem 0.4rem;
-		border-radius: var(--content-border-radius);
-		font-family: monospace;
-	}
+  blockquote {
+    margin: 1rem 0;
+    padding: 0 2rem;
+    border-left: 4px solid #90a4ae;
+  }
 
-	blockquote {
-		margin: 1rem 0;
-		padding: 0 2rem;
-		border-left: 4px solid #90a4ae;
-	}
+  hr {
+    border-top: solid var(--surface-border);
+    border-width: 1px 0 0 0;
+    margin: 1rem 0;
+  }
 
-	hr {
-		border-top: solid var(--surface-border);
-		border-width: 1px 0 0 0;
-		margin: 1rem 0;
-	}
+  p {
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+  }
 
-	p {
-		margin: 0 0 1rem 0;
-		line-height: 1.5;
-	}
+  p:last-child {
+    margin-bottom: 0;
+  }
 
-	p:last-child {
-		margin-bottom: 0;
-	}
-
-	a {
-		text-decoration: none;
-	}
+  a {
+    text-decoration: none;
+  }
 }
 
 /* ==================== PRELOADER (migrado de _preloading.scss) ==================== */
 @layer components {
-	.preloader {
-		position: fixed;
-		z-index: 999999;
-		background: #edf1f5;
-		width: 100%;
-		height: 100%;
-	}
+  .preloader {
+    position: fixed;
+    z-index: 999999;
+    background: #edf1f5;
+    width: 100%;
+    height: 100%;
+  }
 
-	.preloader-content {
-		border: 0 solid transparent;
-		border-radius: 50%;
-		width: 150px;
-		height: 150px;
-		position: absolute;
-		top: calc(50vh - 75px);
-		left: calc(50vw - 75px);
-	}
+  .preloader-content {
+    border: 0 solid transparent;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    top: calc(50vh - 75px);
+    left: calc(50vw - 75px);
+  }
 
-	.preloader-content:before,
-	.preloader-content:after {
-		content: '';
-		border: 1em solid var(--primary-color);
-		border-radius: 50%;
-		width: inherit;
-		height: inherit;
-		position: absolute;
-		top: 0;
-		left: 0;
-		animation: loader 2s linear infinite;
-		opacity: 0;
-	}
+  .preloader-content:before,
+  .preloader-content:after {
+    content: '';
+    border: 1em solid var(--primary-color);
+    border-radius: 50%;
+    width: inherit;
+    height: inherit;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: loader 2s linear infinite;
+    opacity: 0;
+  }
 
-	.preloader-content:before {
-		animation-delay: 0.5s;
-	}
+  .preloader-content:before {
+    animation-delay: 0.5s;
+  }
 
-	/* Clase .card (migrado de _utils.scss) */
-	.card {
-		background: var(--surface-card);
-		padding: 2rem;
-		margin-bottom: 2rem;
-		border-radius: var(--content-border-radius);
-	}
+  /* Clase .card (migrado de _utils.scss) */
+  .card {
+    background: var(--surface-card);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: var(--content-border-radius);
+  }
 
-	.card:last-child {
-		margin-bottom: 0;
-	}
+  .card:last-child {
+    margin-bottom: 0;
+  }
 
-	/* Ajuste de posición para toasts de PrimeNG (migrado de _utils.scss) */
-	.p-toast.p-toast-top-right,
-	.p-toast.p-toast-top-left,
-	.p-toast.p-toast-top-center {
-		top: calc(var(--topbar-height) + 1rem);
-	}
+  .mg-surface {
+    @apply bg-surface-0 text-surface-900 border border-surface dark:bg-surface-900 dark:text-surface-0;
+  }
+
+  .mg-surface-muted {
+    @apply bg-surface-50 text-surface-900 border border-surface dark:bg-surface-800 dark:text-surface-0;
+  }
+
+  .mg-surface-soft {
+    @apply bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-0;
+  }
+
+  .mg-text {
+    @apply text-surface-900 dark:text-surface-0;
+  }
+
+  .mg-text-muted {
+    @apply text-surface-500 dark:text-surface-400;
+  }
+
+  .mg-icon-muted {
+    @apply text-surface-400 dark:text-surface-500;
+  }
+
+  .mg-dashboard-card {
+    @apply bg-surface-0 text-surface-900 border border-surface dark:bg-surface-900 dark:text-surface-0 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300;
+  }
+
+  .mg-dashboard-icon {
+    @apply w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform;
+  }
+
+  .mg-dashboard-link {
+    @apply flex items-center gap-1.5 text-xs text-primary hover:text-primary-emphasis transition-colors font-medium;
+  }
+
+  .mg-demo-badge {
+    @apply text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-300 uppercase tracking-wide;
+  }
+
+  /* Ajuste de posición para toasts de PrimeNG (migrado de _utils.scss) */
+  .p-toast.p-toast-top-right,
+  .p-toast.p-toast-top-left,
+  .p-toast.p-toast-top-center {
+    top: calc(var(--topbar-height) + 1rem);
+  }
 }
 
 @keyframes loader {
-	0% {
-		transform: scale(0);
-		opacity: 0;
-	}
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
 
-	50% {
-		opacity: 1;
-	}
+  50% {
+    opacity: 1;
+  }
 
-	100% {
-		transform: scale(1);
-		opacity: 0;
-	}
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }

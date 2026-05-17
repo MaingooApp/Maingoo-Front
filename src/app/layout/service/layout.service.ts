@@ -26,11 +26,13 @@ interface MenuChangeEvent {
   providedIn: 'root'
 })
 export class LayoutService {
+  private readonly darkThemeStorageKey = 'maingoo.darkTheme';
+
   _config: layoutConfig = {
     preset: 'Aura',
     primary: 'maingoo',
     surface: null,
-    darkTheme: false,
+    darkTheme: this.getInitialDarkTheme(),
     menuMode: 'static'
   };
 
@@ -62,7 +64,7 @@ export class LayoutService {
 
   overlayOpen$ = this.overlayOpen.asObservable();
 
-  theme = computed(() => (this.layoutConfig()?.darkTheme ? 'light' : 'dark'));
+  theme = computed(() => (this.layoutConfig()?.darkTheme ? 'dark' : 'light'));
 
   isSidebarActive = computed(() => this.layoutState().overlayMenuActive || this.layoutState().staticMenuMobileActive);
 
@@ -82,6 +84,8 @@ export class LayoutService {
   private initialized = false;
 
   constructor() {
+    this.toggleDarkMode(this.layoutConfig());
+
     effect(() => {
       const config = this.layoutConfig();
       if (config) {
@@ -123,16 +127,37 @@ export class LayoutService {
       .then(() => {
         this.onTransitionEnd();
       })
-      .catch(() => { });
+      .catch(() => {});
   }
 
   toggleDarkMode(config?: layoutConfig): void {
     const _config = config || this.layoutConfig();
-    if (_config.darkTheme) {
-      document.documentElement.classList.add('app-dark');
-    } else {
-      document.documentElement.classList.remove('app-dark');
+
+    if (typeof document !== 'undefined') {
+      if (_config.darkTheme) {
+        document.documentElement.classList.add('app-dark');
+      } else {
+        document.documentElement.classList.remove('app-dark');
+      }
     }
+
+    this.persistDarkTheme(_config.darkTheme);
+  }
+
+  private getInitialDarkTheme(): boolean {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    return localStorage.getItem(this.darkThemeStorageKey) === 'true';
+  }
+
+  private persistDarkTheme(enabled?: boolean): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem(this.darkThemeStorageKey, String(!!enabled));
   }
 
   private onTransitionEnd() {

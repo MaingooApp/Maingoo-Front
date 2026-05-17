@@ -8,9 +8,9 @@
         [class.w-full]="showMobileSearch"
         [class.mr-[105px]]="showMobileSearch">
         <button
-          class="flex items-center justify-center rounded-full w-12 h-12 text-gray-600 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 transition-all duration-200"
-          [class.bg-maingoo-sage]="showMobileSearch"
-          [class.text-white]="showMobileSearch"
+          class="flex items-center justify-center rounded-full w-12 h-12 text-surface-600 dark:text-surface-300 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface transition-all duration-200"
+          [class.bg-primary]="showMobileSearch"
+          [class.text-primary-contrast]="showMobileSearch"
           [class.border-transparent]="showMobileSearch"
           (click)="showMobileSearch = !showMobileSearch">
           <app-icon name="search" size="md"></app-icon>
@@ -21,20 +21,22 @@
           type="text"
           pInputText
           placeholder="Buscar proveedor..."
-          class="flex-1 h-12 shadow-lg rounded-full border-none pl-5 pr-4 text-base animate-fade-in bg-white/95 backdrop-blur-sm"
+          class="flex-1 h-12 shadow-lg rounded-full border-none pl-5 pr-4 text-base animate-fade-in bg-surface-0/95 dark:bg-surface-800/95 backdrop-blur-sm"
           (input)="filterSuppliers($event)"
           autofocus />
       </div>
 
       <!-- Right: View Toggle Switch -->
       <div
-        class="pointer-events-auto absolute right-0 top-0 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 rounded-full h-12 p-1 flex items-center gap-1">
+        class="pointer-events-auto absolute right-0 top-0 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface rounded-full h-12 p-1 flex items-center gap-1">
         <!-- Grid Option -->
         <button
           (click)="setViewMode('grid')"
           class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
           [ngClass]="
-            viewMode === 'grid' ? 'bg-maingoo-sage text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
+            viewMode === 'grid'
+              ? 'bg-primary text-primary-contrast shadow-sm'
+              : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
           ">
           <app-icon name="grid_view" size="md"></app-icon>
         </button>
@@ -43,7 +45,9 @@
           (click)="setViewMode('list')"
           class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
           [ngClass]="
-            viewMode === 'list' ? 'bg-maingoo-sage text-white shadow-sm' : 'text-gray-400 hover:text-gray-600'
+            viewMode === 'list'
+              ? 'bg-primary text-primary-contrast shadow-sm'
+              : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
           ">
           <app-icon name="view_list" size="md"></app-icon>
         </button>
@@ -114,7 +118,7 @@
       <ng-container *ngIf="selectedSupplier">
         <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
         <div
-          class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-2xl z-20 flex-col bg-white">
+          class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-2xl z-20 flex-col bg-surface-0 dark:bg-surface-900">
           <ng-container *ngTemplateOutlet="detailContent"></ng-container>
         </div>
 
@@ -125,12 +129,12 @@
 
           <!-- Sheet -->
           <div
-            class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+            class="relative w-full h-[85vh] bg-surface-0 dark:bg-surface-900 rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
             <!-- Drag Handle Area -->
             <div
-              class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
+              class="w-full flex justify-center pt-4 pb-2 bg-surface-0 dark:bg-surface-900 shrink-0 cursor-grab active:cursor-grabbing"
               (click)="hideDialog()">
-              <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+              <div class="w-12 h-1.5 bg-surface-300 dark:bg-surface-600 rounded-full"></div>
             </div>
 
             <!-- Content Wrapper -->
@@ -177,7 +181,7 @@
     <!-- Mobile FAB (Floating Action Button) -->
     <button
       *ngxPermissionsOnly="[P.DocumentsWrite]"
-      class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-10 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
+      class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary dark:bg-primary text-primary-contrast shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-10 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-primary-emphasis dark:hover:bg-primary-emphasis"
       (click)="openAddInvoiceModal()"
       pTooltip="Subir factura"
       tooltipPosition="left"

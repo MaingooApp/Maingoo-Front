@@ -5,14 +5,14 @@
   <ng-container *ngFor="let prep of filteredPreparations">
     <div
       (click)="openDetail(prep)"
-      class="bg-white p-4 rounded-content shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-all cursor-pointer">
+      class="bg-surface-0 dark:bg-surface-900 p-4 rounded-content shadow-sm border border-surface flex items-center justify-between hover:shadow-md transition-all cursor-pointer">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
           <app-icon [name]="typeIcon" size="md"></app-icon>
         </div>
         <div>
-          <h3 class="font-bold text-gray-900">{{ prep.name }}</h3>
-          <p class="text-sm text-gray-500">
+          <h3 class="font-bold mg-text">{{ prep.name }}</h3>
+          <p class="text-sm mg-text-muted">
             {{ prep._count?.ingredients ?? 0 }} ingredientes
             <ng-container *ngIf="(prep._count?.subPreparations ?? 0) > 0">
               · {{ prep._count?.subPreparations }} sub-elaboraciones
@@ -21,18 +21,19 @@
         </div>
       </div>
       <div class="flex items-center">
-        <app-icon name="chevron_right" size="md" class="text-gray-400"></app-icon>
+        <app-icon name="chevron_right" size="md" class="mg-text-muted"></app-icon>
       </div>
     </div>
   </ng-container>
 
   <!-- Empty State -->
   <div *ngIf="preparations().length === 0" class="flex flex-col items-center justify-center py-12 text-center">
-    <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-4">
+    <div
+      class="w-16 h-16 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center mg-text-muted mb-4">
       <app-icon [name]="typeIcon" size="xl"></app-icon>
     </div>
-    <h3 class="text-lg font-medium text-gray-900">No hay {{ typeLabelPlural }}</h3>
-    <p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">
+    <h3 class="text-lg font-medium mg-text">No hay {{ typeLabelPlural }}</h3>
+    <p class="text-sm mg-text-muted max-w-xs mx-auto mt-1">
       Crea tu primer {{ typeLabel }} pulsando el botón de arriba.
     </p>
   </div>
@@ -49,18 +50,18 @@
     </div>
     <div>
       <!-- Read mode: show name as text -->
-      <h2 *ngIf="!isEditMode()" class="text-xl font-bold text-gray-900">
+      <h2 *ngIf="!isEditMode()" class="text-xl font-bold mg-text">
         {{ selectedPreparation()?.name ?? 'Nueva ' + typeLabel }}
       </h2>
       <!-- Edit mode: name is in the form below -->
-      <h2 *ngIf="isEditMode()" class="text-xl font-bold text-gray-900">
+      <h2 *ngIf="isEditMode()" class="text-xl font-bold mg-text">
         {{ isEditing ? 'Editando ' + typeLabel : 'Nueva ' + typeLabel }}
       </h2>
     </div>
   </div>
 
   <!-- ─── Loading state ───────────────────────────────────────────────────── -->
-  <div *ngIf="isLoadingDetail()" class="flex items-center gap-2 text-gray-400 py-8 justify-center">
+  <div *ngIf="isLoadingDetail()" class="flex items-center gap-2 mg-text-muted py-8 justify-center">
     <app-icon name="hourglass_empty" size="md"></app-icon>
     <span class="text-sm">Cargando detalle...</span>
   </div>
@@ -71,30 +72,28 @@
   <ng-container *ngIf="!isLoadingDetail() && !isEditMode() && selectedPreparation() as detail">
     <!-- Steps -->
     <div *ngIf="detail.steps" class="flex flex-col gap-1">
-      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Paso a paso</h4>
-      <p class="text-sm text-gray-700 whitespace-pre-line">{{ detail.steps }}</p>
+      <h4 class="text-xs font-semibold mg-text-muted uppercase tracking-wide">Paso a paso</h4>
+      <p class="text-sm mg-text whitespace-pre-line">{{ detail.steps }}</p>
     </div>
 
     <!-- Ingredients -->
     <div *ngIf="detail.ingredients && detail.ingredients.length > 0" class="flex flex-col gap-2">
-      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ingredientes</h4>
+      <h4 class="text-xs font-semibold mg-text-muted uppercase tracking-wide">Ingredientes</h4>
       <div class="flex flex-col divide-y divide-gray-100">
         <div *ngFor="let ing of detail.ingredients" class="flex items-center justify-between py-1.5">
-          <span class="text-sm text-gray-700">{{
-            ing.enterpriseProduct?.productBase?.name ?? ing.enterpriseProductId
-          }}</span>
-          <span class="text-sm text-gray-500 font-medium tabular-nums">{{ ing.quantity }} {{ ing.measure }}</span>
+          <span class="text-sm mg-text">{{ ing.enterpriseProduct?.productBase?.name ?? ing.enterpriseProductId }}</span>
+          <span class="text-sm mg-text-muted font-medium tabular-nums">{{ ing.quantity }} {{ ing.measure }}</span>
         </div>
       </div>
     </div>
 
     <!-- Sub-preparations -->
     <div *ngIf="detail.subPreparations && detail.subPreparations.length > 0" class="flex flex-col gap-2">
-      <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Sub-elaboraciones</h4>
+      <h4 class="text-xs font-semibold mg-text-muted uppercase tracking-wide">Sub-elaboraciones</h4>
       <div class="flex flex-col divide-y divide-gray-100">
         <div *ngFor="let sub of detail.subPreparations" class="flex items-center justify-between py-1.5">
-          <span class="text-sm text-gray-700">{{ sub.oldFoodPreparation?.name ?? sub.oldFoodPreparationId }}</span>
-          <span class="text-sm text-gray-500 font-medium tabular-nums">{{ sub.quantity }} {{ sub.measure }}</span>
+          <span class="text-sm mg-text">{{ sub.oldFoodPreparation?.name ?? sub.oldFoodPreparationId }}</span>
+          <span class="text-sm mg-text-muted font-medium tabular-nums">{{ sub.quantity }} {{ sub.measure }}</span>
         </div>
       </div>
     </div>
@@ -102,7 +101,7 @@
     <!-- Utensils & Machinery -->
     <div class="flex flex-wrap gap-6">
       <div *ngIf="detail.preparationUtensils && detail.preparationUtensils.length > 0" class="flex-1 min-w-0">
-        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Utensilios</h4>
+        <h4 class="text-xs font-semibold mg-text-muted uppercase tracking-wide mb-2">Utensilios</h4>
         <div class="flex flex-wrap gap-1.5">
           <span
             *ngFor="let u of detail.preparationUtensils"
@@ -112,7 +111,7 @@
         </div>
       </div>
       <div *ngIf="detail.preparationMachinery && detail.preparationMachinery.length > 0" class="flex-1 min-w-0">
-        <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Maquinaria</h4>
+        <h4 class="text-xs font-semibold mg-text-muted uppercase tracking-wide mb-2">Maquinaria</h4>
         <div class="flex flex-wrap gap-1.5">
           <span
             *ngFor="let m of detail.preparationMachinery"
@@ -155,7 +154,7 @@
         (!detail.preparationUtensils || detail.preparationUtensils.length === 0) &&
         (!detail.preparationMachinery || detail.preparationMachinery.length === 0)
       "
-      class="text-sm text-gray-400 py-2 text-center">
+      class="text-sm mg-text-muted py-2 text-center">
       No tiene detalle registrado aún.
     </div>
   </ng-container>
@@ -166,7 +165,7 @@
   <ng-container *ngIf="isEditMode()">
     <!-- Name -->
     <div class="flex flex-col gap-1">
-      <label class="text-sm font-medium text-gray-700">Nombre</label>
+      <label class="text-sm font-medium mg-text">Nombre</label>
       <input
         pInputText
         type="text"
@@ -178,7 +177,7 @@
 
     <!-- Ingredients Section -->
     <div class="flex flex-col gap-2 transition-all">
-      <label class="text-sm font-medium text-gray-700">Ingrediente / Elaboración</label>
+      <label class="text-sm font-medium mg-text">Ingrediente / Elaboración</label>
 
       <div class="flex flex-col gap-3">
         <div *ngFor="let row of ingredientRows(); let i = index" class="flex gap-3 items-stretch animate-fade-in">
@@ -207,7 +206,7 @@
                 row.type === 'ingredient' ? 'Huevos, aceite, vinagre, sal...' : 'Salsa bechamel, caldo de pollo...'
               "
               styleClass="w-full"
-              inputStyleClass="w-full border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage placeholder:text-gray-400"
+              inputStyleClass="w-full border-surface rounded-lg focus:border-primary focus:ring-primary placeholder:mg-text-muted"
               [appendTo]="'body'">
               <ng-template let-item pTemplate="item">
                 <div class="flex items-center gap-2">
@@ -241,8 +240,8 @@
           </div>
           <!-- Precio calculado (10%) -->
           <div
-            class="flex-1 min-w-0 px-2 flex items-center justify-end bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium"
-            [ngClass]="getRowPrice(row) != null ? 'text-gray-900' : 'text-gray-400'">
+            class="flex-1 min-w-0 px-2 flex items-center justify-end bg-surface-50 dark:bg-surface-800 border border-surface rounded-lg text-sm font-medium"
+            [ngClass]="getRowPrice(row) != null ? 'mg-text' : 'mg-text-muted'">
             {{ getRowPrice(row) != null ? (getRowPrice(row) | currency: 'EUR' : 'symbol' : '1.2-2' : 'es-ES') : '—' }}
           </div>
 
@@ -259,7 +258,7 @@
 
       <button
         pButton
-        class="p-button-text p-button-sm self-start mt-1 text-maingoo-sage hover:text-maingoo-deep flex items-center gap-2"
+        class="p-button-text p-button-sm self-start mt-1 text-primary hover:mg-text flex items-center gap-2"
         (click)="addIngredientRow()">
         <app-icon name="add" size="sm"></app-icon>
         <span>Añadir producto o elaboración</span>
@@ -269,7 +268,7 @@
     <!-- Utensilios & Maquinaria Section -->
     <div class="flex gap-4">
       <div class="flex-1 flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Utensilios</label>
+        <label class="text-sm font-medium mg-text">Utensilios</label>
         <p-multiselect
           [options]="allUtensils()"
           [ngModel]="selectedUtensils()"
@@ -283,7 +282,7 @@
         </p-multiselect>
       </div>
       <div class="flex-1 flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-700">Maquinaria</label>
+        <label class="text-sm font-medium mg-text">Maquinaria</label>
         <p-multiselect
           [options]="allMachinery()"
           [ngModel]="selectedMachinery()"
@@ -300,7 +299,7 @@
 
     <!-- Step by Step Section -->
     <div class="flex flex-col gap-1 transition-all">
-      <label class="text-sm font-medium text-gray-700">Paso a paso</label>
+      <label class="text-sm font-medium mg-text">Paso a paso</label>
       <textarea
         pTextarea
         [ngModel]="preparationSteps()"
@@ -314,7 +313,7 @@
     <!-- Footer: cost + actions -->
     <div class="flex items-center justify-between mt-2">
       <div *ngIf="totalFormCost() as cost" class="flex items-center gap-2">
-        <span class="text-sm font-medium text-gray-600">Coste total estimado:</span>
+        <span class="text-sm font-medium text-surface-600 dark:text-surface-300">Coste total estimado:</span>
         <span class="text-lg font-bold text-orange-600">{{ cost | number: '1.2-2' }} €</span>
       </div>
       <div *ngIf="!totalFormCost()"></div>

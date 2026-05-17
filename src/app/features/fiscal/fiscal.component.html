@@ -19,52 +19,54 @@
           [ngClass]="view() !== 'hub' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
           <!-- Mi Gestor Card -->
           <div
-            class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3 bg-gray-50/50"
-            [ngClass]="view() === 'manager' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3 bg-surface-50 dark:bg-surface-800/50"
+            [ngClass]="view() === 'manager' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('manager')">
             <div class="flex items-center gap-3">
               <div
                 class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-                [ngClass]="view() === 'manager' ? 'w-8 h-8 bg-maingoo-sage/10' : 'w-10 h-10 bg-maingoo-sage/10'">
+                [ngClass]="view() === 'manager' ? 'w-8 h-8 bg-primary/10' : 'w-10 h-10 bg-primary/10'">
                 <app-icon
                   name="support_agent"
                   [size]="view() === 'manager' ? 'xl' : '2xl'"
-                  class="text-maingoo-sage"></app-icon>
+                  class="text-primary"></app-icon>
               </div>
-              <h3 class="font-bold text-maingoo-deep m-0" [ngClass]="view() === 'manager' ? 'text-base' : 'text-lg'">
+              <h3 class="font-bold mg-text m-0" [ngClass]="view() === 'manager' ? 'text-base' : 'text-lg'">
                 Mi gestor
               </h3>
             </div>
 
             <div *ngIf="view() !== 'manager'" class="flex flex-col gap-2 items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300">
                 Contactar
               </span>
             </div>
           </div>
           <!-- Invoice Card -->
           <div
-            class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
-            [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+            [ngClass]="view() === 'invoices' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('invoices')">
             <div class="flex items-center gap-3">
               <div
                 class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-                [ngClass]="view() === 'invoices' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
+                [ngClass]="
+                  view() === 'invoices' ? 'w-8 h-8 bg-surface-0 dark:bg-surface-900' : 'w-10 h-10 bg-primary/10'
+                ">
                 <app-icon
                   name="receipt_long"
                   [size]="view() === 'invoices' ? 'xl' : '2xl'"
-                  class="text-maingoo-sage"></app-icon>
+                  class="text-primary"></app-icon>
               </div>
-              <h3 class="font-bold text-maingoo-deep m-0" [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">
+              <h3 class="font-bold mg-text m-0" [ngClass]="view() === 'invoices' ? 'text-base' : 'text-lg'">
                 Facturas Proveedores
               </h3>
             </div>
 
             <div *ngIf="view() !== 'invoices'" class="flex flex-col gap-2 items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                 {{ invoices().length }} documentos
               </span>
             </div>
@@ -72,26 +74,25 @@
 
           <!-- Payroll Card -->
           <div
-            class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
-            [ngClass]="view() === 'payroll' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+            [ngClass]="view() === 'payroll' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('payroll')">
             <div class="flex items-center gap-3">
               <div
                 class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-                [ngClass]="view() === 'payroll' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
-                <app-icon
-                  name="badge"
-                  [size]="view() === 'payroll' ? 'xl' : '2xl'"
-                  class="text-maingoo-sage"></app-icon>
+                [ngClass]="
+                  view() === 'payroll' ? 'w-8 h-8 bg-surface-0 dark:bg-surface-900' : 'w-10 h-10 bg-primary/10'
+                ">
+                <app-icon name="badge" [size]="view() === 'payroll' ? 'xl' : '2xl'" class="text-primary"></app-icon>
               </div>
-              <h3 class="font-bold text-maingoo-deep m-0" [ngClass]="view() === 'payroll' ? 'text-base' : 'text-lg'">
+              <h3 class="font-bold mg-text m-0" [ngClass]="view() === 'payroll' ? 'text-base' : 'text-lg'">
                 Nominas Equipo
               </h3>
             </div>
 
             <div *ngIf="view() !== 'payroll'" class="flex flex-col gap-2 items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                 Gestión de personal
               </span>
             </div>
@@ -99,26 +100,25 @@
 
           <!-- Supplies Card -->
           <div
-            class="bg-white rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-maingoo-sage transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
-            [ngClass]="view() === 'supplies' ? 'border-maingoo-sage /5 ring-2 ring-maingoo-sage ring-offset-2' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+            [ngClass]="view() === 'supplies' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('supplies')">
             <div class="flex items-center gap-3">
               <div
                 class="rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
-                [ngClass]="view() === 'supplies' ? 'w-8 h-8 bg-white' : 'w-10 h-10 /30'">
-                <app-icon
-                  name="bolt"
-                  [size]="view() === 'supplies' ? 'xl' : '2xl'"
-                  class="text-maingoo-sage"></app-icon>
+                [ngClass]="
+                  view() === 'supplies' ? 'w-8 h-8 bg-surface-0 dark:bg-surface-900' : 'w-10 h-10 bg-primary/10'
+                ">
+                <app-icon name="bolt" [size]="view() === 'supplies' ? 'xl' : '2xl'" class="text-primary"></app-icon>
               </div>
-              <h3 class="font-bold text-maingoo-deep m-0" [ngClass]="view() === 'supplies' ? 'text-base' : 'text-lg'">
+              <h3 class="font-bold mg-text m-0" [ngClass]="view() === 'supplies' ? 'text-base' : 'text-lg'">
                 Facturas suministros
               </h3>
             </div>
 
             <div *ngIf="view() !== 'supplies'" class="flex flex-col gap-2 items-center">
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-maingoo-sage/10 text-maingoo-sage">
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                 Luz, agua, gas...
               </span>
             </div>
@@ -129,8 +129,8 @@
         <div *ngIf="viewMode() === 'list'" class="flex flex-col gap-3 animate-fade-in w-full">
           <!-- Mi Gestor List Item -->
           <div
-            class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between relative"
-            [ngClass]="view() === 'manager' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between relative"
+            [ngClass]="view() === 'manager' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('manager')">
             <!-- Demo Tag -->
             <span
@@ -140,18 +140,18 @@
 
             <div class="flex items-center gap-4">
               <div
-                class="rounded-full flex items-center justify-center transition-transform group-hover:scale-110 bg-maingoo-sage/10"
+                class="rounded-full flex items-center justify-center transition-transform group-hover:scale-110 bg-primary/10"
                 [ngClass]="view() === 'manager' ? 'w-8 h-8' : 'w-10 h-10'">
                 <app-icon
                   name="support_agent"
                   [size]="view() === 'manager' ? 'lg' : 'xl'"
-                  class="text-maingoo-sage"></app-icon>
+                  class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
-                <h3 class="font-bold text-maingoo-deep m-0" [ngClass]="view() === 'manager' ? 'text-sm' : 'text-base'">
+                <h3 class="font-bold mg-text m-0" [ngClass]="view() === 'manager' ? 'text-sm' : 'text-base'">
                   Mi gestor
                 </h3>
-                <p *ngIf="view() !== 'manager'" class="text-gray-500 text-xs m-0 hidden sm:block">
+                <p *ngIf="view() !== 'manager'" class="mg-text-muted text-xs m-0 hidden sm:block">
                   Contacta con tu gestor asignado
                 </p>
               </div>
@@ -159,73 +159,73 @@
             <app-icon
               name="chevron_right"
               size="md"
-              class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
           </div>
 
           <!-- Invoice List Item -->
           <div
-            class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
-            [ngClass]="view() === 'invoices' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between"
+            [ngClass]="view() === 'invoices' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('invoices')">
             <div class="flex items-center gap-4">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'invoices' ? 'bg-white' : '/30'">
-                <app-icon name="receipt_long" size="xl" class="text-maingoo-sage"></app-icon>
+                [ngClass]="view() === 'invoices' ? 'bg-surface-0 dark:bg-surface-900' : '/30'">
+                <app-icon name="receipt_long" size="xl" class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
-                <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas Proveedores</h3>
-                <p class="text-gray-500 text-xs m-0 hidden sm:block">Gestiona tus compras y documentos</p>
+                <h3 class="font-bold mg-text text-base m-0">Facturas Proveedores</h3>
+                <p class="mg-text-muted text-xs m-0 hidden sm:block">Gestiona tus compras y documentos</p>
               </div>
             </div>
             <app-icon
               name="chevron_right"
               size="md"
-              class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
           </div>
 
           <!-- Payroll List Item -->
           <div
-            class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
-            [ngClass]="view() === 'payroll' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between"
+            [ngClass]="view() === 'payroll' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('payroll')">
             <div class="flex items-center gap-4">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'payroll' ? 'bg-white' : '/30'">
-                <app-icon name="badge" size="xl" class="text-maingoo-sage"></app-icon>
+                [ngClass]="view() === 'payroll' ? 'bg-surface-0 dark:bg-surface-900' : '/30'">
+                <app-icon name="badge" size="xl" class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
-                <h3 class="font-bold text-maingoo-deep text-base m-0">Nominas Equipo</h3>
-                <p class="text-gray-500 text-xs m-0 hidden sm:block">Gestión de nóminas y personal</p>
+                <h3 class="font-bold mg-text text-base m-0">Nominas Equipo</h3>
+                <p class="mg-text-muted text-xs m-0 hidden sm:block">Gestión de nóminas y personal</p>
               </div>
             </div>
             <app-icon
               name="chevron_right"
               size="md"
-              class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
           </div>
 
           <!-- Supplies List Item -->
           <div
-            class="bg-white rounded-content shadow-sm border border-gray-100 p-4 cursor-pointer hover:shadow-md hover:border-maingoo-sage transition-all group flex items-center justify-between"
-            [ngClass]="view() === 'supplies' ? 'border-maingoo-sage /5 ring-1 ring-maingoo-sage' : ''"
+            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between"
+            [ngClass]="view() === 'supplies' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('supplies')">
             <div class="flex items-center gap-4">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'supplies' ? 'bg-white' : '/30'">
-                <app-icon name="bolt" size="xl" class="text-maingoo-sage"></app-icon>
+                [ngClass]="view() === 'supplies' ? 'bg-surface-0 dark:bg-surface-900' : '/30'">
+                <app-icon name="bolt" size="xl" class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
-                <h3 class="font-bold text-maingoo-deep text-base m-0">Facturas suministros</h3>
-                <p class="text-gray-500 text-xs m-0 hidden sm:block">Luz, agua, gas, internet...</p>
+                <h3 class="font-bold mg-text text-base m-0">Facturas suministros</h3>
+                <p class="mg-text-muted text-xs m-0 hidden sm:block">Luz, agua, gas, internet...</p>
               </div>
             </div>
             <app-icon
               name="chevron_right"
               size="md"
-              class="text-gray-400 group-hover:text-maingoo-sage transition-colors"></app-icon>
+              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
           </div>
         </div>
       </div>
@@ -234,16 +234,19 @@
       <div
         [ngClass]="view() === 'manager' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+        <div
+          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
           <!-- Drawer Header -->
-          <div class="px-6 py-4 flex justify-between items-center bg-gray-50 border-b border-gray-100 shrink-0">
+          <div
+            class="px-6 py-4 flex justify-between items-center bg-surface-50 dark:bg-surface-800 border-b border-surface shrink-0">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+              <div
+                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
                 <app-icon name="support_agent" size="xl"></app-icon>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-maingoo-deep m-0">Mi Gestor</h2>
-                <p class="text-xs text-gray-500 m-0">Asesoramiento personalizado</p>
+                <h2 class="text-xl font-bold mg-text m-0">Mi Gestor</h2>
+                <p class="text-xs mg-text-muted m-0">Asesoramiento personalizado</p>
               </div>
             </div>
 
@@ -271,30 +274,29 @@
               </button>
               <button
                 (click)="setView('hub')"
-                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                class="p-button-rounded p-button-text mg-text-muted hover:text-surface-600 dark:text-surface-300 w-10 h-10 flex items-center justify-center transition-colors">
                 <app-icon name="close" size="xl"></app-icon>
               </button>
             </div>
           </div>
 
           <!-- Drawer Content -->
-          <div class="flex-1 overflow-auto bg-white relative flex flex-col">
+          <div class="flex-1 overflow-auto bg-surface-0 dark:bg-surface-900 relative flex flex-col">
             <!-- Loading State -->
             <div *ngIf="gestorLoading()" class="flex-1 flex flex-col items-center justify-center text-center p-8 gap-4">
-              <div class="w-10 h-10 border-2 border-maingoo-sage border-t-transparent rounded-full animate-spin"></div>
-              <p class="text-sm text-gray-400">Cargando información del gestor...</p>
+              <div class="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p class="text-sm mg-text-muted">Cargando información del gestor...</p>
             </div>
 
             <!-- Empty State (no gestor yet) -->
             <div
               *ngIf="!gestorLoading() && !gestor() && !isEditingManager()"
               class="flex-1 flex flex-col items-center justify-center text-center p-8 gap-4">
-              <div
-                class="w-20 h-20 rounded-full bg-maingoo-sage/5 flex items-center justify-center text-maingoo-sage/40 mb-2">
+              <div class="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center text-primary/40 mb-2">
                 <app-icon name="support_agent" size="4xl"></app-icon>
               </div>
-              <h3 class="text-lg font-bold text-gray-900 m-0">Sin gestor asignado</h3>
-              <p class="text-sm text-gray-500 max-w-xs m-0">
+              <h3 class="text-lg font-bold mg-text m-0">Sin gestor asignado</h3>
+              <p class="text-sm mg-text-muted max-w-xs m-0">
                 Añade los datos de tu gestor o asesoría para tenerlos siempre a mano.
               </p>
               <button
@@ -315,9 +317,9 @@
                 <div class="w-full">
                   <h1
                     *ngIf="!isEditingManager()"
-                    class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight break-words m-0">
+                    class="text-2xl md:text-3xl font-bold mg-text leading-tight break-words m-0">
                     <span *ngIf="gestor()?.name">{{ gestor()!.name }}</span>
-                    <span *ngIf="!gestor()?.name" class="text-gray-300 italic">Nombre del Gestor</span>
+                    <span *ngIf="!gestor()?.name" class="mg-icon-muted italic">Nombre del Gestor</span>
                   </h1>
                   <input
                     *ngIf="isEditingManager()"
@@ -325,36 +327,36 @@
                     [ngModel]="gestorForm().name"
                     (ngModelChange)="updateForm('name', $event)"
                     placeholder="Nombre del Gestor"
-                    class="text-2xl md:text-3xl font-bold text-maingoo-deep leading-tight w-full bg-transparent border-b border-maingoo-sage focus:outline-none focus:border-maingoo-sage px-1 -ml-1 transition-all" />
+                    class="text-2xl md:text-3xl font-bold mg-text leading-tight w-full bg-transparent border-b border-primary focus:outline-none focus:border-primary px-1 -ml-1 transition-all" />
                 </div>
                 <div class="w-full">
-                  <h2 *ngIf="!isEditingManager()" class="text-lg text-gray-500 font-medium m-0 flex items-center gap-2">
-                    <app-icon name="business" size="sm" class="text-gray-400"></app-icon>
+                  <h2 *ngIf="!isEditingManager()" class="text-lg mg-text-muted font-medium m-0 flex items-center gap-2">
+                    <app-icon name="business" size="sm" class="mg-text-muted"></app-icon>
                     <span *ngIf="gestor()?.business">{{ gestor()!.business }}</span>
-                    <span *ngIf="!gestor()?.business" class="text-gray-300 italic">Empresa / Asesoría</span>
+                    <span *ngIf="!gestor()?.business" class="mg-icon-muted italic">Empresa / Asesoría</span>
                   </h2>
                   <div *ngIf="isEditingManager()" class="flex items-center gap-2 mt-1">
-                    <app-icon name="business" size="sm" class="text-gray-400"></app-icon>
+                    <app-icon name="business" size="sm" class="mg-text-muted"></app-icon>
                     <input
                       type="text"
                       [ngModel]="gestorForm().business"
                       (ngModelChange)="updateForm('business', $event)"
                       placeholder="Empresa / Asesoría"
-                      class="text-lg text-gray-600 font-medium w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-maingoo-sage px-1 -ml-1 transition-all" />
+                      class="text-lg text-surface-600 dark:text-surface-300 font-medium w-full bg-transparent border-b border-surface focus:outline-none focus:border-primary px-1 -ml-1 transition-all" />
                   </div>
                 </div>
               </div>
 
-              <hr class="border-gray-100 my-6" />
+              <hr class="border-surface my-6" />
 
               <!-- Contact Info Grid -->
               <div class="flex flex-col gap-4">
-                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide m-0">Datos de contacto</h3>
+                <h3 class="text-sm font-bold mg-text uppercase tracking-wide m-0">Datos de contacto</h3>
 
                 <!-- Email -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                  <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <app-icon name="mail" size="md" class="text-maingoo-sage"></app-icon>
+                  <div class="flex items-center gap-2 mg-text-muted text-sm">
+                    <app-icon name="mail" size="md" class="text-primary"></app-icon>
                     <span>Email principal</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -364,21 +366,21 @@
                       [value]="gestor()?.email || ''"
                       readonly
                       placeholder="Sin email"
-                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full text-sm placeholder:text-gray-300 placeholder:italic" />
+                      class="bg-transparent border border-transparent mg-text font-medium focus:outline-none rounded px-2 py-0.5 w-full text-sm placeholder:mg-icon-muted placeholder:italic" />
                     <input
                       *ngIf="isEditingManager()"
                       type="text"
                       [ngModel]="gestorForm().email"
                       (ngModelChange)="updateForm('email', $event)"
                       placeholder="ejemplo@email.com"
-                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm hover:border-maingoo-sage/30 focus:border-maingoo-sage" />
+                      class="bg-transparent border border-transparent mg-text font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:mg-text-muted placeholder:italic text-sm focus:bg-surface-0 dark:focus:bg-surface-800 focus:shadow-sm hover:border-primary/30 focus:border-primary" />
                   </div>
                 </div>
 
                 <!-- Phone -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                  <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <app-icon name="phone" size="md" class="text-maingoo-sage"></app-icon>
+                  <div class="flex items-center gap-2 mg-text-muted text-sm">
+                    <app-icon name="phone" size="md" class="text-primary"></app-icon>
                     <span>Teléfono</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -388,21 +390,21 @@
                       [value]="gestor()?.phoneNumber || ''"
                       readonly
                       placeholder="Sin teléfono"
-                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full text-sm placeholder:text-gray-300 placeholder:italic" />
+                      class="bg-transparent border border-transparent mg-text font-medium focus:outline-none rounded px-2 py-0.5 w-full text-sm placeholder:mg-icon-muted placeholder:italic" />
                     <input
                       *ngIf="isEditingManager()"
                       type="text"
                       [ngModel]="gestorForm().phoneNumber"
                       (ngModelChange)="updateForm('phoneNumber', $event)"
                       placeholder="Vacío"
-                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm hover:border-maingoo-sage/30 focus:border-maingoo-sage" />
+                      class="bg-transparent border border-transparent mg-text font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:mg-text-muted placeholder:italic text-sm focus:bg-surface-0 dark:focus:bg-surface-800 focus:shadow-sm hover:border-primary/30 focus:border-primary" />
                   </div>
                 </div>
 
                 <!-- Address -->
                 <div class="grid grid-cols-[130px_1fr] items-center py-1 group min-h-[32px]">
-                  <div class="flex items-center gap-2 text-gray-400 text-sm">
-                    <app-icon name="location_on" size="md" class="text-maingoo-sage"></app-icon>
+                  <div class="flex items-center gap-2 mg-text-muted text-sm">
+                    <app-icon name="location_on" size="md" class="text-primary"></app-icon>
                     <span>Dirección fiscal</span>
                   </div>
                   <div class="flex items-center -ml-2">
@@ -412,23 +414,23 @@
                       [value]="gestor()?.address || ''"
                       readonly
                       placeholder="Sin dirección"
-                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full text-sm placeholder:text-gray-300 placeholder:italic" />
+                      class="bg-transparent border border-transparent mg-text font-medium focus:outline-none rounded px-2 py-0.5 w-full text-sm placeholder:mg-icon-muted placeholder:italic" />
                     <input
                       *ngIf="isEditingManager()"
                       type="text"
                       [ngModel]="gestorForm().address"
                       (ngModelChange)="updateForm('address', $event)"
                       placeholder="Vacío"
-                      class="bg-transparent border border-transparent text-maingoo-deep font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:text-gray-400 placeholder:italic text-sm focus:bg-white focus:shadow-sm hover:border-maingoo-sage/30 focus:border-maingoo-sage" />
+                      class="bg-transparent border border-transparent mg-text font-medium focus:outline-none rounded px-2 py-0.5 w-full transition-all placeholder:mg-text-muted placeholder:italic text-sm focus:bg-surface-0 dark:focus:bg-surface-800 focus:shadow-sm hover:border-primary/30 focus:border-primary" />
                   </div>
                 </div>
               </div>
 
-              <hr class="border-gray-100 my-6" />
+              <hr class="border-surface my-6" />
 
               <!-- Notes Section -->
               <div class="flex flex-col gap-4">
-                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wide m-0">Notas internas</h3>
+                <h3 class="text-sm font-bold mg-text uppercase tracking-wide m-0">Notas internas</h3>
                 <div class="relative group">
                   <textarea
                     *ngIf="!isEditingManager()"
@@ -438,7 +440,7 @@
                     readonly
                     rows="4"
                     placeholder="Sin notas..."
-                    class="w-full bg-gray-50 border-0 rounded-content p-4 text-sm text-gray-700 leading-relaxed focus:ring-0 focus:shadow-none resize-none hover:bg-gray-100 transition-all"></textarea>
+                    class="w-full bg-surface-50 dark:bg-surface-800 border-0 rounded-content p-4 text-sm mg-text leading-relaxed focus:ring-0 focus:shadow-none resize-none hover:bg-surface-100 dark:bg-surface-800 transition-all"></textarea>
                   <textarea
                     *ngIf="isEditingManager()"
                     pInputTextarea
@@ -447,7 +449,7 @@
                     (ngModelChange)="updateForm('notes', $event)"
                     rows="4"
                     placeholder="Añade notas sobre tu gestor..."
-                    class="w-full bg-white border border-gray-200 rounded-content p-4 text-sm text-gray-700 leading-relaxed focus:ring-0 focus:shadow-none resize-none focus:border-maingoo-sage transition-all"></textarea>
+                    class="w-full bg-surface-0 dark:bg-surface-900 border border-surface rounded-content p-4 text-sm mg-text leading-relaxed focus:ring-0 focus:shadow-none resize-none focus:border-primary transition-all"></textarea>
                 </div>
               </div>
             </div>
@@ -459,16 +461,19 @@
       <div
         [ngClass]="view() === 'invoices' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+        <div
+          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
           <!-- Drawer Header -->
-          <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+          <div
+            class="px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+              <div
+                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
                 <app-icon name="receipt_long" size="xl"></app-icon>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas Proveedores</h2>
-                <p class="text-xs text-gray-500 m-0">{{ invoices().length }} documentos encontrados</p>
+                <h2 class="text-xl font-bold mg-text m-0">Facturas Proveedores</h2>
+                <p class="text-xs mg-text-muted m-0">{{ invoices().length }} documentos encontrados</p>
               </div>
             </div>
 
@@ -487,114 +492,115 @@
               </button>
               <button
                 (click)="setView('hub')"
-                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                class="p-button-rounded p-button-text mg-text-muted hover:text-surface-600 dark:text-surface-300 w-10 h-10 flex items-center justify-center transition-colors">
                 <app-icon name="close" size="xl"></app-icon>
               </button>
             </div>
           </div>
 
           <!-- Drawer Content (Table) -->
-          <div class="flex-1 overflow-auto p-0 bg-white relative">
+          <div class="flex-1 overflow-auto p-0 bg-surface-0 dark:bg-surface-900 relative">
             <div
               *ngIf="invoices().length === 0 && !loading()"
               class="flex flex-col items-center justify-center h-full text-center p-8">
-              <app-icon name="inbox" size="5xl" class="text-gray-300 mb-4"></app-icon>
-              <h3 class="text-lg font-semibold text-gray-700">No hay facturas</h3>
-              <p class="text-gray-500 text-sm">Registra tu primera factura para verla aquí.</p>
+              <app-icon name="inbox" size="5xl" class="mg-icon-muted mb-4"></app-icon>
+              <h3 class="text-lg font-semibold mg-text">No hay facturas</h3>
+              <p class="mg-text-muted text-sm">Registra tu primera factura para verla aquí.</p>
             </div>
 
-            <div *ngIf="invoices().length > 0" class="flex flex-col h-full bg-gray-50/50">
+            <div *ngIf="invoices().length > 0" class="flex flex-col h-full bg-surface-50 dark:bg-surface-800/50">
               <!-- Grouped List -->
               <div class="flex-1 overflow-y-auto p-4 space-y-4">
                 <div
                   *ngFor="let yearGroup of groupedInvoices()"
-                  class="bg-white rounded-content border border-gray-100 overflow-hidden shadow-sm transition-all duration-300">
+                  class="bg-surface-0 dark:bg-surface-900 rounded-content border border-surface overflow-hidden shadow-sm transition-all duration-300">
                   <!-- Year Header -->
                   <div
                     (click)="toggleGroup(yearGroup)"
-                    class="px-4 py-3 bg-gray-50/50 flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors select-none">
+                    class="px-4 py-3 bg-surface-50 dark:bg-surface-800/50 flex items-center justify-between cursor-pointer hover:bg-surface-100 dark:bg-surface-800 transition-colors select-none">
                     <div class="flex items-center gap-3">
                       <div
-                        class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-maingoo-deep font-bold text-sm shadow-sm">
+                        class="w-8 h-8 rounded-full bg-surface-0 dark:bg-surface-900 border border-surface flex items-center justify-center mg-text font-bold text-sm shadow-sm">
                         {{ yearGroup.year }}
                       </div>
-                      <span class="text-sm text-gray-500 font-medium">{{ yearGroup.total | currency: 'EUR' }}</span>
+                      <span class="text-sm mg-text-muted font-medium">{{ yearGroup.total | currency: 'EUR' }}</span>
                     </div>
                     <app-icon
                       name="expand_more"
                       size="md"
-                      class="text-gray-400 transition-transform duration-300"
+                      class="mg-text-muted transition-transform duration-300"
                       [ngClass]="{ 'rotate-180': yearGroup.expanded }"></app-icon>
                   </div>
 
                   <!-- Quarters List -->
-                  <div *ngIf="yearGroup.expanded" class="border-t border-gray-100">
-                    <div *ngFor="let quarter of yearGroup.quarters" class="border-b border-gray-100 last:border-0">
+                  <div *ngIf="yearGroup.expanded" class="border-t border-surface">
+                    <div *ngFor="let quarter of yearGroup.quarters" class="border-b border-surface last:border-0">
                       <!-- Quarter Header -->
                       <div
                         (click)="toggleGroup(quarter)"
-                        class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50/80 transition-colors select-none pl-8 bg-white">
+                        class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-surface-50 dark:bg-surface-800/80 transition-colors select-none pl-8 bg-surface-0 dark:bg-surface-900">
                         <div class="flex items-center gap-2">
-                          <app-icon name="calendar_month" size="xs" class="text-maingoo-sage"></app-icon>
-                          <span class="text-sm font-semibold text-maingoo-deep">{{ quarter.name }}</span>
+                          <app-icon name="calendar_month" size="xs" class="text-primary"></app-icon>
+                          <span class="text-sm font-semibold mg-text">{{ quarter.name }}</span>
                         </div>
                         <div class="flex items-center gap-3">
-                          <span class="text-xs text-gray-400 font-medium">{{ quarter.total | currency: 'EUR' }}</span>
+                          <span class="text-xs mg-text-muted font-medium">{{ quarter.total | currency: 'EUR' }}</span>
                           <app-icon
                             name="expand_more"
                             size="xs"
-                            class="text-gray-300 transition-transform duration-300"
+                            class="mg-icon-muted transition-transform duration-300"
                             [ngClass]="{ 'rotate-180': quarter.expanded }"></app-icon>
                         </div>
                       </div>
 
                       <!-- Suppliers List -->
-                      <div *ngIf="quarter.expanded" class="bg-gray-50/30 pb-2">
+                      <div *ngIf="quarter.expanded" class="bg-surface-50 dark:bg-surface-800/30 pb-2">
                         <div *ngFor="let supplier of quarter.suppliers" class="px-4 py-1">
                           <!-- Supplier Header (Card-like) -->
-                          <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                          <div
+                            class="bg-surface-0 dark:bg-surface-900 rounded-lg border border-surface overflow-hidden">
                             <div
                               (click)="toggleGroup(supplier)"
-                              class="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors select-none">
+                              class="px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-surface-50 dark:bg-surface-800 transition-colors select-none">
                               <div class="flex items-center gap-2">
-                                <app-icon name="local_shipping" size="sm" class="text-maingoo-sage/70"></app-icon>
-                                <span class="text-sm font-medium text-maingoo-deep">{{ supplier.supplierName }}</span>
-                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500">
+                                <app-icon name="local_shipping" size="sm" class="text-primary/70"></app-icon>
+                                <span class="text-sm font-medium mg-text">{{ supplier.supplierName }}</span>
+                                <span
+                                  class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-surface-100 dark:bg-surface-800 mg-text-muted">
                                   {{ supplier.invoices.length }}
                                 </span>
                               </div>
                               <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-maingoo-deep">{{
-                                  supplier.total | currency: 'EUR'
-                                }}</span>
+                                <span class="text-xs font-bold mg-text">{{ supplier.total | currency: 'EUR' }}</span>
                                 <app-icon
                                   name="expand_more"
                                   size="xs"
-                                  class="text-gray-300 transition-transform duration-300"
+                                  class="mg-icon-muted transition-transform duration-300"
                                   [ngClass]="{ 'rotate-180': supplier.expanded }"></app-icon>
                               </div>
                             </div>
 
                             <!-- Invoices List -->
-                            <div *ngIf="supplier.expanded" class="border-t border-gray-100 bg-gray-50/20">
+                            <div
+                              *ngIf="supplier.expanded"
+                              class="border-t border-surface bg-surface-50 dark:bg-surface-800/20">
                               <div
                                 *ngFor="let invoice of supplier.invoices"
-                                class="flex items-center justify-between px-3 py-2 hover:bg-white hover:shadow-sm transition-all cursor-pointer border-b border-gray-100/50 last:border-0 text-sm group"
+                                class="flex items-center justify-between px-3 py-2 hover:bg-surface-0 dark:hover:bg-surface-800 hover:shadow-sm transition-all cursor-pointer border-b border-surface/50 last:border-0 text-sm group"
                                 (click)="verDetalle(invoice)">
                                 <div class="flex items-center gap-3">
                                   <div class="flex flex-col">
-                                    <span
-                                      class="text-maingoo-deep font-medium group-hover:text-maingoo-sage transition-colors">
+                                    <span class="mg-text font-medium group-hover:text-primary transition-colors">
                                       {{ invoice.invoiceNumber || 'S/N' }}
                                     </span>
-                                    <span class="text-[10px] text-gray-400">
+                                    <span class="text-[10px] mg-text-muted">
                                       {{ invoice.date | date: 'dd MMM yyyy' }}
                                     </span>
                                   </div>
                                 </div>
 
                                 <div class="flex items-center gap-3">
-                                  <span class="text-maingoo-deep font-medium text-xs">
+                                  <span class="mg-text font-medium text-xs">
                                     {{ invoice.amount | currency: 'EUR' }}
                                   </span>
                                   <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -629,16 +635,19 @@
       <div
         [ngClass]="view() === 'payroll' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+        <div
+          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
           <!-- Drawer Header -->
-          <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+          <div
+            class="px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+              <div
+                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
                 <app-icon name="badge" size="xl"></app-icon>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-maingoo-deep m-0">Nóminas Equipo</h2>
-                <p class="text-xs text-gray-500 m-0">Gestión de personal y documentación</p>
+                <h2 class="text-xl font-bold mg-text m-0">Nóminas Equipo</h2>
+                <p class="text-xs mg-text-muted m-0">Gestión de personal y documentación</p>
               </div>
             </div>
 
@@ -648,19 +657,21 @@
               </button>
               <button
                 (click)="setView('hub')"
-                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                class="p-button-rounded p-button-text mg-text-muted hover:text-surface-600 dark:text-surface-300 w-10 h-10 flex items-center justify-center transition-colors">
                 <app-icon name="close" size="xl"></app-icon>
               </button>
             </div>
           </div>
 
           <!-- Drawer Content (Empty for now) -->
-          <div class="flex-1 overflow-auto p-8 bg-white relative flex flex-col items-center justify-center text-center">
-            <div class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-4">
+          <div
+            class="flex-1 overflow-auto p-8 bg-surface-0 dark:bg-surface-900 relative flex flex-col items-center justify-center text-center">
+            <div
+              class="w-20 h-20 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center mg-icon-muted mb-4">
               <app-icon name="badge" size="4xl"></app-icon>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Panel de Nóminas</h3>
-            <p class="text-sm text-gray-500 max-w-sm">
+            <h3 class="text-lg font-bold mg-text">Panel de Nóminas</h3>
+            <p class="text-sm mg-text-muted max-w-sm">
               Aquí podrás gestionar todas las nóminas vinculadas a tu equipo. (Próximamente)
             </p>
           </div>
@@ -671,16 +682,19 @@
       <div
         [ngClass]="view() === 'supplies' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div class="bg-white rounded-content shadow-2xl h-full flex flex-col border border-gray-100 overflow-hidden">
+        <div
+          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
           <!-- Drawer Header -->
-          <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 shrink-0">
+          <div
+            class="px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-maingoo-sage">
+              <div
+                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
                 <app-icon name="bolt" size="xl"></app-icon>
               </div>
               <div>
-                <h2 class="text-xl font-bold text-maingoo-deep m-0">Facturas Suministros</h2>
-                <p class="text-xs text-gray-500 m-0">Luz, agua, gas, internet...</p>
+                <h2 class="text-xl font-bold mg-text m-0">Facturas Suministros</h2>
+                <p class="text-xs mg-text-muted m-0">Luz, agua, gas, internet...</p>
               </div>
             </div>
 
@@ -690,19 +704,21 @@
               </button>
               <button
                 (click)="setView('hub')"
-                class="p-button-rounded p-button-text text-gray-400 hover:text-gray-600 w-10 h-10 flex items-center justify-center transition-colors">
+                class="p-button-rounded p-button-text mg-text-muted hover:text-surface-600 dark:text-surface-300 w-10 h-10 flex items-center justify-center transition-colors">
                 <app-icon name="close" size="xl"></app-icon>
               </button>
             </div>
           </div>
 
           <!-- Drawer Content (Empty for now) -->
-          <div class="flex-1 overflow-auto p-8 bg-white relative flex flex-col items-center justify-center text-center">
-            <div class="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mb-4">
+          <div
+            class="flex-1 overflow-auto p-8 bg-surface-0 dark:bg-surface-900 relative flex flex-col items-center justify-center text-center">
+            <div
+              class="w-20 h-20 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center mg-icon-muted mb-4">
               <app-icon name="bolt" size="4xl"></app-icon>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Panel de Suministros</h3>
-            <p class="text-sm text-gray-500 max-w-sm">
+            <h3 class="text-lg font-bold mg-text">Panel de Suministros</h3>
+            <p class="text-sm mg-text-muted max-w-sm">
               Gestiona aquí todas las facturas recurrentes de suministros. (Próximamente)
             </p>
           </div>
@@ -731,7 +747,7 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="text-gray-700 font-medium">
+      <label class="mg-text font-medium">
         Para confirmar, escribe <span class="font-bold text-red-600">"Borrar Facturas"</span> en el campo:
       </label>
       <input

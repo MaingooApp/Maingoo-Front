@@ -113,9 +113,7 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     { label: 'Almacén', value: 'almacen' }
   ];
 
-  responsibles = [
-    { label: 'Sin asignar (pendiente integración)', value: null }
-  ];
+  responsibles = [{ label: 'Sin asignar (pendiente integración)', value: null }];
 
   appccStatuses = [
     { label: 'OK', value: 'ok' },
@@ -181,7 +179,7 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     this.savedEquipment.push({ ...this.equipmentForm });
 
     // Update the module's equipment count
-    const tempModule = this.modules.find(m => m.id === 'temperatures');
+    const tempModule = this.modules.find((m) => m.id === 'temperatures');
     if (tempModule) {
       tempModule.itemsCount = this.savedEquipment.length;
       tempModule.lastUpdate = 'Ahora';
@@ -217,7 +215,7 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     // Update module's last update
-    const tempModule = this.modules.find(m => m.id === 'temperatures');
+    const tempModule = this.modules.find((m) => m.id === 'temperatures');
     if (tempModule) {
       tempModule.lastUpdate = 'Ahora';
     }
@@ -227,22 +225,22 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getEquipmentRecords(equipmentId: string) {
     return this.temperatureRecords
-      .filter(r => r.equipmentId === equipmentId)
+      .filter((r) => r.equipmentId === equipmentId)
       .sort((a, b) => b.date.getTime() - a.date.getTime());
   }
 
   getEquipmentTypeLabel(value: string | null): string {
-    const found = this.equipmentTypes.find(t => t.value === value);
+    const found = this.equipmentTypes.find((t) => t.value === value);
     return found ? found.label : 'No definido';
   }
 
   getLocationLabel(value: string | null): string {
-    const found = this.locations.find(l => l.value === value);
+    const found = this.locations.find((l) => l.value === value);
     return found ? found.label : 'Sin ubicación';
   }
 
   getTemperatureRangeLabel(value: string | null): string {
-    const found = this.temperatureRanges.find(t => t.value === value);
+    const found = this.temperatureRanges.find((t) => t.value === value);
     return found ? found.label : 'No definido';
   }
 }

@@ -5,5 +5,4 @@ const productRoutes: Routes = [
   { path: '**', redirectTo: '' }
 ];
 
-
 export default productRoutes;

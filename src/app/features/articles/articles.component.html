@@ -80,38 +80,38 @@
             class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full animate-fade-in">
             <div
               *ngFor="let article of articles()"
-              class="bg-white rounded-content shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+              class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm p-6 border border-surface hover:shadow-md transition-shadow">
               <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
                   <app-icon name="brunch_dining" size="xl"></app-icon>
                 </div>
-                <h3 class="font-semibold text-gray-800 truncate">{{ article.name }}</h3>
+                <h3 class="font-semibold mg-text truncate">{{ article.name }}</h3>
               </div>
             </div>
           </div>
 
           <div
             *ngIf="articles().length > 0 && viewMode === 'list'"
-            class="w-full bg-white rounded-content shadow-sm border border-gray-100 overflow-hidden animate-fade-in">
+            class="w-full bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface overflow-hidden animate-fade-in">
             <p-table [value]="articles()" [rowHover]="true" styleClass="p-datatable-sm">
               <ng-template pTemplate="header">
                 <tr>
-                  <th class="text-maingoo-deep font-bold text-sm">Artículo</th>
+                  <th class="mg-text font-bold text-sm">Artículo</th>
                   <th class="w-20"></th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-article>
-                <tr class="cursor-pointer hover:bg-gray-50 transition-colors">
+                <tr class="cursor-pointer hover:bg-surface-50 dark:bg-surface-800 transition-colors">
                   <td>
                     <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
                         <app-icon name="inventory_2" size="md"></app-icon>
                       </div>
-                      <span class="font-bold text-maingoo-deep">{{ article.name }}</span>
+                      <span class="font-bold mg-text">{{ article.name }}</span>
                     </div>
                   </td>
                   <td>
-                    <button pButton class="p-button-text p-button-rounded text-gray-400" aria-label="Opciones">
+                    <button pButton class="p-button-text p-button-rounded mg-text-muted" aria-label="Opciones">
                       <app-icon name="more_vert" size="md"></app-icon>
                     </button>
                   </td>

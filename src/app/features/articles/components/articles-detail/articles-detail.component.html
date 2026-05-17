@@ -4,7 +4,7 @@
       <button
         *ngIf="preparationsComponent?.selectedPreparation() && !preparationsComponent?.isEditMode()"
         pButton
-        class="p-button-text p-button-rounded text-gray-500 hover:text-maingoo-sage"
+        class="p-button-text p-button-rounded mg-text-muted hover:text-primary"
         aria-label="Editar"
         (click)="preparationsComponent?.toggleEditMode()">
         <app-icon name="edit" size="md"></app-icon>
@@ -49,8 +49,8 @@
       <div class="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center text-purple-400 mb-4">
         <app-icon name="chef_hat" size="xl"></app-icon>
       </div>
-      <h3 class="text-lg font-medium text-gray-900">Mise en place</h3>
-      <p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">
+      <h3 class="text-lg font-medium mg-text">Mise en place</h3>
+      <p class="text-sm mg-text-muted max-w-xs mx-auto mt-1">
         Próximamente podrás organizar y distribuir las elaboraciones con tu equipo.
       </p>
     </div>
