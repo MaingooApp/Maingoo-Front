@@ -56,17 +56,37 @@ npm run format:check
 
 PrimeNG esta configurado en `src/app/app.config.ts` con `providePrimeNG`, tema Aura, traduccion ES y dark mode mediante `.app-dark`. Tailwind extiende la marca Maingoo en `tailwind.config.js` y usa `tailwindcss-primeui` para convivir con tokens de PrimeNG.
 
+### Modo oscuro
+
+El modo oscuro se basa en PrimeNG, no en un sistema paralelo de colores Tailwind. La clase global `.app-dark` se aplica sobre `document.documentElement` y PrimeNG la usa como selector de tema oscuro mediante `darkModeSelector: '.app-dark'`.
+
+- El estado se gestiona desde `LayoutService` con `layoutConfig().darkTheme`.
+- La preferencia se persiste en `localStorage` con la clave `maingoo.darkTheme`.
+- Los componentes deben reaccionar al tema mediante tokens PrimeNG/Tailwind PrimeUI: `surface-*`, `text-surface-*`, `border-surface`, `primary`, `primary-emphasis` y `primary-contrast`.
+- Las utilidades compartidas `mg-*` de `src/tailwind.css` son la forma preferente de aplicar superficies, texto, tarjetas, paneles, topbar, sidebar, navegacion movil, pills y badges compatibles con claro/oscuro.
+- Se puede usar `dark:` para ajustes locales, pero la fuente de verdad para superficies estructurales debe seguir siendo PrimeNG/Tailwind PrimeUI.
+- En graficas o integraciones que no heredan tokens automaticamente, lee variables CSS de PrimeNG desde `getComputedStyle(document.documentElement)`, por ejemplo `--p-text-color`, `--p-text-muted-color`, `--p-surface-border`, `--p-primary-color` o `--p-content-background`.
+- Evita duplicar toggles de tema. El cambio de tema debe pasar por el layout/configuracion existente.
+
 Al crear UI nueva:
 
 - Usa componentes PrimeNG cuando aporten accesibilidad, comportamiento o consistencia.
 - Usa Tailwind para layout y ajustes visuales locales.
 - Usa SCSS de componente solo cuando Tailwind/PrimeNG no sean suficientes.
-- Implementa el modo oscuro con tokens PrimeNG/Tailwind PrimeUI: `surface-*`, `primary`, `primary-emphasis`, `primary-contrast`, `border-surface` y utilidades `mg-*`.
 - Evita clases rigidas para superficies estructurales como `bg-white`, `text-gray-*`, `bg-gray-*`, `border-gray-*` o colores hexadecimales de marca.
 - Reutiliza las utilidades `mg-*` de `src/tailwind.css` para superficies, texto, tarjetas, paneles de detalle, bottom sheets, FABs, topbar/sidebar, badges y pills antes de copiar cadenas largas de clases.
 - Usa las animaciones globales de Tailwind (`animate-slide-up`, `animate-slide-left`, `animate-slide-in-right`) para transiciones repetidas.
 - Mantiene accesibilidad: `aria-label` en botones icon-only, foco visible, teclado y contraste.
 - Consulta el MCP de PrimeNG cuando haya dudas sobre APIs, templates, theming, eventos o componentes.
+
+### Estandarizacion vigente de UI
+
+- `src/tailwind.css` centraliza utilidades `mg-*` para patrones visuales reutilizables.
+- `tailwind.config.js` centraliza color de marca, `boxShadow`, `zIndex` y animaciones compartidas.
+- Las plantillas mantienen `group` explicito cuando se usa `group-hover`.
+- `p-toast` y `p-confirmDialog` deben vivir a nivel de aplicacion salvo necesidad tecnica justificada.
+- Las features deben componer PrimeNG + utilidades compartidas antes de crear variantes visuales locales.
+- Los estados vacios, skeletons, formularios, filtros, tablas, dialogs y paneles de detalle deben seguir patrones compartidos.
 
 ## MCP PrimeNG
 
@@ -105,6 +125,14 @@ Estado actual esperado:
 - `npm run format:check`: debe pasar.
 - `rg -n 'console\.|\bany\b' src/app --glob '*.{ts,html}'`: no debe devolver resultados.
 - Solo existen 4 specs frente a mas de 200 archivos TS/HTML/SCSS.
+
+Estandarizacion de higiene de codigo:
+
+- No se debe introducir `any` explicito ni `console.*` en `src/app`.
+- Las suscripciones HTTP en componentes deben protegerse con `takeUntilDestroyed`, `async` pipe o signals.
+- Los componentes compartidos que emiten datos genericos deben usar `unknown` o genericos y las features deben resolver el tipo con type guards.
+- Los errores de usuario deben exponerse con toasts, estado de UI o servicios compartidos, no con logs de consola.
+- La documentacion del estado actual vive en `README.md` y `AGENTS.md`; no deben usarse como bitacora.
 
 Riesgos prioritarios:
 

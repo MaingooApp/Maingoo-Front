@@ -80,7 +80,6 @@ Use PrimeNG MCP whenever implementing or reviewing PrimeNG components, propertie
 - Reuse shared shells and components before creating new UI variants.
 - Prefer PrimeNG components for accessible, stateful UI such as tables, dialogs, confirms, toasts, selects, checkboxes, charts, file uploads, tooltips and buttons.
 - Use Tailwind for layout, responsive behavior and small visual adjustments.
-- Dark mode must be based on PrimeNG theme tokens and the `.app-dark` selector. Prefer `surface-*`, `text-surface-*`, `border-surface` and shared `mg-*` utility classes over hardcoded `bg-white`, `text-gray-*`, `border-gray-*` or brand hex colors for structural UI.
 - Current shared UI helpers live in `src/tailwind.css`. Prefer them for recurring surfaces, text, cards, panels, mobile sheets, FABs, topbar/sidebar actions, pills and demo badges.
 - Keep `group` explicit in templates when a helper relies on `group-hover`; do not hide Tailwind's `group` utility inside `@apply`.
 - New features should compose these helpers with PrimeNG components instead of reintroducing local color systems.
@@ -89,6 +88,32 @@ Use PrimeNG MCP whenever implementing or reviewing PrimeNG components, propertie
 - Avoid duplicating global overlay hosts. `p-toast` and `p-confirmDialog` should normally live at app level, not in individual feature pages.
 - When creating a reusable component, document its inputs/outputs through clear typing and simple naming.
 - Make icon-only controls accessible with labels or tooltips and keyboard-safe focus behavior.
+
+## Dark Mode Implementation Rules
+
+Dark mode is implemented through PrimeNG theming. Treat PrimeNG tokens and the `.app-dark` selector as the source of truth.
+
+- `src/app/app.config.ts` configures PrimeNG Aura with `darkModeSelector: '.app-dark'`.
+- `LayoutService` owns `layoutConfig().darkTheme`, applies/removes `.app-dark` on `document.documentElement` and persists the preference in `localStorage` as `maingoo.darkTheme`.
+- Do not create feature-local theme state, duplicated dark-mode toggles or parallel color maps.
+- For structural UI, prefer `surface-*`, `text-surface-*`, `border-surface`, `primary`, `primary-emphasis`, `primary-contrast` and shared `mg-*` helpers.
+- Avoid hardcoded light-only classes such as `bg-white`, `text-gray-*`, `bg-gray-*`, `border-gray-*` and brand hex colors on containers, cards, panels, overlays and navigation.
+- `dark:` variants are acceptable only for local adjustments. They must not replace PrimeNG/Tailwind PrimeUI tokens for the main surface system.
+- New cards, panels and feature containers should start from existing helpers such as `mg-surface`, `mg-text`, `mg-text-muted`, `mg-dashboard-card`, `mg-feature-card`, `mg-detail-card`, `mg-mobile-sheet`, `mg-sidebar-*` or `mg-topbar-*` where applicable.
+- Charts or third-party widgets must read current theme values from PrimeNG CSS variables with `getComputedStyle(document.documentElement)`. Guard browser-only access when code can run before the DOM exists.
+- Validate visible UI changes in light mode, dark mode, mobile width and desktop width.
+
+## Current Standardization Baseline
+
+- `src/tailwind.css` centralizes reusable `mg-*` utilities for theme-aware UI patterns.
+- `tailwind.config.js` centralizes Maingoo colors, shadows, z-index values and repeated animations.
+- Templates keep Tailwind `group` explicit where `group-hover` is used.
+- Global PrimeNG overlay hosts such as `p-toast` and `p-confirmDialog` should live at app level.
+- `src/app` should contain no explicit `any` and no `console.*`.
+- HTTP subscriptions in components should use `takeUntilDestroyed`, `async` pipe or signals.
+- Generic shared component outputs should use `unknown` or generics; feature code should narrow the value with type guards.
+- User-facing errors should be represented by toasts, inline state or shared error services, not logs.
+- New feature UI should reuse PrimeNG components and shared helpers before adding local SCSS or new utility chains.
 
 ## Architecture Principles
 
