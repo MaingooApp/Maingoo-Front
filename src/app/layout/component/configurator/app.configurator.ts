@@ -16,6 +16,9 @@ const presets = {
   Nora
 } as const;
 
+type ThemeColorType = 'primary' | 'surface';
+type PresetName = keyof typeof presets;
+
 declare type KeyOfType<T> = keyof T extends infer U ? U : never;
 
 declare type SurfacesType = {
@@ -400,7 +403,7 @@ export class AppConfigurator {
     }
   }
 
-  updateColors(event: any, type: string, color: any) {
+  updateColors(event: Event, type: ThemeColorType, color: SurfacesType) {
     if (type === 'primary') {
       this.layoutService.layoutConfig.update((state) => ({ ...state, primary: color.name }));
     } else if (type === 'surface') {
@@ -411,7 +414,7 @@ export class AppConfigurator {
     event.stopPropagation();
   }
 
-  applyTheme(type: string, color: any) {
+  applyTheme(type: ThemeColorType, color: SurfacesType) {
     if (type === 'primary') {
       updatePreset(this.getPresetExt());
     } else if (type === 'surface') {
@@ -419,14 +422,19 @@ export class AppConfigurator {
     }
   }
 
-  onPresetChange(event: any) {
-    this.layoutService.layoutConfig.update((state) => ({ ...state, preset: event }));
-    const preset = presets[event as KeyOfType<typeof presets>];
+  onPresetChange(event: string | undefined) {
+    const presetName: PresetName = this.isPresetName(event) ? event : 'Aura';
+    this.layoutService.layoutConfig.update((state) => ({ ...state, preset: presetName }));
+    const preset = presets[presetName];
     const surfacePalette = this.surfaces.find((s) => s.name === this.selectedSurfaceColor())?.palette;
     $t().preset(preset).preset(this.getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
   }
 
   onMenuModeChange(event: string) {
     this.layoutService.layoutConfig.update((prev) => ({ ...prev, menuMode: event }));
+  }
+
+  private isPresetName(value: unknown): value is PresetName {
+    return typeof value === 'string' && value in presets;
   }
 }

@@ -22,19 +22,19 @@ export class BaseHttpService {
     });
   }
 
-  protected post<T>(url: string, body: any, headers?: { [key: string]: string }): Observable<T> {
+  protected post<T>(url: string, body: unknown, headers?: { [key: string]: string }): Observable<T> {
     return this.http.post<T>(url, body, {
       headers: this.createHeaders(headers)
     });
   }
 
-  protected put<T>(url: string, body: any, headers?: { [key: string]: string }): Observable<T> {
+  protected put<T>(url: string, body: unknown, headers?: { [key: string]: string }): Observable<T> {
     return this.http.put<T>(url, body, {
       headers: this.createHeaders(headers)
     });
   }
 
-  protected patch<T>(url: string, body: any, headers?: { [key: string]: string }): Observable<T> {
+  protected patch<T>(url: string, body: unknown, headers?: { [key: string]: string }): Observable<T> {
     return this.http.patch<T>(url, body, {
       headers: this.createHeaders(headers)
     });
@@ -46,7 +46,7 @@ export class BaseHttpService {
     });
   }
 
-  protected postBlob(url: string, body: any, customHeaders?: { [key: string]: string }): Observable<Blob> {
+  protected postBlob(url: string, body: unknown, customHeaders?: { [key: string]: string }): Observable<Blob> {
     return this.http.post(`${url}`, body, {
       headers: this.createHeaders(customHeaders),
       responseType: 'blob'

@@ -1,7 +1,8 @@
-import { Component, Renderer2, ViewChild } from '@angular/core';
+import { Component, DestroyRef, Renderer2, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { filter } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './sidebar/app.sidebar';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
@@ -26,9 +27,9 @@ import { AppMain } from './main/app.main';
   templateUrl: './app.layout.html'
 })
 export class AppLayout {
-  overlayMenuOpenSubscription: Subscription;
+  private destroyRef = inject(DestroyRef);
 
-  menuOutsideClickListener: any;
+  menuOutsideClickListener: (() => void) | null = null;
 
   @ViewChild(AppSidebar) appSidebar!: AppSidebar;
 
@@ -43,9 +44,9 @@ export class AppLayout {
     public renderer: Renderer2,
     public router: Router
   ) {
-    this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
+    this.layoutService.overlayOpen$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       if (!this.menuOutsideClickListener) {
-        this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event) => {
+        this.menuOutsideClickListener = this.renderer.listen('document', 'click', (event: MouseEvent) => {
           if (this.isOutsideClicked(event)) {
             this.hideMenu();
           }
@@ -57,9 +58,14 @@ export class AppLayout {
       }
     });
 
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
-      this.hideMenu();
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.hideMenu();
+      });
   }
 
   isOutsideClicked(event: MouseEvent) {
@@ -121,10 +127,6 @@ export class AppLayout {
   }
 
   ngOnDestroy() {
-    if (this.overlayMenuOpenSubscription) {
-      this.overlayMenuOpenSubscription.unsubscribe();
-    }
-
     if (this.menuOutsideClickListener) {
       this.menuOutsideClickListener();
     }

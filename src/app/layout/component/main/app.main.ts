@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { SectionHeaderShellComponent } from '../section-header-shell/section-header-shell.component';
+
+type NgClassValue = string | string[] | Set<string> | { [klass: string]: unknown } | null | undefined;
 
 /**
  * AppMain — Contenedor principal del layout.
@@ -11,12 +13,12 @@ import { SectionHeaderShellComponent } from '../section-header-shell/section-hea
  * Usa --topbar-height (CSS variable) para calcular su posición y altura.
  */
 @Component({
-	selector: 'app-main',
-	standalone: true,
-	imports: [CommonModule, SectionHeaderShellComponent],
-	templateUrl: './app.main.html'
+  selector: 'app-main',
+  standalone: true,
+  imports: [CommonModule, SectionHeaderShellComponent],
+  templateUrl: './app.main.html'
 })
 export class AppMain {
-	/** Clases dinámicas pasadas desde AppLayout (ngClass compatible) */
-	@Input() containerClass: any;
+  /** Clases dinámicas pasadas desde AppLayout (ngClass compatible) */
+  @Input() containerClass: NgClass['ngClass'] | NgClassValue;
 }

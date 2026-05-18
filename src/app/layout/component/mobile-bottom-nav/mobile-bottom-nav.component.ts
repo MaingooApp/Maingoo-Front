@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { BottomSheetService } from '../../service/bottom-sheet.service';
@@ -21,6 +22,8 @@ interface NavItem {
   styleUrls: ['./mobile-bottom-nav.component.scss']
 })
 export class MobileBottomNavComponent {
+  private destroyRef = inject(DestroyRef);
+
   navItems: NavItem[] = [
     { label: 'Inicio', icon: 'home', action: 'navigate', route: '/' },
     { label: 'Chat', icon: 'auto_awesome', action: 'chat' },
@@ -38,9 +41,14 @@ export class MobileBottomNavComponent {
     // Escuchar cambios de ruta para actualizar el estado activo
     this.currentRoute = this.router.url.split('?')[0].split('#')[0];
 
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
-      this.currentRoute = event.urlAfterRedirects.split('?')[0].split('#')[0];
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event: NavigationEnd) => {
+        this.currentRoute = event.urlAfterRedirects.split('?')[0].split('#')[0];
+      });
   }
 
   get visibleNavItems(): NavItem[] {
@@ -94,8 +102,7 @@ export class MobileBottomNavComponent {
 
   private canUseAgent(): boolean {
     return (
-      this.authService.hasPermission(AppPermission.AgentUse) ||
-      this.authService.hasPermission(AppPermission.AdminSuper)
+      this.authService.hasPermission(AppPermission.AgentUse) || this.authService.hasPermission(AppPermission.AdminSuper)
     );
   }
 }

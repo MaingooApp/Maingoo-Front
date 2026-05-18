@@ -1,7 +1,7 @@
 import { Injectable, effect, signal, computed } from '@angular/core';
 import { Subject } from 'rxjs';
 
-export interface layoutConfig {
+export interface LayoutConfig {
   preset?: string;
   primary?: string;
   surface?: string | undefined | null;
@@ -28,7 +28,7 @@ interface MenuChangeEvent {
 export class LayoutService {
   private readonly darkThemeStorageKey = 'maingoo.darkTheme';
 
-  _config: layoutConfig = {
+  _config: LayoutConfig = {
     preset: 'Aura',
     primary: 'maingoo',
     surface: null,
@@ -44,13 +44,13 @@ export class LayoutService {
     menuHoverActive: false
   };
 
-  layoutConfig = signal<layoutConfig>(this._config);
+  layoutConfig = signal<LayoutConfig>(this._config);
 
   layoutState = signal<LayoutState>(this._state);
 
-  private configUpdate = new Subject<layoutConfig>();
+  private configUpdate = new Subject<LayoutConfig>();
 
-  private overlayOpen = new Subject<any>();
+  private overlayOpen = new Subject<void>();
 
   private menuSource = new Subject<MenuChangeEvent>();
 
@@ -109,8 +109,8 @@ export class LayoutService {
     this.pageTitle.set(title);
   }
 
-  private handleDarkModeTransition(config: layoutConfig): void {
-    if ((document as any).startViewTransition) {
+  private handleDarkModeTransition(config: LayoutConfig): void {
+    if (this.canStartViewTransition(document)) {
       this.startViewTransition(config);
     } else {
       this.toggleDarkMode(config);
@@ -118,8 +118,8 @@ export class LayoutService {
     }
   }
 
-  private startViewTransition(config: layoutConfig): void {
-    const transition = (document as any).startViewTransition(() => {
+  private startViewTransition(config: LayoutConfig): void {
+    const transition = document.startViewTransition(() => {
       this.toggleDarkMode(config);
     });
 
@@ -130,7 +130,7 @@ export class LayoutService {
       .catch(() => {});
   }
 
-  toggleDarkMode(config?: layoutConfig): void {
+  toggleDarkMode(config?: LayoutConfig): void {
     const _config = config || this.layoutConfig();
 
     if (typeof document !== 'undefined') {
@@ -172,7 +172,7 @@ export class LayoutService {
       this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
 
       if (this.layoutState().overlayMenuActive) {
-        this.overlayOpen.next(null);
+        this.overlayOpen.next();
       }
     }
 
@@ -188,7 +188,7 @@ export class LayoutService {
       }));
 
       if (this.layoutState().staticMenuMobileActive) {
-        this.overlayOpen.next(null);
+        this.overlayOpen.next();
       }
     }
   }
@@ -212,5 +212,11 @@ export class LayoutService {
 
   reset() {
     this.resetSource.next(true);
+  }
+
+  private canStartViewTransition(value: Document): value is Document & {
+    startViewTransition: (callback: () => void) => { ready: Promise<void> };
+  } {
+    return 'startViewTransition' in value && typeof value.startViewTransition === 'function';
   }
 }

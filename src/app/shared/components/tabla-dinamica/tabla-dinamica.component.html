@@ -72,7 +72,7 @@
             </span>
 
             <span *ngSwitchCase="'date'">
-              {{ getNestedValue(row, col.field) | date: 'dd/MM/yyyy HH:mm' }}
+              {{ getDateValue(row, col.field) | date: 'dd/MM/yyyy HH:mm' }}
             </span>
 
             <span *ngSwitchCase="'boolean'">

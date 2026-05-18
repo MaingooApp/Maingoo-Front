@@ -44,12 +44,6 @@ export class DocumentAnalysisService extends BaseHttpService {
     formData.append('documentType', data.documentType);
     formData.append('hasDeliveryNotes', data.hasDeliveryNotes.toString());
 
-    console.log('Enviando FormData:', {
-      fileName,
-      fileType,
-      fileSize: file.size
-    });
-
     // Para FormData, no usar headers de JSON y permitir que el navegador establezca el Content-Type con boundary
     return this.http.post<{ documentId: string }>(`${this.API_URL}/invoice`, formData);
   }
@@ -77,12 +71,6 @@ export class DocumentAnalysisService extends BaseHttpService {
 
     formData.append('documentType', data.documentType);
     formData.append('hasDeliveryNotes', data.hasDeliveryNotes.toString());
-
-    console.log('Enviando batch FormData:', {
-      filesCount: files.length,
-      documentType: data.documentType,
-      hasDeliveryNotes: data.hasDeliveryNotes
-    });
 
     return this.http.post<BatchAnalysisResponse>(`${this.API_URL}/batch`, formData);
   }

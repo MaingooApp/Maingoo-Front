@@ -56,8 +56,8 @@ export class BottomSheetService {
         // Limpiamos el ID ya que el modal se está cerrando
         this.currentHistoryId = null;
       }
-    } catch (e) {
-      console.warn('History API not available or failed', e);
+    } catch {
+      this.currentHistoryId = null;
     }
 
     this.state.set(newState);

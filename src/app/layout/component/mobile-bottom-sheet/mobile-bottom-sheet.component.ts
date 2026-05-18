@@ -3,10 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BottomSheetService } from '../../../layout/service/bottom-sheet.service';
-import {
-  ChatBubbleService,
-  ChatMessage
-} from '../../../shared/components/chat-bubble/chat-bubble.service';
+import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
@@ -145,7 +142,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
         setTimeout(() => this.scrollToBottom(), this.SCROLL_DELAY);
       }
     });
-
   }
 
   ngOnDestroy() {
@@ -174,8 +170,8 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       // Enviar la acción al chat
       await this.chatService.sendMessage(action);
       // Mantener expandido para mostrar la respuesta
-    } catch (error) {
-      console.error('Error al procesar acción rápida:', error);
+    } catch {
+      // El servicio de chat ya añade un mensaje visible si la petición falla.
     }
   }
 
@@ -193,8 +189,7 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
       // Enviar mensaje usando el servicio de chat (conecta al ms-agent via gateway)
       await this.chatService.sendMessage(message);
-    } catch (error) {
-      console.error('Error al enviar mensaje:', error);
+    } catch {
       // Restaurar el mensaje en caso de error
       input.value = message;
       this.isSending = false;
@@ -219,8 +214,8 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
 
     try {
       await this.chatService.sendAttachment(file);
-    } catch (error) {
-      console.error('Error al adjuntar archivo:', error);
+    } catch {
+      // El servicio de chat ya añade un mensaje visible si la petición falla.
     } finally {
       input.value = '';
     }
@@ -235,12 +230,9 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
 
     try {
-      await this.chatService.sendAttachment(
-        file,
-        'Analiza la imagen adjunta y ayúdame con la información relevante.'
-      );
-    } catch (error) {
-      console.error('Error al adjuntar imagen:', error);
+      await this.chatService.sendAttachment(file, 'Analiza la imagen adjunta y ayúdame con la información relevante.');
+    } catch {
+      // El servicio de chat ya añade un mensaje visible si la petición falla.
     } finally {
       input.value = '';
     }

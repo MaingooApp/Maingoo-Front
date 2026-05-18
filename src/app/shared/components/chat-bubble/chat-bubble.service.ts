@@ -210,7 +210,6 @@ export class ChatBubbleService {
     let normalized = message.trim();
 
     if (normalized.length > this.maxMessageLength) {
-      console.warn(`Mensaje truncado: excede el límite de ${this.maxMessageLength} caracteres`);
       normalized = normalized.substring(0, this.maxMessageLength);
     }
 
@@ -260,7 +259,6 @@ export class ChatBubbleService {
 
       await this.loadConversationsInternal();
     } catch (error) {
-      console.error('Error al enviar mensaje al agente:', error);
       this.typingSubject.next(false);
 
       const errorMessage: ChatMessage = {
@@ -350,9 +348,7 @@ export class ChatBubbleService {
       timestamp: new Date(message.createdAt)
     }));
 
-    this.messagesSubject.next(
-      mappedMessages.length > 0 ? mappedMessages : [this.createWelcomeMessage()]
-    );
+    this.messagesSubject.next(mappedMessages.length > 0 ? mappedMessages : [this.createWelcomeMessage()]);
 
     this.conversationId = conversationId;
     this.activeConversationIdSubject.next(conversationId);

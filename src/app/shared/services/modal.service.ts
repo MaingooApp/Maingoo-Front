@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy, Type } from '@angular/core';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 
-export interface TypedDialogConfig<TData = any> extends DynamicDialogConfig {
+export interface TypedDialogConfig<TData = unknown> extends DynamicDialogConfig {
   data?: TData;
 }
 
@@ -22,7 +22,7 @@ export class ModalService implements OnDestroy {
 
   constructor(private dialogService: DialogService) {}
 
-  open<TComponent, TData = any>(component: Type<TComponent>, config?: TypedDialogConfig<TData>): DynamicDialogRef {
+  open<TComponent, TData = unknown>(component: Type<TComponent>, config?: TypedDialogConfig<TData>): DynamicDialogRef {
     const mergedConfig: DynamicDialogConfig = {
       ...this.defaultConfig,
       ...config
