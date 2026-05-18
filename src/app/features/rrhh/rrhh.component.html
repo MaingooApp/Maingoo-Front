@@ -4,7 +4,7 @@
     <ng-template #headerTpl>
       <app-rrhh-section-header-detail
         [viewMode]="viewMode"
-        (viewModeChange)="viewMode = $event"
+        (viewModeChange)="setViewMode($event)"
         (search)="onSearch($event)">
       </app-rrhh-section-header-detail>
     </ng-template>
@@ -40,7 +40,7 @@
           [label]="!employee.avatar ? employee.name.charAt(0) : ''"
           shape="circle"
           size="xlarge"
-          [styleClass]="'mb-4 ' + (!employee.avatar ? 'bg-blue-100 text-blue-600 text-xl' : '')">
+          [styleClass]="'mb-4 ' + (!employee.avatar ? 'bg-primary/10 text-primary text-xl' : '')">
         </p-avatar>
 
         <!-- Info -->
@@ -117,7 +117,7 @@
                   [label]="!employee.avatar ? employee.name.charAt(0) : ''"
                   shape="circle"
                   size="normal"
-                  [styleClass]="!employee.avatar ? 'bg-blue-100 text-blue-600' : ''">
+                  [styleClass]="!employee.avatar ? 'bg-primary/10 text-primary' : ''">
                 </p-avatar>
                 <div class="flex flex-col">
                   <span class="font-medium mg-text">{{ employee.name }}</span>
@@ -156,13 +156,13 @@
                   pButton
                   pRipple
                   icon="pi pi-pencil"
-                  class="p-button-text p-button-secondary p-button-sm p-button-rounded hover:bg-surface-100 dark:bg-surface-800"
+                  class="p-button-text p-button-secondary p-button-sm p-button-rounded hover:bg-surface-100 dark:hover:bg-surface-800"
                   pTooltip="Editar"></button>
                 <button
                   pButton
                   pRipple
                   icon="pi pi-calendar"
-                  class="p-button-text p-button-info p-button-sm p-button-rounded hover:bg-blue-50"
+                  class="p-button-text p-button-info p-button-sm p-button-rounded hover:bg-primary/10"
                   pTooltip="Turnos"></button>
               </div>
             </td>

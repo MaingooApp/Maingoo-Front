@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '@app/core/constants/permissions.enum';
+import { Product } from '@app/core/interfaces/Invoice.interfaces';
 
 @Component({
   selector: 'app-products-section-header-detail',
@@ -14,7 +15,7 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
 })
 export class ProductsSectionHeaderDetailComponent {
   readonly P = AppPermission;
-  @Input() productos: any[] = [];
+  @Input() productos: Product[] = [];
   @Input() viewMode: 'cards' | 'list' = 'cards';
   @Input() cargando: boolean = false;
 

@@ -97,7 +97,7 @@
 
   <!-- FAB: Exportar PDF (Bottom Left) -->
   <button
-    class="md:hidden fixed bottom-24 left-6 w-14 h-14 rounded-full bg-red-500 text-primary-contrast shadow-[0_4px_20px_rgba(239,68,68,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)] hover:bg-red-600"
+    class="mg-mobile-fab left-6 right-auto bg-red-500 shadow-[0_4px_20px_rgba(239,68,68,0.25)] hover:bg-red-600 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)]"
     (click)="exportarPdf()"
     pTooltip="Exportar PDF"
     tooltipPosition="right">
@@ -107,7 +107,7 @@
   <!-- FAB: Subir Documento (Bottom Right) -->
   <button
     *ngxPermissionsOnly="[P.DocumentsWrite]"
-    class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary dark:bg-primary text-primary-contrast shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-primary-emphasis dark:hover:bg-primary-emphasis"
+    class="mg-mobile-fab"
     (click)="openAddInvoiceModal()"
     pTooltip="Subir documento"
     tooltipPosition="left">

@@ -23,6 +23,8 @@ interface AppccModule {
   lastUpdateLabel: string;
 }
 
+type AppccViewMode = 'cards' | 'list';
+
 // Interface for Equipment Form
 interface EquipmentForm {
   name: string;
@@ -37,6 +39,18 @@ interface EquipmentForm {
   appccStatus: string | null;
 }
 
+interface TemperatureRecord {
+  equipmentId: string;
+  temperature: number;
+  date: Date;
+  registeredBy: string;
+}
+
+interface SelectOption<T = string | null> {
+  label: string;
+  value: T;
+}
+
 @Component({
   selector: 'app-appcc',
   standalone: true,
@@ -48,7 +62,6 @@ interface EquipmentForm {
     DropdownModule,
     InputTextModule,
     InputSwitchModule,
-    InputSwitchModule,
     ButtonModule,
     AppccSectionHeaderDetailComponent
   ],
@@ -56,9 +69,9 @@ interface EquipmentForm {
 })
 export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
-  viewMode: 'cards' | 'list' = 'cards';
+  viewMode: AppccViewMode = 'cards';
 
   modules: AppccModule[] = [
     {
@@ -92,30 +105,30 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedEquipment: EquipmentForm | null = null;
 
   // Temperature Records
-  temperatureRecords: { equipmentId: string; temperature: number; date: Date; registeredBy: string }[] = [];
+  temperatureRecords: TemperatureRecord[] = [];
 
   // Dropdown Options
-  equipmentTypes = [
+  equipmentTypes: SelectOption<string>[] = [
     { label: 'Timbre', value: 'timbre' },
     { label: 'Nevera', value: 'nevera' },
     { label: 'Botellero', value: 'botellero' },
     { label: 'Cámara panelada', value: 'camara_panelada' }
   ];
 
-  temperatureRanges = [
+  temperatureRanges: SelectOption<string>[] = [
     { label: 'Frío positivo (0ºC - 4ºC)', value: 'frio_positivo' },
     { label: 'Frío negativo (-18ºC)', value: 'frio_negativo' }
   ];
 
-  locations = [
+  locations: SelectOption<string>[] = [
     { label: 'Cocina', value: 'cocina' },
     { label: 'Sala', value: 'sala' },
     { label: 'Almacén', value: 'almacen' }
   ];
 
-  responsibles = [{ label: 'Sin asignar (pendiente integración)', value: null }];
+  responsibles: SelectOption[] = [{ label: 'Sin asignar (pendiente integración)', value: null }];
 
-  appccStatuses = [
+  appccStatuses: SelectOption<string>[] = [
     { label: 'OK', value: 'ok' },
     { label: 'Atención', value: 'atencion' },
     { label: 'Incidencia', value: 'incidencia' }
@@ -135,8 +148,8 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     this.headerService.reset();
   }
 
-  setViewMode(mode: string) {
-    this.viewMode = mode as 'cards' | 'list';
+  setViewMode(mode: AppccViewMode) {
+    this.viewMode = mode;
   }
 
   openModule(module: AppccModule) {
@@ -185,7 +198,6 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
       tempModule.lastUpdate = 'Ahora';
     }
 
-    console.log('Equipment saved:', this.equipmentForm);
     this.showEquipmentForm = false;
     this.equipmentForm = this.getEmptyEquipmentForm();
   }
@@ -219,8 +231,6 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     if (tempModule) {
       tempModule.lastUpdate = 'Ahora';
     }
-
-    console.log('Temperature registered:', temperature, 'for', targetEquipment.name);
   }
 
   getEquipmentRecords(equipmentId: string) {

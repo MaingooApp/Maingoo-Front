@@ -123,9 +123,7 @@
       </div>
 
       <!-- Right Side (Detail Panel) -->
-      <div
-        *ngIf="selectedCategory"
-        class="hidden md:flex w-full md:w-3/4 shrink-0 top-4 z-20 flex-col animate-slide-in-right h-[calc(100vh-140px)] sticky">
+      <div *ngIf="selectedCategory" class="mg-desktop-detail-panel animate-slide-in-right h-[calc(100vh-140px)]">
         <app-articles-detail
           #articlesDetailComponent
           [selectedCategory]="selectedCategory"

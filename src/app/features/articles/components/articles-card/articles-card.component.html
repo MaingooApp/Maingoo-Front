@@ -13,11 +13,7 @@
   </div>
   <div class="flex items-center gap-2 mb-1">
     <h3 class="text-lg font-bold mg-text">{{ title }}</h3>
-    <span
-      *ngIf="badge"
-      class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-purple-100 text-purple-600"
-      >{{ badge }}</span
-    >
+    <span *ngIf="badge" class="mg-demo-badge">{{ badge }}</span>
   </div>
   <p class="text-sm mg-text-muted" [class.line-clamp-1]="isSelected">{{ description }}</p>
 </app-card-shell>

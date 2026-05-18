@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -9,6 +10,7 @@ import {
   TemplateRef,
   AfterViewInit
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -54,13 +56,14 @@ import { forkJoin } from 'rxjs';
 })
 export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   private userService = inject(UserService);
   private toastService = inject(ToastService);
   private layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
   private confirmationService = inject(ConfirmationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // State
   loading = signal(true);
@@ -157,18 +160,19 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     forkJoin({
       users: this.userService.getUsers(),
       permissions: this.userService.getAllPermissions()
-    }).subscribe({
-      next: ({ users, permissions }) => {
-        this.users.set(users);
-        this.allPermissions.set(permissions);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        console.error('Error loading data:', err);
-        this.toastService.error('Error', 'No se pudieron cargar los datos.');
-        this.loading.set(false);
-      }
-    });
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ users, permissions }) => {
+          this.users.set(users);
+          this.allPermissions.set(permissions);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudieron cargar los datos.');
+          this.loading.set(false);
+        }
+      });
   }
 
   selectUser(user: ManagedUser): void {
@@ -211,31 +215,31 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     this.saving.set(true);
     const ids = Array.from(this.selectedPermissionIds());
 
-    this.userService.updateUserPermissions(user.id, ids).subscribe({
-      next: (updatedUser) => {
-        // Update the local user list
-        this.users.update((users) => users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
-        this.selectedUser.set(updatedUser);
-        // Re-map permission names to IDs
-        const perms = this.allPermissions();
-        const ids = new Set(
-          updatedUser.permissions
-            .map((name: string) => perms.find((p) => p.name === name)?.id)
-            .filter((id: string | undefined): id is string => !!id)
-        );
-        this.selectedPermissionIds.set(ids);
-        this.saving.set(false);
-        this.toastService.success(
-          'Permisos actualizados',
-          `Los permisos de ${updatedUser.name} se han guardado correctamente.`
-        );
-      },
-      error: (err) => {
-        console.error('Error saving permissions:', err);
-        this.saving.set(false);
-        this.toastService.error('Error', 'No se pudieron guardar los permisos.');
-      }
-    });
+    this.userService
+      .updateUserPermissions(user.id, ids)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updatedUser) => {
+          this.users.update((users) => users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+          this.selectedUser.set(updatedUser);
+          const perms = this.allPermissions();
+          const ids = new Set(
+            updatedUser.permissions
+              .map((name: string) => perms.find((p) => p.name === name)?.id)
+              .filter((id: string | undefined): id is string => !!id)
+          );
+          this.selectedPermissionIds.set(ids);
+          this.saving.set(false);
+          this.toastService.success(
+            'Permisos actualizados',
+            `Los permisos de ${updatedUser.name} se han guardado correctamente.`
+          );
+        },
+        error: () => {
+          this.saving.set(false);
+          this.toastService.error('Error', 'No se pudieron guardar los permisos.');
+        }
+      });
   }
 
   /** Human-readable permission label */
@@ -312,6 +316,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
         email: this.newUserEmail().trim(),
         password: this.newUserPassword().trim()
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user) => {
           this.users.update((users) => [user, ...users]);
@@ -319,14 +324,9 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
           this.closeCreateForm();
           this.toastService.success('Usuario creado', `${user.name} ha sido creado correctamente.`);
         },
-        error: (err) => {
-          console.error('Error creating user:', err);
+        error: (error: unknown) => {
           this.creating.set(false);
-          const msg =
-            err?.error?.message === 'Email already registered'
-              ? 'Este email ya está registrado.'
-              : 'No se pudo crear el usuario.';
-          this.toastService.error('Error', msg);
+          this.toastService.error('Error', this.getCreateUserErrorMessage(error));
         }
       });
   }
@@ -346,18 +346,31 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private deleteUser(user: ManagedUser): void {
-    this.userService.deleteUser(user.id).subscribe({
-      next: () => {
-        this.users.update((users) => users.filter((u) => u.id !== user.id));
-        if (this.selectedUser()?.id === user.id) {
-          this.selectedUser.set(null);
+    this.userService
+      .deleteUser(user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.users.update((users) => users.filter((u) => u.id !== user.id));
+          if (this.selectedUser()?.id === user.id) {
+            this.selectedUser.set(null);
+          }
+          this.toastService.success('Usuario eliminado', `${user.name} ha sido eliminado.`);
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudo eliminar el usuario.');
         }
-        this.toastService.success('Usuario eliminado', `${user.name} ha sido eliminado.`);
-      },
-      error: (err) => {
-        console.error('Error deleting user:', err);
-        this.toastService.error('Error', 'No se pudo eliminar el usuario.');
+      });
+  }
+
+  private getCreateUserErrorMessage(error: unknown): string {
+    if (typeof error === 'object' && error !== null && 'error' in error) {
+      const nestedError = (error as { error?: { message?: unknown } }).error;
+      if (nestedError?.message === 'Email already registered') {
+        return 'Este email ya está registrado.';
       }
-    });
+    }
+
+    return 'No se pudo crear el usuario.';
   }
 }

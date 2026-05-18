@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, ViewChild, AfterViewInit, TemplateRef, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnDestroy, ViewChild, AfterViewInit, TemplateRef, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -38,6 +39,19 @@ import { SupplierCardComponent } from './components/supplier-card/supplier-card.
 import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
 import { SupplierSectionHeaderDetailComponent } from './components/supplier-section-header-detail/supplier-section-header-detail.component';
 
+type SupplierViewMode = 'grid' | 'list';
+type SupplierViewOption = {
+  icon: string;
+  value: SupplierViewMode;
+};
+type SupplierTableAction = {
+  action: string;
+  row: Supplier;
+};
+type SupplierTableSelectionEvent = {
+  data?: Supplier;
+};
+
 @Component({
   selector: 'app-proveedores',
   standalone: true,
@@ -71,7 +85,7 @@ import { SupplierSectionHeaderDetailComponent } from './components/supplier-sect
 export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
   @ViewChild(SupplierDetailComponent) detailComponent!: SupplierDetailComponent;
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
@@ -79,6 +93,7 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   private modalService = inject(ModalService);
   private layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
+  private readonly destroyRef = inject(DestroyRef);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
@@ -91,8 +106,8 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // UI State
   showMobileSearch = false; // New state for mobile search toggle
-  viewMode: 'grid' | 'list' = 'grid';
-  viewOptions: any[] = [
+  viewMode: SupplierViewMode = 'grid';
+  viewOptions: SupplierViewOption[] = [
     { icon: 'grid_view', value: 'grid' },
     { icon: 'view_list', value: 'list' }
   ];
@@ -103,7 +118,7 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // --- UI Handlers & Interactivity ---
 
-  setViewMode(mode: 'grid' | 'list') {
+  setViewMode(mode: SupplierViewMode) {
     this.viewMode = mode;
     this.hideDialog();
   }
@@ -141,17 +156,20 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
     this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
     this.cargando = true;
 
-    this.supplierService.listSuppliers().subscribe({
-      next: (suppliers: Supplier[]) => {
-        this.supplier = suppliers;
-        this.filteredSupplier = suppliers;
-        this.cargando = false;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar proveedores:', error);
-        this.cargando = false;
-      }
-    });
+    this.supplierService
+      .listSuppliers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (suppliers: Supplier[]) => {
+          this.supplier = suppliers;
+          this.filteredSupplier = suppliers;
+          this.cargando = false;
+        },
+        error: () => {
+          this.cargando = false;
+          this.toastService.error('Error', 'No se pudieron cargar los proveedores.');
+        }
+      });
   }
 
   ngAfterViewInit() {
@@ -200,38 +218,41 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
       sanitaryRegistrationNumber: supplier.sanitaryRegistrationNumber || null
     };
 
-    this.supplierService.updateSupplier(supplier.id!, dto).subscribe({
-      next: (updated) => {
-        this.toastService.success('Proveedor actualizado', 'Los datos se han guardado correctamente.');
-        // Update local data
-        Object.assign(supplier, updated);
+    this.supplierService
+      .updateSupplier(supplier.id!, dto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this.toastService.success('Proveedor actualizado', 'Los datos se han guardado correctamente.');
+          Object.assign(supplier, updated);
 
-        if (this.detailComponent) {
-          this.detailComponent.onSaveSuccess();
+          if (this.detailComponent) {
+            this.detailComponent.onSaveSuccess();
+          }
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudieron guardar los cambios.');
         }
-      },
-      error: (err) => {
-        console.error('Error updating supplier:', err);
-        this.toastService.error('Error', 'No se pudieron guardar los cambios.');
-      }
-    });
+      });
   }
 
   // --- Data Fetching & Operations ---
 
   eliminarProveedor(id: string) {
-    this.supplierService.deleteSupplier(id).subscribe({
-      next: () => {
-        this.supplier = this.supplier.filter((s) => s.id !== id);
-        this.filteredSupplier = [...this.supplier];
-        this.toastService.success('Proveedor eliminado', 'El proveedor ha sido eliminado correctamente.');
-        this.selectedSupplier = null; // Close details
-      },
-      error: (err) => {
-        console.error('Error deleting supplier:', err);
-        this.toastService.error('Error', 'No se pudo eliminar el proveedor.');
-      }
-    });
+    this.supplierService
+      .deleteSupplier(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.supplier = this.supplier.filter((s) => s.id !== id);
+          this.filteredSupplier = [...this.supplier];
+          this.toastService.success('Proveedor eliminado', 'El proveedor ha sido eliminado correctamente.');
+          this.selectedSupplier = null; // Close details
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudo eliminar el proveedor.');
+        }
+      });
   }
 
   showDialog(supplier: Supplier) {
@@ -253,9 +274,12 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
 
   loadInvoices(supplierId: string) {
     this.supplierInvoices = []; // Reset before loading
-    this.invoiceService.getInvoices().subscribe((invoices: Invoice[]) => {
-      this.supplierInvoices = invoices.filter((inv) => inv.supplierId === supplierId);
-    });
+    this.invoiceService
+      .getInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((invoices: Invoice[]) => {
+        this.supplierInvoices = invoices.filter((inv) => inv.supplierId === supplierId);
+      });
   }
 
   filterSuppliers(event: Event) {
@@ -268,13 +292,13 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  handleAccionProveedor({ action, row }: { action: string; row: any }) {
+  handleAccionProveedor({ action, row }: SupplierTableAction) {
     if (action === 'eliminar') {
       this.confirmarEliminarProveedor(row);
     }
   }
 
-  onTableSelection(event: any) {
+  onTableSelection(event: SupplierTableSelectionEvent) {
     if (event.data) {
       this.showDialog(event.data);
     }

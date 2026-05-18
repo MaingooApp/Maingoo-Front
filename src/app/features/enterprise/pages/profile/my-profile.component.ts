@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   FormArray,
@@ -23,7 +24,7 @@ import { PopoverModule } from 'primeng/popover';
 import { TabViewModule } from 'primeng/tabview';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { Enterprise, EnterpriseService } from '../../services/enterprise.service';
+import { CreateEnterpriseDto, Enterprise, EnterpriseService } from '../../services/enterprise.service';
 import { AuthService } from '../../../auth/services/auth-service.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
@@ -56,6 +57,7 @@ export class MyProfileComponent {
   perfilForm!: FormGroup;
   passwordForm!: FormGroup;
   currentEnterprise?: Enterprise;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private fb: FormBuilder,
@@ -146,37 +148,49 @@ export class MyProfileComponent {
   async guardarPerfil() {
     if (this.perfilForm.invalid) {
       this.perfilForm.markAllAsTouched();
-      console.error('Formulario inválido');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Formulario incompleto',
+        detail: 'Revisa los campos obligatorios antes de guardar.',
+        life: 3000
+      });
       return;
     }
 
     if (!this.currentEnterprise?.id) {
-      console.error('No hay empresa cargada para actualizar');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Empresa no disponible',
+        detail: 'No hay una empresa cargada para actualizar.',
+        life: 3000
+      });
       return;
     }
 
-    const datos = this.perfilForm.value;
+    const datos = this.perfilForm.value as Partial<CreateEnterpriseDto>;
 
-    this.enterpriseService.updateEnterprise(this.currentEnterprise.id, datos).subscribe({
-      next: (enterprise) => {
-        this.currentEnterprise = enterprise;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Perfil actualizado',
-          detail: 'Los datos de la empresa se han actualizado correctamente',
-          life: 3000
-        });
-      },
-      error: (error) => {
-        console.error('❌ Error al actualizar el perfil de la empresa:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al actualizar',
-          detail: 'No se pudo actualizar el perfil de la empresa. Inténtalo de nuevo.',
-          life: 5000
-        });
-      }
-    });
+    this.enterpriseService
+      .updateEnterprise(this.currentEnterprise.id, datos)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (enterprise) => {
+          this.currentEnterprise = enterprise;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Perfil actualizado',
+            detail: 'Los datos de la empresa se han actualizado correctamente',
+            life: 3000
+          });
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error al actualizar',
+            detail: 'No se pudo actualizar el perfil de la empresa. Inténtalo de nuevo.',
+            life: 5000
+          });
+        }
+      });
   }
 
   cambiarPassword() {
@@ -194,72 +208,98 @@ export class MyProfileComponent {
     const { currentPassword, newPassword } = this.passwordForm.value;
 
     // Llamar al servicio de autenticación para cambiar la contraseña
-    this.authService.changePassword(currentPassword, newPassword).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Contraseña actualizada',
-          detail: 'Tu contraseña se ha cambiado correctamente',
-          life: 3000
-        });
-        // Resetear el formulario después de actualizar
-        this.passwordForm.reset();
-      },
-      error: (error: any) => {
-        console.error('❌ Error al cambiar la contraseña:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al cambiar contraseña',
-          detail:
-            error?.error?.message || 'No se pudo actualizar la contraseña. Verifica los datos e inténtalo de nuevo.',
-          life: 5000
-        });
-      }
-    });
+    this.authService
+      .changePassword(currentPassword, newPassword)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Contraseña actualizada',
+            detail: 'Tu contraseña se ha cambiado correctamente',
+            life: 3000
+          });
+          // Resetear el formulario después de actualizar
+          this.passwordForm.reset();
+        },
+        error: (error: unknown) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error al cambiar contraseña',
+            detail: this.getErrorMessage(
+              error,
+              'No se pudo actualizar la contraseña. Verifica los datos e inténtalo de nuevo.'
+            ),
+            life: 5000
+          });
+        }
+      });
   }
 
   async cargarPerfil() {
     const user = this.authService.currentUser;
     if (!user) {
-      console.error('No hay usuario autenticado.');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sesión no disponible',
+        detail: 'No hay un usuario autenticado.',
+        life: 3000
+      });
       return;
     }
 
     // Obtener la empresa del usuario autenticado
     // Asumiendo que el usuario tiene una empresa asociada
     // Puedes obtener el ID de la empresa del perfil del usuario o de otro lugar
-    this.enterpriseService.listEnterprises().subscribe({
-      next: (enterprises) => {
-        if (enterprises.length > 0) {
-          // Tomar la primera empresa (o implementar lógica para seleccionar la correcta)
-          this.currentEnterprise = enterprises[0];
+    this.enterpriseService
+      .listEnterprises()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (enterprises) => {
+          if (enterprises.length > 0) {
+            // Tomar la primera empresa (o implementar lógica para seleccionar la correcta)
+            this.currentEnterprise = enterprises[0];
 
-          // Cargar los datos en el formulario
-          this.perfilForm.patchValue({
-            type: this.currentEnterprise.type,
-            name: this.currentEnterprise.name,
-            cifNif: this.currentEnterprise.cifNif,
-            email: this.currentEnterprise.email,
-            country: this.currentEnterprise.country,
-            city: this.currentEnterprise.city,
-            address: this.currentEnterprise.address,
-            postalCode: this.currentEnterprise.postalCode,
-            firstPhonePrefix: this.currentEnterprise.firstPhonePrefix,
-            firstPhoneNumber: this.currentEnterprise.firstPhoneNumber,
-            secondPhonePrefix: this.currentEnterprise.secondPhonePrefix || '',
-            secondPhoneNumber: this.currentEnterprise.secondPhoneNumber || '',
-            iban: this.currentEnterprise.iban || ''
+            // Cargar los datos en el formulario
+            this.perfilForm.patchValue({
+              type: this.currentEnterprise.type,
+              name: this.currentEnterprise.name,
+              cifNif: this.currentEnterprise.cifNif,
+              email: this.currentEnterprise.email,
+              country: this.currentEnterprise.country,
+              city: this.currentEnterprise.city,
+              address: this.currentEnterprise.address,
+              postalCode: this.currentEnterprise.postalCode,
+              firstPhonePrefix: this.currentEnterprise.firstPhonePrefix,
+              firstPhoneNumber: this.currentEnterprise.firstPhoneNumber,
+              secondPhonePrefix: this.currentEnterprise.secondPhonePrefix || '',
+              secondPhoneNumber: this.currentEnterprise.secondPhoneNumber || '',
+              iban: this.currentEnterprise.iban || ''
+            });
+          } else {
+            this.currentEnterprise = undefined;
+          }
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error al cargar',
+            detail: 'No se pudo cargar el perfil de la empresa.',
+            life: 5000
           });
-
-          console.log('✅ Perfil de empresa cargado correctamente');
-        } else {
-          console.log('No hay empresas registradas para este usuario.');
         }
-      },
-      error: (error) => {
-        console.error('❌ Error al cargar el perfil de la empresa:', error);
+      });
+  }
+
+  private getErrorMessage(error: unknown, fallback: string): string {
+    if (typeof error === 'object' && error !== null && 'error' in error) {
+      const responseError = (error as { error?: { message?: unknown } }).error;
+      if (typeof responseError?.message === 'string') {
+        return responseError.message;
       }
-    });
+    }
+
+    return fallback;
   }
 
   logout(): void {

@@ -27,6 +27,16 @@ export interface Employee {
   avatar?: string;
 }
 
+type RrhhViewMode = 'list' | 'cards';
+
+interface KpiCard {
+  label: string;
+  value: number;
+  icon: string;
+  color: string;
+  bg: string;
+}
+
 @Component({
   selector: 'app-rrhh',
   standalone: true,
@@ -46,10 +56,10 @@ export interface Employee {
   templateUrl: './rrhh.component.html'
 })
 export class RrhhComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
   private headerService = inject(SectionHeaderService);
 
-  viewMode: 'list' | 'cards' = 'list';
+  viewMode: RrhhViewMode = 'list';
   employees: Employee[] = [];
   filteredEmployees: Employee[] = [];
 
@@ -72,7 +82,8 @@ export class RrhhComponent implements OnInit, OnDestroy, AfterViewInit {
   // If employees had data, we would init filteredEmployees along with it.
 
   onSearch(event: Event) {
-    const query = (event.target as HTMLInputElement).value.toLowerCase();
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    const query = input?.value.toLowerCase() ?? '';
     this.filteredEmployees = this.employees.filter(
       (emp) =>
         emp.name.toLowerCase().includes(query) ||
@@ -82,10 +93,14 @@ export class RrhhComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  kpis = [
-    { label: 'Total Empleados', value: 0, icon: 'pi pi-users', color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Activos', value: 0, icon: 'pi pi-check-circle', color: 'text-green-500', bg: 'bg-green-50' },
-    { label: 'Ausentes', value: 0, icon: 'pi pi-calendar-minus', color: 'text-orange-500', bg: 'bg-orange-50' }
+  setViewMode(mode: RrhhViewMode) {
+    this.viewMode = mode;
+  }
+
+  kpis: KpiCard[] = [
+    { label: 'Total Empleados', value: 0, icon: 'pi pi-users', color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Activos', value: 0, icon: 'pi pi-check-circle', color: 'text-primary', bg: 'bg-primary/10' },
+    { label: 'Ausentes', value: 0, icon: 'pi pi-calendar-minus', color: 'text-primary', bg: 'bg-primary/10' }
   ];
 
   getSeverity(status: string): 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast' | undefined {

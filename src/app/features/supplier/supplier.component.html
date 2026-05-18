@@ -97,7 +97,7 @@
                   *ngFor="let item of filteredSupplier"
                   [supplier]="item"
                   [isSelected]="selectedSupplier?.id === item.id"
-                  (cardClick)="showDialog($any($event))">
+                  (cardClick)="showDialog($event)">
                 </app-supplier-card>
               </div>
             </ng-container>
@@ -107,7 +107,7 @@
               <app-supplier-list
                 [suppliers]="filteredSupplier"
                 [selectedSupplier]="selectedSupplier"
-                (selectSupplier)="showDialog($any($event))">
+                (selectSupplier)="showDialog($event)">
               </app-supplier-list>
             </div>
           </ng-container>
@@ -117,24 +117,20 @@
       <!-- SECTION: Sidebar/Detail Panel -->
       <ng-container *ngIf="selectedSupplier">
         <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
-        <div
-          class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-2xl z-20 flex-col bg-surface-0 dark:bg-surface-900">
+        <div class="mg-desktop-detail-panel">
           <ng-container *ngTemplateOutlet="detailContent"></ng-container>
         </div>
 
         <!-- MOBILE: Bottom Sheet (Fixed, Overlay) -->
-        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
+        <div class="mg-mobile-overlay">
           <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
+          <div class="mg-mobile-backdrop" (click)="hideDialog()"></div>
 
           <!-- Sheet -->
-          <div
-            class="relative w-full h-[85vh] bg-surface-0 dark:bg-surface-900 rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
+          <div class="mg-bottom-sheet">
             <!-- Drag Handle Area -->
-            <div
-              class="w-full flex justify-center pt-4 pb-2 bg-surface-0 dark:bg-surface-900 shrink-0 cursor-grab active:cursor-grabbing"
-              (click)="hideDialog()">
-              <div class="w-12 h-1.5 bg-surface-300 dark:bg-surface-600 rounded-full"></div>
+            <div class="mg-bottom-sheet-handle" (click)="hideDialog()">
+              <div class="mg-bottom-sheet-handle-bar"></div>
             </div>
 
             <!-- Content Wrapper -->
@@ -160,28 +156,10 @@
       </app-supplier-detail>
     </ng-template>
 
-    <style>
-      @keyframes slide-in-right {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-
-      .animate-slide-in-right {
-        animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
-    </style>
-
     <!-- Mobile FAB (Floating Action Button) -->
     <button
       *ngxPermissionsOnly="[P.DocumentsWrite]"
-      class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary dark:bg-primary text-primary-contrast shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-10 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-primary-emphasis dark:hover:bg-primary-emphasis"
+      class="mg-mobile-fab z-10"
       (click)="openAddInvoiceModal()"
       pTooltip="Subir factura"
       tooltipPosition="left"

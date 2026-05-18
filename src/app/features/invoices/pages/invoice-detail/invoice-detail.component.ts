@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { DocumentTypePipe } from '@app/core/pipes/document-type.pipe';
@@ -35,6 +36,7 @@ export class InvoiceDetailComponent implements OnInit {
   downloadingDocument = false;
 
   private readonly CACHE_KEY_PREFIX = 'invoice_document_cache_';
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private route: ActivatedRoute,
@@ -57,19 +59,21 @@ export class InvoiceDetailComponent implements OnInit {
 
   cargarFactura(id: string) {
     this.loading = true;
-    this.invoiceService.getInvoiceById(id).subscribe({
-      next: (factura: Invoice) => {
-        this.factura = factura;
+    this.invoiceService
+      .getInvoiceById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (factura: Invoice) => {
+          this.factura = factura;
 
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error cargando la factura:', error);
-        this.toastService.error('Error', 'No se pudo cargar la factura. Por favor, intenta nuevamente.');
-        this.loading = false;
-        this.router.navigate(['/facturas']);
-      }
-    });
+          this.loading = false;
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudo cargar la factura. Por favor, intenta nuevamente.');
+          this.loading = false;
+          this.router.navigate(['/facturas']);
+        }
+      });
   }
 
   volver() {
@@ -91,23 +95,25 @@ export class InvoiceDetailComponent implements OnInit {
 
     // Si no hay caché o expiró, obtener nueva URL
     this.downloadingDocument = true;
-    this.invoiceService.getDocumentUrl(this.factura.id, 24).subscribe({
-      next: (response) => {
-        // Guardar en caché la URL con su fecha de expiración
-        this.setCachedDocumentUrl(this.factura!.id, response.url, response.expiresIn);
+    this.invoiceService
+      .getDocumentUrl(this.factura.id, 24)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          // Guardar en caché la URL con su fecha de expiración
+          this.setCachedDocumentUrl(this.factura!.id, response.url, response.expiresIn);
 
-        // Descargar el archivo
-        this.downloadFile(response.url, response.blobName);
+          // Descargar el archivo
+          this.downloadFile(response.url, response.blobName);
 
-        this.toastService.success('Éxito', 'Documento descargado correctamente.');
-        this.downloadingDocument = false;
-      },
-      error: (error: any) => {
-        console.error('Error descargando documento:', error);
-        this.toastService.error('Error', 'No se pudo descargar el documento. Por favor, intenta nuevamente.');
-        this.downloadingDocument = false;
-      }
-    });
+          this.toastService.success('Éxito', 'Documento descargado correctamente.');
+          this.downloadingDocument = false;
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudo descargar el documento. Por favor, intenta nuevamente.');
+          this.downloadingDocument = false;
+        }
+      });
   }
 
   /**
@@ -122,7 +128,12 @@ export class InvoiceDetailComponent implements OnInit {
         return null;
       }
 
-      const parsed = JSON.parse(cachedData);
+      const parsed = JSON.parse(cachedData) as { url?: string; expiresAt?: string };
+      if (!parsed.url || !parsed.expiresAt) {
+        sessionStorage.removeItem(cacheKey);
+        return null;
+      }
+
       const expiresAt = new Date(parsed.expiresAt);
       const now = new Date();
 
@@ -136,8 +147,7 @@ export class InvoiceDetailComponent implements OnInit {
       // Si expiró, eliminar del storage
       sessionStorage.removeItem(cacheKey);
       return null;
-    } catch (error) {
-      console.error('Error al leer caché de documento:', error);
+    } catch {
       return null;
     }
   }
@@ -157,8 +167,8 @@ export class InvoiceDetailComponent implements OnInit {
       };
 
       sessionStorage.setItem(cacheKey, JSON.stringify(cacheData));
-    } catch (error) {
-      console.error('Error al guardar caché de documento:', error);
+    } catch {
+      // Session storage may be unavailable; failing to cache must not block the download.
     }
   }
 
@@ -176,6 +186,7 @@ export class InvoiceDetailComponent implements OnInit {
   }
 
   getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    return input?.value ?? '';
   }
 }

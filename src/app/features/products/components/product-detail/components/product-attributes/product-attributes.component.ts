@@ -23,7 +23,7 @@ export class ProductAttributesComponent implements OnChanges {
   private toastService = inject(ToastService);
 
   categoryPath: string[] = [];
-  rootCategoryStyle: { [klass: string]: any } = {};
+  rootCategoryStyle: Record<string, string> = {};
 
   // Price Logic
 

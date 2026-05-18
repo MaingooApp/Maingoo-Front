@@ -19,7 +19,7 @@
           [ngClass]="view() !== 'hub' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
           <!-- Mi Gestor Card -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3 bg-surface-50 dark:bg-surface-800/50"
+            class="mg-feature-card group bg-surface-50 dark:bg-surface-800/50"
             [ngClass]="view() === 'manager' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('manager')">
             <div class="flex items-center gap-3">
@@ -37,15 +37,12 @@
             </div>
 
             <div *ngIf="view() !== 'manager'" class="flex flex-col gap-2 items-center">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300">
-                Contactar
-              </span>
+              <span class="mg-feature-pill-muted"> Contactar </span>
             </div>
           </div>
           <!-- Invoice Card -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+            class="mg-feature-card group"
             [ngClass]="view() === 'invoices' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('invoices')">
             <div class="flex items-center gap-3">
@@ -65,16 +62,13 @@
             </div>
 
             <div *ngIf="view() !== 'invoices'" class="flex flex-col gap-2 items-center">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                {{ invoices().length }} documentos
-              </span>
+              <span class="mg-feature-pill"> {{ invoices().length }} documentos </span>
             </div>
           </div>
 
           <!-- Payroll Card -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+            class="mg-feature-card group"
             [ngClass]="view() === 'payroll' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('payroll')">
             <div class="flex items-center gap-3">
@@ -91,16 +85,13 @@
             </div>
 
             <div *ngIf="view() !== 'payroll'" class="flex flex-col gap-2 items-center">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                Gestión de personal
-              </span>
+              <span class="mg-feature-pill"> Gestión de personal </span>
             </div>
           </div>
 
           <!-- Supplies Card -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer group relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3"
+            class="mg-feature-card group"
             [ngClass]="view() === 'supplies' ? 'border-primary/50 ring-2 ring-primary ring-offset-2' : ''"
             (click)="setView('supplies')">
             <div class="flex items-center gap-3">
@@ -117,10 +108,7 @@
             </div>
 
             <div *ngIf="view() !== 'supplies'" class="flex flex-col gap-2 items-center">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                Luz, agua, gas...
-              </span>
+              <span class="mg-feature-pill"> Luz, agua, gas... </span>
             </div>
           </div>
         </div>
@@ -129,14 +117,11 @@
         <div *ngIf="viewMode() === 'list'" class="flex flex-col gap-3 animate-fade-in w-full">
           <!-- Mi Gestor List Item -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between relative"
+            class="mg-feature-list-item group relative"
             [ngClass]="view() === 'manager' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('manager')">
             <!-- Demo Tag -->
-            <span
-              class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-500 uppercase tracking-wider">
-              Demo
-            </span>
+            <span class="mg-demo-badge absolute top-2 right-2 text-[9px] font-bold"> Demo </span>
 
             <div class="flex items-center gap-4">
               <div
@@ -164,13 +149,13 @@
 
           <!-- Invoice List Item -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between"
+            class="mg-feature-list-item group"
             [ngClass]="view() === 'invoices' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('invoices')">
             <div class="flex items-center gap-4">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'invoices' ? 'bg-surface-0 dark:bg-surface-900' : '/30'">
+                [ngClass]="view() === 'invoices' ? 'bg-surface-0 dark:bg-surface-900' : 'bg-primary/10'">
                 <app-icon name="receipt_long" size="xl" class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
@@ -186,13 +171,13 @@
 
           <!-- Payroll List Item -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between"
+            class="mg-feature-list-item group"
             [ngClass]="view() === 'payroll' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('payroll')">
             <div class="flex items-center gap-4">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'payroll' ? 'bg-surface-0 dark:bg-surface-900' : '/30'">
+                [ngClass]="view() === 'payroll' ? 'bg-surface-0 dark:bg-surface-900' : 'bg-primary/10'">
                 <app-icon name="badge" size="xl" class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
@@ -208,13 +193,13 @@
 
           <!-- Supplies List Item -->
           <div
-            class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all group flex items-center justify-between"
+            class="mg-feature-list-item group"
             [ngClass]="view() === 'supplies' ? 'border-primary/50 ring-1 ring-primary' : ''"
             (click)="setView('supplies')">
             <div class="flex items-center gap-4">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'supplies' ? 'bg-surface-0 dark:bg-surface-900' : '/30'">
+                [ngClass]="view() === 'supplies' ? 'bg-surface-0 dark:bg-surface-900' : 'bg-primary/10'">
                 <app-icon name="bolt" size="xl" class="text-primary"></app-icon>
               </div>
               <div class="flex flex-col">
@@ -234,14 +219,11 @@
       <div
         [ngClass]="view() === 'manager' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div
-          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
+        <div class="mg-drawer-panel">
           <!-- Drawer Header -->
-          <div
-            class="px-6 py-4 flex justify-between items-center bg-surface-50 dark:bg-surface-800 border-b border-surface shrink-0">
+          <div class="mg-drawer-header">
             <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
+              <div class="mg-drawer-icon">
                 <app-icon name="support_agent" size="xl"></app-icon>
               </div>
               <div>
@@ -281,7 +263,7 @@
           </div>
 
           <!-- Drawer Content -->
-          <div class="flex-1 overflow-auto bg-surface-0 dark:bg-surface-900 relative flex flex-col">
+          <div class="mg-drawer-body flex flex-col">
             <!-- Loading State -->
             <div *ngIf="gestorLoading()" class="flex-1 flex flex-col items-center justify-center text-center p-8 gap-4">
               <div class="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -461,14 +443,11 @@
       <div
         [ngClass]="view() === 'invoices' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div
-          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
+        <div class="mg-drawer-panel">
           <!-- Drawer Header -->
-          <div
-            class="px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0">
+          <div class="mg-drawer-header">
             <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
+              <div class="mg-drawer-icon">
                 <app-icon name="receipt_long" size="xl"></app-icon>
               </div>
               <div>
@@ -499,7 +478,7 @@
           </div>
 
           <!-- Drawer Content (Table) -->
-          <div class="flex-1 overflow-auto p-0 bg-surface-0 dark:bg-surface-900 relative">
+          <div class="mg-drawer-body p-0">
             <div
               *ngIf="invoices().length === 0 && !loading()"
               class="flex flex-col items-center justify-center h-full text-center p-8">
@@ -635,14 +614,11 @@
       <div
         [ngClass]="view() === 'payroll' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div
-          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
+        <div class="mg-drawer-panel">
           <!-- Drawer Header -->
-          <div
-            class="px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0">
+          <div class="mg-drawer-header">
             <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
+              <div class="mg-drawer-icon">
                 <app-icon name="badge" size="xl"></app-icon>
               </div>
               <div>
@@ -664,10 +640,8 @@
           </div>
 
           <!-- Drawer Content (Empty for now) -->
-          <div
-            class="flex-1 overflow-auto p-8 bg-surface-0 dark:bg-surface-900 relative flex flex-col items-center justify-center text-center">
-            <div
-              class="w-20 h-20 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center mg-icon-muted mb-4">
+          <div class="mg-drawer-body p-8 flex flex-col items-center justify-center text-center">
+            <div class="mg-empty-illustration">
               <app-icon name="badge" size="4xl"></app-icon>
             </div>
             <h3 class="text-lg font-bold mg-text">Panel de Nóminas</h3>
@@ -682,14 +656,11 @@
       <div
         [ngClass]="view() === 'supplies' ? 'w-full md:w-3/4 opacity-100' : 'w-0 opacity-0 overflow-hidden'"
         class="shrink-0 sticky flex flex-col">
-        <div
-          class="bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden">
+        <div class="mg-drawer-panel">
           <!-- Drawer Header -->
-          <div
-            class="px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0">
+          <div class="mg-drawer-header">
             <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary">
+              <div class="mg-drawer-icon">
                 <app-icon name="bolt" size="xl"></app-icon>
               </div>
               <div>
@@ -711,10 +682,8 @@
           </div>
 
           <!-- Drawer Content (Empty for now) -->
-          <div
-            class="flex-1 overflow-auto p-8 bg-surface-0 dark:bg-surface-900 relative flex flex-col items-center justify-center text-center">
-            <div
-              class="w-20 h-20 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center mg-icon-muted mb-4">
+          <div class="mg-drawer-body p-8 flex flex-col items-center justify-center text-center">
+            <div class="mg-empty-illustration">
               <app-icon name="bolt" size="4xl"></app-icon>
             </div>
             <h3 class="text-lg font-bold mg-text">Panel de Suministros</h3>

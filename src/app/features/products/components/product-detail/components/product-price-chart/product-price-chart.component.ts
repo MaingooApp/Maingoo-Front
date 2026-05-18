@@ -6,6 +6,21 @@ import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '@shared/components/icon/icon.component';
 
+export interface ProductPriceChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor?: string | string[];
+  borderColor?: string;
+  borderWidth?: number;
+  tension?: number;
+  fill?: boolean;
+}
+
+export interface ProductPriceChartData {
+  labels: string[];
+  datasets: ProductPriceChartDataset[];
+}
+
 @Component({
   selector: 'app-product-price-chart',
   standalone: true,
@@ -13,13 +28,13 @@ import { IconComponent } from '@shared/components/icon/icon.component';
   templateUrl: './product-price-chart.component.html'
 })
 export class ProductPriceChartComponent implements OnChanges {
-  @Input() data: any;
-  @Input() options: any;
+  @Input() data?: ProductPriceChartData;
+  @Input() options?: object;
   @Input() title: string = 'Evolución de precio';
   @Input() product: Product | null = null; // Add Product Input
 
-  currentData: any;
-  baseData: any;
+  currentData?: ProductPriceChartData;
+  baseData?: ProductPriceChartData;
 
   priceOptions = [
     { label: 'Precio Paquete', value: 'package' },
@@ -32,11 +47,11 @@ export class ProductPriceChartComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['data'] && this.data) || (changes['product'] && this.product)) {
       if (this.data && !this.baseData) {
-        this.baseData = JSON.parse(JSON.stringify(this.data)); // Deep copy only once or if data changes
+        this.baseData = this.cloneChartData(this.data); // Deep copy only once or if data changes
       }
       // If data changed, update baseData
       if (changes['data'] && this.data) {
-        this.baseData = JSON.parse(JSON.stringify(this.data));
+        this.baseData = this.cloneChartData(this.data);
       }
 
       this.updateChartData();
@@ -47,11 +62,11 @@ export class ProductPriceChartComponent implements OnChanges {
     if (!this.baseData) return;
 
     // Clone base data to avoid mutating it
-    const newData = JSON.parse(JSON.stringify(this.baseData));
+    const newData = this.cloneChartData(this.baseData);
 
     // Apply transformation based on selected type
     if (newData.datasets) {
-      newData.datasets.forEach((dataset: any) => {
+      newData.datasets.forEach((dataset) => {
         // Update label based on selection
         const selectedOption = this.priceOptions.find((o) => o.value === this.selectedPriceType);
         if (selectedOption) {
@@ -92,5 +107,16 @@ export class ProductPriceChartComponent implements OnChanges {
     }
 
     this.currentData = newData;
+  }
+
+  private cloneChartData(data: ProductPriceChartData): ProductPriceChartData {
+    return {
+      labels: [...data.labels],
+      datasets: data.datasets.map((dataset) => ({
+        ...dataset,
+        data: [...dataset.data],
+        backgroundColor: Array.isArray(dataset.backgroundColor) ? [...dataset.backgroundColor] : dataset.backgroundColor
+      }))
+    };
   }
 }

@@ -2,7 +2,7 @@
   <div class="flex-1 w-full min-w-0">
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
-      <app-appcc-section-header-detail [viewMode]="viewMode" (viewModeChange)="viewMode = $event">
+      <app-appcc-section-header-detail [viewMode]="viewMode" (viewModeChange)="setViewMode($event)">
       </app-appcc-section-header-detail>
     </ng-template>
 
@@ -17,10 +17,10 @@
           <div
             *ngFor="let module of modules"
             (click)="openModule(module)"
-            class="rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary cursor-pointer group relative h-auto min-h-[180px] flex flex-col bg-surface-0 dark:bg-surface-900"
+            class="mg-dashboard-card cursor-pointer group relative h-auto min-h-[180px] flex flex-col"
             [class.ring-primary]="selectedModule?.id === module.id">
             <!-- Card Content -->
-            <div class="p-4 card mg-text flex-1 flex flex-col gap-3">
+            <div class="p-4 mg-text flex-1 flex flex-col gap-3">
               <!-- Header: Name & Icon -->
               <div class="flex items-start justify-between mb-1">
                 <span class="font-bold text-lg leading-tight">{{ module.title }}</span>
@@ -56,7 +56,7 @@
           <div
             *ngFor="let module of modules"
             (click)="openModule(module)"
-            class="border-b border-surface last:border-0 p-4 flex items-center gap-4 hover:bg-surface-50 dark:bg-surface-800 cursor-pointer group"
+            class="border-b border-surface last:border-0 p-4 flex items-center gap-4 hover:bg-surface-50 dark:hover:bg-surface-800 cursor-pointer group"
             [class.bg-surface-50 dark:bg-surface-800]="selectedModule?.id === module.id">
             <!-- Icon -->
             <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -101,20 +101,16 @@
       <!-- Sidebar / Details Panel -->
       <ng-container *ngIf="selectedModule">
         <!-- DESKTOP: Side Panel -->
-        <div
-          class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-2xl z-20 flex-col bg-surface-0 dark:bg-surface-900 border border-surface card">
+        <div class="mg-desktop-detail-panel border border-surface card">
           <ng-container *ngTemplateOutlet="detailContent"></ng-container>
         </div>
 
         <!-- MOBILE: Bottom Sheet -->
-        <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
-          <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeModule()"></div>
-          <div
-            class="relative w-full h-[85vh] bg-surface-0 dark:bg-surface-900 rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col overflow-hidden">
-            <div
-              class="w-full flex justify-center pt-4 pb-2 bg-surface-0 dark:bg-surface-900 shrink-0 cursor-grab active:cursor-grabbing"
-              (click)="closeModule()">
-              <div class="w-12 h-1.5 bg-surface-300 dark:bg-surface-600 rounded-full"></div>
+        <div class="mg-mobile-overlay">
+          <div class="mg-mobile-backdrop" (click)="closeModule()"></div>
+          <div class="mg-bottom-sheet">
+            <div class="mg-bottom-sheet-handle" (click)="closeModule()">
+              <div class="mg-bottom-sheet-handle-bar"></div>
             </div>
             <div class="flex-1 overflow-hidden relative flex flex-col">
               <ng-container *ngTemplateOutlet="detailContent"></ng-container>
@@ -247,14 +243,12 @@
             <!-- Equipment List -->
             <div *ngIf="savedEquipment.length > 0" class="flex flex-col gap-3">
               <h3 class="text-sm font-medium mg-text-muted uppercase tracking-wide mb-2">Equipos registrados</h3>
-              <div
-                *ngFor="let eq of savedEquipment"
-                class="bg-surface-0 dark:bg-surface-900 rounded-lg border border-surface p-4">
+              <div *ngFor="let eq of savedEquipment" class="mg-surface rounded-lg p-4">
                 <!-- Top Row: Equipment Info -->
                 <div class="flex items-center gap-4 mb-3 cursor-pointer" (click)="selectEquipment(eq)">
                   <!-- Icon -->
                   <div
-                    class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                    class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <app-icon name="kitchen" size="md"></app-icon>
                   </div>
                   <!-- Info -->
@@ -267,7 +261,7 @@
                       <span class="bg-surface-100 dark:bg-surface-800 px-2 py-0.5 rounded">{{
                         getLocationLabel(eq.location)
                       }}</span>
-                      <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{{
+                      <span class="mg-feature-pill-muted">{{
                         eq.temperatureRange === 'frio_positivo' ? '0ºC - 4ºC' : '-18ºC'
                       }}</span>
                     </div>
@@ -324,7 +318,7 @@
               <div class="flex items-start justify-between">
                 <div class="flex items-center gap-4">
                   <div
-                    class="w-14 h-14 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+                    class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <app-icon name="kitchen" size="lg"></app-icon>
                   </div>
                   <div>
@@ -336,7 +330,7 @@
                   </div>
                 </div>
                 <div class="text-right">
-                  <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
+                  <span class="mg-feature-pill-muted">
                     {{ getTemperatureRangeLabel(selectedEquipment.temperatureRange) }}
                   </span>
                 </div>
@@ -360,9 +354,7 @@
                 </div>
                 <div>
                   <p class="text-xs mg-text-muted uppercase tracking-wide">Estado</p>
-                  <span class="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700"
-                    >OK</span
-                  >
+                  <span class="inline-block mt-1 mg-feature-pill">OK</span>
                 </div>
               </div>
             </div>
@@ -376,7 +368,7 @@
                   *ngFor="let record of getEquipmentRecords(selectedEquipment.equipmentId)"
                   class="flex items-center justify-between py-2 px-3 bg-surface-50 dark:bg-surface-800 rounded-lg">
                   <div class="flex items-center gap-3">
-                    <app-icon name="thermostat" size="sm" class="text-blue-500"></app-icon>
+                    <app-icon name="thermostat" size="sm" class="text-primary"></app-icon>
                     <span class="font-bold text-lg mg-text">{{ record.temperature }}ºC</span>
                   </div>
                   <div class="text-right text-sm mg-text-muted">

@@ -188,7 +188,7 @@
   <!-- Mobile FAB (Floating Action Button) - Bottom Left -->
   <button
     *ngxPermissionsOnly="[P.DocumentsWrite]"
-    class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary dark:bg-primary text-primary-contrast shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-primary-emphasis dark:hover:bg-primary-emphasis"
+    class="mg-mobile-fab"
     (click)="openAddInvoiceModal()"
     pTooltip="Subir factura"
     tooltipPosition="right">
@@ -203,7 +203,7 @@
 <ng-container *ngIf="selectedCategory">
   <div class="md:hidden fixed top-0 left-0 w-screen h-[100dvh] z-[3000] flex items-start justify-end overflow-hidden">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCategoryDetail()"></div>
+    <div class="mg-mobile-backdrop" (click)="closeCategoryDetail()"></div>
 
     <!-- Panel -->
     <div
@@ -267,14 +267,11 @@
 
 <!-- Product Mobile Sheet -->
 <ng-container *ngIf="selectedProduct">
-  <div class="md:hidden fixed inset-0 z-[3001] flex items-end justify-center">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
-    <div
-      class="relative w-full h-[85vh] bg-surface-0 dark:bg-surface-900 rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-      <div
-        class="w-full flex justify-center pt-4 pb-2 bg-surface-0 dark:bg-surface-900 shrink-0 cursor-grab active:cursor-grabbing"
-        (click)="hideDialog()">
-        <div class="w-12 h-1.5 bg-surface-300 dark:bg-surface-600 rounded-full"></div>
+  <div class="mg-mobile-overlay z-[3001]">
+    <div class="mg-mobile-backdrop" (click)="hideDialog()"></div>
+    <div class="mg-bottom-sheet">
+      <div class="mg-bottom-sheet-handle" (click)="hideDialog()">
+        <div class="mg-bottom-sheet-handle-bar"></div>
       </div>
       <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
         <app-product-detail

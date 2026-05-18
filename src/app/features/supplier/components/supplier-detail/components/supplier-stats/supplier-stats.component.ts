@@ -3,8 +3,27 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
 import { DropdownModule } from 'primeng/dropdown';
-import { IconComponent } from '@shared/components/icon/icon.component';
 import { Invoice } from '../../../../../../core/interfaces/Invoice.interfaces';
+
+interface SupplierChartDataset {
+  label: string;
+  data: number[];
+  backgroundColor: string;
+  hoverBackgroundColor: string;
+  borderRadius: number;
+  barThickness: number;
+}
+
+interface SupplierChartData {
+  labels: string[];
+  datasets: SupplierChartDataset[];
+}
+
+interface SupplierChartTooltipContext {
+  parsed: {
+    y: number;
+  };
+}
 
 @Component({
   selector: 'app-supplier-stats',
@@ -17,9 +36,9 @@ export class SupplierStatsComponent implements OnChanges {
 
   showStats = true;
 
-  chartData: any;
-  historyChartData: any;
-  chartOptions: any;
+  chartData?: SupplierChartData;
+  historyChartData?: SupplierChartData;
+  chartOptions?: object;
 
   availableYears: { label: string; value: number }[] = [];
   selectedYear: number = new Date().getFullYear();
@@ -48,7 +67,7 @@ export class SupplierStatsComponent implements OnChanges {
           cornerRadius: 4,
           displayColors: false,
           callbacks: {
-            label: function (context: any) {
+            label: function (context: SupplierChartTooltipContext) {
               return context.parsed.y + ' EUR';
             }
           }

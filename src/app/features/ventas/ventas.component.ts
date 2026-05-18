@@ -30,7 +30,7 @@ import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.
 })
 export class VentasComponent implements OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   ngAfterViewInit() {
     setTimeout(() => {

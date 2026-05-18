@@ -442,53 +442,17 @@
     <!-- Right: Panel Lateral Genérico -->
     <ng-container *ngIf="activePanel">
       <!-- DESKTOP: Side Panel -->
-      <div
-        class="hidden md:flex w-full md:w-3/4 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-2xl z-20 flex-col mg-surface min-h-[400px]">
+      <div class="mg-desktop-detail-panel mg-surface min-h-[400px]">
         <!-- Panel Header -->
         <div
           class="px-6 py-4 border-b border-surface flex items-center justify-between bg-surface-50 dark:bg-surface-800/50">
           <div class="flex items-center gap-3">
             <div class="mg-dashboard-icon">
-              <app-icon
-                [name]="
-                  activePanel === 'suppliers'
-                    ? 'local_shipping'
-                    : activePanel === 'products'
-                      ? 'inventory_2'
-                      : activePanel === 'articles'
-                        ? 'restaurant'
-                        : activePanel === 'gestoria'
-                          ? 'description'
-                          : activePanel === 'staff'
-                            ? 'group'
-                            : activePanel === 'appcc'
-                              ? 'shield'
-                              : activePanel === 'docs'
-                                ? 'folder'
-                                : 'bar_chart'
-                "
-                size="xl"
-                class="text-primary"></app-icon>
+              <app-icon [name]="getPanelIcon(activePanel)" size="xl" class="text-primary"></app-icon>
             </div>
             <div>
               <h2 class="text-lg font-bold mg-text m-0">
-                {{
-                  activePanel === 'suppliers'
-                    ? 'Proveedores'
-                    : activePanel === 'products'
-                      ? 'Productos'
-                      : activePanel === 'articles'
-                        ? 'Artículos'
-                        : activePanel === 'gestoria'
-                          ? 'Gestoría'
-                          : activePanel === 'staff'
-                            ? 'Personal'
-                            : activePanel === 'appcc'
-                              ? 'APPCC'
-                              : activePanel === 'docs'
-                                ? 'Documentos'
-                                : 'Ventas'
-                }}
+                {{ getPanelTitle(activePanel) }}
               </h2>
               <p class="text-xs mg-text-muted m-0">Análisis detallado</p>
             </div>
@@ -560,26 +524,7 @@
           <ng-container *ngIf="activePanel !== 'suppliers'">
             <div class="flex-1 flex items-center justify-center">
               <div class="text-center">
-                <app-icon
-                  [name]="
-                    activePanel === 'products'
-                      ? 'inventory_2'
-                      : activePanel === 'articles'
-                        ? 'restaurant'
-                        : activePanel === 'gestoria'
-                          ? 'description'
-                          : activePanel === 'sales'
-                            ? 'payments'
-                            : activePanel === 'staff'
-                              ? 'group'
-                              : activePanel === 'appcc'
-                                ? 'shield'
-                                : activePanel === 'docs'
-                                  ? 'folder'
-                                  : 'bar_chart'
-                  "
-                  size="6xl"
-                  class="mg-icon-muted mb-4"></app-icon>
+                <app-icon [name]="getPanelIcon(activePanel)" size="6xl" class="mg-icon-muted mb-4"></app-icon>
                 <h3 class="text-lg font-bold mg-text m-0">Más métricas</h3>
                 <p class="mg-text-muted text-sm italic mt-1">Próximamente</p>
               </div>
@@ -589,32 +534,15 @@
       </div>
 
       <!-- MOBILE: Bottom Sheet -->
-      <div class="md:hidden fixed inset-0 z-50 flex items-end justify-center">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closePanel()"></div>
-        <div
-          class="relative w-full h-[70vh] mg-surface rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-          <div class="w-full flex justify-center pt-4 pb-2 shrink-0 cursor-grab" (click)="closePanel()">
-            <div class="w-12 h-1.5 bg-surface-300 dark:bg-surface-600 rounded-full"></div>
+      <div class="mg-mobile-overlay">
+        <div class="mg-mobile-backdrop" (click)="closePanel()"></div>
+        <div class="mg-bottom-sheet h-[70vh]">
+          <div class="mg-bottom-sheet-handle" (click)="closePanel()">
+            <div class="mg-bottom-sheet-handle-bar"></div>
           </div>
           <div class="px-6 py-3 border-b border-surface flex items-center justify-between">
             <h2 class="text-lg font-bold mg-text m-0">
-              {{
-                activePanel === 'suppliers'
-                  ? 'Métricas Proveedores'
-                  : activePanel === 'products'
-                    ? 'Métricas Productos'
-                    : activePanel === 'articles'
-                      ? 'Métricas Artículos'
-                      : activePanel === 'gestoria'
-                        ? 'Métricas Gestoría'
-                        : activePanel === 'staff'
-                          ? 'Métricas Personal'
-                          : activePanel === 'appcc'
-                            ? 'Métricas APPCC'
-                            : activePanel === 'docs'
-                              ? 'Métricas Documentos'
-                              : 'Métricas Ventas'
-              }}
+              {{ getMobilePanelTitle(activePanel) }}
             </h2>
             <button class="mg-text-muted" (click)="closePanel()">
               <app-icon name="close" size="md"></app-icon>
@@ -622,26 +550,7 @@
           </div>
           <div class="flex-1 flex items-center justify-center p-6">
             <div class="text-center">
-              <app-icon
-                [name]="
-                  activePanel === 'suppliers'
-                    ? 'pie_chart'
-                    : activePanel === 'products'
-                      ? 'inventory_2'
-                      : activePanel === 'gestoria'
-                        ? 'description'
-                        : activePanel === 'sales'
-                          ? 'payments'
-                          : activePanel === 'staff'
-                            ? 'group'
-                            : activePanel === 'appcc'
-                              ? 'shield'
-                              : activePanel === 'docs'
-                                ? 'folder'
-                                : 'restaurant'
-                "
-                size="5xl"
-                class="mg-icon-muted mb-4"></app-icon>
+              <app-icon [name]="getPanelIcon(activePanel)" size="5xl" class="mg-icon-muted mb-4"></app-icon>
               <h3 class="text-lg font-bold mg-text m-0">Más métricas</h3>
               <p class="mg-text-muted text-sm italic mt-1">Próximamente</p>
             </div>
@@ -651,21 +560,3 @@
     </ng-container>
   </div>
 </div>
-
-<style>
-  @keyframes slide-up {
-    from {
-      transform: translateY(100%);
-      opacity: 0.5;
-    }
-
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-</style>

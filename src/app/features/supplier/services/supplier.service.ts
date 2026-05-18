@@ -4,6 +4,11 @@ import { BaseHttpService } from '../../../core/services/base-http.service';
 import { environment } from '../../../../environments/environment';
 import { CreateSupplierDto, Supplier, UpdateSupplierDto } from '../interfaces/supplier.interface';
 
+export interface SupplierPriceHistoryEntry {
+  date: string;
+  price: string | number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -36,7 +41,7 @@ export class SupplierService extends BaseHttpService {
     return this.get<Supplier | null>(`${this.API_URL}/search?taxId=${taxId}`);
   }
 
-  getPriceHistory(id: string): Observable<any> {
-    return this.get<any>(`${this.API_URL}/products/${id}/price-history`);
+  getPriceHistory(id: string): Observable<SupplierPriceHistoryEntry[]> {
+    return this.get<SupplierPriceHistoryEntry[]>(`${this.API_URL}/products/${id}/price-history`);
   }
 }

@@ -1,14 +1,15 @@
-import { Component, Input, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, Input, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { AutoCompleteModule } from 'primeng/autocomplete';
+import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { Textarea } from 'primeng/textarea';
-import { MenuModule } from 'primeng/menu';
+import { Menu, MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { Product } from '@app/core/interfaces/Invoice.interfaces';
 import { ToastService } from '@shared/services/toast.service';
@@ -27,10 +28,21 @@ import { FoodPreparationTypeService } from '../../services/food-preparation-type
 
 export interface IngredientRow {
   type: 'ingredient' | 'elaboration';
-  selectedItem: any;
+  selectedItem: IngredientOption | null;
   amount: string;
   unit: 'g' | 'ud';
 }
+
+interface IngredientOption {
+  id: string;
+  name: string;
+  pricePerUnit?: number | null;
+  pricePerKg?: number | null;
+  estimatedTotalCost?: number;
+  estimatedCostPerKg?: number | null;
+}
+
+type FilledIngredientRow = IngredientRow & { selectedItem: IngredientOption };
 
 @Component({
   selector: 'app-preparations-content',
@@ -55,6 +67,7 @@ export class PreparationsContentComponent implements OnInit {
   private foodPreparationService = inject(FoodPreparationService);
   private foodPreparationTypeService = inject(FoodPreparationTypeService);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() availableProducts: Product[] = [];
   @Input() type: 'elaboration' | 'article' = 'elaboration';
@@ -119,7 +132,7 @@ export class PreparationsContentComponent implements OnInit {
     { label: 'Unidades', value: 'ud' }
   ];
 
-  filteredItems: any[] = [];
+  filteredItems: IngredientOption[] = [];
 
   ingredientTypes = [
     { label: 'Ingrediente', value: 'ingredient' },
@@ -130,34 +143,46 @@ export class PreparationsContentComponent implements OnInit {
   ngOnInit() {
     this.loadPreparations();
     this.loadPreparationType();
-    this.utensilService.getUtensils().subscribe({
-      next: (utensils) => this.allUtensils.set(utensils),
-      error: () => {}
-    });
-    this.machineryService.getMachinery().subscribe({
-      next: (machinery) => this.allMachinery.set(machinery),
-      error: () => {}
-    });
+    this.utensilService
+      .getUtensils()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (utensils) => this.allUtensils.set(utensils),
+        error: () => {}
+      });
+    this.machineryService
+      .getMachinery()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (machinery) => this.allMachinery.set(machinery),
+        error: () => {}
+      });
   }
 
   loadPreparations() {
-    this.foodPreparationService.getAll().subscribe({
-      next: (all) => {
-        this.preparations.set(all.filter((p) => p.type?.type === this.type));
-        this.allElaborations.set(all.filter((p) => p.type?.type === 'elaboration'));
-      },
-      error: () => {}
-    });
+    this.foodPreparationService
+      .getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (all) => {
+          this.preparations.set(all.filter((p) => p.type?.type === this.type));
+          this.allElaborations.set(all.filter((p) => p.type?.type === 'elaboration'));
+        },
+        error: () => {}
+      });
   }
 
   private loadPreparationType() {
-    this.foodPreparationTypeService.getTypes().subscribe({
-      next: (types) => {
-        const found = types.find((t) => t.type === this.type) ?? null;
-        this.preparationType.set(found);
-      },
-      error: () => {}
-    });
+    this.foodPreparationTypeService
+      .getTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => {
+          const found = types.find((t) => t.type === this.type) ?? null;
+          this.preparationType.set(found);
+        },
+        error: () => {}
+      });
   }
 
   // ─── Shell navigation ───────────────────────────────────────────────────────
@@ -166,15 +191,18 @@ export class PreparationsContentComponent implements OnInit {
     this.resetForm();
     this.isLoadingDetail.set(true);
     this.selectedPreparation.set(preparation);
-    this.foodPreparationService.getOne(preparation.id).subscribe({
-      next: (full) => {
-        this.selectedPreparation.set(full);
-        this.isLoadingDetail.set(false);
-      },
-      error: () => {
-        this.isLoadingDetail.set(false);
-      }
-    });
+    this.foodPreparationService
+      .getOne(preparation.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (full) => {
+          this.selectedPreparation.set(full);
+          this.isLoadingDetail.set(false);
+        },
+        error: () => {
+          this.isLoadingDetail.set(false);
+        }
+      });
   }
 
   closeDetail() {
@@ -238,7 +266,7 @@ export class PreparationsContentComponent implements OnInit {
   }
 
   // ─── Context menu ────────────────────────────────────────────────────────────
-  openMenu(event: Event, preparation: FoodPreparation, menu: any) {
+  openMenu(event: Event, preparation: FoodPreparation, menu: Menu) {
     event.stopPropagation();
     this.activeMenuPreparation = preparation;
     this.menuItems.set([
@@ -266,18 +294,21 @@ export class PreparationsContentComponent implements OnInit {
   }
 
   deletePreparation(preparation: FoodPreparation) {
-    this.foodPreparationService.remove(preparation.id).subscribe({
-      next: () => {
-        this.toastService.success('Eliminada', `"${preparation.name}" ha sido eliminada`);
-        if (this.selectedPreparation()?.id === preparation.id) {
-          this.selectedPreparation.set(null);
+    this.foodPreparationService
+      .remove(preparation.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Eliminada', `"${preparation.name}" ha sido eliminada`);
+          if (this.selectedPreparation()?.id === preparation.id) {
+            this.selectedPreparation.set(null);
+          }
+          this.loadPreparations();
+        },
+        error: () => {
+          this.toastService.error('Error', `No se pudo eliminar`);
         }
-        this.loadPreparations();
-      },
-      error: () => {
-        this.toastService.error('Error', `No se pudo eliminar`);
-      }
-    });
+      });
   }
 
   // ─── Ingredient helpers ──────────────────────────────────────────────────────
@@ -311,19 +342,19 @@ export class PreparationsContentComponent implements OnInit {
     this.ingredientRows.update((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
 
-  getAvailableItems(type: 'ingredient' | 'elaboration'): any[] {
+  getAvailableItems(type: 'ingredient' | 'elaboration'): IngredientOption[] {
     return type === 'ingredient' ? this.availableProducts : this.allElaborations();
   }
 
-  filterItems(event: any, type: 'ingredient' | 'elaboration') {
+  filterItems(event: AutoCompleteCompleteEvent, type: 'ingredient' | 'elaboration') {
     const query = event.query.toLowerCase();
     let items = this.getAvailableItems(type);
 
     if (type === 'elaboration' && this.editingId()) {
-      items = items.filter((item: any) => item.id !== this.editingId());
+      items = items.filter((item) => item.id !== this.editingId());
     }
 
-    this.filteredItems = items.filter((item: any) => item.name.toLowerCase().includes(query));
+    this.filteredItems = items.filter((item) => item.name.toLowerCase().includes(query));
   }
 
   // ─── Price ──────────────────────────────────────────────────────────────────
@@ -333,7 +364,7 @@ export class PreparationsContentComponent implements OnInit {
 
     // Sub-elaboration: use backend cost estimates for the selected amount.
     if (row.type === 'elaboration') {
-      const elab = row.selectedItem as FoodPreparation;
+      const elab = row.selectedItem;
       if (row.unit === 'g') {
         return elab.estimatedCostPerKg != null ? (amount / 1000) * elab.estimatedCostPerKg : null;
       }
@@ -346,7 +377,7 @@ export class PreparationsContentComponent implements OnInit {
     }
 
     // Ingredient: calculate from product prices
-    const product = row.selectedItem as Product;
+    const product = row.selectedItem;
 
     if (row.unit === 'g') {
       if (product.pricePerKg != null && product.pricePerKg > 0) {
@@ -386,12 +417,14 @@ export class PreparationsContentComponent implements OnInit {
       return;
     }
 
-    const filledRows = this.ingredientRows().filter((row) => row.selectedItem?.id && row.amount);
+    const filledRows = this.ingredientRows().filter((row): row is FilledIngredientRow =>
+      Boolean(row.selectedItem?.id && row.amount)
+    );
 
     const ingredients = filledRows
       .filter((row) => row.type === 'ingredient')
       .map((row) => ({
-        enterpriseProductId: row.selectedItem.id as string,
+        enterpriseProductId: row.selectedItem.id,
         measure: row.unit,
         quantity: parseFloat(row.amount)
       }));
@@ -399,7 +432,7 @@ export class PreparationsContentComponent implements OnInit {
     const subPreparations = filledRows
       .filter((row) => row.type === 'elaboration')
       .map((row) => ({
-        oldFoodPreparationId: row.selectedItem.id as string,
+        oldFoodPreparationId: row.selectedItem.id,
         measure: row.unit,
         quantity: parseFloat(row.amount)
       }));
@@ -422,20 +455,26 @@ export class PreparationsContentComponent implements OnInit {
         machineryIds
       };
 
-      this.foodPreparationService.update(this.editingId()!, dto).subscribe({
-        next: (updated) => {
-          this.isSaving.set(false);
-          this.toastService.success(`${this.typeLabel} actualizada`, `"${updated.name}" se ha guardado correctamente`);
-          this.isEditMode.set(false);
-          this.resetForm();
-          this.loadPreparations();
-          this.openDetail(updated);
-        },
-        error: () => {
-          this.isSaving.set(false);
-          this.toastService.error('Error', `No se pudo actualizar`);
-        }
-      });
+      this.foodPreparationService
+        .update(this.editingId()!, dto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updated) => {
+            this.isSaving.set(false);
+            this.toastService.success(
+              `${this.typeLabel} actualizada`,
+              `"${updated.name}" se ha guardado correctamente`
+            );
+            this.isEditMode.set(false);
+            this.resetForm();
+            this.loadPreparations();
+            this.openDetail(updated);
+          },
+          error: () => {
+            this.isSaving.set(false);
+            this.toastService.error('Error', `No se pudo actualizar`);
+          }
+        });
       return;
     }
 
@@ -456,19 +495,22 @@ export class PreparationsContentComponent implements OnInit {
       machineryIds
     };
 
-    this.foodPreparationService.create(createDto).subscribe({
-      next: (created) => {
-        this.isSaving.set(false);
-        this.toastService.success(`${this.typeLabel} creada`, `Se ha creado correctamente`);
-        this.resetForm();
-        this.isEditMode.set(false);
-        this.loadPreparations();
-        this.openDetail(created);
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.toastService.error('Error', `No se pudo crear`);
-      }
-    });
+    this.foodPreparationService
+      .create(createDto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (created) => {
+          this.isSaving.set(false);
+          this.toastService.success(`${this.typeLabel} creada`, `Se ha creado correctamente`);
+          this.resetForm();
+          this.isEditMode.set(false);
+          this.loadPreparations();
+          this.openDetail(created);
+        },
+        error: () => {
+          this.isSaving.set(false);
+          this.toastService.error('Error', `No se pudo crear`);
+        }
+      });
   }
 }

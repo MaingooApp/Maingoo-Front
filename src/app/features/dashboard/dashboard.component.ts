@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KpiSlotComponent } from './components/kpi-slot/kpi-slot.component';
@@ -16,6 +17,31 @@ import { ToastService } from '@app/shared/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
+
+type DashboardPanel = 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | 'appcc' | 'docs';
+
+interface DashboardChartDataset {
+  label?: string;
+  data: number[];
+  backgroundColor: string | string[];
+  hoverBackgroundColor?: string[];
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+}
+
+interface DashboardChartData {
+  labels: string[];
+  datasets: DashboardChartDataset[];
+}
+
+interface ChartTooltipContext {
+  raw: number;
+  label?: string;
+  dataset: {
+    label?: string;
+  };
+}
 
 /**
  * Componente principal del Dashboard
@@ -43,6 +69,7 @@ export class Dashboard implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private cd = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   /** Observable del slot de Actividad con estado loading inicial */
   actividadSlot$!: Observable<KpiSlotVM>;
@@ -54,8 +81,8 @@ export class Dashboard implements OnInit {
   actionsSlot$!: Observable<KpiSlotVM>;
 
   /** Datos del pie chart de proveedores */
-  supplierChartData: any;
-  supplierChartOptions: any;
+  supplierChartData?: DashboardChartData;
+  supplierChartOptions?: object;
   supplierChartLoading = true;
   supplierChartTotal = 0;
 
@@ -65,15 +92,15 @@ export class Dashboard implements OnInit {
   /** Almacén de todas las facturas para filtrar localmente */
   private allInvoices: Invoice[] = [];
 
-  /** Panel lateral activo: null = cerrado, 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' */
-  activePanel: 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | 'appcc' | 'docs' | null = null;
+  /** Panel lateral activo: null = cerrado */
+  activePanel: DashboardPanel | null = null;
 
   /** Lista resumen de proveedores para el panel */
   supplierSummary: { name: string; total: number; color: string }[] = [];
 
   /** Bar chart de gasto mensual por proveedor */
-  monthlyExpenseChartData: any;
-  monthlyExpenseChartOptions: any;
+  monthlyExpenseChartData?: DashboardChartData;
+  monthlyExpenseChartOptions?: object;
   monthlyExpenseChartLoading = false;
 
   /** Opciones de año para el selector del bar chart */
@@ -267,19 +294,22 @@ export class Dashboard implements OnInit {
   loadSupplierChart(): void {
     this.supplierChartLoading = true;
 
-    this.invoiceService.getInvoices().subscribe({
-      next: (invoices) => {
-        this.allInvoices = invoices;
-        this.updateSupplierChart();
-        this.supplierChartLoading = false;
-        this.cd.markForCheck();
-      },
-      error: (err) => {
-        console.error('Error cargando facturas para el gráfico:', err);
-        this.supplierChartLoading = false;
-        this.cd.markForCheck();
-      }
-    });
+    this.invoiceService
+      .getInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (invoices) => {
+          this.allInvoices = invoices;
+          this.updateSupplierChart();
+          this.supplierChartLoading = false;
+          this.cd.markForCheck();
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudieron cargar las facturas del dashboard.');
+          this.supplierChartLoading = false;
+          this.cd.markForCheck();
+        }
+      });
   }
 
   /**
@@ -431,8 +461,8 @@ export class Dashboard implements OnInit {
           },
           tooltip: {
             callbacks: {
-              label: (context: any) => {
-                const value = context.raw as number;
+              label: (context: ChartTooltipContext) => {
+                const value = Number(context.raw || 0);
                 return ` ${context.dataset.label}: ${this.formatCurrency(value)}`;
               }
             }
@@ -492,8 +522,8 @@ export class Dashboard implements OnInit {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (context: any) => {
-                const value = context.raw as number;
+              label: (context: ChartTooltipContext) => {
+                const value = Number(context.raw || 0);
                 return ` ${this.formatCurrency(value)}`;
               }
             }
@@ -600,8 +630,8 @@ export class Dashboard implements OnInit {
         },
         tooltip: {
           callbacks: {
-            label: (context: any) => {
-              const value = context.raw as number;
+            label: (context: ChartTooltipContext) => {
+              const value = Number(context.raw || 0);
               return ` ${context.label}: ${this.formatCurrency(value)}`;
             }
           }
@@ -662,14 +692,12 @@ export class Dashboard implements OnInit {
   /**
    * Handler para click en un slot/slide
    */
-  onSlotClick(event: KpiSlotClickEvent): void {
-    console.log('🔵 Slot Click:', event);
-  }
+  onSlotClick(_event: KpiSlotClickEvent): void {}
 
   /**
    * Abre un panel lateral de métricas
    */
-  openPanel(panel: 'suppliers' | 'products' | 'articles' | 'sales' | 'gestoria' | 'staff' | 'appcc' | 'docs'): void {
+  openPanel(panel: DashboardPanel): void {
     this.activePanel = panel;
 
     // Inicializar bar chart cuando se abre el panel de proveedores
@@ -688,15 +716,46 @@ export class Dashboard implements OnInit {
   /**
    * Handler para cambio de slide
    */
-  onSlideChange(event: KpiSlideChangeEvent): void {
-    console.log('🔄 Slide Change:', event);
+  onSlideChange(_event: KpiSlideChangeEvent): void {}
+
+  getPanelIcon(panel: DashboardPanel): string {
+    const icons: Record<DashboardPanel, string> = {
+      suppliers: 'local_shipping',
+      products: 'inventory_2',
+      articles: 'restaurant',
+      sales: 'payments',
+      staff: 'group',
+      gestoria: 'description',
+      appcc: 'shield',
+      docs: 'folder'
+    };
+
+    return icons[panel];
+  }
+
+  getPanelTitle(panel: DashboardPanel): string {
+    const titles: Record<DashboardPanel, string> = {
+      suppliers: 'Proveedores',
+      products: 'Productos',
+      articles: 'Artículos',
+      sales: 'Ventas',
+      staff: 'Personal',
+      gestoria: 'Gestoría',
+      appcc: 'APPCC',
+      docs: 'Documentos'
+    };
+
+    return titles[panel];
+  }
+
+  getMobilePanelTitle(panel: DashboardPanel): string {
+    return `Métricas ${this.getPanelTitle(panel)}`;
   }
 
   /**
    * Handler para retry tras error en slot Actividad
    */
   onRetryActividad(): void {
-    console.log('🔄 Retry Actividad requested');
     this.loadActividadSlot();
   }
 
@@ -704,7 +763,6 @@ export class Dashboard implements OnInit {
    * Handler para retry tras error en slot Incidencias
    */
   onRetryIncidencias(): void {
-    console.log('🔄 Retry Incidencias requested');
     this.loadIncidenciasSlot();
   }
 }
