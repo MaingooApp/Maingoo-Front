@@ -29,8 +29,9 @@ Maingoo Front is the Angular frontend for Maingoo, a SaaS application for busine
 - `npm start`: run the Angular dev server with development configuration.
 - `npm run build`: create a production build in `dist/OmniAI`.
 - `npm run watch`: build continuously using the development configuration.
+- `npm run lint`: run ESLint flat config for Angular, TypeScript and templates.
 - `npm test`: run Karma/Jasmine unit tests.
-- `npm run format`: format JS, TS, declaration and HTML files with Prettier.
+- `npm run format`: format the repository with Prettier.
 - `npm run format:check`: verify formatting without writing changes.
 
 Install dependencies with `npm install` and keep `package-lock.json` committed when dependencies change.
@@ -66,7 +67,8 @@ Use PrimeNG MCP whenever implementing or reviewing PrimeNG components, propertie
 
 - Follow Angular standalone patterns already present in the repo.
 - Use TypeScript interfaces from `core/interfaces` or feature-local `interfaces` folders instead of ad hoc object shapes.
-- Avoid introducing new `any`; replace existing `any` opportunistically when touching nearby code.
+- Do not introduce explicit `any`. Use domain interfaces, `unknown`, generics or small local types instead.
+- Do not leave `console.*` calls in application code. Surface errors through toasts, UI state, interceptors or typed return values.
 - Keep feature-specific code inside its feature folder.
 - Move code to `shared` only after it is reused by multiple features.
 - Use SCSS for component-specific styling only when Tailwind and PrimeNG classes are not enough.
@@ -79,9 +81,11 @@ Use PrimeNG MCP whenever implementing or reviewing PrimeNG components, propertie
 - Prefer PrimeNG components for accessible, stateful UI such as tables, dialogs, confirms, toasts, selects, checkboxes, charts, file uploads, tooltips and buttons.
 - Use Tailwind for layout, responsive behavior and small visual adjustments.
 - Dark mode must be based on PrimeNG theme tokens and the `.app-dark` selector. Prefer `surface-*`, `text-surface-*`, `border-surface` and shared `mg-*` utility classes over hardcoded `bg-white`, `text-gray-*`, `border-gray-*` or brand hex colors for structural UI.
-- Current shared dark-mode helpers live in `src/tailwind.css`: `mg-surface`, `mg-surface-muted`, `mg-surface-soft`, `mg-text`, `mg-text-muted`, `mg-icon-muted`, `mg-dashboard-card`, `mg-dashboard-icon`, `mg-dashboard-link` and `mg-demo-badge`.
+- Current shared UI helpers live in `src/tailwind.css`. Prefer them for recurring surfaces, text, cards, panels, mobile sheets, FABs, topbar/sidebar actions, pills and demo badges.
+- Keep `group` explicit in templates when a helper relies on `group-hover`; do not hide Tailwind's `group` utility inside `@apply`.
 - New features should compose these helpers with PrimeNG components instead of reintroducing local color systems.
 - Keep buttons, filters, tables, dialogs, detail panels, empty states and skeletons visually consistent across features.
+- Use global Tailwind animations from `tailwind.config.js` (`animate-slide-up`, `animate-slide-left`, `animate-slide-in-right`) instead of local inline `<style>` blocks for repeated transitions.
 - Avoid duplicating global overlay hosts. `p-toast` and `p-confirmDialog` should normally live at app level, not in individual feature pages.
 - When creating a reusable component, document its inputs/outputs through clear typing and simple naming.
 - Make icon-only controls accessible with labels or tooltips and keyboard-safe focus behavior.
@@ -92,6 +96,7 @@ Use PrimeNG MCP whenever implementing or reviewing PrimeNG components, propertie
 - Keep auth, permissions, HTTP error handling and environment configuration centralized.
 - Keep heavy data transformation out of templates. Prefer typed helpers, computed signals or feature services.
 - Use RxJS subscriptions carefully. Prefer `takeUntilDestroyed`, `async` pipe or signals for long-lived streams.
+- HTTP subscriptions inside components should use `takeUntilDestroyed` unless they are one-shot flows already handled by a shared service or modal lifecycle.
 - Avoid mixing business rules into visual-only components.
 - Keep dialogs/modals behind shared services or consistent feature patterns.
 - Preserve lazy loading where route boundaries make sense.
@@ -111,9 +116,11 @@ Current expected baseline:
 
 - `npx tsc --noEmit -p tsconfig.app.json` passes.
 - `npx tailwindcss -i src/tailwind.css -o /tmp/maingoo-tailwind.css --config tailwind.config.js` passes.
-- `npx eslint . --max-warnings=0` currently fails because `eslint.config.js` uses legacy config keys that are incompatible with ESLint 9 flat config.
+- `npm run lint -- --max-warnings=0` passes.
+- `npm run format:check` passes.
+- `rg -n 'console\.|\bany\b' src/app --glob '*.{ts,html}'` should return no matches.
 - Test coverage is low: only 4 specs exist for a large frontend.
-- Known debt includes `any`, `console.log`, manual subscriptions, duplicated PrimeNG overlays and token persistence in `localStorage`.
+- Known debt includes relaxed ESLint rules for existing template accessibility issues, token persistence in `localStorage`, limited automated visual coverage and low unit-test coverage.
 
 Treat these as known baseline issues. Do not hide new regressions inside broad cleanup unless the user explicitly asks for a cleanup pass.
 
@@ -155,6 +162,6 @@ Pull requests should include a short summary, linked issue or task when availabl
 
 - Environment files live in `src/environments`.
 - Do not commit secrets, tokens or production-only credentials.
-- Review logs before committing; avoid `console.log` in auth, invoices, documents, profile or business-sensitive flows.
+- Review logs before committing; `console.*` should not be used in `src/app`.
 - Token storage in `localStorage` is a known risk. Prefer a stronger session strategy when backend support allows it.
 - Treat chat/document HTML as untrusted unless it is explicitly sanitized and controlled.

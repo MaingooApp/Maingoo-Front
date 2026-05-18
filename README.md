@@ -26,6 +26,7 @@ npm install
 npm start
 npm run build
 npm run watch
+npm run lint
 npm test
 npm run format
 npm run format:check
@@ -34,6 +35,7 @@ npm run format:check
 - `npm start`: levanta el servidor Angular en configuracion de desarrollo.
 - `npm run build`: genera build de produccion en `dist/OmniAI`.
 - `npm run watch`: build continuo en modo desarrollo.
+- `npm run lint`: ejecuta ESLint con flat config para Angular/TypeScript/templates.
 - `npm test`: ejecuta unit tests con Karma/Jasmine.
 - `npm run format`: aplica Prettier.
 - `npm run format:check`: comprueba formato sin modificar archivos.
@@ -44,6 +46,8 @@ npm run format:check
 - Mantiene cada feature autocontenida; mueve codigo a `shared` solo si se reutiliza en mas de una feature.
 - Centraliza acceso HTTP en servicios y usa los interceptores existentes: `base-http.service.ts`, `auth.interceptor.ts` y `http-error.interceptor.ts`.
 - Prefiere interfaces tipadas en `core/interfaces` o `features/**/interfaces` antes que objetos anonimos o `any`.
+- No introduzcas `any` explicito ni `console.*` en `src/app`; usa tipos de dominio, `unknown`, genericos, toasts o estado de UI.
+- En componentes, protege suscripciones HTTP y streams con `takeUntilDestroyed`, `async` pipe o signals.
 - Reutiliza shells y componentes compartidos antes de crear nuevas variantes visuales.
 - Evita duplicar hosts globales de PrimeNG como `p-toast` y `p-confirmDialog`; deberian vivir en un unico punto global salvo una razon clara.
 - Mantiene patrones consistentes para tablas, formularios, dialogs, confirmaciones, botones, estados vacios y skeletons.
@@ -59,6 +63,8 @@ Al crear UI nueva:
 - Usa SCSS de componente solo cuando Tailwind/PrimeNG no sean suficientes.
 - Implementa el modo oscuro con tokens PrimeNG/Tailwind PrimeUI: `surface-*`, `primary`, `primary-emphasis`, `primary-contrast`, `border-surface` y utilidades `mg-*`.
 - Evita clases rigidas para superficies estructurales como `bg-white`, `text-gray-*`, `bg-gray-*`, `border-gray-*` o colores hexadecimales de marca.
+- Reutiliza las utilidades `mg-*` de `src/tailwind.css` para superficies, texto, tarjetas, paneles de detalle, bottom sheets, FABs, topbar/sidebar, badges y pills antes de copiar cadenas largas de clases.
+- Usa las animaciones globales de Tailwind (`animate-slide-up`, `animate-slide-left`, `animate-slide-in-right`) para transiciones repetidas.
 - Mantiene accesibilidad: `aria-label` en botones icon-only, foco visible, teclado y contraste.
 - Consulta el MCP de PrimeNG cuando haya dudas sobre APIs, templates, theming, eventos o componentes.
 
@@ -95,17 +101,18 @@ Estado actual esperado:
 
 - `npx tsc --noEmit -p tsconfig.app.json`: debe pasar.
 - `npx tailwindcss -i src/tailwind.css -o /tmp/maingoo-tailwind.css --config tailwind.config.js`: debe pasar.
-- `npx eslint . --max-warnings=0`: falla porque `eslint.config.js` usa claves legacy incompatibles con ESLint 9 flat config.
+- `npm run lint -- --max-warnings=0`: debe pasar.
+- `npm run format:check`: debe pasar.
+- `rg -n 'console\.|\bany\b' src/app --glob '*.{ts,html}'`: no debe devolver resultados.
 - Solo existen 4 specs frente a mas de 200 archivos TS/HTML/SCSS.
 
 Riesgos prioritarios:
 
-- Corregir ESLint y anadir script `lint`.
-- Retirar `console.log` de flujos sensibles.
+- Endurecer progresivamente reglas de ESLint actualmente relajadas por deuda existente, especialmente accesibilidad de templates, outputs nativos, `any`, variables sin uso y logs.
 - Revisar estrategia de tokens en `localStorage`.
-- Reducir `any` en servicios, tablas, charts y DTOs.
 - Aumentar tests en auth, interceptores, servicios core, tablas, facturas, productos, proveedores y usuarios.
 - Mantener la UI alineada con tokens PrimeNG y componentes reutilizables.
+- Validar visualmente las pantallas principales en modo claro/oscuro y responsive antes de cerrar cambios con impacto UI.
 
 ## Objetivo de calidad
 
