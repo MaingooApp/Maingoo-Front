@@ -19,6 +19,12 @@ Frontend de Maingoo, una aplicacion SaaS para gestion operativa de negocio. La a
 - `src/assets` y `public`: assets, i18n y recursos estaticos.
 - `src/styles.scss`, `src/tailwind.css` y `tailwind.config.js`: entrada global de estilos, Tailwind y tokens de UI.
 
+## Guia de arquitectura y onboarding
+
+La guia tecnica principal para recuperar contexto del proyecto es `docs/frontend-architecture-audit.md`. Usala como mapa de reentrada para entender rutas, features, componentes reutilizables, servicios compartidos, deuda tecnica y roadmap de mejora.
+
+La guia corta de patrones UI esta en `docs/ui-patterns-guide.md`. Define colores, superficies, tipografia, radios, bordes, sombras, espaciado, estados y componentes reutilizables para desktop/tablet. Mobile queda fuera de esa guia hasta definir su estrategia.
+
 ## Comandos
 
 ```bash

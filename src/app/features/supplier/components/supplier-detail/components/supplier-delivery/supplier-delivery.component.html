@@ -36,7 +36,7 @@
                 'bg-primary text-primary-contrast border-primary': isDaySelected('lastOrder', day.value),
                 'bg-surface-100 dark:bg-surface-800 mg-text-muted border-transparent':
                   !isDaySelected('lastOrder', day.value) && !isEditing,
-                'bg-surface-100 dark:bg-surface-800 mg-text-muted border-transparent hover:bg-surface-200 dark:bg-surface-700':
+                'bg-surface-100 dark:bg-surface-800 mg-text-muted border-transparent hover:bg-surface-200 dark:hover:bg-surface-700':
                   !isDaySelected('lastOrder', day.value) && isEditing
               }">
               {{ day.short }}
@@ -63,7 +63,7 @@
                 'bg-primary text-primary-contrast border-primary': isDaySelected('delivery', day.value),
                 'bg-surface-100 dark:bg-surface-800 mg-text-muted border-transparent':
                   !isDaySelected('delivery', day.value) && !isEditing,
-                'bg-surface-100 dark:bg-surface-800 mg-text-muted border-transparent hover:bg-surface-200 dark:bg-surface-700':
+                'bg-surface-100 dark:bg-surface-800 mg-text-muted border-transparent hover:bg-surface-200 dark:hover:bg-surface-700':
                   !isDaySelected('delivery', day.value) && isEditing
               }">
               {{ day.short }}

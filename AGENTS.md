@@ -24,6 +24,12 @@ Maingoo Front is the Angular frontend for Maingoo, a SaaS application for busine
 - `public`: public static files.
 - `src/styles.scss`, `src/tailwind.css` and `tailwind.config.js`: global style entrypoints and design tokens.
 
+## Architecture Audit
+
+Before proposing large refactors, new shared patterns or new feature architecture, read `docs/frontend-architecture-audit.md`. Treat it as the current onboarding map for routes, feature maturity, reusable components, shared services, UI standards, known debt and improvement roadmap.
+
+Before changing UI standards, read `docs/ui-patterns-guide.md`. It is the current source for desktop/tablet colors, surfaces, typography, border radius, borders, shadows, spacing, states and reusable UI patterns. Do not introduce new mobile patterns until the mobile strategy is defined.
+
 ## Development Commands
 
 - `npm start`: run the Angular dev server with development configuration.

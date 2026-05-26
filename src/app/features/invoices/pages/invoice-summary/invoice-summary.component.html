@@ -73,7 +73,7 @@
               <tr
                 *ngFor="let invoice of filteredInvoices()"
                 (click)="verDetalle(invoice)"
-                class="bg-surface-0 dark:bg-surface-900 active:bg-surface-50 dark:bg-surface-800 transition-colors cursor-pointer">
+                class="bg-surface-0 dark:bg-surface-900 active:bg-surface-50 transition-colors cursor-pointer">
                 <td class="px-4 py-3 font-medium mg-text truncate max-w-[140px]">
                   {{ invoice.supplier.name || 'Sin nombre' }}
                   <div class="text-[10px] mg-text-muted font-normal mt-0.5">{{ invoice.invoiceNumber }}</div>
