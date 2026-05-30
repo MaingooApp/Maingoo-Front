@@ -67,7 +67,10 @@ type ProductWithLegacyUnitCount = Product & {
     NgxPermissionsModule
   ],
   providers: [],
-  templateUrl: './productos.component.html'
+  templateUrl: './productos.component.html',
+  host: {
+    class: 'block h-full min-h-0'
+  }
 })
 export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;

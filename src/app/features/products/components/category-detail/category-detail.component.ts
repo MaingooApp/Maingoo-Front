@@ -16,7 +16,10 @@ interface CategoryNode {
   selector: 'app-category-detail',
   standalone: true,
   imports: [CommonModule, ProductListComponent, IconComponent],
-  templateUrl: './category-detail.component.html'
+  templateUrl: './category-detail.component.html',
+  host: {
+    class: 'block h-full min-h-0 w-full'
+  }
 })
 export class CategoryDetailComponent implements OnChanges {
   @Input() categoryName: string | null = null;

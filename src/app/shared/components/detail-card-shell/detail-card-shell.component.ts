@@ -6,7 +6,10 @@ import { IconComponent } from '../icon/icon.component';
   selector: 'app-detail-card-shell',
   standalone: true,
   imports: [CommonModule, IconComponent],
-  templateUrl: './detail-card-shell.component.html'
+  templateUrl: './detail-card-shell.component.html',
+  host: {
+    class: 'block h-full min-h-0 w-full'
+  }
 })
 export class DetailCardShellComponent {
   /**

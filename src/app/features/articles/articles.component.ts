@@ -46,7 +46,10 @@ type ArticleViewMode = 'list' | 'cards';
     ArticlesSectionHeaderDetailComponent,
     NgxPermissionsModule
   ],
-  templateUrl: './articles.component.html'
+  templateUrl: './articles.component.html',
+  host: {
+    class: 'block h-full min-h-0'
+  }
 })
 export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;

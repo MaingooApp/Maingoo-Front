@@ -21,7 +21,10 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
     CatalogContentComponent,
     NgxPermissionsModule
   ],
-  templateUrl: './articles-detail.component.html'
+  templateUrl: './articles-detail.component.html',
+  host: {
+    class: 'block h-full min-h-0 w-full'
+  }
 })
 export class ArticlesDetailComponent {
   readonly P = AppPermission;
