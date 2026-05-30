@@ -34,22 +34,16 @@ export class ProductAttributesComponent implements OnChanges {
     return '0.00 €';
   }
 
-  get pricePerUnit(): string {
-    if (this.product?.pricePerUnit != null) {
-      return `${this.product.pricePerUnit.toFixed(2)} €`;
-    }
-    // Fallback calculation if only package price and count are known
-    if (this.product?.lastUnitPrice != null && this.product?.unitsPerPackage) {
-      return `${(this.product.lastUnitPrice / this.product.unitsPerPackage).toFixed(2)} €`;
-    }
-    return '0.00 €';
+  get recipeCostPerPiece(): string {
+    return this.product?.recipeCostPerPiece != null ? `${this.product.recipeCostPerPiece.toFixed(2)} €` : '—';
   }
 
-  get pricePerKg(): string {
-    if (this.product?.pricePerKg != null) {
-      return `${this.product.pricePerKg.toFixed(2)} €`;
-    }
-    return '0.00 €';
+  get recipeCostPerKg(): string {
+    return this.product?.recipeCostPerKg != null ? `${this.product.recipeCostPerKg.toFixed(2)} €` : '—';
+  }
+
+  get recipeCostPerLiter(): string {
+    return this.product?.recipeCostPerLiter != null ? `${this.product.recipeCostPerLiter.toFixed(2)} €` : '—';
   }
 
   // Format Options

@@ -38,8 +38,9 @@ export class ProductPriceChartComponent implements OnChanges {
 
   priceOptions = [
     { label: 'Precio Paquete', value: 'package' },
-    { label: 'Precio Unidad', value: 'unit' },
-    { label: 'Precio Kg', value: 'kg' }
+    { label: 'Coste Kg', value: 'kg' },
+    { label: 'Coste Litro', value: 'liter' },
+    { label: 'Coste Pieza', value: 'piece' }
   ];
 
   selectedPriceType: string = 'package';
@@ -76,26 +77,35 @@ export class ProductPriceChartComponent implements OnChanges {
         if (dataset.data) {
           dataset.data = dataset.data.map((value: number) => {
             switch (this.selectedPriceType) {
-              case 'unit':
-                if (this.product?.unitsPerPackage) {
-                  return Number((value / this.product.unitsPerPackage).toFixed(2));
-                }
-                // If unitsPerPackage is missing, it doesn't apply -> return 0
-                return 0;
               case 'kg':
-                // Logic: value is Price/Package (lastUnitPrice)
-                // product.pricePerKg is relative to current lastUnitPrice.
-                // Ratio = product.pricePerKg / product.lastUnitPrice
-                // So historical value (package) * ratio => historical value (kg)
                 if (
-                  this.product?.pricePerKg != null &&
+                  this.product?.recipeCostPerKg != null &&
                   this.product?.lastUnitPrice != null &&
                   this.product.lastUnitPrice > 0
                 ) {
-                  const ratio = this.product.pricePerKg / this.product.lastUnitPrice;
+                  const ratio = this.product.recipeCostPerKg / this.product.lastUnitPrice;
                   return Number((value * ratio).toFixed(2));
                 }
-                // If pricePerKg is missing, it doesn't apply -> return 0
+                return 0;
+              case 'liter':
+                if (
+                  this.product?.recipeCostPerLiter != null &&
+                  this.product?.lastUnitPrice != null &&
+                  this.product.lastUnitPrice > 0
+                ) {
+                  const ratio = this.product.recipeCostPerLiter / this.product.lastUnitPrice;
+                  return Number((value * ratio).toFixed(2));
+                }
+                return 0;
+              case 'piece':
+                if (
+                  this.product?.recipeCostPerPiece != null &&
+                  this.product?.lastUnitPrice != null &&
+                  this.product.lastUnitPrice > 0
+                ) {
+                  const ratio = this.product.recipeCostPerPiece / this.product.lastUnitPrice;
+                  return Number((value * ratio).toFixed(2));
+                }
                 return 0;
               case 'package':
               default:

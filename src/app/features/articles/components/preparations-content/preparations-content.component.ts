@@ -26,18 +26,18 @@ import { MachineryService } from '../../services/machinery.service';
 import { FoodPreparationService } from '../../services/food-preparation.service';
 import { FoodPreparationTypeService } from '../../services/food-preparation-type.service';
 
+type RecipeMeasure = 'g' | 'kg' | 'ml' | 'l' | 'ud';
+
 export interface IngredientRow {
   type: 'ingredient' | 'elaboration';
   selectedItem: IngredientOption | null;
   amount: string;
-  unit: 'g' | 'ud';
+  unit: RecipeMeasure;
 }
 
 interface IngredientOption {
   id: string;
   name: string;
-  pricePerUnit?: number | null;
-  pricePerKg?: number | null;
   estimatedTotalCost?: number;
   estimatedCostPerKg?: number | null;
 }
@@ -129,6 +129,9 @@ export class PreparationsContentComponent implements OnInit {
 
   amountUnits = [
     { label: 'Gramos', value: 'g' },
+    { label: 'Kilogramos', value: 'kg' },
+    { label: 'Mililitros', value: 'ml' },
+    { label: 'Litros', value: 'l' },
     { label: 'Unidades', value: 'ud' }
   ];
 
@@ -236,7 +239,7 @@ export class PreparationsContentComponent implements OnInit {
             ? { id: ing.enterpriseProductId, name: ing.enterpriseProduct.productBase.name }
             : { id: ing.enterpriseProductId, name: ing.enterpriseProductId }),
         amount: String(ing.quantity),
-        unit: (ing.measure === 'ud' ? 'ud' : 'g') as 'g' | 'ud'
+        unit: this.normalizeMeasure(ing.measure)
       };
     });
 
@@ -250,7 +253,7 @@ export class PreparationsContentComponent implements OnInit {
             ? { id: sub.oldFoodPreparationId, name: sub.oldFoodPreparation.name }
             : { id: sub.oldFoodPreparationId, name: sub.oldFoodPreparationId }),
         amount: String(sub.quantity),
-        unit: (sub.measure === 'ud' ? 'ud' : 'g') as 'g' | 'ud'
+        unit: this.normalizeMeasure(sub.measure)
       };
     });
 
@@ -346,6 +349,22 @@ export class PreparationsContentComponent implements OnInit {
     return type === 'ingredient' ? this.availableProducts : this.allElaborations();
   }
 
+  onSelectedItemChange(index: number, selectedItem: IngredientOption | null) {
+    const row = this.ingredientRows()[index];
+    if (!row) return;
+
+    const nextUnit =
+      row.type === 'ingredient'
+        ? this.normalizeMeasure((selectedItem as Product | null)?.recipeDefaultMeasure ?? 'g')
+        : 'g';
+
+    this.updateIngredientRow(index, { selectedItem, unit: nextUnit });
+  }
+
+  trackIngredientRow(index: number) {
+    return index;
+  }
+
   filterItems(event: AutoCompleteCompleteEvent, type: 'ingredient' | 'elaboration') {
     const query = event.query.toLowerCase();
     let items = this.getAvailableItems(type);
@@ -355,6 +374,20 @@ export class PreparationsContentComponent implements OnInit {
     }
 
     this.filteredItems = items.filter((item) => item.name.toLowerCase().includes(query));
+  }
+
+  getMeasureOptions(row: IngredientRow) {
+    if (row.type === 'elaboration') {
+      return this.amountUnits.filter((unit) => ['g', 'kg', 'ud'].includes(unit.value));
+    }
+
+    const product = row.selectedItem as Product | null;
+    const allowed = product?.recipeAllowedMeasures?.length ? product.recipeAllowedMeasures : ['g'];
+    return this.amountUnits.filter((unit) => allowed.includes(unit.value as RecipeMeasure));
+  }
+
+  getAmountPlaceholder(row: IngredientRow): string {
+    return row.unit;
   }
 
   // ─── Price ──────────────────────────────────────────────────────────────────
@@ -369,6 +402,10 @@ export class PreparationsContentComponent implements OnInit {
         return elab.estimatedCostPerKg != null ? (amount / 1000) * elab.estimatedCostPerKg : null;
       }
 
+      if (row.unit === 'kg') {
+        return elab.estimatedCostPerKg != null ? amount * elab.estimatedCostPerKg : null;
+      }
+
       if (row.unit === 'ud') {
         return elab.estimatedTotalCost != null ? amount * elab.estimatedTotalCost : null;
       }
@@ -376,24 +413,50 @@ export class PreparationsContentComponent implements OnInit {
       return null;
     }
 
-    // Ingredient: calculate from product prices
-    const product = row.selectedItem;
+    // Ingredient: calculate from recipe costs
+    const product = row.selectedItem as Product;
 
     if (row.unit === 'g') {
-      if (product.pricePerKg != null && product.pricePerKg > 0) {
-        return (amount / 1000) * product.pricePerKg;
+      if (product.recipeCostPerKg != null && product.recipeCostPerKg > 0) {
+        return (amount / 1000) * product.recipeCostPerKg;
+      }
+      return null;
+    }
+
+    if (row.unit === 'kg') {
+      if (product.recipeCostPerKg != null && product.recipeCostPerKg > 0) {
+        return amount * product.recipeCostPerKg;
+      }
+      return null;
+    }
+
+    if (row.unit === 'ml') {
+      if (product.recipeCostPerLiter != null && product.recipeCostPerLiter > 0) {
+        return (amount / 1000) * product.recipeCostPerLiter;
+      }
+      return null;
+    }
+
+    if (row.unit === 'l') {
+      if (product.recipeCostPerLiter != null && product.recipeCostPerLiter > 0) {
+        return amount * product.recipeCostPerLiter;
       }
       return null;
     }
 
     if (row.unit === 'ud') {
-      if (product.pricePerUnit != null && product.pricePerUnit > 0) {
-        return amount * product.pricePerUnit;
+      if (product.recipeUsageType === 'piece' && product.recipeCostPerPiece != null && product.recipeCostPerPiece > 0) {
+        return amount * product.recipeCostPerPiece;
       }
       return null;
     }
 
     return null;
+  }
+
+  private normalizeMeasure(measure: string): RecipeMeasure {
+    const normalized = measure.trim().toLowerCase();
+    return ['g', 'kg', 'ml', 'l', 'ud'].includes(normalized) ? (normalized as RecipeMeasure) : 'g';
   }
 
   // Sum of all priced rows in the current form

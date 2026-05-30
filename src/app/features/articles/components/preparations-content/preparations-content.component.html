@@ -180,7 +180,9 @@
       <label class="text-sm font-medium mg-text">Ingrediente / Elaboración</label>
 
       <div class="flex flex-col gap-3">
-        <div *ngFor="let row of ingredientRows(); let i = index" class="flex gap-3 items-stretch animate-fade-in">
+        <div
+          *ngFor="let row of ingredientRows(); let i = index; trackBy: trackIngredientRow"
+          class="flex gap-3 items-stretch animate-fade-in">
           <!-- Type Selector (20%) -->
           <div class="flex-[2] min-w-0">
             <p-select
@@ -198,7 +200,7 @@
           <div class="flex-[4] min-w-0">
             <p-autocomplete
               [ngModel]="row.selectedItem"
-              (ngModelChange)="updateIngredientRow(i, { selectedItem: $event })"
+              (ngModelChange)="onSelectedItemChange(i, $event)"
               [suggestions]="filteredItems"
               (completeMethod)="filterItems($event, row.type)"
               optionLabel="name"
@@ -219,7 +221,7 @@
           <!-- Unit Selector (14%) -->
           <div class="flex-[1.4] min-w-0">
             <p-select
-              [options]="amountUnits"
+              [options]="getMeasureOptions(row)"
               [ngModel]="row.unit"
               (ngModelChange)="updateIngredientRow(i, { unit: $event })"
               optionLabel="label"
@@ -235,7 +237,7 @@
               type="text"
               [ngModel]="row.amount"
               (ngModelChange)="updateIngredientRow(i, { amount: $event })"
-              [placeholder]="row.unit === 'g' ? 'g' : 'uds'"
+              [placeholder]="getAmountPlaceholder(row)"
               class="w-full" />
           </div>
           <!-- Precio calculado (10%) -->

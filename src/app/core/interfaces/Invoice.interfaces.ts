@@ -20,12 +20,23 @@ export interface Product {
   productType?: 'simple' | 'elaborado' | null;
   unitCount?: number | string;
 
-  // Price and Packaging Fields
+  // Purchase price and recipe usage fields
   lastUnitPrice?: number | null; // Price per package/format
-  pricePerUnit?: number | null;
-  pricePerKg?: number | null;
-  unitsPerPackage?: number | null;
-  weightPerUnitGrams?: number | null;
+  recipeUsageType?: 'weight' | 'volume' | 'piece' | 'unknown';
+  recipeDefaultMeasure?: 'g' | 'kg' | 'ml' | 'l' | 'ud';
+  recipeAllowedMeasures?: Array<'g' | 'kg' | 'ml' | 'l' | 'ud'>;
+  recipeUnitLabel?: string | null;
+  recipePackageNetWeightGrams?: number | null;
+  recipePackageNetVolumeMl?: number | null;
+  recipePiecesPerPackage?: number | null;
+  recipeWeightPerPieceGrams?: number | null;
+  recipeUsageConfidence?: 'high' | 'medium' | 'low';
+  recipeUsageSource?: 'ai' | 'rules' | 'manual' | 'migration';
+  recipeNeedsManualReview?: boolean;
+  recipeReviewReason?: string | null;
+  recipeCostPerKg?: number | null;
+  recipeCostPerLiter?: number | null;
+  recipeCostPerPiece?: number | null;
 
   supplier?: Supplier | { id: string; name: string; cifNif?: string };
   brand?: string;
