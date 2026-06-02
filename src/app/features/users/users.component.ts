@@ -52,7 +52,10 @@ import { forkJoin } from 'rxjs';
     ConfirmDialogModule
   ],
   providers: [ConfirmationService],
-  templateUrl: './users.component.html'
+  templateUrl: './users.component.html',
+  host: {
+    class: 'block h-full min-h-0'
+  }
 })
 export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;

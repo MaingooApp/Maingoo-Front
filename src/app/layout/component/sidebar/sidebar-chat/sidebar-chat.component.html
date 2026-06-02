@@ -1,16 +1,5 @@
 <!-- ========== SECCIÓN CHAT ========== -->
 
-<!-- Controles de conversación -->
-<div class="flex-shrink-0 px-4 pt-3 pb-2 border-b border-surface">
-  <div class="flex items-center mb-1">
-    <button
-      (click)="startNewConversation()"
-      class="px-3 py-1.5 text-xs font-semibold rounded-full bg-primary text-primary-contrast hover:bg-primary-emphasis transition-colors">
-      Nuevo chat
-    </button>
-  </div>
-</div>
-
 <!-- Área de mensajes expandida -->
 <div id="chat-messages-expanded" class="flex-1 min-h-0 p-4 overflow-y-auto">
   <!-- Mensajes dinámicos -->
@@ -59,7 +48,7 @@
 <!-- Spacer para modo compacto - Eliminado -->
 
 <!-- Acciones rápidas -->
-<div class="flex-shrink-0 px-4 py-3">
+<div class="flex-shrink-0 px-4 pt-3 pb-2">
   <div class="grid grid-cols-2 gap-2">
     @for (action of currentContext.actions; track action.label) {
       <button
@@ -73,8 +62,17 @@
 </div>
 
 <!-- Input de mensaje expandido -->
-<div class="flex-shrink-0 p-4">
+<div class="flex-shrink-0 px-4 pt-2 pb-5">
   <div class="flex items-center gap-3">
+    <button
+      (click)="startNewConversation()"
+      pTooltip="Nuevo chat"
+      tooltipPosition="top"
+      class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-primary hover:bg-surface-0/50 dark:hover:bg-surface-700/50 transition-all"
+      aria-label="Nuevo chat">
+      <app-icon name="add_comment" size="md"></app-icon>
+    </button>
+
     <!-- Botón de adjuntar con menú desplegable -->
     <div class="relative" id="attachment-menu-container">
       <button

@@ -2,6 +2,7 @@ import { Component, ChangeDetectionStrategy, ViewChild, ElementRef, OnInit, OnDe
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
 import { filter, Subscription } from 'rxjs';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { ChatBubbleService, ChatMessage } from '@shared/components/chat-bubble/chat-bubble.service';
@@ -35,7 +36,7 @@ export interface RouteContext {
 @Component({
   selector: 'app-sidebar-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconComponent],
+  imports: [CommonModule, FormsModule, IconComponent, TooltipModule],
   changeDetection: ChangeDetectionStrategy.Default,
   templateUrl: './sidebar-chat.component.html'
 })
