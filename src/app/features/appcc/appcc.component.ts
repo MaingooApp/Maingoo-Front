@@ -1,16 +1,13 @@
 import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
-
-// PrimeNG Imports
-import { DropdownModule } from 'primeng/dropdown';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { ButtonModule } from 'primeng/button';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { AppccSectionHeaderDetailComponent } from './components/appcc-section-header-detail/appcc-section-header-detail.component';
+import { IotAlert, IotDevice, IotDeviceStatus, IotDeviceType, IotReading, IotService } from './services/iot.service';
 
 interface AppccModule {
   id: string;
@@ -25,50 +22,16 @@ interface AppccModule {
 
 type AppccViewMode = 'cards' | 'list';
 
-// Interface for Equipment Form
-interface EquipmentForm {
-  name: string;
-  type: string | null;
-  temperatureRange: string | null;
-  location: string | null;
-  responsible: string | null;
-  // Future fields
-  equipmentId: string;
-  hasIoTSensor: boolean;
-  lastIncident: string;
-  appccStatus: string | null;
-}
-
-interface TemperatureRecord {
-  equipmentId: string;
-  temperature: number;
-  date: Date;
-  registeredBy: string;
-}
-
-interface SelectOption<T = string | null> {
-  label: string;
-  value: T;
-}
-
 @Component({
   selector: 'app-appcc',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    IconComponent,
-    EmptyStateComponent,
-    DropdownModule,
-    InputTextModule,
-    InputSwitchModule,
-    ButtonModule,
-    AppccSectionHeaderDetailComponent
-  ],
+  imports: [CommonModule, IconComponent, EmptyStateComponent, ButtonModule, AppccSectionHeaderDetailComponent],
   templateUrl: './appcc.component.html'
 })
 export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
+  private iotService = inject(IotService);
+
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   viewMode: AppccViewMode = 'cards';
@@ -78,12 +41,13 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
       id: 'temperatures',
       title: 'Control de Temperaturas',
       icon: 'thermostat',
-      itemIcon: 'kitchen',
-      itemsCount: 4,
-      itemsLabel: 'Equipos activos',
-      lastUpdate: 'Hoy',
-      lastUpdateLabel: 'Último registro'
-    },
+      itemIcon: 'sensors',
+      itemsCount: 0,
+      itemsLabel: 'sensores',
+      lastUpdate: 'Sin datos',
+      lastUpdateLabel: 'Última lectura'
+    }
+    /*
     {
       id: 'cleaning',
       title: 'Protocolos de Limpieza',
@@ -94,48 +58,22 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
       lastUpdate: 'Ayer',
       lastUpdateLabel: 'Última revisión'
     }
+    */
   ];
 
   selectedModule: AppccModule | null = null;
+  selectedDevice: IotDevice | null = null;
 
-  // Equipment Form State
-  showEquipmentForm = false;
-  equipmentForm: EquipmentForm = this.getEmptyEquipmentForm();
-  savedEquipment: EquipmentForm[] = [];
-  selectedEquipment: EquipmentForm | null = null;
+  devices: IotDevice[] = [];
+  activeAlerts: IotAlert[] = [];
+  latestReadings: Record<string, IotReading | undefined> = {};
+  selectedReadings: IotReading[] = [];
 
-  // Temperature Records
-  temperatureRecords: TemperatureRecord[] = [];
-
-  // Dropdown Options
-  equipmentTypes: SelectOption<string>[] = [
-    { label: 'Timbre', value: 'timbre' },
-    { label: 'Nevera', value: 'nevera' },
-    { label: 'Botellero', value: 'botellero' },
-    { label: 'Cámara panelada', value: 'camara_panelada' }
-  ];
-
-  temperatureRanges: SelectOption<string>[] = [
-    { label: 'Frío positivo (0ºC - 4ºC)', value: 'frio_positivo' },
-    { label: 'Frío negativo (-18ºC)', value: 'frio_negativo' }
-  ];
-
-  locations: SelectOption<string>[] = [
-    { label: 'Cocina', value: 'cocina' },
-    { label: 'Sala', value: 'sala' },
-    { label: 'Almacén', value: 'almacen' }
-  ];
-
-  responsibles: SelectOption[] = [{ label: 'Sin asignar (pendiente integración)', value: null }];
-
-  appccStatuses: SelectOption<string>[] = [
-    { label: 'OK', value: 'ok' },
-    { label: 'Atención', value: 'atencion' },
-    { label: 'Incidencia', value: 'incidencia' }
-  ];
+  isLoadingDevices = false;
+  isLoadingReadings = false;
 
   ngOnInit() {
-    // No special initialization needed
+    this.loadIotOverview();
   }
 
   ngAfterViewInit() {
@@ -154,103 +92,190 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
 
   openModule(module: AppccModule) {
     this.selectedModule = module;
-    this.showEquipmentForm = false; // Reset form visibility when switching modules
   }
 
   closeModule() {
     this.selectedModule = null;
-    this.showEquipmentForm = false;
+    this.selectedDevice = null;
+    this.selectedReadings = [];
   }
 
-  toggleEquipmentForm() {
-    this.showEquipmentForm = !this.showEquipmentForm;
-    if (this.showEquipmentForm) {
-      this.equipmentForm = this.getEmptyEquipmentForm();
+  refreshIotData() {
+    this.loadIotOverview();
+    if (this.selectedDevice) {
+      this.selectDevice(this.selectedDevice);
     }
   }
 
-  getEmptyEquipmentForm(): EquipmentForm {
-    return {
-      name: '',
-      type: null,
-      temperatureRange: null,
-      location: null,
-      responsible: null,
-      equipmentId: this.generateTempId(),
-      hasIoTSensor: false,
-      lastIncident: '',
-      appccStatus: null
+  selectDevice(device: IotDevice) {
+    this.selectedDevice = device;
+    this.isLoadingReadings = true;
+    this.iotService
+      .getDeviceReadings(device.id, { limit: 200 })
+      .pipe(
+        catchError(() => of([] as IotReading[])),
+        finalize(() => {
+          this.isLoadingReadings = false;
+        })
+      )
+      .subscribe((readings) => {
+        this.selectedReadings = readings;
+        this.latestReadings[device.id] = readings[0] ?? this.latestReadings[device.id];
+      });
+  }
+
+  deselectDevice() {
+    this.selectedDevice = null;
+    this.selectedReadings = [];
+  }
+
+  getDeviceAlerts(deviceId: string): IotAlert[] {
+    return this.activeAlerts.filter((alert) => alert.deviceId === deviceId);
+  }
+
+  getLatestReading(deviceId: string): IotReading | undefined {
+    return this.latestReadings[deviceId];
+  }
+
+  getTemperatureValue(reading?: IotReading): number | null {
+    if (reading?.temperatureC === null || reading?.temperatureC === undefined) return null;
+    const value = Number(reading.temperatureC);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  getBatteryValue(reading?: IotReading): number | null {
+    if (reading?.batteryPct === null || reading?.batteryPct === undefined) return null;
+    return Number.isFinite(reading.batteryPct) ? reading.batteryPct : null;
+  }
+
+  getDeviceTypeLabel(type: IotDeviceType): string {
+    const labels: Record<IotDeviceType, string> = {
+      TEMPERATURE: 'Temperatura',
+      HUMIDITY: 'Humedad',
+      DOOR: 'Apertura',
+      WATER_LEAK: 'Fuga de agua',
+      ELECTRICITY: 'Electricidad',
+      PREDICTIVE_MAINTENANCE: 'Mantenimiento'
     };
+    return labels[type] ?? type;
   }
 
-  generateTempId(): string {
-    return 'EQ-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  getDeviceTypeIcon(type: IotDeviceType): string {
+    const icons: Record<IotDeviceType, string> = {
+      TEMPERATURE: 'thermostat',
+      HUMIDITY: 'humidity_percentage',
+      DOOR: 'door_front',
+      WATER_LEAK: 'water_drop',
+      ELECTRICITY: 'bolt',
+      PREDICTIVE_MAINTENANCE: 'precision_manufacturing'
+    };
+    return icons[type] ?? 'sensors';
   }
 
-  saveEquipment() {
-    // Add equipment to saved list
-    this.savedEquipment.push({ ...this.equipmentForm });
+  getStatusLabel(status: IotDeviceStatus): string {
+    const labels: Record<IotDeviceStatus, string> = {
+      ACTIVE: 'Activo',
+      INACTIVE: 'Inactivo',
+      OFFLINE: 'Sin conexión'
+    };
+    return labels[status] ?? status;
+  }
 
-    // Update the module's equipment count
-    const tempModule = this.modules.find((m) => m.id === 'temperatures');
-    if (tempModule) {
-      tempModule.itemsCount = this.savedEquipment.length;
-      tempModule.lastUpdate = 'Ahora';
+  getStatusClass(status: IotDeviceStatus): string {
+    if (status === 'ACTIVE') return 'bg-green-50 text-green-700 border-green-100';
+    if (status === 'OFFLINE') return 'bg-red-50 text-red-700 border-red-100';
+    return 'bg-surface-100 text-surface-600 border-surface';
+  }
+
+  getAlertLabel(type: IotAlert['type']): string {
+    const labels: Record<IotAlert['type'], string> = {
+      TEMPERATURE_HIGH: 'Temperatura alta',
+      BATTERY_LOW: 'Batería baja',
+      SENSOR_OFFLINE: 'Sensor sin conexión'
+    };
+    return labels[type] ?? type;
+  }
+
+  getSensorMetricLabel(device: IotDevice, reading?: IotReading): string {
+    if (!reading) return 'Sin lecturas';
+    const temperature = this.getTemperatureValue(reading);
+    if (temperature !== null) return `${temperature.toFixed(1)} ºC`;
+    const battery = this.getBatteryValue(reading);
+    if (battery !== null) return `${battery}% batería`;
+    return 'Lectura recibida';
+  }
+
+  getLastSeenLabel(device: IotDevice): string {
+    return device.lastSeenAt ? this.formatDateTime(device.lastSeenAt) : 'Sin conexión reciente';
+  }
+
+  get offlineDevicesCount(): number {
+    return this.devices.filter((device) => device.status === 'OFFLINE').length;
+  }
+
+  formatDateTime(value?: string | null): string {
+    if (!value) return 'Sin datos';
+    return new Intl.DateTimeFormat('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(value));
+  }
+
+  private loadIotOverview() {
+    this.isLoadingDevices = true;
+    forkJoin({
+      devices: this.iotService.getDevices().pipe(catchError(() => of([] as IotDevice[]))),
+      alerts: this.iotService.getAlerts({ status: 'ACTIVE' }).pipe(catchError(() => of([] as IotAlert[])))
+    })
+      .pipe(
+        finalize(() => {
+          this.isLoadingDevices = false;
+        })
+      )
+      .subscribe(({ devices, alerts }) => {
+        this.devices = devices;
+        this.activeAlerts = alerts;
+        this.updateTemperatureModule();
+        this.loadLatestReadings(devices);
+      });
+  }
+
+  private loadLatestReadings(devices: IotDevice[]) {
+    if (devices.length === 0) {
+      this.latestReadings = {};
+      return;
     }
 
-    this.showEquipmentForm = false;
-    this.equipmentForm = this.getEmptyEquipmentForm();
-  }
+    const requests = devices.map((device) =>
+      this.iotService
+        .getDeviceReadings(device.id, { limit: 1 })
+        .pipe(catchError(() => of([] as IotReading[])))
+    );
 
-  cancelEquipmentForm() {
-    this.showEquipmentForm = false;
-    this.equipmentForm = this.getEmptyEquipmentForm();
-  }
-
-  selectEquipment(equipment: EquipmentForm) {
-    this.selectedEquipment = equipment;
-  }
-
-  deselectEquipment() {
-    this.selectedEquipment = null;
-  }
-
-  registerTemperature(temperature: number, equipment?: EquipmentForm) {
-    const targetEquipment = equipment || this.selectedEquipment;
-    if (!targetEquipment) return;
-
-    this.temperatureRecords.push({
-      equipmentId: targetEquipment.equipmentId,
-      temperature,
-      date: new Date(),
-      registeredBy: 'Usuario actual' // TODO: Connect with user module
+    forkJoin(requests).subscribe((results) => {
+      const latest: Record<string, IotReading | undefined> = {};
+      results.forEach((readings, index) => {
+        latest[devices[index].id] = readings[0];
+      });
+      this.latestReadings = latest;
+      this.updateTemperatureModule();
     });
-
-    // Update module's last update
-    const tempModule = this.modules.find((m) => m.id === 'temperatures');
-    if (tempModule) {
-      tempModule.lastUpdate = 'Ahora';
-    }
   }
 
-  getEquipmentRecords(equipmentId: string) {
-    return this.temperatureRecords
-      .filter((r) => r.equipmentId === equipmentId)
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
-  }
+  private updateTemperatureModule() {
+    const module = this.modules.find((m) => m.id === 'temperatures');
+    if (!module) return;
 
-  getEquipmentTypeLabel(value: string | null): string {
-    const found = this.equipmentTypes.find((t) => t.value === value);
-    return found ? found.label : 'No definido';
-  }
+    const latestDates = Object.values(this.latestReadings)
+      .map((reading) => reading?.receivedAt)
+      .filter((date): date is string => !!date)
+      .sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
 
-  getLocationLabel(value: string | null): string {
-    const found = this.locations.find((l) => l.value === value);
-    return found ? found.label : 'Sin ubicación';
-  }
-
-  getTemperatureRangeLabel(value: string | null): string {
-    const found = this.temperatureRanges.find((t) => t.value === value);
-    return found ? found.label : 'No definido';
+    module.itemsCount = this.devices.length;
+    module.itemsLabel = this.devices.length === 1 ? 'sensor' : 'sensores';
+    module.lastUpdate = latestDates[0] ? this.formatDateTime(latestDates[0]) : 'Sin lecturas';
   }
 }

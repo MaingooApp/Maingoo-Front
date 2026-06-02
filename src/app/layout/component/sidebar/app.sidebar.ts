@@ -42,10 +42,12 @@ export class AppSidebar implements OnInit {
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores', permissions: ['suppliers.read'] },
     { label: 'Almacén', icon: 'warehouse', route: '/productos', permissions: ['products.read'] },
     { label: 'Artículos', icon: 'restaurant', route: '/articulos', permissions: ['products.read'] },
+    /*
     { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
     { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
+    */
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true },
+    { label: 'Sanidad', icon: 'shield', route: '/appcc' },
     {
       label: 'Usuarios',
       icon: 'manage_accounts',
