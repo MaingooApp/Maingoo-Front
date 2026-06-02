@@ -118,7 +118,7 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get categoryDisplayName(): string {
     if (!this.selectedCategory) return '';
-    return this.selectedCategory === 'mise-en-place' ? 'Mise en place' : this.selectedCategory;
+    return this.selectedCategory === 'equipment' ? 'Máquinas y utensilios' : this.selectedCategory;
   }
 
   searchTerm = signal<string>('');

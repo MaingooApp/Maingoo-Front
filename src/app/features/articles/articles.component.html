@@ -18,7 +18,7 @@
         <!-- Main Categories Cards -->
         <div
           class="grid gap-6 mb-8 w-full transition-all duration-300"
-          [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3 lg:grid-cols-5'">
+          [ngClass]="selectedCategory ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'">
           <!-- Elaboraciones Card -->
           <app-articles-card
             title="Elaboraciones"
@@ -39,36 +39,14 @@
             (cardClick)="selectCategory('articles')">
           </app-articles-card>
 
-          <!-- Mise en place Card -->
-          <app-articles-card
-            title="Mise en place"
-            description="Organiza y distribuye las elaboraciones con tu equipo"
-            icon="chef_hat"
-            theme="purple"
-            badge="Demo"
-            [isSelected]="selectedCategory === 'mise-en-place'"
-            (cardClick)="selectCategory('mise-en-place')">
-          </app-articles-card>
-
-          <ng-container *ngxPermissionsOnly="[P.UtensilsRead]">
+          <ng-container *ngxPermissionsOnly="[P.UtensilsRead, P.MachineryRead]">
             <app-articles-card
-              title="Utensilios"
-              description="Gestiona los utensilios para tus elaboraciones"
-              icon="restaurant"
-              theme="green"
-              [isSelected]="selectedCategory === 'utensils'"
-              (cardClick)="selectCategory('utensils')">
-            </app-articles-card>
-          </ng-container>
-
-          <ng-container *ngxPermissionsOnly="[P.MachineryRead]">
-            <app-articles-card
-              title="Maquinaria"
-              description="Gestiona la maquinaria disponible para tus elaboraciones"
-              icon="precision_manufacturing"
+              title="Máquinas y utensilios"
+              description="Gestiona el equipo operativo para tus elaboraciones"
+              icon="construction"
               theme="teal"
-              [isSelected]="selectedCategory === 'machinery'"
-              (cardClick)="selectCategory('machinery')">
+              [isSelected]="selectedCategory === 'equipment'"
+              (cardClick)="selectCategory('equipment')">
             </app-articles-card>
           </ng-container>
         </div>

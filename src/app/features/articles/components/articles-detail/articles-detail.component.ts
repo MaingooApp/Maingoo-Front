@@ -49,9 +49,7 @@ export class ArticlesDetailComponent {
     const names: Record<string, string> = {
       elaborations: 'Elaboraciones',
       articles: 'Artículos',
-      'mise-en-place': 'Mise en place',
-      utensils: 'Utensilios',
-      machinery: 'Maquinaria'
+      equipment: 'Máquinas y utensilios'
     };
     return names[this.selectedCategory] ?? this.selectedCategory;
   }
