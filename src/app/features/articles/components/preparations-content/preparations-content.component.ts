@@ -378,7 +378,7 @@ export class PreparationsContentComponent implements OnInit {
 
   getMeasureOptions(row: IngredientRow) {
     if (row.type === 'elaboration') {
-      return this.amountUnits.filter((unit) => ['g', 'kg', 'ud'].includes(unit.value));
+      return this.amountUnits.filter((unit) => ['g', 'kg'].includes(unit.value));
     }
 
     const product = row.selectedItem as Product | null;
