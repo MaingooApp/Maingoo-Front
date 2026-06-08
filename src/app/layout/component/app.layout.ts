@@ -6,24 +6,13 @@ import { filter } from 'rxjs';
 import { AppTopbar } from './topbar/app.topbar';
 import { AppSidebar } from './sidebar/app.sidebar';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
-import { MobileBottomNavComponent } from './mobile-bottom-nav/mobile-bottom-nav.component';
-import { MobileMenuModalComponent } from './mobile-menu-modal/mobile-menu-modal.component';
 import { LayoutService } from '../service/layout.service';
 import { AppMain } from './main/app.main';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    AppTopbar,
-    AppSidebar,
-    RouterModule,
-    MobileBottomSheetComponent,
-    MobileBottomNavComponent,
-    MobileMenuModalComponent,
-    AppMain
-  ],
+  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, MobileBottomSheetComponent, AppMain],
   templateUrl: './app.layout.html'
 })
 export class AppLayout {

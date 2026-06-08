@@ -47,81 +47,27 @@
 <!-- Spacer para modo compacto -->
 <!-- Spacer para modo compacto - Eliminado -->
 
-<!-- Acciones rápidas -->
+<!-- Acción contextual -->
 <div class="flex-shrink-0 px-4 pt-3 pb-2">
-  <div class="grid grid-cols-2 gap-2">
-    @for (action of currentContext.actions; track action.label) {
-      <button
-        (click)="handleQuickAction(action.action)"
-        class="px-3 py-2.5 bg-primary/10 dark:bg-primary/20 text-primary text-[11px] font-medium rounded-full hover:bg-primary/20 dark:hover:bg-primary/30 transition-all duration-200 flex items-center justify-center gap-1.5 text-center">
-        <app-icon [name]="action.icon" size="xs"></app-icon>
-        <span class="truncate">{{ action.label }}</span>
-      </button>
-    }
-  </div>
+  <button
+    type="button"
+    (click)="openInvoiceUpload()"
+    class="w-full px-3 py-2.5 bg-primary/10 dark:bg-primary/20 text-primary text-sm font-semibold rounded-content hover:bg-primary/20 dark:hover:bg-primary/30 transition-all duration-200 flex items-center justify-center gap-2 text-center">
+    <app-icon name="receipt_long" size="sm"></app-icon>
+    <span>Subir factura</span>
+  </button>
 </div>
 
 <!-- Input de mensaje expandido -->
 <div class="flex-shrink-0 px-4 pt-2 pb-5">
   <div class="flex items-center gap-3">
-    <button
-      (click)="startNewConversation()"
-      pTooltip="Nuevo chat"
-      tooltipPosition="top"
-      class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-primary hover:bg-surface-0/50 dark:hover:bg-surface-700/50 transition-all"
-      aria-label="Nuevo chat">
-      <app-icon name="add_comment" size="md"></app-icon>
-    </button>
-
-    <!-- Botón de adjuntar con menú desplegable -->
-    <div class="relative" id="attachment-menu-container">
-      <button
-        (click)="showAttachmentMenu = !showAttachmentMenu"
-        [disabled]="isTyping"
-        class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-0/50 dark:hover:bg-surface-700/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Adjuntar archivo">
-        <app-icon name="attach_file" size="md" class="text-primary"></app-icon>
-      </button>
-
-      <!-- Menú desplegable -->
-      @if (showAttachmentMenu) {
-        <div
-          class="absolute bottom-full left-0 mb-2 bg-surface-0 dark:bg-surface-900 rounded-content shadow-lg border border-surface py-2 min-w-[160px] z-50">
-          <button
-            (click)="handleCameraCapture(); showAttachmentMenu = false"
-            class="w-full px-4 py-2 text-left text-sm mg-text hover:bg-surface-50 dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-            <app-icon name="photo_camera" size="md" class="text-primary"></app-icon>
-            <span>Tomar foto</span>
-          </button>
-          <button
-            (click)="handleFileUpload(); showAttachmentMenu = false"
-            class="w-full px-4 py-2 text-left text-sm mg-text hover:bg-surface-50 dark:hover:bg-surface-700 flex items-center gap-3 transition-colors">
-            <app-icon name="upload_file" size="md" class="text-primary"></app-icon>
-            <span>Subir archivo</span>
-          </button>
-        </div>
-      }
-    </div>
-
-    <!-- Input de archivo oculto para cámara -->
-    <input
-      #cameraInput
-      type="file"
-      accept="image/*"
-      capture="environment"
-      (change)="onCameraCapture($event)"
-      class="hidden" />
-
-    <!-- Input de archivo oculto para subir archivos -->
-    <input #fileInput type="file" accept="image/*,application/pdf" (change)="onFileSelected($event)" class="hidden" />
-
     <textarea
       #messageInput
       [(ngModel)]="messageText"
       (keydown)="handleKeyDown($event)"
       (input)="autoResize()"
       (focus)="onChatInputFocus()"
-      [placeholder]="currentContext.placeholder"
+      [placeholder]="placeholder"
       [maxlength]="maxMessageLength"
       rows="1"
       class="flex-1 px-3 py-2 border-0 outline-none text-sm bg-surface-0/60 dark:bg-surface-700/60 rounded-content placeholder:text-surface-500 dark:placeholder:text-surface-400 mg-text resize-none overflow-hidden max-h-32">

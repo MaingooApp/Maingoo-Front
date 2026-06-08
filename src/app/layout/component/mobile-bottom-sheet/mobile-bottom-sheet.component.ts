@@ -1,33 +1,26 @@
-import { Component, ElementRef, HostListener, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BottomSheetService } from '../../../layout/service/bottom-sheet.service';
+import { AuthService } from '../../../features/auth/services/auth-service.service';
 import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
+import { DocumentAnalysisService } from '../../../core/services/document-analysis.service';
+import { DocumentType } from '../../../core/enums/documents.enum';
+import { ToastService } from '../../../shared/services/toast.service';
 import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { IconComponent } from '../../../shared/components/icon/icon.component';
-
-interface QuickAction {
-  label: string;
-  icon: string;
-  action: string;
-}
-
-interface RouteContext {
-  title: string;
-  placeholder: string;
-  actions: QuickAction[];
-}
 
 @Component({
   selector: 'app-mobile-bottom-sheet',
   standalone: true,
-  imports: [CommonModule, RouterModule, IconComponent],
+  imports: [CommonModule, IconComponent],
   templateUrl: './mobile-bottom-sheet.component.html',
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })
 export class MobileBottomSheetComponent implements OnInit, OnDestroy {
+  @Input() mobileChatOnly = false;
+
   @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
   @ViewChild('cameraInput') cameraInput?: ElementRef<HTMLInputElement>;
@@ -39,90 +32,30 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   messages: ChatMessage[] = [];
   isTyping = false;
   isSending = false;
+  showInvoiceUploadOptions = false;
+  isUploadingInvoice = false;
   private messagesSubscription?: Subscription;
   private typingSubscription?: Subscription;
-  private routerSubscription?: Subscription;
-
-  // Contextos por ruta (para las acciones rápidas)
-  private routeContexts: { [key: string]: RouteContext } = {
-    '/': {
-      title: 'Acciones rápidas',
-      placeholder: '¿Qué necesitas saber hoy?',
-      actions: [
-        { label: 'Generar informe', icon: 'analytics', action: 'Generar informe del dashboard' },
-        { label: 'Ver resumen', icon: 'visibility', action: 'Mostrar resumen general' }
-      ]
-    },
-    '/facturas': {
-      title: 'Acciones rápidas',
-      placeholder: 'Pregunta sobre tus facturas...',
-      actions: [
-        { label: 'Subir factura', icon: 'upload', action: 'Subir factura' },
-        { label: 'Informe compras', icon: 'bar_chart', action: 'Informe de compras' }
-      ]
-    },
-    '/proveedores': {
-      title: 'Acciones rápidas',
-      placeholder: 'Pregunta sobre tus proveedores...',
-      actions: [
-        { label: 'Nuevo proveedor', icon: 'add', action: 'Agregar nuevo proveedor' },
-        { label: 'Análisis', icon: 'pie_chart', action: 'Análisis de proveedores' }
-      ]
-    },
-    '/productos': {
-      title: 'Acciones rápidas',
-      placeholder: 'Pregunta sobre tus productos...',
-      actions: [
-        { label: 'Nuevo producto', icon: 'add', action: 'Agregar nuevo producto' },
-        { label: 'Stock bajo', icon: 'warning', action: 'Ver productos con stock bajo' }
-      ]
-    },
-    '/recetas': {
-      title: 'Acciones rápidas',
-      placeholder: 'Pregunta sobre tus recetas...',
-      actions: [
-        { label: 'Crear receta', icon: 'add', action: 'Crear nueva receta' },
-        { label: 'Costeo', icon: 'calculate', action: 'Análisis de costeo de recetas' }
-      ]
-    },
-    '/docgenerator': {
-      title: 'Acciones rápidas',
-      placeholder: 'Genera documentos...',
-      actions: [
-        { label: 'Nuevo documento', icon: 'note_add', action: 'Generar nuevo documento' },
-        { label: 'Plantillas', icon: 'content_copy', action: 'Ver plantillas disponibles' }
-      ]
-    }
-  };
-
-  currentContext: RouteContext = this.routeContexts['/'];
 
   constructor(
     public bottomSheetService: BottomSheetService,
     private chatService: ChatBubbleService,
     private router: Router,
-    private sanitizer: DomSanitizer
-  ) {
-    // Actualizar contexto en base a la ruta inicial
-    this.updateContextFromRoute(this.router.url);
-
-    // Escuchar cambios de ruta
-    this.routerSubscription = this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        this.updateContextFromRoute(event.urlAfterRedirects);
-      });
-  }
+    private sanitizer: DomSanitizer,
+    private authService: AuthService,
+    private documentAnalysisService: DocumentAnalysisService,
+    private toastService: ToastService
+  ) {}
 
   // Propiedades computadas
   get isOpen(): boolean {
-    return this.bottomSheetService.isChatOpen();
+    return this.mobileChatOnly || this.bottomSheetService.isChatOpen();
   }
 
   @HostListener('window:popstate', ['$event'])
   onPopState(event: Event) {
     // Si navegamos hacia atrás (por botón físico o gesto), cerrar el chat
-    if (this.isOpen) {
+    if (!this.mobileChatOnly && this.isOpen) {
       this.bottomSheetService.closeChat();
     }
   }
@@ -148,31 +81,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     // Limpiar suscripciones
     this.messagesSubscription?.unsubscribe();
     this.typingSubscription?.unsubscribe();
-    this.routerSubscription?.unsubscribe();
-  }
-
-  private updateContextFromRoute(url: string): void {
-    // Limpiar query params y fragments
-    const cleanUrl = url.split('?')[0].split('#')[0];
-
-    // Buscar contexto exacto o por prefijo
-    if (this.routeContexts[cleanUrl]) {
-      this.currentContext = this.routeContexts[cleanUrl];
-    } else {
-      // Buscar por prefijo (ej: /facturas/1 -> /facturas)
-      const matchedRoute = Object.keys(this.routeContexts).find((route) => route !== '/' && cleanUrl.startsWith(route));
-      this.currentContext = matchedRoute ? this.routeContexts[matchedRoute] : this.routeContexts['/'];
-    }
-  }
-
-  async handleQuickAction(action: string): Promise<void> {
-    try {
-      // Enviar la acción al chat
-      await this.chatService.sendMessage(action);
-      // Mantener expandido para mostrar la respuesta
-    } catch {
-      // El servicio de chat ya añade un mensaje visible si la petición falla.
-    }
   }
 
   async sendMessage(input: HTMLInputElement): Promise<void> {
@@ -196,15 +104,21 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     }
   }
 
-  handleFileUpload(): void {
+  toggleInvoiceUploadOptions(): void {
+    this.showInvoiceUploadOptions = !this.showInvoiceUploadOptions;
+  }
+
+  chooseInvoiceFile(): void {
+    this.showInvoiceUploadOptions = false;
     this.fileInput?.nativeElement.click();
   }
 
-  handleCameraCapture(): void {
+  captureInvoicePhoto(): void {
+    this.showInvoiceUploadOptions = false;
     this.cameraInput?.nativeElement.click();
   }
 
-  async onFileSelected(event: Event): Promise<void> {
+  onInvoiceFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
@@ -212,16 +126,11 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       return;
     }
 
-    try {
-      await this.chatService.sendAttachment(file);
-    } catch {
-      // El servicio de chat ya añade un mensaje visible si la petición falla.
-    } finally {
-      input.value = '';
-    }
+    this.uploadInvoice(file);
+    input.value = '';
   }
 
-  async onCameraCapture(event: Event): Promise<void> {
+  onInvoicePhotoCaptured(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
 
@@ -229,27 +138,34 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       return;
     }
 
-    try {
-      await this.chatService.sendAttachment(file, 'Analiza la imagen adjunta y ayúdame con la información relevante.');
-    } catch {
-      // El servicio de chat ya añade un mensaje visible si la petición falla.
-    } finally {
-      input.value = '';
-    }
+    this.uploadInvoice(file);
+    input.value = '';
   }
 
   startNewConversation(): void {
     this.chatService.startNewConversation(true);
   }
 
+  logout(): void {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/auth/login']);
+    });
+  }
+
   closeChat(event?: Event): void {
     if (event) {
       event.stopPropagation();
+    }
+    if (this.mobileChatOnly) {
+      return;
     }
     this.bottomSheetService.closeChat();
   }
 
   onBackdropClick(): void {
+    if (this.mobileChatOnly) {
+      return;
+    }
     this.closeChat();
   }
 
@@ -258,6 +174,30 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
       const container = this.messagesContainer.nativeElement;
       container.scrollTop = container.scrollHeight;
     }
+  }
+
+  private uploadInvoice(file: File): void {
+    if (this.isUploadingInvoice) {
+      return;
+    }
+
+    this.isUploadingInvoice = true;
+
+    this.documentAnalysisService
+      .submitInvoiceForAnalysis(file, {
+        documentType: DocumentType.INVOICE,
+        hasDeliveryNotes: false
+      })
+      .subscribe({
+        next: () => {
+          this.toastService.success('Factura subida', 'La factura se está analizando por IA...', 3000);
+          this.isUploadingInvoice = false;
+        },
+        error: () => {
+          this.toastService.error('Error al subir', 'No se pudo subir la factura. Intenta nuevamente.', 5000);
+          this.isUploadingInvoice = false;
+        }
+      });
   }
 
   // Métodos de utilidad para el template

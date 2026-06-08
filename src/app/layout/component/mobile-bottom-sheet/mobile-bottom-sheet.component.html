@@ -1,6 +1,6 @@
 <!-- Backdrop oscuro (solo visible cuando el chat está abierto) -->
 <div
-  *ngIf="isOpen"
+  *ngIf="isOpen && !mobileChatOnly"
   class="bottom-sheet-backdrop"
   (click)="onBackdropClick()"
   role="presentation"
@@ -10,6 +10,7 @@
 <div
   *ngIf="isOpen"
   class="chat-modal-container"
+  [class.chat-only]="mobileChatOnly"
   (click)="$event.stopPropagation()"
   role="dialog"
   aria-modal="true"
@@ -22,11 +23,21 @@
     </div>
 
     <button
+      *ngIf="!mobileChatOnly"
       type="button"
       (click)="closeChat($event)"
       class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-100 dark:bg-surface-700 mg-text hover:bg-surface-200 dark:hover:bg-surface-600 transition-all shadow-sm"
       aria-label="Cerrar chat">
       <app-icon name="close" size="md"></app-icon>
+    </button>
+
+    <button
+      *ngIf="mobileChatOnly"
+      type="button"
+      (click)="logout()"
+      class="w-10 h-10 flex items-center justify-center rounded-full bg-red-50 text-red-500 dark:bg-red-500/15 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-500/25 transition-all shadow-sm"
+      aria-label="Cerrar sesión">
+      <app-icon name="logout" size="md"></app-icon>
     </button>
   </div>
 
@@ -95,43 +106,50 @@
     </div>
   </div>
 
-  <!-- Acciones rápidas contextuales -->
-  <div class="quick-actions-container">
-    <div class="grid grid-cols-2 gap-2">
+  <!-- Acción contextual -->
+  <div class="invoice-action-container">
+    <div class="invoice-upload-wrapper">
       <button
-        *ngFor="let action of currentContext.actions"
-        (click)="handleQuickAction(action.action)"
-        [attr.aria-label]="action.label"
+        class="invoice-upload-button"
         type="button"
-        class="px-3 py-3 bg-primary/10 dark:bg-primary/20 text-primary text-sm font-medium rounded-full hover:bg-primary/20 dark:hover:bg-primary/30 transition-all duration-200 flex items-center justify-center gap-2 text-center">
-        <i [class]="action.icon + ' text-base'" aria-hidden="true"></i>
-        <span class="truncate">{{ action.label }}</span>
+        aria-label="Subir factura"
+        [attr.aria-expanded]="showInvoiceUploadOptions"
+        [disabled]="isUploadingInvoice"
+        (click)="toggleInvoiceUploadOptions()">
+        <app-icon
+          [name]="isUploadingInvoice ? 'hourglass_top' : 'receipt_long'"
+          size="md"
+          aria-hidden="true"></app-icon>
+        <span>Subir factura</span>
       </button>
+
+      <div *ngIf="showInvoiceUploadOptions" class="invoice-upload-options">
+        <button type="button" class="invoice-upload-option" (click)="chooseInvoiceFile()">
+          <app-icon name="upload_file" size="sm" aria-hidden="true"></app-icon>
+          <span>Archivo</span>
+        </button>
+        <button type="button" class="invoice-upload-option" (click)="captureInvoicePhoto()">
+          <app-icon name="photo_camera" size="sm" aria-hidden="true"></app-icon>
+          <span>Foto</span>
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Input del chat -->
   <div class="chat-input-container">
-    <button class="attach-button" type="button" aria-label="Subir archivo" (click)="handleFileUpload()">
-      <app-icon name="attach_file" size="md" aria-hidden="true"></app-icon>
-    </button>
-
-    <button class="attach-button" type="button" aria-label="Tomar foto" (click)="handleCameraCapture()">
-      <app-icon name="photo_camera" size="md" aria-hidden="true"></app-icon>
-    </button>
-
     <input
       #fileInput
       type="file"
-      accept="image/*,application/pdf,audio/*"
-      (change)="onFileSelected($event)"
+      accept="image/*,application/pdf"
+      (change)="onInvoiceFileSelected($event)"
       class="hidden" />
     <input
       #cameraInput
       type="file"
       accept="image/*"
       capture="environment"
-      (change)="onCameraCapture($event)"
+      (change)="onInvoicePhotoCaptured($event)"
       class="hidden" />
 
     <input
