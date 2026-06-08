@@ -1,14 +1,15 @@
-import { Component, Input, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, Input, OnInit, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { AutoCompleteModule } from 'primeng/autocomplete';
+import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { Textarea } from 'primeng/textarea';
-import { MenuModule } from 'primeng/menu';
+import { Menu, MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { Product } from '@app/core/interfaces/Invoice.interfaces';
 import { ToastService } from '@shared/services/toast.service';
@@ -25,12 +26,23 @@ import { MachineryService } from '../../services/machinery.service';
 import { FoodPreparationService } from '../../services/food-preparation.service';
 import { FoodPreparationTypeService } from '../../services/food-preparation-type.service';
 
+type RecipeMeasure = 'g' | 'kg' | 'ml' | 'l' | 'ud';
+
 export interface IngredientRow {
   type: 'ingredient' | 'elaboration';
-  selectedItem: any;
+  selectedItem: IngredientOption | null;
   amount: string;
-  unit: 'g' | 'ud';
+  unit: RecipeMeasure;
 }
+
+interface IngredientOption {
+  id: string;
+  name: string;
+  estimatedTotalCost?: number;
+  estimatedCostPerKg?: number | null;
+}
+
+type FilledIngredientRow = IngredientRow & { selectedItem: IngredientOption };
 
 @Component({
   selector: 'app-preparations-content',
@@ -55,6 +67,7 @@ export class PreparationsContentComponent implements OnInit {
   private foodPreparationService = inject(FoodPreparationService);
   private foodPreparationTypeService = inject(FoodPreparationTypeService);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() availableProducts: Product[] = [];
   @Input() type: 'elaboration' | 'article' = 'elaboration';
@@ -116,10 +129,13 @@ export class PreparationsContentComponent implements OnInit {
 
   amountUnits = [
     { label: 'Gramos', value: 'g' },
+    { label: 'Kilogramos', value: 'kg' },
+    { label: 'Mililitros', value: 'ml' },
+    { label: 'Litros', value: 'l' },
     { label: 'Unidades', value: 'ud' }
   ];
 
-  filteredItems: any[] = [];
+  filteredItems: IngredientOption[] = [];
 
   ingredientTypes = [
     { label: 'Ingrediente', value: 'ingredient' },
@@ -130,34 +146,46 @@ export class PreparationsContentComponent implements OnInit {
   ngOnInit() {
     this.loadPreparations();
     this.loadPreparationType();
-    this.utensilService.getUtensils().subscribe({
-      next: (utensils) => this.allUtensils.set(utensils),
-      error: () => {}
-    });
-    this.machineryService.getMachinery().subscribe({
-      next: (machinery) => this.allMachinery.set(machinery),
-      error: () => {}
-    });
+    this.utensilService
+      .getUtensils()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (utensils) => this.allUtensils.set(utensils),
+        error: () => {}
+      });
+    this.machineryService
+      .getMachinery()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (machinery) => this.allMachinery.set(machinery),
+        error: () => {}
+      });
   }
 
   loadPreparations() {
-    this.foodPreparationService.getAll().subscribe({
-      next: (all) => {
-        this.preparations.set(all.filter((p) => p.type?.type === this.type));
-        this.allElaborations.set(all.filter((p) => p.type?.type === 'elaboration'));
-      },
-      error: () => {}
-    });
+    this.foodPreparationService
+      .getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (all) => {
+          this.preparations.set(all.filter((p) => p.type?.type === this.type));
+          this.allElaborations.set(all.filter((p) => p.type?.type === 'elaboration'));
+        },
+        error: () => {}
+      });
   }
 
   private loadPreparationType() {
-    this.foodPreparationTypeService.getTypes().subscribe({
-      next: (types) => {
-        const found = types.find((t) => t.type === this.type) ?? null;
-        this.preparationType.set(found);
-      },
-      error: () => {}
-    });
+    this.foodPreparationTypeService
+      .getTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => {
+          const found = types.find((t) => t.type === this.type) ?? null;
+          this.preparationType.set(found);
+        },
+        error: () => {}
+      });
   }
 
   // ─── Shell navigation ───────────────────────────────────────────────────────
@@ -166,15 +194,18 @@ export class PreparationsContentComponent implements OnInit {
     this.resetForm();
     this.isLoadingDetail.set(true);
     this.selectedPreparation.set(preparation);
-    this.foodPreparationService.getOne(preparation.id).subscribe({
-      next: (full) => {
-        this.selectedPreparation.set(full);
-        this.isLoadingDetail.set(false);
-      },
-      error: () => {
-        this.isLoadingDetail.set(false);
-      }
-    });
+    this.foodPreparationService
+      .getOne(preparation.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (full) => {
+          this.selectedPreparation.set(full);
+          this.isLoadingDetail.set(false);
+        },
+        error: () => {
+          this.isLoadingDetail.set(false);
+        }
+      });
   }
 
   closeDetail() {
@@ -208,12 +239,12 @@ export class PreparationsContentComponent implements OnInit {
             ? { id: ing.enterpriseProductId, name: ing.enterpriseProduct.productBase.name }
             : { id: ing.enterpriseProductId, name: ing.enterpriseProductId }),
         amount: String(ing.quantity),
-        unit: (ing.measure === 'ud' ? 'ud' : 'g') as 'g' | 'ud'
+        unit: this.normalizeMeasure(ing.measure)
       };
     });
 
     const subRows: IngredientRow[] = (detail.subPreparations ?? []).map((sub) => {
-      const fullPrep = this.preparations().find((e) => e.id === sub.oldFoodPreparationId);
+      const fullPrep = this.allElaborations().find((e) => e.id === sub.oldFoodPreparationId);
       return {
         type: 'elaboration' as const,
         selectedItem:
@@ -222,7 +253,7 @@ export class PreparationsContentComponent implements OnInit {
             ? { id: sub.oldFoodPreparationId, name: sub.oldFoodPreparation.name }
             : { id: sub.oldFoodPreparationId, name: sub.oldFoodPreparationId }),
         amount: String(sub.quantity),
-        unit: (sub.measure === 'ud' ? 'ud' : 'g') as 'g' | 'ud'
+        unit: this.normalizeMeasure(sub.measure)
       };
     });
 
@@ -238,7 +269,7 @@ export class PreparationsContentComponent implements OnInit {
   }
 
   // ─── Context menu ────────────────────────────────────────────────────────────
-  openMenu(event: Event, preparation: FoodPreparation, menu: any) {
+  openMenu(event: Event, preparation: FoodPreparation, menu: Menu) {
     event.stopPropagation();
     this.activeMenuPreparation = preparation;
     this.menuItems.set([
@@ -266,18 +297,21 @@ export class PreparationsContentComponent implements OnInit {
   }
 
   deletePreparation(preparation: FoodPreparation) {
-    this.foodPreparationService.remove(preparation.id).subscribe({
-      next: () => {
-        this.toastService.success('Eliminada', `"${preparation.name}" ha sido eliminada`);
-        if (this.selectedPreparation()?.id === preparation.id) {
-          this.selectedPreparation.set(null);
+    this.foodPreparationService
+      .remove(preparation.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Eliminada', `"${preparation.name}" ha sido eliminada`);
+          if (this.selectedPreparation()?.id === preparation.id) {
+            this.selectedPreparation.set(null);
+          }
+          this.loadPreparations();
+        },
+        error: () => {
+          this.toastService.error('Error', `No se pudo eliminar`);
         }
-        this.loadPreparations();
-      },
-      error: () => {
-        this.toastService.error('Error', `No se pudo eliminar`);
-      }
-    });
+      });
   }
 
   // ─── Ingredient helpers ──────────────────────────────────────────────────────
@@ -307,19 +341,53 @@ export class PreparationsContentComponent implements OnInit {
     this.ingredientRows.update((rows) => rows.filter((_, i) => i !== index));
   }
 
-  getAvailableItems(type: 'ingredient' | 'elaboration'): any[] {
+  updateIngredientRow(index: number, patch: Partial<IngredientRow>) {
+    this.ingredientRows.update((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
+
+  getAvailableItems(type: 'ingredient' | 'elaboration'): IngredientOption[] {
     return type === 'ingredient' ? this.availableProducts : this.allElaborations();
   }
 
-  filterItems(event: any, type: 'ingredient' | 'elaboration') {
+  onSelectedItemChange(index: number, selectedItem: IngredientOption | null) {
+    const row = this.ingredientRows()[index];
+    if (!row) return;
+
+    const nextUnit =
+      row.type === 'ingredient'
+        ? this.normalizeMeasure((selectedItem as Product | null)?.recipeDefaultMeasure ?? 'g')
+        : 'g';
+
+    this.updateIngredientRow(index, { selectedItem, unit: nextUnit });
+  }
+
+  trackIngredientRow(index: number) {
+    return index;
+  }
+
+  filterItems(event: AutoCompleteCompleteEvent, type: 'ingredient' | 'elaboration') {
     const query = event.query.toLowerCase();
     let items = this.getAvailableItems(type);
 
     if (type === 'elaboration' && this.editingId()) {
-      items = items.filter((item: any) => item.id !== this.editingId());
+      items = items.filter((item) => item.id !== this.editingId());
     }
 
-    this.filteredItems = items.filter((item: any) => item.name.toLowerCase().includes(query));
+    this.filteredItems = items.filter((item) => item.name.toLowerCase().includes(query));
+  }
+
+  getMeasureOptions(row: IngredientRow) {
+    if (row.type === 'elaboration') {
+      return this.amountUnits.filter((unit) => ['g', 'kg'].includes(unit.value));
+    }
+
+    const product = row.selectedItem as Product | null;
+    const allowed = product?.recipeAllowedMeasures?.length ? product.recipeAllowedMeasures : ['g'];
+    return this.amountUnits.filter((unit) => allowed.includes(unit.value as RecipeMeasure));
+  }
+
+  getAmountPlaceholder(row: IngredientRow): string {
+    return row.unit;
   }
 
   // ─── Price ──────────────────────────────────────────────────────────────────
@@ -327,30 +395,68 @@ export class PreparationsContentComponent implements OnInit {
     const amount = parseFloat(row.amount);
     if (!row.selectedItem || !amount || amount <= 0) return null;
 
-    // Sub-elaboration: use estimatedCost from the backend
+    // Sub-elaboration: use backend cost estimates for the selected amount.
     if (row.type === 'elaboration') {
-      const elab = row.selectedItem as FoodPreparation;
-      return elab?.estimatedCost ?? null;
+      const elab = row.selectedItem;
+      if (row.unit === 'g') {
+        return elab.estimatedCostPerKg != null ? (amount / 1000) * elab.estimatedCostPerKg : null;
+      }
+
+      if (row.unit === 'kg') {
+        return elab.estimatedCostPerKg != null ? amount * elab.estimatedCostPerKg : null;
+      }
+
+      if (row.unit === 'ud') {
+        return elab.estimatedTotalCost != null ? amount * elab.estimatedTotalCost : null;
+      }
+
+      return null;
     }
 
-    // Ingredient: calculate from product prices
+    // Ingredient: calculate from recipe costs
     const product = row.selectedItem as Product;
 
     if (row.unit === 'g') {
-      if (product.pricePerKg != null && product.pricePerKg > 0) {
-        return (amount / 1000) * product.pricePerKg;
+      if (product.recipeCostPerKg != null && product.recipeCostPerKg > 0) {
+        return (amount / 1000) * product.recipeCostPerKg;
+      }
+      return null;
+    }
+
+    if (row.unit === 'kg') {
+      if (product.recipeCostPerKg != null && product.recipeCostPerKg > 0) {
+        return amount * product.recipeCostPerKg;
+      }
+      return null;
+    }
+
+    if (row.unit === 'ml') {
+      if (product.recipeCostPerLiter != null && product.recipeCostPerLiter > 0) {
+        return (amount / 1000) * product.recipeCostPerLiter;
+      }
+      return null;
+    }
+
+    if (row.unit === 'l') {
+      if (product.recipeCostPerLiter != null && product.recipeCostPerLiter > 0) {
+        return amount * product.recipeCostPerLiter;
       }
       return null;
     }
 
     if (row.unit === 'ud') {
-      if (product.pricePerUnit != null && product.pricePerUnit > 0) {
-        return amount * product.pricePerUnit;
+      if (product.recipeUsageType === 'piece' && product.recipeCostPerPiece != null && product.recipeCostPerPiece > 0) {
+        return amount * product.recipeCostPerPiece;
       }
       return null;
     }
 
     return null;
+  }
+
+  private normalizeMeasure(measure: string): RecipeMeasure {
+    const normalized = measure.trim().toLowerCase();
+    return ['g', 'kg', 'ml', 'l', 'ud'].includes(normalized) ? (normalized as RecipeMeasure) : 'g';
   }
 
   // Sum of all priced rows in the current form
@@ -374,12 +480,14 @@ export class PreparationsContentComponent implements OnInit {
       return;
     }
 
-    const filledRows = this.ingredientRows().filter((row) => row.selectedItem?.id && row.amount);
+    const filledRows = this.ingredientRows().filter((row): row is FilledIngredientRow =>
+      Boolean(row.selectedItem?.id && row.amount)
+    );
 
     const ingredients = filledRows
       .filter((row) => row.type === 'ingredient')
       .map((row) => ({
-        enterpriseProductId: row.selectedItem.id as string,
+        enterpriseProductId: row.selectedItem.id,
         measure: row.unit,
         quantity: parseFloat(row.amount)
       }));
@@ -387,7 +495,7 @@ export class PreparationsContentComponent implements OnInit {
     const subPreparations = filledRows
       .filter((row) => row.type === 'elaboration')
       .map((row) => ({
-        oldFoodPreparationId: row.selectedItem.id as string,
+        oldFoodPreparationId: row.selectedItem.id,
         measure: row.unit,
         quantity: parseFloat(row.amount)
       }));
@@ -410,20 +518,26 @@ export class PreparationsContentComponent implements OnInit {
         machineryIds
       };
 
-      this.foodPreparationService.update(this.editingId()!, dto).subscribe({
-        next: (updated) => {
-          this.isSaving.set(false);
-          this.toastService.success(`${this.typeLabel} actualizada`, `"${updated.name}" se ha guardado correctamente`);
-          this.isEditMode.set(false);
-          this.resetForm();
-          this.loadPreparations();
-          this.openDetail(updated);
-        },
-        error: () => {
-          this.isSaving.set(false);
-          this.toastService.error('Error', `No se pudo actualizar`);
-        }
-      });
+      this.foodPreparationService
+        .update(this.editingId()!, dto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updated) => {
+            this.isSaving.set(false);
+            this.toastService.success(
+              `${this.typeLabel} actualizada`,
+              `"${updated.name}" se ha guardado correctamente`
+            );
+            this.isEditMode.set(false);
+            this.resetForm();
+            this.loadPreparations();
+            this.openDetail(updated);
+          },
+          error: () => {
+            this.isSaving.set(false);
+            this.toastService.error('Error', `No se pudo actualizar`);
+          }
+        });
       return;
     }
 
@@ -444,19 +558,22 @@ export class PreparationsContentComponent implements OnInit {
       machineryIds
     };
 
-    this.foodPreparationService.create(createDto).subscribe({
-      next: (created) => {
-        this.isSaving.set(false);
-        this.toastService.success(`${this.typeLabel} creada`, `Se ha creado correctamente`);
-        this.resetForm();
-        this.isEditMode.set(false);
-        this.loadPreparations();
-        this.openDetail(created);
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.toastService.error('Error', `No se pudo crear`);
-      }
-    });
+    this.foodPreparationService
+      .create(createDto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (created) => {
+          this.isSaving.set(false);
+          this.toastService.success(`${this.typeLabel} creada`, `Se ha creado correctamente`);
+          this.resetForm();
+          this.isEditMode.set(false);
+          this.loadPreparations();
+          this.openDetail(created);
+        },
+        error: () => {
+          this.isSaving.set(false);
+          this.toastService.error('Error', `No se pudo crear`);
+        }
+      });
   }
 }

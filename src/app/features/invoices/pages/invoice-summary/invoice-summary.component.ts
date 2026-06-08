@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   OnDestroy,
   AfterViewInit,
@@ -11,6 +12,7 @@ import {
   computed,
   TemplateRef
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { COLUMNS } from '@features/invoices/constants/columns';
@@ -63,7 +65,7 @@ import { AppPermission } from '../../../../core/constants/permissions.enum';
 export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
   @ViewChild(TablaDinamicaComponent) tablaRef!: TablaDinamicaComponent;
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
   invoices = signal<Invoice[]>([]);
   loading = signal(true);
   searchTerm = signal('');
@@ -99,7 +101,8 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
     private readonly router: Router,
     private readonly modalService: ModalService,
     private readonly layoutService: LayoutService,
-    private readonly headerService: SectionHeaderService
+    private readonly headerService: SectionHeaderService,
+    private readonly destroyRef: DestroyRef
   ) {}
 
   showMobileSearch = false;
@@ -110,17 +113,19 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
 
   ngOnInit(): void {
     this.layoutService.setPageTitle('Facturas y albaranes');
-    this.invoiceService.getInvoices().subscribe({
-      next: (data: Invoice[]) => {
-        this.invoices.set(data);
-        this.loading.set(false);
-      },
-      error: (err: any) => {
-        console.error('Error cargando facturas', err);
-        this.loading.set(false);
-        this.toastService.error('Error', 'No se pudieron cargar las facturas.');
-      }
-    });
+    this.invoiceService
+      .getInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data: Invoice[]) => {
+          this.invoices.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toastService.error('Error', 'No se pudieron cargar las facturas.');
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -159,23 +164,33 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
 
   eliminarFactura(factura: Invoice) {
     if (!factura.id) {
-      console.warn('No se puede eliminar una factura sin ID.');
+      this.toastService.warn('Atención', 'No se puede eliminar una factura sin ID.');
       return;
     }
 
-    this.invoiceService.deleteInvoice(factura.id).subscribe({
-      next: () => {
-        this.invoices.update((facturas) => facturas.filter((f) => f.id !== factura.id));
-        this.toastService.success('Factura eliminada', 'La factura ha sido eliminada correctamente.');
-      },
-      error: (error: any) => {
-        console.error('Error eliminando la factura:', error);
-        this.toastService.error('Error', error.error?.message || 'No se pudo eliminar la factura. Intenta nuevamente.');
-      }
-    });
+    this.invoiceService
+      .deleteInvoice(factura.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.invoices.update((facturas) => facturas.filter((f) => f.id !== factura.id));
+          this.toastService.success('Factura eliminada', 'La factura ha sido eliminada correctamente.');
+        },
+        error: (error: unknown) => {
+          this.toastService.error(
+            'Error',
+            this.getErrorMessage(error, 'No se pudo eliminar la factura. Intenta nuevamente.')
+          );
+        }
+      });
   }
 
-  handleAccion(event: { action: string; row: any }) {
+  handleAccion(event: { action: string; row: unknown }) {
+    if (!this.isInvoice(event.row)) {
+      this.toastService.error('Error', 'La acción no se puede aplicar a esta fila.');
+      return;
+    }
+
     if (event.action === 'editar') {
       this.verDetalle(event.row);
     } else if (event.action === 'eliminar') {
@@ -193,5 +208,20 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
       header: 'Agregar documento',
       dismissableMask: false
     });
+  }
+
+  private getErrorMessage(error: unknown, fallback: string): string {
+    if (typeof error === 'object' && error !== null && 'error' in error) {
+      const nestedError = (error as { error?: { message?: unknown } }).error;
+      if (typeof nestedError?.message === 'string') {
+        return nestedError.message;
+      }
+    }
+
+    return fallback;
+  }
+
+  private isInvoice(value: unknown): value is Invoice {
+    return typeof value === 'object' && value !== null && 'id' in value && 'amount' in value && 'date' in value;
   }
 }

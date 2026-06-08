@@ -4,7 +4,7 @@
       <button
         *ngIf="preparationsComponent?.selectedPreparation() && !preparationsComponent?.isEditMode()"
         pButton
-        class="p-button-text p-button-rounded text-gray-500 hover:text-maingoo-sage"
+        class="p-button-text p-button-rounded mg-text-muted hover:text-primary"
         aria-label="Editar"
         (click)="preparationsComponent?.toggleEditMode()">
         <app-icon name="edit" size="md"></app-icon>
@@ -42,25 +42,33 @@
       [searchTerm]="searchTerm">
     </app-preparations-content>
 
-    <!-- Mise en place (placeholder) -->
-    <div
-      *ngIf="selectedCategory === 'mise-en-place'"
-      class="flex flex-col items-center justify-center py-12 text-center">
-      <div class="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center text-purple-400 mb-4">
-        <app-icon name="chef_hat" size="xl"></app-icon>
-      </div>
-      <h3 class="text-lg font-medium text-gray-900">Mise en place</h3>
-      <p class="text-sm text-gray-500 max-w-xs mx-auto mt-1">
-        Próximamente podrás organizar y distribuir las elaboraciones con tu equipo.
-      </p>
+    <!-- Equipment -->
+    <div *ngIf="selectedCategory === 'equipment'" class="grid grid-cols-1 xl:grid-cols-2 gap-5 items-start">
+      <section *ngxPermissionsOnly="[P.UtensilsRead]" class="mg-surface-muted rounded-content p-4">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center shrink-0">
+            <app-icon name="restaurant" size="md"></app-icon>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-base font-semibold mg-text m-0">Utensilios</h3>
+            <p class="text-xs mg-text-muted m-0">Herramientas usadas en las elaboraciones.</p>
+          </div>
+        </div>
+        <app-catalog-content type="utensil" [searchTerm]="searchTerm"></app-catalog-content>
+      </section>
+
+      <section *ngxPermissionsOnly="[P.MachineryRead]" class="mg-surface-muted rounded-content p-4">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center shrink-0">
+            <app-icon name="precision_manufacturing" size="md"></app-icon>
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-base font-semibold mg-text m-0">Maquinaria</h3>
+            <p class="text-xs mg-text-muted m-0">Equipos disponibles para preparar artículos.</p>
+          </div>
+        </div>
+        <app-catalog-content type="machinery" [searchTerm]="searchTerm"></app-catalog-content>
+      </section>
     </div>
-
-    <!-- Utensils -->
-    <app-catalog-content *ngIf="selectedCategory === 'utensils'" type="utensil" [searchTerm]="searchTerm">
-    </app-catalog-content>
-
-    <!-- Machinery -->
-    <app-catalog-content *ngIf="selectedCategory === 'machinery'" type="machinery" [searchTerm]="searchTerm">
-    </app-catalog-content>
   </div>
 </app-detail-card-shell>

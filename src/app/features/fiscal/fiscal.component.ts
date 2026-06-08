@@ -5,12 +5,14 @@ import {
   OnInit,
   OnDestroy,
   AfterViewInit,
+  DestroyRef,
   signal,
   inject,
   computed,
   ViewChild,
   TemplateRef
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -61,6 +63,18 @@ export interface GroupedInvoices {
   expanded: boolean;
 }
 
+type FiscalView = 'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies';
+type FiscalViewMode = 'cards' | 'list';
+type ToggleableInvoiceGroup = GroupedInvoices | QuarterGroup | SupplierGroup;
+type GestorForm = {
+  name: string;
+  business: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  notes: string;
+};
+
 @Component({
   selector: 'app-fiscal',
   standalone: true,
@@ -84,12 +98,13 @@ export interface GroupedInvoices {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
   private headerService = inject(SectionHeaderService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // View Control
-  view = signal<'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies'>('hub');
-  viewMode = signal<'cards' | 'list'>('cards');
+  view = signal<FiscalView>('hub');
+  viewMode = signal<FiscalViewMode>('cards');
 
   // Invoice Data
   invoices = signal<Invoice[]>([]);
@@ -109,14 +124,7 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
   isEditingManager = signal(false);
 
   // Local form fields for editing
-  gestorForm = signal<{
-    name: string;
-    business: string;
-    email: string;
-    phoneNumber: string;
-    address: string;
-    notes: string;
-  }>({
+  gestorForm = signal<GestorForm>({
     name: '',
     business: '',
     email: '',
@@ -245,27 +253,30 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   loadGestor() {
     this.gestorLoading.set(true);
-    this.gestorService.getGestors().subscribe({
-      next: (gestors: Gestor[]) => {
-        const gestor = gestors.length > 0 ? gestors[0] : null;
-        this.gestor.set(gestor);
-        if (gestor) {
-          this.gestorForm.set({
-            name: gestor.name ?? '',
-            business: gestor.business ?? '',
-            email: gestor.email ?? '',
-            phoneNumber: gestor.phoneNumber ?? '',
-            address: gestor.address ?? '',
-            notes: gestor.notes ?? ''
-          });
+    this.gestorService
+      .getGestors()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (gestors: Gestor[]) => {
+          const gestor = gestors.length > 0 ? gestors[0] : null;
+          this.gestor.set(gestor);
+          if (gestor) {
+            this.gestorForm.set({
+              name: gestor.name ?? '',
+              business: gestor.business ?? '',
+              email: gestor.email ?? '',
+              phoneNumber: gestor.phoneNumber ?? '',
+              address: gestor.address ?? '',
+              notes: gestor.notes ?? ''
+            });
+          }
+          this.gestorLoading.set(false);
+        },
+        error: () => {
+          this.gestorLoading.set(false);
+          this.toastService.error('Error', 'No se pudo cargar la información del gestor.');
         }
-        this.gestorLoading.set(false);
-      },
-      error: () => {
-        this.gestorLoading.set(false);
-        this.toastService.error('Error', 'No se pudo cargar la información del gestor.');
-      }
-    });
+      });
   }
 
   startEditingManager() {
@@ -294,27 +305,33 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     if (existing?.id) {
-      this.gestorService.updateGestor(existing.id, dto).subscribe({
-        next: (updated: Gestor) => {
-          this.gestor.set(updated);
-          this.isEditingManager.set(false);
-          this.toastService.success('Gestor actualizado', 'Los datos del gestor se han guardado correctamente.');
-        },
-        error: () => {
-          this.toastService.error('Error', 'No se pudo actualizar el gestor.');
-        }
-      });
+      this.gestorService
+        .updateGestor(existing.id, dto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updated: Gestor) => {
+            this.gestor.set(updated);
+            this.isEditingManager.set(false);
+            this.toastService.success('Gestor actualizado', 'Los datos del gestor se han guardado correctamente.');
+          },
+          error: () => {
+            this.toastService.error('Error', 'No se pudo actualizar el gestor.');
+          }
+        });
     } else {
-      this.gestorService.createGestor(dto).subscribe({
-        next: (created: Gestor) => {
-          this.gestor.set(created);
-          this.isEditingManager.set(false);
-          this.toastService.success('Gestor creado', 'El gestor ha sido añadido correctamente.');
-        },
-        error: () => {
-          this.toastService.error('Error', 'No se pudo crear el gestor.');
-        }
-      });
+      this.gestorService
+        .createGestor(dto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (created: Gestor) => {
+            this.gestor.set(created);
+            this.isEditingManager.set(false);
+            this.toastService.success('Gestor creado', 'El gestor ha sido añadido correctamente.');
+          },
+          error: () => {
+            this.toastService.error('Error', 'No se pudo crear el gestor.');
+          }
+        });
     }
   }
 
@@ -322,34 +339,36 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isEditingManager.set(false);
   }
 
-  updateForm(field: string, value: string) {
+  updateForm(field: keyof GestorForm, value: string) {
     this.gestorForm.update((f) => ({ ...f, [field]: value }));
   }
 
   loadInvoices() {
     this.loading.set(true);
-    this.invoiceService.getInvoices().subscribe({
-      next: (data: Invoice[]) => {
-        this.invoices.set(data);
-        this.loading.set(false);
-      },
-      error: (err: any) => {
-        console.error('Error cargando facturas', err);
-        this.loading.set(false);
-        this.toastService.error('Error', 'No se pudieron cargar las facturas.');
-      }
-    });
+    this.invoiceService
+      .getInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data: Invoice[]) => {
+          this.invoices.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.toastService.error('Error', 'No se pudieron cargar las facturas.');
+        }
+      });
   }
 
-  setView(view: 'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies') {
+  setView(view: FiscalView) {
     this.view.set(view);
     if (view === 'invoices' && this.invoices().length === 0) {
       this.loadInvoices();
     }
   }
 
-  setViewMode(mode: string) {
-    this.viewMode.set(mode as 'cards' | 'list');
+  setViewMode(mode: FiscalViewMode) {
+    this.viewMode.set(mode);
   }
 
   verDetalle(factura: Invoice) {
@@ -371,20 +390,25 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   eliminarFactura(factura: Invoice) {
     if (!factura.id) {
-      console.warn('No se puede eliminar una factura sin ID.');
+      this.toastService.warn('Atención', 'No se puede eliminar una factura sin ID.');
       return;
     }
 
-    this.invoiceService.deleteInvoice(factura.id).subscribe({
-      next: () => {
-        this.invoices.update((facturas) => facturas.filter((f) => f.id !== factura.id));
-        this.toastService.success('Factura eliminada', 'La factura ha sido eliminada correctamente.');
-      },
-      error: (error: any) => {
-        console.error('Error eliminando la factura:', error);
-        this.toastService.error('Error', error.error?.message || 'No se pudo eliminar la factura. Intenta nuevamente.');
-      }
-    });
+    this.invoiceService
+      .deleteInvoice(factura.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.invoices.update((facturas) => facturas.filter((f) => f.id !== factura.id));
+          this.toastService.success('Factura eliminada', 'La factura ha sido eliminada correctamente.');
+        },
+        error: (error: unknown) => {
+          this.toastService.error(
+            'Error',
+            this.getErrorMessage(error, 'No se pudo eliminar la factura. Intenta nuevamente.')
+          );
+        }
+      });
   }
 
   openAddInvoiceModal() {
@@ -400,8 +424,19 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     this.searchTerm.set(input.value);
   }
 
-  toggleGroup(group: any) {
+  toggleGroup(group: ToggleableInvoiceGroup) {
     group.expanded = !group.expanded;
+  }
+
+  private getErrorMessage(error: unknown, fallback: string): string {
+    if (typeof error === 'object' && error !== null && 'error' in error) {
+      const nestedError = (error as { error?: { message?: unknown } }).error;
+      if (typeof nestedError?.message === 'string') {
+        return nestedError.message;
+      }
+    }
+
+    return fallback;
   }
 
   private normalizeText(text: string): string {
@@ -475,16 +510,19 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
       const factura = facturasConId[index];
-      this.invoiceService.deleteInvoice(factura.id!).subscribe({
-        next: () => {
-          eliminadas++;
-          eliminarSiguiente(index + 1);
-        },
-        error: () => {
-          errores++;
-          eliminarSiguiente(index + 1);
-        }
-      });
+      this.invoiceService
+        .deleteInvoice(factura.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            eliminadas++;
+            eliminarSiguiente(index + 1);
+          },
+          error: () => {
+            errores++;
+            eliminarSiguiente(index + 1);
+          }
+        });
     };
 
     eliminarSiguiente(0);

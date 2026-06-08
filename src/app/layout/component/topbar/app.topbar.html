@@ -1,12 +1,10 @@
 <!-- ==================== TOPBAR PRINCIPAL ==================== -->
 <app-topbar-shell>
   <!-- ========== SECCIÓN IZQUIERDA: Identidad ========== -->
-  <app-topbar-left-welcome [userName]="userName" [businessName]="businessName"
-    [businessType]="businessType">
+  <app-topbar-left-welcome [userName]="userName" [businessName]="businessName" [businessType]="businessType">
   </app-topbar-left-welcome>
 
   <!-- ========== SECCIÓN DERECHA: Botones ========== -->
-  <app-topbar-right-buttons (logoutClick)="logout()">
-  </app-topbar-right-buttons>
+  <app-topbar-right-buttons (logoutClick)="logout()"> </app-topbar-right-buttons>
 </app-topbar-shell>
 <!-- ==================== FIN TOPBAR ==================== -->

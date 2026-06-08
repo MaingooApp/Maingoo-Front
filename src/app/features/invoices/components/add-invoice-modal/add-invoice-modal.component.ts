@@ -195,17 +195,17 @@ export class AddInvoiceModalComponent {
             this.startPollingDocumentStatus(result.documentId);
           });
       },
-      error: (error) => {
-        console.error('Error al subir documentos:', error);
-
+      error: (error: unknown) => {
         let errorDetail = 'No se pudieron subir los archivos. ';
 
-        if (error?.status === 0) {
+        const uploadError = error as { status?: number; error?: { message?: string }; message?: string };
+
+        if (uploadError?.status === 0) {
           errorDetail += 'No hay conexión con el servidor. Verifica tu conexión a internet.';
-        } else if (error?.error?.message) {
-          errorDetail += error.error.message;
-        } else if (error?.message) {
-          errorDetail += error.message;
+        } else if (uploadError?.error?.message) {
+          errorDetail += uploadError.error.message;
+        } else if (uploadError?.message) {
+          errorDetail += uploadError.message;
         } else {
           errorDetail += 'Error desconocido. Por favor intenta nuevamente.';
         }
@@ -237,8 +237,7 @@ export class AddInvoiceModalComponent {
             );
           }
         },
-        error: (error) => {
-          console.error('Error al verificar estado:', error);
+        error: () => {
           this._toastService.error('Error', 'No se pudo verificar el estado del análisis', 5000);
         }
       });
@@ -254,4 +253,3 @@ export class AddInvoiceModalComponent {
     this.pollingSubscriptions.forEach((sub) => sub.unsubscribe());
   }
 }
-

@@ -7,6 +7,10 @@ import { environment } from '../../../../environments/environment';
 import { CreateInvoiceDto, DocumentUrlResponse, Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { GetInvoice } from '../interface/get-invoice.interface';
 
+interface SendInvoicesByEmailResponse {
+  message?: string;
+}
+
 /**
  * Servicio para gestionar facturas
  * Endpoints: /api/suppliers/invoices/*
@@ -14,7 +18,6 @@ import { GetInvoice } from '../interface/get-invoice.interface';
 @Injectable({ providedIn: 'root' })
 export class InvoiceService extends BaseHttpService {
   private readonly API_URL = `${environment.urlBackend}api/suppliers/invoices`;
-
 
   constructor(http: HttpClient) {
     super(http);
@@ -39,10 +42,9 @@ export class InvoiceService extends BaseHttpService {
     let httpParams = new HttpParams();
 
     // Iteramos sobre las claves del objeto params para construir los HttpParams
-    Object.keys(params).forEach(key => {
-      const value = (params as any)[key];
+    Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        httpParams = httpParams.set(key, value);
+        httpParams = httpParams.set(key, String(value));
       }
     });
 
@@ -85,8 +87,11 @@ export class InvoiceService extends BaseHttpService {
    * Envía facturas por correo electrónico
    * POST /api/enviar-facturas-por-correo
    */
-  enviarFacturasPorCorreo(facturas: Invoice[], email: string): Observable<any> {
-    return this.post<any>(`${environment.urlBackend}api/enviar-facturas-por-correo`, { facturas, email });
+  enviarFacturasPorCorreo(facturas: Invoice[], email: string): Observable<SendInvoicesByEmailResponse> {
+    return this.post<SendInvoicesByEmailResponse>(`${environment.urlBackend}api/enviar-facturas-por-correo`, {
+      facturas,
+      email
+    });
   }
 
   /**
@@ -96,10 +101,4 @@ export class InvoiceService extends BaseHttpService {
   getDocumentUrl(id: string, expiresInHours: number = 24): Observable<DocumentUrlResponse> {
     return this.get<DocumentUrlResponse>(`${this.API_URL}/${id}/document-url?expiresInHours=${expiresInHours}`);
   }
-
-
-
-
-
-
 }

@@ -1,12 +1,11 @@
 <div class="layout-wrapper flex flex-col h-screen overflow-hidden" [ngClass]="containerClass">
-
   <!-- ═══════ CONTENEDOR 1: TOPBAR (Rojo) ═══════ -->
-  <div class="flex-none">
+  <div class="hidden md:block flex-none">
     <app-topbar></app-topbar>
   </div>
 
   <!-- ═══════ CONTENEDOR 2: MAIN + SIDEBAR (Azul) ═══════ -->
-  <div class="flex-auto overflow-hidden relative px-4">
+  <div class="hidden md:block flex-auto overflow-hidden relative px-4">
     <app-sidebar></app-sidebar>
 
     <app-main [containerClass]="mainContainerClass">
@@ -14,10 +13,8 @@
     </app-main>
   </div>
 
-  <!-- Mobile Components (capas flotantes, no afectan layout) -->
-  <app-mobile-bottom-nav></app-mobile-bottom-nav>
-  <app-mobile-menu-modal></app-mobile-menu-modal>
-  <app-mobile-bottom-sheet></app-mobile-bottom-sheet>
+  <!-- Fase 1 mobile: experiencia centrada solo en chat. -->
+  <app-mobile-bottom-sheet [mobileChatOnly]="true"></app-mobile-bottom-sheet>
 
-  <div class="layout-mask animate-fadein"></div>
+  <div class="hidden md:block layout-mask animate-fadein"></div>
 </div>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 /**
  * Componente reutilizable para iconos de Material Symbols
- * 
+ *
  * Uso:
  * <app-icon name="restaurant"></app-icon>
  * <app-icon name="home" size="lg" [filled]="true"></app-icon>
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span 
+    <span
       class="material-symbols-rounded select-none"
       [class.text-xs]="size === 'xs'"
       [class.text-sm]="size === 'sm'"
@@ -30,13 +30,15 @@ import { CommonModule } from '@angular/common';
       {{ name }}
     </span>
   `,
-  styles: [`
-    :host {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+    `
+  ]
 })
 export class IconComponent {
   /** Nombre del icono de Material Symbols (ej: 'restaurant', 'home', 'settings') */

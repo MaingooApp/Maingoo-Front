@@ -1,19 +1,9 @@
-// Chat Modal Styles - Maingoo Brand Colors
+// Mobile chat shell using PrimeNG semantic tokens.
 :host {
-  --maingoo-soft-mint: #f0f7f4;
-  --maingoo-white: #ffffff;
-  --maingoo-primary: #10b981;
-  --maingoo-primary-dark: #059669;
-  --maingoo-green: #6b9e86;
-  --maingoo-dark-green: #1a3c34;
-  --maingoo-text-primary: #1f2937;
-  --maingoo-text-secondary: #6b7280;
-  --maingoo-border: #e5e7eb;
-
   --transition-standard: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-fast: 0.2s ease;
-  --shadow-light: 0 2px 8px rgba(26, 60, 52, 0.05);
-  --shadow-medium: 0 4px 12px rgba(26, 60, 52, 0.1);
+  --shadow-light: 0 2px 8px color-mix(in srgb, var(--p-surface-950) 5%, transparent);
+  --shadow-medium: 0 4px 12px color-mix(in srgb, var(--p-surface-950) 10%, transparent);
   --shadow-heavy: 0 -4px 24px rgba(0, 0, 0, 0.12);
 }
 
@@ -43,7 +33,7 @@
   right: 0;
   bottom: 0;
   z-index: 100; // Debajo del topbar pero encima del contenido
-  background-color: var(--maingoo-soft-mint);
+  background-color: var(--p-surface-50);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -51,7 +41,7 @@
   border-radius: 16px 16px 0 0; // Esquinas redondeadas arriba
 
   :host-context(.app-dark) & {
-    background-color: #111827;
+    background-color: var(--p-surface-950);
   }
 
   // Solo visible en móvil
@@ -60,19 +50,24 @@
   }
 }
 
+.chat-modal-container.chat-only {
+  top: 0;
+  border-radius: 0;
+}
+
 // ========== CHAT HEADER ==========
 .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 1px solid var(--maingoo-border);
-  background-color: var(--maingoo-soft-mint);
+  border-bottom: 1px solid var(--p-surface-200);
+  background-color: var(--p-surface-50);
   flex-shrink: 0;
 
   :host-context(.app-dark) & {
-    background-color: #1f2937;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--p-surface-900);
+    border-bottom-color: var(--p-surface-700);
   }
 }
 
@@ -82,12 +77,12 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px;
-  background-color: var(--maingoo-soft-mint);
+  background-color: var(--p-surface-50);
   display: flex;
   flex-direction: column;
 
   :host-context(.app-dark) & {
-    background-color: #111827;
+    background-color: var(--p-surface-950);
   }
 
   // Custom scrollbar
@@ -100,11 +95,11 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #d1d5db;
+    background-color: var(--p-surface-300);
     border-radius: 3px;
 
     &:hover {
-      background-color: #9ca3af;
+      background-color: var(--p-surface-400);
     }
   }
 }
@@ -113,64 +108,138 @@
   margin-bottom: 0;
 }
 
-// ========== QUICK ACTIONS ==========
-.quick-actions-container {
+// ========== CONVERSATION LIST ==========
+.chat-conversations {
   flex-shrink: 0;
   padding: 12px 16px;
-  background-color: var(--maingoo-soft-mint);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--p-surface-200);
+  background-color: var(--p-surface-50);
 
   :host-context(.app-dark) & {
-    background-color: #1f2937;
-    border-top-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--p-surface-900);
+    border-bottom-color: var(--p-surface-700);
+  }
+}
+
+.invoice-action-container {
+  padding: 12px 16px;
+  border-top: 1px solid var(--p-surface-200);
+  background-color: var(--p-surface-50);
+  flex-shrink: 0;
+
+  :host-context(.app-dark) & {
+    background-color: var(--p-surface-900);
+    border-top-color: var(--p-surface-700);
+  }
+
+  .invoice-upload-wrapper {
+    position: relative;
+  }
+
+  .invoice-upload-button {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: color-mix(in srgb, var(--p-primary-color) 10%, transparent);
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--p-primary-color);
+    font-size: 14px;
+    font-weight: 700;
+    transition: all var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--p-primary-color) 18%, transparent);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      cursor: wait;
+      opacity: 0.7;
+      transform: none;
+    }
+
+    :host-context(.app-dark) & {
+      background-color: color-mix(in srgb, var(--p-primary-color) 20%, transparent);
+      color: var(--p-primary-color);
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--p-primary-color) 28%, transparent);
+      }
+    }
+  }
+
+  .invoice-upload-options {
+    margin-top: 8px;
+    padding: 6px;
+    border: 1px solid var(--p-surface-200);
+    border-radius: 16px;
+    background-color: var(--p-surface-0);
+    box-shadow: var(--shadow-medium);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+
+    :host-context(.app-dark) & {
+      background-color: var(--p-surface-800);
+      border-color: var(--p-surface-700);
+    }
+  }
+
+  .invoice-upload-option {
+    min-height: 40px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--p-surface-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+
+    &:active,
+    &:hover {
+      background-color: var(--p-surface-100);
+      color: var(--p-primary-color);
+    }
+
+    :host-context(.app-dark) & {
+      color: var(--p-surface-200);
+
+      &:active,
+      &:hover {
+        background-color: var(--p-surface-700);
+        color: var(--p-primary-color);
+      }
+    }
   }
 }
 
 // ========== CHAT INPUT ==========
 .chat-input-container {
   padding: 12px 16px;
-  border-top: 1px solid var(--maingoo-border);
+  border-top: 1px solid var(--p-surface-200);
   display: flex;
   gap: 8px;
-  background-color: var(--maingoo-soft-mint);
+  background-color: var(--p-surface-50);
   flex-shrink: 0;
 
   :host-context(.app-dark) & {
-    background-color: #1f2937;
-    border-top-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .attach-button {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    color: var(--maingoo-text-secondary);
-    transition: all var(--transition-fast);
-    -webkit-tap-highlight-color: transparent;
-
-    &:hover {
-      background-color: #f3f4f6;
-      color: var(--maingoo-green);
-    }
-
-    &:active {
-      transform: scale(0.9);
-    }
-
-    :host-context(.app-dark) & {
-      color: #9ca3af;
-
-      &:hover {
-        background-color: #374151;
-        color: var(--maingoo-green);
-      }
-    }
+    background-color: var(--p-surface-900);
+    border-top-color: var(--p-surface-700);
   }
 }
 

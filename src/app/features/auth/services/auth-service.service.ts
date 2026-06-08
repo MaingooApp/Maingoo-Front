@@ -29,8 +29,7 @@ export class AuthService extends BaseHttpService {
         const user = JSON.parse(userStr);
         this.userSubject.next(user);
         this.ngxPermissionsService.loadPermissions(user.permissions || []);
-      } catch (error) {
-        console.error('Error al cargar usuario del storage:', error);
+      } catch {
         this.clearStorage();
       }
     }

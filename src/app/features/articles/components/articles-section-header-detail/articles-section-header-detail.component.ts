@@ -6,6 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '@app/core/constants/permissions.enum';
 
+interface ArticleSummary {
+  name: string;
+}
+
 @Component({
   selector: 'app-articles-section-header-detail',
   standalone: true,
@@ -15,7 +19,7 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
 export class ArticlesSectionHeaderDetailComponent {
   readonly P = AppPermission;
 
-  @Input() articles: any[] = [];
+  @Input() articles: ArticleSummary[] = [];
   @Input() viewMode: 'cards' | 'list' = 'cards';
   @Input() selectedCategory: string | null = null;
 

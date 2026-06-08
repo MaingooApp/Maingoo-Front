@@ -17,7 +17,9 @@ import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.
         </ng-template>
 
         <!-- Empty State -->
-        <app-empty-state class="w-full" icon="payments"
+        <app-empty-state
+          class="w-full"
+          icon="payments"
           title="Sección en construcción"
           description="Estamos trabajando en esta funcionalidad. Pronto podrás gestionar tu TPV y tus precios de venta."
           [showComingSoon]="true">
@@ -28,7 +30,7 @@ import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.
 })
 export class VentasComponent implements OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   ngAfterViewInit() {
     setTimeout(() => {

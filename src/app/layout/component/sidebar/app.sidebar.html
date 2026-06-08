@@ -5,28 +5,29 @@
 
   <!-- Tabs: Maingoo AI / Notificaciones -->
   <div class="flex-shrink-0 px-4 py-3">
-    <div class="flex gap-1 p-1 bg-white/50 rounded-full">
-
+    <div class="flex gap-1 p-1 bg-surface-0/60 dark:bg-surface-800/70 rounded-full">
       <!-- Tab Maingoo AI -->
-      <button (click)="setActiveTab('chat')"
+      <button
+        (click)="setActiveTab('chat')"
         class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200"
-        [class.bg-white]="activeTab() === 'chat'" [class.dark:bg-surface-700]="activeTab() === 'chat'"
-        [class.shadow-sm]="activeTab() === 'chat'" [class.text-[#1A3C34]]="activeTab() === 'chat'"
-        [class.dark:text-surface-0]="activeTab() === 'chat'" [class.text-gray-500]="activeTab() !== 'chat'"
-        [class.dark:text-gray-400]="activeTab() !== 'chat'" [class.hover:text-gray-700]="activeTab() !== 'chat'">
+        [ngClass]="
+          activeTab() === 'chat'
+            ? 'bg-surface-0 dark:bg-surface-700 shadow-sm text-primary'
+            : 'mg-text-muted hover:text-surface-700 dark:hover:text-surface-200'
+        ">
         <app-icon name="smart_toy" size="sm"></app-icon>
         <span>Maingoo AI</span>
       </button>
 
       <!-- Tab Notificaciones -->
-      <button (click)="setActiveTab('notifications')"
+      <button
+        (click)="setActiveTab('notifications')"
         class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200 relative"
-        [class.bg-white]="activeTab() === 'notifications'" [class.dark:bg-surface-700]="activeTab() === 'notifications'"
-        [class.shadow-sm]="activeTab() === 'notifications'" [class.text-[#1A3C34]]="activeTab() === 'notifications'"
-        [class.dark:text-surface-0]="activeTab() === 'notifications'"
-        [class.text-gray-500]="activeTab() !== 'notifications'"
-        [class.dark:text-gray-400]="activeTab() !== 'notifications'"
-        [class.hover:text-gray-700]="activeTab() !== 'notifications'">
+        [ngClass]="
+          activeTab() === 'notifications'
+            ? 'bg-surface-0 dark:bg-surface-700 shadow-sm text-primary'
+            : 'mg-text-muted hover:text-surface-700 dark:hover:text-surface-200'
+        ">
         <app-icon name="notifications" size="sm"></app-icon>
         <span>Notificaciones</span>
         <!-- Badge de notificaciones -->
@@ -38,17 +39,18 @@
         }
       </button>
     </div>
-    <div class="h-px bg-gray-300 dark:bg-gray-600 mt-3"></div>
+    <div class="h-px bg-surface-200 dark:bg-surface-700 mt-3"></div>
   </div>
 
   <!-- Contenido según tab activo -->
   @if (activeTab() === 'chat') {
   <!-- Chat de Maingoo AI -->
-  <app-sidebar-chat class="flex-1 min-h-0 flex flex-col">
-  </app-sidebar-chat>
+  <app-sidebar-chat class="flex-1 min-h-0 flex flex-col"> </app-sidebar-chat>
   } @else {
   <!-- Notificaciones -->
-  <app-sidebar-notifications class="flex-1 min-h-0 flex flex-col" [notifications]="notifications"
+  <app-sidebar-notifications
+    class="flex-1 min-h-0 flex flex-col"
+    [notifications]="notifications"
     (clearAll)="clearAllNotifications()">
   </app-sidebar-notifications>
   }

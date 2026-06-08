@@ -1,6 +1,17 @@
-<p-table #dt [value]="data" [paginator]="true" [rows]="20" [rowsPerPageOptions]="[10, 20, 50]"
-  [globalFilterFields]="globalFilterFields" [loading]="loading" responsiveLayout="scroll" class="w-full" showGridlines
-  stripedRows filterDisplay="menu" [selection]="enableCheckbox ? selection : null"
+<p-table
+  #dt
+  [value]="data"
+  [paginator]="true"
+  [rows]="20"
+  [rowsPerPageOptions]="[10, 20, 50]"
+  [globalFilterFields]="globalFilterFields"
+  [loading]="loading"
+  responsiveLayout="scroll"
+  class="w-full"
+  showGridlines
+  stripedRows
+  filterDisplay="menu"
+  [selection]="enableCheckbox ? selection : null"
   [selectionMode]="enableCheckbox ? selectionMode : null"
   (selectionChange)="enableCheckbox && selectionChange.emit($event)">
   <!-- Filtro global -->
@@ -18,7 +29,10 @@
         <p-inputicon>
           <app-icon name="search" size="md"></app-icon>
         </p-inputicon>
-        <input pInputText type="text" (input)="dt.filterGlobal(getInputValue($event), 'contains')"
+        <input
+          pInputText
+          type="text"
+          (input)="dt.filterGlobal(getInputValue($event), 'contains')"
           placeholder="Buscar..." />
       </p-iconfield>
     </div>
@@ -58,7 +72,7 @@
             </span>
 
             <span *ngSwitchCase="'date'">
-              {{ getNestedValue(row, col.field) | date: 'dd/MM/yyyy HH:mm' }}
+              {{ getDateValue(row, col.field) | date: 'dd/MM/yyyy HH:mm' }}
             </span>
 
             <span *ngSwitchCase="'boolean'">
@@ -73,8 +87,13 @@
       </ng-container>
       <td *ngIf="actions.length > 0">
         <div class="flex gap-2 justify-center">
-          <button *ngFor="let act of actions" pButton [severity]="act.color || 'primary'"
-            [pTooltip]="act.tooltip || act.action" (click)="onActionClick(act.action, row)" size="small">
+          <button
+            *ngFor="let act of actions"
+            pButton
+            [severity]="act.color || 'primary'"
+            [pTooltip]="act.tooltip || act.action"
+            (click)="onActionClick(act.action, row)"
+            size="small">
             <app-icon [name]="act.icon" size="sm"></app-icon>
           </button>
         </div>
@@ -85,7 +104,7 @@
   <!-- Vacío -->
   <ng-template #emptymessage>
     <tr>
-      <td [attr.colspan]="columns.length + 1" class="text-center text-gray-500 italic">
+      <td [attr.colspan]="columns.length + 1" class="text-center mg-text-muted italic">
         {{ emptyMessage }}
       </td>
     </tr>

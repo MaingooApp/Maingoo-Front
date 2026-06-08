@@ -4,156 +4,287 @@
 
 /* ==================== TYPOGRAPHY (migrado de _typography.scss) ==================== */
 @layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 1.5rem 0 1rem 0;
+    font-family: inherit;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--text-color);
+  }
 
-	h1,
-	h2,
-	h3,
-	h4,
-	h5,
-	h6 {
-		margin: 1.5rem 0 1rem 0;
-		font-family: inherit;
-		font-weight: 700;
-		line-height: 1.5;
-		color: var(--text-color);
-	}
+  h1:first-child,
+  h2:first-child,
+  h3:first-child,
+  h4:first-child,
+  h5:first-child,
+  h6:first-child {
+    margin-top: 0;
+  }
 
-	h1:first-child,
-	h2:first-child,
-	h3:first-child,
-	h4:first-child,
-	h5:first-child,
-	h6:first-child {
-		margin-top: 0;
-	}
+  h1 {
+    font-size: 2.5rem;
+  }
 
-	h1 {
-		font-size: 2.5rem;
-	}
+  h2 {
+    font-size: 2rem;
+  }
 
-	h2 {
-		font-size: 2rem;
-	}
+  h3 {
+    font-size: 1.75rem;
+  }
 
-	h3 {
-		font-size: 1.75rem;
-	}
+  h4 {
+    font-size: 1.5rem;
+  }
 
-	h4 {
-		font-size: 1.5rem;
-	}
+  h5 {
+    font-size: 1.25rem;
+  }
 
-	h5 {
-		font-size: 1.25rem;
-	}
+  h6 {
+    font-size: 1rem;
+  }
 
-	h6 {
-		font-size: 1rem;
-	}
+  mark {
+    background: #fff8e1;
+    padding: 0.25rem 0.4rem;
+    border-radius: var(--content-border-radius);
+    font-family: monospace;
+  }
 
-	mark {
-		background: #fff8e1;
-		padding: 0.25rem 0.4rem;
-		border-radius: var(--content-border-radius);
-		font-family: monospace;
-	}
+  blockquote {
+    margin: 1rem 0;
+    padding: 0 2rem;
+    border-left: 4px solid #90a4ae;
+  }
 
-	blockquote {
-		margin: 1rem 0;
-		padding: 0 2rem;
-		border-left: 4px solid #90a4ae;
-	}
+  hr {
+    border-top: solid var(--surface-border);
+    border-width: 1px 0 0 0;
+    margin: 1rem 0;
+  }
 
-	hr {
-		border-top: solid var(--surface-border);
-		border-width: 1px 0 0 0;
-		margin: 1rem 0;
-	}
+  p {
+    margin: 0 0 1rem 0;
+    line-height: 1.5;
+  }
 
-	p {
-		margin: 0 0 1rem 0;
-		line-height: 1.5;
-	}
+  p:last-child {
+    margin-bottom: 0;
+  }
 
-	p:last-child {
-		margin-bottom: 0;
-	}
-
-	a {
-		text-decoration: none;
-	}
+  a {
+    text-decoration: none;
+  }
 }
 
 /* ==================== PRELOADER (migrado de _preloading.scss) ==================== */
 @layer components {
-	.preloader {
-		position: fixed;
-		z-index: 999999;
-		background: #edf1f5;
-		width: 100%;
-		height: 100%;
-	}
+  .preloader {
+    position: fixed;
+    z-index: 999999;
+    background: #edf1f5;
+    width: 100%;
+    height: 100%;
+  }
 
-	.preloader-content {
-		border: 0 solid transparent;
-		border-radius: 50%;
-		width: 150px;
-		height: 150px;
-		position: absolute;
-		top: calc(50vh - 75px);
-		left: calc(50vw - 75px);
-	}
+  .preloader-content {
+    border: 0 solid transparent;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    position: absolute;
+    top: calc(50vh - 75px);
+    left: calc(50vw - 75px);
+  }
 
-	.preloader-content:before,
-	.preloader-content:after {
-		content: '';
-		border: 1em solid var(--primary-color);
-		border-radius: 50%;
-		width: inherit;
-		height: inherit;
-		position: absolute;
-		top: 0;
-		left: 0;
-		animation: loader 2s linear infinite;
-		opacity: 0;
-	}
+  .preloader-content:before,
+  .preloader-content:after {
+    content: '';
+    border: 1em solid var(--primary-color);
+    border-radius: 50%;
+    width: inherit;
+    height: inherit;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: loader 2s linear infinite;
+    opacity: 0;
+  }
 
-	.preloader-content:before {
-		animation-delay: 0.5s;
-	}
+  .preloader-content:before {
+    animation-delay: 0.5s;
+  }
 
-	/* Clase .card (migrado de _utils.scss) */
-	.card {
-		background: var(--surface-card);
-		padding: 2rem;
-		margin-bottom: 2rem;
-		border-radius: var(--content-border-radius);
-	}
+  /* Clase .card (migrado de _utils.scss) */
+  .card {
+    background: var(--surface-card);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: var(--content-border-radius);
+  }
 
-	.card:last-child {
-		margin-bottom: 0;
-	}
+  .card:last-child {
+    margin-bottom: 0;
+  }
 
-	/* Ajuste de posición para toasts de PrimeNG (migrado de _utils.scss) */
-	.p-toast.p-toast-top-right,
-	.p-toast.p-toast-top-left,
-	.p-toast.p-toast-top-center {
-		top: calc(var(--topbar-height) + 1rem);
-	}
+  .mg-surface {
+    @apply bg-surface-0 text-surface-900 border border-surface dark:bg-surface-900 dark:text-surface-0;
+  }
+
+  .mg-surface-muted {
+    @apply bg-surface-50 text-surface-900 border border-surface dark:bg-surface-800 dark:text-surface-0;
+  }
+
+  .mg-surface-soft {
+    @apply bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-0;
+  }
+
+  .mg-text {
+    @apply text-surface-900 dark:text-surface-0;
+  }
+
+  .mg-text-muted {
+    @apply text-surface-500 dark:text-surface-400;
+  }
+
+  .mg-icon-muted {
+    @apply text-surface-400 dark:text-surface-500;
+  }
+
+  .mg-dashboard-card {
+    @apply bg-surface-0 text-surface-900 border border-surface dark:bg-surface-900 dark:text-surface-0 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300;
+  }
+
+  .mg-dashboard-icon {
+    @apply w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform;
+  }
+
+  .mg-dashboard-link {
+    @apply flex items-center gap-1.5 text-xs text-primary hover:text-primary-emphasis transition-colors font-medium;
+  }
+
+  .mg-feature-card {
+    @apply bg-surface-0 dark:bg-surface-900 rounded-content overflow-hidden shadow-sm hover:shadow-lg ring-1 ring-transparent hover:ring-primary transition-all duration-300 cursor-pointer relative h-auto min-h-[180px] flex flex-col items-center justify-center text-center p-4 gap-3;
+  }
+
+  .mg-feature-list-item {
+    @apply bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface p-4 cursor-pointer hover:shadow-md hover:border-primary transition-all flex items-center justify-between;
+  }
+
+  .mg-feature-pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary;
+  }
+
+  .mg-feature-pill-muted {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-100 dark:bg-surface-800 text-surface-600 dark:text-surface-300;
+  }
+
+  .mg-drawer-panel {
+    @apply bg-surface-0 dark:bg-surface-900 rounded-content shadow-2xl h-full flex flex-col border border-surface overflow-hidden;
+  }
+
+  .mg-drawer-header {
+    @apply px-6 py-4 border-b border-surface flex justify-between items-center bg-surface-50 dark:bg-surface-800 shrink-0;
+  }
+
+  .mg-drawer-icon {
+    @apply w-10 h-10 bg-surface-0 dark:bg-surface-900 rounded-full flex items-center justify-center shadow-sm text-primary;
+  }
+
+  .mg-drawer-body {
+    @apply flex-1 overflow-auto bg-surface-0 dark:bg-surface-900 relative;
+  }
+
+  .mg-panel-footer {
+    @apply sticky bottom-0 bg-surface-0 dark:bg-surface-900 border-t border-surface p-4 flex justify-end gap-3;
+  }
+
+  .mg-empty-illustration {
+    @apply w-20 h-20 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center mg-icon-muted mb-4;
+  }
+
+  .mg-demo-badge {
+    @apply text-[10px] font-medium px-1.5 py-0.5 rounded bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-300 uppercase tracking-wide;
+  }
+
+  .mg-desktop-detail-panel {
+    @apply hidden md:flex w-full md:w-3/4 h-full min-h-0 shrink-0 sticky top-4 rounded-content overflow-hidden shadow-lg z-20 flex-col bg-surface-0 dark:bg-surface-900;
+  }
+
+  .mg-mobile-overlay {
+    @apply md:hidden fixed inset-0 z-50 flex items-end justify-center;
+  }
+
+  .mg-mobile-backdrop {
+    @apply absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity;
+  }
+
+  .mg-bottom-sheet {
+    @apply relative w-full h-[85vh] bg-surface-0 dark:bg-surface-900 rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden;
+  }
+
+  .mg-bottom-sheet-handle {
+    @apply w-full flex justify-center pt-4 pb-2 bg-surface-0 dark:bg-surface-900 shrink-0 cursor-grab active:cursor-grabbing;
+  }
+
+  .mg-bottom-sheet-handle-bar {
+    @apply w-12 h-1.5 bg-surface-300 dark:bg-surface-600 rounded-full;
+  }
+
+  .mg-mobile-fab {
+    @apply md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-primary text-primary-contrast shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-primary-emphasis;
+  }
+
+  .mg-topbar-action {
+    @apply hidden md:flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-full bg-surface-0/60 dark:bg-surface-800/60 backdrop-blur-sm border border-surface text-surface-900 dark:text-surface-0 hover:bg-primary/10 hover:border-primary/30 hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2;
+  }
+
+  .mg-topbar-action-danger {
+    @apply text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 focus-visible:outline-red-500;
+  }
+
+  .mg-tooltip {
+    @apply text-surface-900 dark:text-surface-0 text-[11px] font-medium tracking-wide px-2.5 py-1 rounded-md shadow-sm;
+  }
+
+  .mg-sidebar-chip {
+    @apply flex items-center justify-center gap-1 px-2 py-2 rounded-full border-0 transition-all duration-200 cursor-pointer;
+  }
+
+  .mg-sidebar-chip-default {
+    @apply bg-surface-0 dark:bg-surface-700 mg-text shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:text-primary hover:shadow-[0_6px_16px_rgba(26,60,52,0.1)];
+  }
+
+  .mg-sidebar-chip-soon {
+    @apply bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400;
+  }
+
+  /* Ajuste de posición para toasts de PrimeNG (migrado de _utils.scss) */
+  .p-toast.p-toast-top-right,
+  .p-toast.p-toast-top-left,
+  .p-toast.p-toast-top-center {
+    top: calc(var(--topbar-height) + 1rem);
+  }
 }
 
 @keyframes loader {
-	0% {
-		transform: scale(0);
-		opacity: 0;
-	}
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
 
-	50% {
-		opacity: 1;
-	}
+  50% {
+    opacity: 1;
+  }
 
-	100% {
-		transform: scale(1);
-		opacity: 0;
-	}
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }

@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { BottomSheetService } from '../../service/bottom-sheet.service';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '@features/auth/services/auth-service.service';
+import { AppPermission } from '@core/constants/permissions.enum';
 
 interface NavItem {
   label: string;
@@ -19,6 +22,8 @@ interface NavItem {
   styleUrls: ['./mobile-bottom-nav.component.scss']
 })
 export class MobileBottomNavComponent {
+  private destroyRef = inject(DestroyRef);
+
   navItems: NavItem[] = [
     { label: 'Inicio', icon: 'home', action: 'navigate', route: '/' },
     { label: 'Chat', icon: 'auto_awesome', action: 'chat' },
@@ -30,14 +35,24 @@ export class MobileBottomNavComponent {
 
   constructor(
     private router: Router,
-    private bottomSheetService: BottomSheetService
+    private bottomSheetService: BottomSheetService,
+    private authService: AuthService
   ) {
     // Escuchar cambios de ruta para actualizar el estado activo
     this.currentRoute = this.router.url.split('?')[0].split('#')[0];
 
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
-      this.currentRoute = event.urlAfterRedirects.split('?')[0].split('#')[0];
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((event: NavigationEnd) => {
+        this.currentRoute = event.urlAfterRedirects.split('?')[0].split('#')[0];
+      });
+  }
+
+  get visibleNavItems(): NavItem[] {
+    return this.navItems.filter((item) => item.action !== 'chat' || this.canUseAgent());
   }
 
   handleNavClick(item: NavItem, event: Event): void {
@@ -83,5 +98,11 @@ export class MobileBottomNavComponent {
 
   isMenuActive(): boolean {
     return this.bottomSheetService.isMenuOpen();
+  }
+
+  private canUseAgent(): boolean {
+    return (
+      this.authService.hasPermission(AppPermission.AgentUse) || this.authService.hasPermission(AppPermission.AdminSuper)
+    );
   }
 }

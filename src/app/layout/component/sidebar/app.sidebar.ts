@@ -1,14 +1,17 @@
-import { Component, ElementRef, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, DestroyRef, signal, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LayoutService } from '../../service/layout.service';
-import { ToastService } from '@shared/services/toast.service';
-import { Subscription } from 'rxjs';
+import { NotificationItem, ToastService } from '@shared/services/toast.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SidebarShellComponent } from './sidebar-shell/sidebar-shell.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { SidebarChatComponent } from './sidebar-chat/sidebar-chat.component';
-import { SidebarNotificationsComponent } from './sidebar-notifications/sidebar-notifications.component';
+import {
+  SidebarNotification,
+  SidebarNotificationsComponent
+} from './sidebar-notifications/sidebar-notifications.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -24,13 +27,14 @@ import { SidebarNotificationsComponent } from './sidebar-notifications/sidebar-n
   ],
   templateUrl: './app.sidebar.html'
 })
-export class AppSidebar implements OnInit, OnDestroy {
+export class AppSidebar implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   // Tab activo: 'chat' o 'notifications'
   activeTab = signal<'chat' | 'notifications'>('chat');
 
   // Notificaciones
-  notifications: any[] = [];
-  private notificationsSubscription?: Subscription;
+  notifications: SidebarNotification[] = [];
 
   // Acciones rápidas (Menú de navegación)
   quickLinks = [
@@ -38,10 +42,12 @@ export class AppSidebar implements OnInit, OnDestroy {
     { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores', permissions: ['suppliers.read'] },
     { label: 'Almacén', icon: 'warehouse', route: '/productos', permissions: ['products.read'] },
     { label: 'Artículos', icon: 'restaurant', route: '/articulos', permissions: ['products.read'] },
+    /*
     { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
     { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
+    */
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'Sanidad', icon: 'shield', route: '/appcc', comingSoon: true },
+    { label: 'Sanidad', icon: 'shield', route: '/appcc' },
     {
       label: 'Usuarios',
       icon: 'manage_accounts',
@@ -53,17 +59,16 @@ export class AppSidebar implements OnInit, OnDestroy {
   constructor(
     public layoutService: LayoutService,
     private toastService: ToastService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // Suscribirse a las notificaciones
-    this.notificationsSubscription = this.toastService.notifications$.subscribe((notifications) => {
-      this.notifications = notifications;
+    this.toastService.notifications$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((notifications) => {
+      this.notifications = notifications.map((notification) => ({
+        ...notification,
+        severity: this.toSidebarSeverity(notification.severity)
+      }));
     });
-  }
-
-  ngOnDestroy(): void {
-    this.notificationsSubscription?.unsubscribe();
   }
 
   /**
@@ -78,5 +83,9 @@ export class AppSidebar implements OnInit, OnDestroy {
    */
   setActiveTab(tab: 'chat' | 'notifications'): void {
     this.activeTab.set(tab);
+  }
+
+  private toSidebarSeverity(severity: NotificationItem['severity']): SidebarNotification['severity'] {
+    return severity === 'success' || severity === 'warn' || severity === 'error' ? severity : 'info';
   }
 }

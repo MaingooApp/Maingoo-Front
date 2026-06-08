@@ -1,5 +1,6 @@
-import { CommonModule, NgClass } from '@angular/common';
-import { Component, inject, OnInit, OnDestroy, ViewChild, AfterViewInit, TemplateRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, inject, OnInit, OnDestroy, ViewChild, AfterViewInit, TemplateRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
@@ -33,6 +34,13 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '../../core/constants/permissions.enum';
 
+type ProductViewMode = 'list' | 'cards';
+type CategoryStyle = Record<string, string>;
+type ProductWithLegacyUnitCount = Product & {
+  unit_count?: number | string | null;
+  stock: number | string;
+};
+
 @Component({
   selector: 'app-productos',
   standalone: true,
@@ -59,7 +67,10 @@ import { AppPermission } from '../../core/constants/permissions.enum';
     NgxPermissionsModule
   ],
   providers: [],
-  templateUrl: './productos.component.html'
+  templateUrl: './productos.component.html',
+  host: {
+    class: 'block h-full min-h-0'
+  }
 })
 export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
@@ -70,12 +81,13 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
   private modalService = inject(ModalService);
+  private readonly destroyRef = inject(DestroyRef);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
 
   @ViewChild('dt') dt!: Table;
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   productos: Product[] = [];
   productGroups: ProductGroup[] = []; // Groups by rootCategory from API
@@ -88,7 +100,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   searchTerm: string = '';
 
   // View State
-  viewMode: 'list' | 'cards' = 'cards';
+  viewMode: ProductViewMode = 'cards';
   selectedCategory: string | null = null;
 
   get isMobile(): boolean {
@@ -203,7 +215,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     const group = this.productGroups.find((g) => g.rootCategory.name === this.selectedCategory);
     if (!group) return [];
 
-    // Apply search filter if any
+    // Apply the active search filter.
     if (!this.searchTerm) return group.products;
     const lowerTerm = this.normalizeText(this.searchTerm);
     return group.products.filter((p) => {
@@ -218,7 +230,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // --- UI Handlers & Interactivity ---
 
-  setViewMode(mode: 'list' | 'cards') {
+  setViewMode(mode: ProductViewMode) {
     this.viewMode = mode;
     this.selectedCategory = null;
     this.selectedProduct = null;
@@ -293,25 +305,24 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
 
-    this.productService.getProducts().subscribe({
-      next: (productGroups: ProductGroup[]) => {
-        // Store groups for category cards display
-        // Process and normalize groups directly
-        this.productGroups = productGroups.map((group) => ({
-          ...group,
-          products: group.products.map((p) => this.normalizeProductData(p))
-        }));
+    this.productService
+      .getProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (productGroups: ProductGroup[]) => {
+          this.productGroups = productGroups.map((group) => ({
+            ...group,
+            products: group.products.map((p) => this.normalizeProductData(p))
+          }));
 
-        // Flatten all products from the already normalized groups
-        this.productos = this.productGroups.flatMap((group) => group.products);
-        this.cargando = false;
-      },
-      error: (error: any) => {
-        console.error('Error al cargar productos:', error);
-        this.cargando = false;
-        this.toastService.error('Error', 'No se pudieron cargar los productos. Intenta nuevamente.', 4000);
-      }
-    });
+          this.productos = this.productGroups.flatMap((group) => group.products);
+          this.cargando = false;
+        },
+        error: () => {
+          this.cargando = false;
+          this.toastService.error('Error', 'No se pudieron cargar los productos. Intenta nuevamente.', 4000);
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -350,20 +361,20 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         this.cargando = true;
         const deleteObservables = this.productos.map((p) => this.productService.deleteProduct(p.id));
 
-        forkJoin(deleteObservables).subscribe({
-          next: () => {
-            this.productos = [];
-            this.cargando = false;
-            this.toastService.success('Inventario vaciado', 'Todos los productos han sido eliminados correctamente.');
-          },
-          error: (err: any) => {
-            console.error('Error al eliminar productos:', err);
-            this.cargando = false;
-            this.toastService.error('Error', 'No se pudieron eliminar todos los productos.');
-            // Recargar productos para reflejar el estado real (algunos pueden haberse borrado)
-            this.ngOnInit();
-          }
-        });
+        forkJoin(deleteObservables)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.productos = [];
+              this.cargando = false;
+              this.toastService.success('Inventario vaciado', 'Todos los productos han sido eliminados correctamente.');
+            },
+            error: () => {
+              this.cargando = false;
+              this.toastService.error('Error', 'No se pudieron eliminar todos los productos.');
+              this.ngOnInit();
+            }
+          });
       }
     });
   }
@@ -376,7 +387,8 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private normalizeProductData(p: Product): Product {
-    let count = (p as any).unit_count ?? p.unitCount;
+    const product = p as ProductWithLegacyUnitCount;
+    let count = product.unit_count ?? product.unitCount;
     let stock = p.stock;
 
     if (typeof count === 'string') {
@@ -419,7 +431,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showMenu = !this.showMenu;
   }
 
-  getCategoryStyle(category: string | undefined | null): { [klass: string]: any } {
+  getCategoryStyle(category: string | undefined | null): CategoryStyle {
     return getCategoryColor(category);
   }
 

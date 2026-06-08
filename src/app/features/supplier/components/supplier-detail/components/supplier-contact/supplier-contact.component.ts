@@ -6,23 +6,19 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 import { Supplier } from '../../../../interfaces/supplier.interface';
 
 @Component({
-	selector: 'app-supplier-contact',
-	standalone: true,
-	imports: [CommonModule, FormsModule, InputTextModule, IconComponent],
-	templateUrl: './supplier-contact.component.html'
+  selector: 'app-supplier-contact',
+  standalone: true,
+  imports: [CommonModule, FormsModule, InputTextModule, IconComponent],
+  templateUrl: './supplier-contact.component.html'
 })
 export class SupplierContactComponent {
-	@Input({ required: true }) supplier!: Supplier;
-	@Input() isEditing = false;
+  @Input({ required: true }) supplier!: Supplier;
+  @Input() isEditing = false;
 
-	showContact = false;
+  showContact = false;
 
-	get hasEmptyContactFields(): boolean {
-		if (!this.supplier) return false;
-		return (
-			!this.supplier.commercialName ||
-			!this.supplier.phoneNumber ||
-			!this.supplier.commercialEmail
-		);
-	}
+  get hasEmptyContactFields(): boolean {
+    if (!this.supplier) return false;
+    return !this.supplier.commercialName || !this.supplier.phoneNumber || !this.supplier.commercialEmail;
+  }
 }

@@ -1,4 +1,4 @@
 export interface GetInvoice {
-   supplierId ?: string;
-   productId ?: string;
+  supplierId?: string;
+  productId?: string;
 }

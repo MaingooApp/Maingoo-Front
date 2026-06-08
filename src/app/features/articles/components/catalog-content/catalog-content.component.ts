@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, signal, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, signal, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '@shared/components/icon/icon.component';
@@ -7,7 +8,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { ToastService } from '@shared/services/toast.service';
 import { AppPermission } from '@app/core/constants/permissions.enum';
-import { Utensil, Machinery } from '../../interfaces/food-preparation.interfaces';
 import { UtensilService } from '../../services/utensil.service';
 import { MachineryService } from '../../services/machinery.service';
 
@@ -29,6 +29,7 @@ export class CatalogContentComponent implements OnInit {
   private utensilService = inject(UtensilService);
   private machineryService = inject(MachineryService);
   private toastService = inject(ToastService);
+  private destroyRef = inject(DestroyRef);
 
   readonly P = AppPermission;
 
@@ -75,7 +76,7 @@ export class CatalogContentComponent implements OnInit {
     this.isLoading.set(true);
     const obs = this.type === 'utensil' ? this.utensilService.getUtensils() : this.machineryService.getMachinery();
 
-    obs.subscribe({
+    obs.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.items.set(data);
         this.isLoading.set(false);
@@ -95,7 +96,7 @@ export class CatalogContentComponent implements OnInit {
     const obs =
       this.type === 'utensil' ? this.utensilService.createUtensil(name) : this.machineryService.createMachinery(name);
 
-    obs.subscribe({
+    obs.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (created) => {
         this.items.update((list) => [...list, created]);
         this.newItemName.set('');
@@ -130,7 +131,7 @@ export class CatalogContentComponent implements OnInit {
         ? this.utensilService.updateUtensil(id, name)
         : this.machineryService.updateMachinery(id, name);
 
-    obs.subscribe({
+    obs.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.items.update((list) => list.map((item) => (item.id === id ? { ...item, name: updated.name } : item)));
         this.cancelEdit();
@@ -151,7 +152,7 @@ export class CatalogContentComponent implements OnInit {
         ? this.utensilService.deleteUtensil(item.id)
         : this.machineryService.deleteMachinery(item.id);
 
-    obs.subscribe({
+    obs.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.items.update((list) => list.filter((i) => i.id !== item.id));
         this.isSaving.set(false);

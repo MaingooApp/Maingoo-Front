@@ -1,5 +1,5 @@
-<div class="flex flex-col gap-6 relative items-start p-6 -m-6">
-  <div class="flex-1 w-full min-w-0">
+<div class="flex flex-col gap-6 relative items-start h-full min-h-0 overflow-hidden p-6 -m-6">
+  <div class="flex flex-col flex-1 h-full min-h-0 w-full min-w-0">
     <!-- MOBILE: Header Controls (Floating) -->
     <div
       class="flex md:hidden justify-between items-start mb-4 sticky top-0 z-20 pointer-events-none"
@@ -10,9 +10,9 @@
         [class.w-full]="showMobileSearch"
         [class.mr-[165px]]="showMobileSearch">
         <button
-          class="flex items-center justify-center rounded-full w-12 h-12 text-gray-600 bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 transition-all duration-200"
-          [class.bg-maingoo-sage]="showMobileSearch"
-          [class.text-white]="showMobileSearch"
+          class="flex items-center justify-center rounded-full w-12 h-12 text-surface-600 dark:text-surface-300 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface transition-all duration-200"
+          [class.bg-primary]="showMobileSearch"
+          [class.text-primary-contrast]="showMobileSearch"
           [class.border-transparent]="showMobileSearch"
           (click)="showMobileSearch = !showMobileSearch">
           <app-icon name="search" size="md"></app-icon>
@@ -23,7 +23,7 @@
           type="text"
           pInputText
           placeholder="Buscar producto..."
-          class="flex-1 h-12 shadow-lg rounded-full border-none pl-5 pr-4 text-base animate-fade-in bg-white/95 backdrop-blur-sm"
+          class="flex-1 h-12 shadow-lg rounded-full border-none pl-5 pr-4 text-base animate-fade-in bg-surface-0/95 dark:bg-surface-800/95 backdrop-blur-sm"
           (input)="filterProductos($event)"
           autofocus />
       </div>
@@ -33,27 +33,27 @@
         <!-- Delete All (Mobile) -->
         <button
           *ngxPermissionsOnly="[P.ProductsDelete]"
-          class="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 text-red-500 flex items-center justify-center active:scale-95 transition-all"
+          class="w-12 h-12 rounded-full bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface text-red-500 flex items-center justify-center active:scale-95 transition-all"
           (click)="eliminarTodo()">
           <app-icon name="delete" size="md"></app-icon>
         </button>
 
         <!-- View Toggle Switch -->
         <div
-          class="bg-white/90 backdrop-blur-sm shadow-sm border border-gray-100 rounded-full h-12 p-1 flex items-center gap-1">
+          class="bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface rounded-full h-12 p-1 flex items-center gap-1">
           <button
             class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-200"
-            [class.bg-maingoo-sage]="viewMode === 'list'"
-            [class.text-white]="viewMode === 'list'"
-            [class.text-gray-400]="viewMode !== 'list'"
+            [class.bg-primary]="viewMode === 'list'"
+            [class.text-primary-contrast]="viewMode === 'list'"
+            [class.mg-text-muted]="viewMode !== 'list'"
             (click)="setViewMode('list')">
             <app-icon name="view_headline" size="sm"></app-icon>
           </button>
           <button
             class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-200"
-            [class.bg-maingoo-sage]="viewMode === 'cards'"
-            [class.text-white]="viewMode === 'cards'"
-            [class.text-gray-400]="viewMode !== 'cards'"
+            [class.bg-primary]="viewMode === 'cards'"
+            [class.text-primary-contrast]="viewMode === 'cards'"
+            [class.mg-text-muted]="viewMode !== 'cards'"
             (click)="setViewMode('cards')">
             <app-icon name="grid_view" size="sm"></app-icon>
           </button>
@@ -98,14 +98,14 @@
       <ng-container *ngIf="!cargando">
         <!-- VIEW: List Mode & VIEW: Grid Mode Wrapper -->
         <div
-          class="flex relative items-start"
+          class="flex flex-1 min-h-0 relative items-start overflow-hidden pb-4 box-border"
           [class.gap-6]="!(selectedCategory && selectedProduct)"
           [class.gap-0]="selectedCategory && selectedProduct">
           <div
             [ngClass]="
               selectedCategory && selectedProduct ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'
             "
-            class="">
+            class="h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar">
             <!-- VIEW: List Mode -->
             <div *ngIf="viewMode === 'list'">
               <app-product-list
@@ -139,14 +139,14 @@
               'w-full md:w-3/4': (selectedCategory || selectedProduct) && !(selectedCategory && selectedProduct),
               'w-full': selectedCategory && selectedProduct
             }"
-            class="hidden md:flex shrink-0 sticky top-4 h-[calc(100vh-2rem)] gap-6 z-20">
+            class="hidden md:flex shrink-0 h-full min-h-0 gap-6 z-20 overflow-hidden">
             <!-- Category Layer (Product List Card) -->
             <div
               *ngIf="selectedCategory"
               [ngClass]="selectedProduct ? 'flex-1 min-w-0' : 'w-full'"
-              class="h-full flex flex-col relative shrink-0">
+              class="h-full min-h-0 flex flex-col relative shrink-0">
               <app-category-detail
-                class="h-full"
+                class="h-full min-h-0 w-full"
                 [categoryName]="selectedCategory"
                 [products]="categoryProducts"
                 [selectedProduct]="selectedProduct"
@@ -157,7 +157,7 @@
             <!-- Product Layer (Product Detail Card) -->
             <div
               *ngIf="selectedProduct"
-              class="flex-1 h-full rounded-content overflow-hidden shadow-2xl bg-white flex flex-col relative">
+              class="flex-1 h-full min-h-0 rounded-content overflow-hidden shadow-lg bg-surface-0 dark:bg-surface-900 flex flex-col relative">
               <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
                 <div header-actions class="flex items-center gap-1">
                   <button
@@ -188,7 +188,7 @@
   <!-- Mobile FAB (Floating Action Button) - Bottom Left -->
   <button
     *ngxPermissionsOnly="[P.DocumentsWrite]"
-    class="md:hidden fixed bottom-24 right-6 w-14 h-14 rounded-full bg-[#1A3C34] dark:bg-[#6B9E86] text-white shadow-[0_4px_20px_rgba(26,60,52,0.25)] flex items-center justify-center active:scale-95 transition-all z-30 hover:shadow-[0_8px_24px_rgba(26,60,52,0.35)] hover:bg-[#15322b] dark:hover:bg-[#5a8671]"
+    class="mg-mobile-fab"
     (click)="openAddInvoiceModal()"
     pTooltip="Subir factura"
     tooltipPosition="right">
@@ -203,23 +203,23 @@
 <ng-container *ngIf="selectedCategory">
   <div class="md:hidden fixed top-0 left-0 w-screen h-[100dvh] z-[3000] flex items-start justify-end overflow-hidden">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="closeCategoryDetail()"></div>
+    <div class="mg-mobile-backdrop" (click)="closeCategoryDetail()"></div>
 
     <!-- Panel -->
     <div
-      class="relative w-full h-full bg-gray-50 shadow-2xl flex flex-col animate-slide-left overflow-hidden max-w-[100vw]"
+      class="relative w-full h-full bg-surface-50 dark:bg-surface-800 shadow-2xl flex flex-col animate-slide-left overflow-hidden max-w-[100vw]"
       (touchstart)="onTouchStart($event)"
       (touchend)="onTouchEnd($event)">
       <!-- Header -->
       <div
-        class="flex items-center justify-center px-4 py-3 bg-white border-b border-gray-100 shrink-0 sticky top-0 z-10 w-full relative">
+        class="flex items-center justify-center px-4 py-3 bg-surface-0 dark:bg-surface-900 border-b border-surface shrink-0 sticky top-0 z-10 w-full">
         <h2
           class="text-lg font-bold truncate max-w-[70%] px-4 py-1.5 rounded-full transition-colors flex items-center justify-center"
           [ngStyle]="getCategoryStyle(selectedCategory)">
           {{ selectedCategory }}
         </h2>
         <button
-          class="absolute right-4 w-8 h-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center active:bg-gray-200 transition-colors shrink-0"
+          class="absolute right-4 w-8 h-8 rounded-full bg-surface-100 dark:bg-surface-800 mg-text-muted flex items-center justify-center active:bg-surface-200 dark:active:bg-surface-600 transition-colors shrink-0"
           (click)="closeCategoryDetail()">
           <app-icon name="close" size="sm"></app-icon>
         </button>
@@ -238,7 +238,7 @@
         <div
           class="bg-black/40 backdrop-blur-md rounded-full px-4 py-2 flex items-center gap-2 pointer-events-auto shadow-lg">
           <button
-            class="w-6 h-6 rounded-full flex items-center justify-center text-white/80 active:text-white"
+            class="w-6 h-6 rounded-full flex items-center justify-center text-primary-contrast/80 active:text-primary-contrast"
             (click)="prevCategory()">
             <app-icon name="chevron_left" size="xs"></app-icon>
           </button>
@@ -247,11 +247,15 @@
             <div
               *ngFor="let cat of uniqueCategories; let i = index"
               class="w-1.5 h-1.5 rounded-full transition-all duration-300 shrink-0"
-              [ngClass]="currentCategoryIndex === i ? 'bg-white scale-125' : 'bg-white/30'"></div>
+              [ngClass]="
+                currentCategoryIndex === i
+                  ? 'bg-surface-0 dark:bg-surface-900 scale-125'
+                  : 'bg-surface-0 dark:bg-surface-900/30'
+              "></div>
           </div>
 
           <button
-            class="w-6 h-6 rounded-full flex items-center justify-center text-white/80 active:text-white"
+            class="w-6 h-6 rounded-full flex items-center justify-center text-primary-contrast/80 active:text-primary-contrast"
             (click)="nextCategory()">
             <app-icon name="chevron_right" size="xs"></app-icon>
           </button>
@@ -263,14 +267,11 @@
 
 <!-- Product Mobile Sheet -->
 <ng-container *ngIf="selectedProduct">
-  <div class="md:hidden fixed inset-0 z-[3001] flex items-end justify-center">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" (click)="hideDialog()"></div>
-    <div
-      class="relative w-full h-[85vh] bg-white rounded-t-3xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-up overflow-hidden">
-      <div
-        class="w-full flex justify-center pt-4 pb-2 bg-white shrink-0 cursor-grab active:cursor-grabbing"
-        (click)="hideDialog()">
-        <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+  <div class="mg-mobile-overlay z-[3001]">
+    <div class="mg-mobile-backdrop" (click)="hideDialog()"></div>
+    <div class="mg-bottom-sheet">
+      <div class="mg-bottom-sheet-handle" (click)="hideDialog()">
+        <div class="mg-bottom-sheet-handle-bar"></div>
       </div>
       <app-detail-card-shell [title]="selectedProduct.name || 'Detalle de Producto'" (close)="hideDialog()">
         <app-product-detail

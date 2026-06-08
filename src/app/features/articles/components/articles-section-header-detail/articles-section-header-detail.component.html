@@ -1,20 +1,28 @@
 <div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">
   <!-- Left: Title & Actions -->
   <div class="flex items-center gap-4 shrink-0">
-    <h2 class="text-2xl font-bold text-maingoo-deep m-0 whitespace-nowrap">Artículos</h2>
+    <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">Artículos</h2>
 
     <!-- View Switcher -->
-    <div *ngIf="articles.length > 0" class="bg-gray-100 p-1 rounded-lg flex items-center gap-1">
+    <div *ngIf="articles.length > 0" class="bg-surface-100 dark:bg-surface-800 p-1 rounded-lg flex items-center gap-1">
       <button
         (click)="setViewMode('cards')"
         class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="viewMode === 'cards' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+        [ngClass]="
+          viewMode === 'cards'
+            ? 'bg-surface-0 dark:bg-surface-900 text-primary shadow-sm'
+            : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
+        ">
         <app-icon name="grid_view" size="md"></app-icon>
       </button>
       <button
         (click)="setViewMode('list')"
         class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="viewMode === 'list' ? 'bg-white text-maingoo-sage shadow-sm' : 'text-gray-400 hover:text-gray-600'">
+        [ngClass]="
+          viewMode === 'list'
+            ? 'bg-surface-0 dark:bg-surface-900 text-primary shadow-sm'
+            : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
+        ">
         <app-icon name="list" size="md"></app-icon>
       </button>
     </div>
@@ -38,6 +46,6 @@
       pInputText
       placeholder="Buscar un artículo..."
       (input)="onSearch($event)"
-      class="border-gray-200 rounded-lg focus:border-maingoo-sage focus:ring-maingoo-sage w-96 placeholder:text-gray-400 placeholder:text-base text-left" />
+      class="border-surface rounded-lg focus:border-primary focus:ring-primary w-96 placeholder:mg-text-muted placeholder:text-base text-left" />
   </div>
 </div>

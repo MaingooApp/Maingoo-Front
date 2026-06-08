@@ -1,4 +1,15 @@
-import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ViewChild,
+  TemplateRef,
+  signal,
+  DestroyRef
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { InvoiceService } from '../invoices/services/invoice.service';
@@ -16,6 +27,12 @@ import { ArticlesSectionHeaderDetailComponent } from './components/articles-sect
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '@app/core/constants/permissions.enum';
 
+interface ArticleSummary {
+  name: string;
+}
+
+type ArticleViewMode = 'list' | 'cards';
+
 @Component({
   selector: 'app-articles',
   standalone: true,
@@ -29,7 +46,10 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
     ArticlesSectionHeaderDetailComponent,
     NgxPermissionsModule
   ],
-  templateUrl: './articles.component.html'
+  templateUrl: './articles.component.html',
+  host: {
+    class: 'block h-full min-h-0'
+  }
 })
 export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
@@ -37,37 +57,48 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
   private headerService = inject(SectionHeaderService);
-  @ViewChild('headerTpl') headerTpl!: TemplateRef<any>;
+  private destroyRef = inject(DestroyRef);
+
+  @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
   @ViewChild('articlesDetailComponent') articlesDetailComponent?: ArticlesDetailComponent;
 
   hasInvoices = false;
   loading = true;
 
   // Local state for created articles (temporary)
-  articles = signal<{ name: string }[]>([]);
+  articles = signal<ArticleSummary[]>([]);
 
-  viewMode: 'list' | 'cards' = 'cards';
+  viewMode: ArticleViewMode = 'cards';
 
   availableProducts = signal<Product[]>([]);
 
   ngOnInit() {
-    this.invoiceService.getInvoices().subscribe({
-      next: (invoices: Invoice[]) => {
-        this.hasInvoices = invoices.length > 0;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
+    this.invoiceService
+      .getInvoices()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (invoices: Invoice[]) => {
+          this.hasInvoices = invoices.length > 0;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
 
     // Load products for ingredients (flatten from groups)
-    this.productService.getProducts().subscribe({
-      next: (productGroups: ProductGroup[]) => {
-        const allProducts = productGroups.flatMap((group) => group.products);
-        this.availableProducts.set(allProducts);
-      }
-    });
+    this.productService
+      .getProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (productGroups: ProductGroup[]) => {
+          const allProducts = productGroups.flatMap((group) => group.products);
+          this.availableProducts.set(allProducts);
+        },
+        error: () => {
+          this.toastService.error('Error', 'No se pudieron cargar los productos disponibles.');
+        }
+      });
   }
 
   // State for expanded card view
@@ -87,13 +118,14 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get categoryDisplayName(): string {
     if (!this.selectedCategory) return '';
-    return this.selectedCategory === 'mise-en-place' ? 'Mise en place' : this.selectedCategory;
+    return this.selectedCategory === 'equipment' ? 'Máquinas y utensilios' : this.selectedCategory;
   }
 
   searchTerm = signal<string>('');
 
-  onSearch(event: any) {
-    this.searchTerm.set(event.target.value);
+  onSearch(event: Event) {
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    this.searchTerm.set(input?.value ?? '');
   }
 
   ngAfterViewInit() {
@@ -106,8 +138,8 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.headerService.reset();
   }
 
-  setViewMode(mode: string) {
-    this.viewMode = mode as 'list' | 'cards';
+  setViewMode(mode: ArticleViewMode) {
+    this.viewMode = mode;
   }
 
   onAddPreparation() {

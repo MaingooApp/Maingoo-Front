@@ -2,7 +2,7 @@
 import PrimeUI from 'tailwindcss-primeui';
 
 export default {
-  darkMode: ['selector', '[class="app-dark"]'],
+  darkMode: ['selector', '[class~="app-dark"]'],
   content: ['./src/**/*.{html,ts,scss,css}', './index.html'],
   plugins: [PrimeUI],
   theme: {
@@ -25,12 +25,27 @@ export default {
         }
       },
       animation: {
-        'notification-pulse': 'notification-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+        'notification-pulse': 'notification-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slide-up': 'slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-left': 'slide-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-in-right': 'slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards'
       },
       keyframes: {
         'notification-pulse': {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },
           '50%': { opacity: '0.8', transform: 'scale(1.05)' }
+        },
+        'slide-up': {
+          from: { transform: 'translateY(100%)', opacity: '0.5' },
+          to: { transform: 'translateY(0)', opacity: '1' }
+        },
+        'slide-left': {
+          from: { transform: 'translateX(100%)', opacity: '0' },
+          to: { transform: 'translateX(0)', opacity: '1' }
+        },
+        'slide-in-right': {
+          from: { transform: 'translateX(100%)', opacity: '0' },
+          to: { transform: 'translateX(0)', opacity: '1' }
         }
       }
     }

@@ -5,6 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '@app/core/constants/permissions.enum';
+import { Supplier } from '../../interfaces/supplier.interface';
 
 @Component({
   selector: 'app-supplier-section-header-detail',
@@ -13,7 +14,7 @@ import { AppPermission } from '@app/core/constants/permissions.enum';
   templateUrl: './supplier-section-header-detail.component.html'
 })
 export class SupplierSectionHeaderDetailComponent {
-  @Input() supplier: any[] = [];
+  @Input() supplier: Supplier[] = [];
   @Input() viewMode: 'grid' | 'list' = 'grid';
 
   @Output() viewModeChange = new EventEmitter<'grid' | 'list'>();

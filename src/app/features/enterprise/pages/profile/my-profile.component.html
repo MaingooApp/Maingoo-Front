@@ -1,6 +1,3 @@
-i<!-- Notificaciones Toast -->
-<p-toast></p-toast>
-
 <ng-container *ngxPermissionsOnly="[P.EnterprisesRead]">
   <form [formGroup]="perfilForm" (ngSubmit)="guardarPerfil()" class="p-fluid">
     <div class="card">
@@ -43,7 +40,7 @@ i<!-- Notificaciones Toast -->
         <!-- Tipo de empresa -->
         <div class="flex flex-col gap-2">
           <label for="type">Tipo de empresa *</label>
-          <select id="type" formControlName="type" class="w-full p-2 border border-gray-300 rounded">
+          <select id="type" formControlName="type" class="w-full p-2 border border-surface rounded">
             <option value="RESTAURANT">Restaurante</option>
             <option value="CATERING">Catering</option>
             <option value="HOTEL">Hotel</option>

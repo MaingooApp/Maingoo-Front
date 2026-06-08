@@ -12,15 +12,11 @@ export class ConfirmDialogService {
     rejectButtonStyleClass: 'p-button-text'
   };
 
-  constructor(private confirmationService: ConfirmationService) { }
+  constructor(private confirmationService: ConfirmationService) {}
 
   confirm(options: ConfirmDialogOptions): Promise<boolean> {
     return new Promise((resolve) => {
-      const {
-        onAccept,
-        onReject,
-        ...rest
-      } = options;
+      const { onAccept, onReject, ...rest } = options;
       const config: Confirmation = {
         ...this.baseConfig,
         ...rest,

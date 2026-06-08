@@ -14,6 +14,8 @@ import { Column } from '../../interfaces/columns.interface';
 import { Action } from '../../interfaces/actions.interface';
 import { IconComponent } from '../icon/icon.component';
 
+export type TableRow = unknown;
+
 @Component({
   selector: 'app-tabla-dinamica',
   standalone: true,
@@ -35,32 +37,33 @@ import { IconComponent } from '../icon/icon.component';
 })
 export class TablaDinamicaComponent {
   @ViewChild('dt') dt!: Table;
-  @Input() data: any[] = [];
+  @Input() data: TableRow[] = [];
   @Input() columns: readonly Column[] = [];
   @Input() actions: readonly Action[] = [];
   @Input() loading = false;
   @Input() emptyMessage = 'No se encontraron resultados.';
   @Input() globalFilterFields: string[] = [];
-  @Input() selection: any[] = [];
+  @Input() selection: TableRow[] = [];
   @Input() enableCheckbox: boolean = false;
   @Input() selectionMode: 'single' | 'multiple' = 'multiple';
   @Input() exportPdf: boolean = false;
   @Input() exportFilename: string = 'export';
   @Input() showRowIndex: boolean = false;
 
-  @Output() selectionChange = new EventEmitter<any[]>();
+  @Output() selectionChange = new EventEmitter<TableRow[]>();
 
-  @Output() actionClick = new EventEmitter<{ action: string; row: any }>();
+  @Output() actionClick = new EventEmitter<{ action: string; row: TableRow }>();
 
-  onActionClick(action: string, row: any) {
+  onActionClick(action: string, row: TableRow) {
     this.actionClick.emit({ action, row });
   }
 
   getInputValue(event: Event): string {
-    return (event.target as HTMLInputElement).value;
+    const input = event.target instanceof HTMLInputElement ? event.target : null;
+    return input?.value ?? '';
   }
 
-  convertToDecimal(value: any): number {
+  convertToDecimal(value: unknown): number {
     if (typeof value === 'number') return value;
     if (typeof value === 'string') {
       const sanitized = value.replace(',', '.');
@@ -94,10 +97,21 @@ export class TablaDinamicaComponent {
     doc.save(`${this.exportFilename}.pdf`);
   }
 
-  getNestedValue(obj: any, path: string): any {
-    const value = path.split('.').reduce((acc, part) => acc && acc[part], obj);
+  getNestedValue(obj: TableRow, path: string): unknown {
+    const value = path.split('.').reduce<unknown>((acc, part) => {
+      if (typeof acc !== 'object' || acc === null) {
+        return undefined;
+      }
+
+      return (acc as Record<string, unknown>)[part];
+    }, obj);
     if (value === undefined || value === null) return '';
     return value;
+  }
+
+  getDateValue(obj: TableRow, path: string): string | number | Date | null {
+    const value = this.getNestedValue(obj, path);
+    return typeof value === 'string' || typeof value === 'number' || value instanceof Date ? value : null;
   }
 
   getFiltrados() {

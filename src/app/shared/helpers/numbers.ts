@@ -1,5 +1,5 @@
 export class ConvertNumbers {
-  static convertToDecimal(value: any): number {
+  static convertToDecimal(value: unknown): number {
     if (typeof value === 'number') return value;
     if (typeof value === 'string') {
       const sanitized = value.replace(',', '.');

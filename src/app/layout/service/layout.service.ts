@@ -1,7 +1,7 @@
 import { Injectable, effect, signal, computed } from '@angular/core';
 import { Subject } from 'rxjs';
 
-export interface layoutConfig {
+export interface LayoutConfig {
   preset?: string;
   primary?: string;
   surface?: string | undefined | null;
@@ -26,11 +26,13 @@ interface MenuChangeEvent {
   providedIn: 'root'
 })
 export class LayoutService {
-  _config: layoutConfig = {
+  private readonly darkThemeStorageKey = 'maingoo.darkTheme';
+
+  _config: LayoutConfig = {
     preset: 'Aura',
     primary: 'maingoo',
     surface: null,
-    darkTheme: false,
+    darkTheme: this.getInitialDarkTheme(),
     menuMode: 'static'
   };
 
@@ -42,13 +44,13 @@ export class LayoutService {
     menuHoverActive: false
   };
 
-  layoutConfig = signal<layoutConfig>(this._config);
+  layoutConfig = signal<LayoutConfig>(this._config);
 
   layoutState = signal<LayoutState>(this._state);
 
-  private configUpdate = new Subject<layoutConfig>();
+  private configUpdate = new Subject<LayoutConfig>();
 
-  private overlayOpen = new Subject<any>();
+  private overlayOpen = new Subject<void>();
 
   private menuSource = new Subject<MenuChangeEvent>();
 
@@ -62,7 +64,7 @@ export class LayoutService {
 
   overlayOpen$ = this.overlayOpen.asObservable();
 
-  theme = computed(() => (this.layoutConfig()?.darkTheme ? 'light' : 'dark'));
+  theme = computed(() => (this.layoutConfig()?.darkTheme ? 'dark' : 'light'));
 
   isSidebarActive = computed(() => this.layoutState().overlayMenuActive || this.layoutState().staticMenuMobileActive);
 
@@ -82,6 +84,8 @@ export class LayoutService {
   private initialized = false;
 
   constructor() {
+    this.toggleDarkMode(this.layoutConfig());
+
     effect(() => {
       const config = this.layoutConfig();
       if (config) {
@@ -105,8 +109,8 @@ export class LayoutService {
     this.pageTitle.set(title);
   }
 
-  private handleDarkModeTransition(config: layoutConfig): void {
-    if ((document as any).startViewTransition) {
+  private handleDarkModeTransition(config: LayoutConfig): void {
+    if (this.canStartViewTransition(document)) {
       this.startViewTransition(config);
     } else {
       this.toggleDarkMode(config);
@@ -114,8 +118,8 @@ export class LayoutService {
     }
   }
 
-  private startViewTransition(config: layoutConfig): void {
-    const transition = (document as any).startViewTransition(() => {
+  private startViewTransition(config: LayoutConfig): void {
+    const transition = document.startViewTransition(() => {
       this.toggleDarkMode(config);
     });
 
@@ -123,16 +127,37 @@ export class LayoutService {
       .then(() => {
         this.onTransitionEnd();
       })
-      .catch(() => { });
+      .catch(() => {});
   }
 
-  toggleDarkMode(config?: layoutConfig): void {
+  toggleDarkMode(config?: LayoutConfig): void {
     const _config = config || this.layoutConfig();
-    if (_config.darkTheme) {
-      document.documentElement.classList.add('app-dark');
-    } else {
-      document.documentElement.classList.remove('app-dark');
+
+    if (typeof document !== 'undefined') {
+      if (_config.darkTheme) {
+        document.documentElement.classList.add('app-dark');
+      } else {
+        document.documentElement.classList.remove('app-dark');
+      }
     }
+
+    this.persistDarkTheme(_config.darkTheme);
+  }
+
+  private getInitialDarkTheme(): boolean {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    return localStorage.getItem(this.darkThemeStorageKey) === 'true';
+  }
+
+  private persistDarkTheme(enabled?: boolean): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    localStorage.setItem(this.darkThemeStorageKey, String(!!enabled));
   }
 
   private onTransitionEnd() {
@@ -147,7 +172,7 @@ export class LayoutService {
       this.layoutState.update((prev) => ({ ...prev, overlayMenuActive: !this.layoutState().overlayMenuActive }));
 
       if (this.layoutState().overlayMenuActive) {
-        this.overlayOpen.next(null);
+        this.overlayOpen.next();
       }
     }
 
@@ -163,7 +188,7 @@ export class LayoutService {
       }));
 
       if (this.layoutState().staticMenuMobileActive) {
-        this.overlayOpen.next(null);
+        this.overlayOpen.next();
       }
     }
   }
@@ -187,5 +212,11 @@ export class LayoutService {
 
   reset() {
     this.resetSource.next(true);
+  }
+
+  private canStartViewTransition(value: Document): value is Document & {
+    startViewTransition: (callback: () => void) => { ready: Promise<void> };
+  } {
+    return 'startViewTransition' in value && typeof value.startViewTransition === 'function';
   }
 }

@@ -1,7 +1,7 @@
 @if (service.visible() && service.content()) {
-<div class="hidden md:block z-40 pb-6 backdrop-blur-sm pt-4">
-	<div class="bg-white rounded-content shadow-sm p-4 border border-gray-100">
-		<ng-container *ngTemplateOutlet="service.content()"></ng-container>
-	</div>
-</div>
+  <div class="hidden md:block z-40 pb-6 backdrop-blur-sm pt-4">
+    <div class="mg-surface rounded-content shadow-sm p-4">
+      <ng-container *ngTemplateOutlet="service.content()"></ng-container>
+    </div>
+  </div>
 }
