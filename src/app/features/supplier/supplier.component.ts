@@ -20,6 +20,7 @@ import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
@@ -93,6 +94,7 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   private modalService = inject(ModalService);
   private layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private readonly destroyRef = inject(DestroyRef);
   private _dynamicDialogRef: DynamicDialogRef | null = null;
 
@@ -155,6 +157,12 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit() {
     this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
     this.cargando = true;
+
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/proveedores') {
+        this.resetToMainView();
+      }
+    });
 
     this.supplierService
       .listSuppliers()
@@ -270,6 +278,11 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   hideDialog() {
     this.selectedSupplier = null;
     this.supplierInvoices = [];
+  }
+
+  private resetToMainView(): void {
+    this.hideDialog();
+    this.showMobileSearch = false;
   }
 
   loadInvoices(supplierId: string) {

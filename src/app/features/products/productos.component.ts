@@ -24,6 +24,7 @@ import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-mod
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { LayoutService } from '@app/layout/service/layout.service';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
 import { ProductListComponent } from './components/product-list/product-list.component';
@@ -76,6 +77,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
   public layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
   private router = inject(Router);
@@ -305,6 +307,12 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
 
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/productos') {
+        this.resetToMainView();
+      }
+    });
+
     this.productService
       .getProducts()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -420,6 +428,13 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   hideDialog() {
     this.selectedProduct = null;
     this.showMenu = false;
+  }
+
+  private resetToMainView(): void {
+    this.selectedCategory = null;
+    this.selectedProduct = null;
+    this.showMenu = false;
+    this.showMobileSearch = false;
   }
 
   verFactura(invoice: Invoice) {

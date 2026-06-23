@@ -12,6 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from '../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
@@ -57,6 +58,7 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
@@ -73,6 +75,12 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   availableProducts = signal<Product[]>([]);
 
   ngOnInit() {
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/articulos') {
+        this.resetToMainView();
+      }
+    });
+
     this.invoiceService
       .getInvoices()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -114,6 +122,10 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   closeDetail() {
     this.selectedCategory = null;
+  }
+
+  private resetToMainView(): void {
+    this.closeDetail();
   }
 
   get categoryDisplayName(): string {

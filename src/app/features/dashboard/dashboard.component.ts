@@ -15,6 +15,7 @@ import { Invoice } from '@app/core/interfaces/Invoice.interfaces';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToastService } from '@app/shared/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
 
@@ -69,6 +70,7 @@ export class Dashboard implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private cd = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private destroyRef = inject(DestroyRef);
 
   /** Observable del slot de Actividad con estado loading inicial */
@@ -224,6 +226,12 @@ export class Dashboard implements OnInit {
   };
 
   ngOnInit(): void {
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/') {
+        this.resetToMainView();
+      }
+    });
+
     this.loadActividadSlot();
     this.loadIncidenciasSlot();
     this.loadActionsSlot();
@@ -711,6 +719,10 @@ export class Dashboard implements OnInit {
    */
   closePanel(): void {
     this.activePanel = null;
+  }
+
+  private resetToMainView(): void {
+    this.closePanel();
   }
 
   /**

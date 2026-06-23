@@ -1,8 +1,10 @@
-import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { ButtonModule } from 'primeng/button';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -30,7 +32,9 @@ type AppccViewMode = 'cards' | 'list';
 })
 export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private iotService = inject(IotService);
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
@@ -73,6 +77,12 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
   isLoadingReadings = false;
 
   ngOnInit() {
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/appcc') {
+        this.resetToMainView();
+      }
+    });
+
     this.loadIotOverview();
   }
 
@@ -98,6 +108,10 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedModule = null;
     this.selectedDevice = null;
     this.selectedReadings = [];
+  }
+
+  private resetToMainView(): void {
+    this.closeModule();
   }
 
   refreshIotData() {
@@ -250,9 +264,7 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const requests = devices.map((device) =>
-      this.iotService
-        .getDeviceReadings(device.id, { limit: 1 })
-        .pipe(catchError(() => of([] as IotReading[])))
+      this.iotService.getDeviceReadings(device.id, { limit: 1 }).pipe(catchError(() => of([] as IotReading[])))
     );
 
     forkJoin(requests).subscribe((results) => {
