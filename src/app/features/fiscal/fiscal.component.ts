@@ -64,7 +64,7 @@ export interface GroupedInvoices {
   expanded: boolean;
 }
 
-type FiscalView = 'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies';
+type FiscalView = 'hub' | 'invoices' | 'manager';
 type ToggleableInvoiceGroup = GroupedInvoices | QuarterGroup | SupplierGroup;
 type GestorForm = {
   name: string;
