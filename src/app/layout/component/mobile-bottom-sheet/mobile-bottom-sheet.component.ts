@@ -1,8 +1,7 @@
-import { Component, ElementRef, HostListener, Input, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { BottomSheetService } from '../../../layout/service/bottom-sheet.service';
 import { AuthService } from '../../../features/auth/services/auth-service.service';
 import { ChatBubbleService, ChatMessage } from '../../../shared/components/chat-bubble/chat-bubble.service';
 import { DocumentAnalysisService } from '../../../core/services/document-analysis.service';
@@ -19,8 +18,6 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
   styleUrls: ['./mobile-bottom-sheet.component.scss']
 })
 export class MobileBottomSheetComponent implements OnInit, OnDestroy {
-  @Input() mobileChatOnly = false;
-
   @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInput?: ElementRef<HTMLInputElement>;
   @ViewChild('cameraInput') cameraInput?: ElementRef<HTMLInputElement>;
@@ -38,7 +35,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
   private typingSubscription?: Subscription;
 
   constructor(
-    public bottomSheetService: BottomSheetService,
     private chatService: ChatBubbleService,
     private router: Router,
     private sanitizer: DomSanitizer,
@@ -46,19 +42,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     private documentAnalysisService: DocumentAnalysisService,
     private toastService: ToastService
   ) {}
-
-  // Propiedades computadas
-  get isOpen(): boolean {
-    return this.mobileChatOnly || this.bottomSheetService.isChatOpen();
-  }
-
-  @HostListener('window:popstate', ['$event'])
-  onPopState(event: Event) {
-    // Si navegamos hacia atrás (por botón físico o gesto), cerrar el chat
-    if (!this.mobileChatOnly && this.isOpen) {
-      this.bottomSheetService.closeChat();
-    }
-  }
 
   ngOnInit() {
     // Suscribirse a los mensajes del chat
@@ -150,23 +133,6 @@ export class MobileBottomSheetComponent implements OnInit, OnDestroy {
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/auth/login']);
     });
-  }
-
-  closeChat(event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    if (this.mobileChatOnly) {
-      return;
-    }
-    this.bottomSheetService.closeChat();
-  }
-
-  onBackdropClick(): void {
-    if (this.mobileChatOnly) {
-      return;
-    }
-    this.closeChat();
   }
 
   private scrollToBottom() {

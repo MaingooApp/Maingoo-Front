@@ -7,28 +7,10 @@
   --shadow-heavy: 0 -4px 24px rgba(0, 0, 0, 0.12);
 }
 
-// ========== BACKDROP ==========
-.bottom-sheet-backdrop {
-  position: fixed;
-  top: var(--topbar-height); // Usa la variable CSS del topbar
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 99; // Debajo del chat modal (z-index: 100)
-  animation: fadeIn 0.3s ease;
-  pointer-events: auto; // Permitir clicks en el backdrop
-
-  // Solo visible en móvil
-  @media (min-width: 768px) {
-    display: none;
-  }
-}
-
 // ========== CHAT MODAL CONTAINER ==========
 .chat-modal-container {
   position: fixed;
-  top: var(--topbar-height); // Usa la variable CSS del topbar
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
@@ -38,7 +20,7 @@
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px 16px 0 0; // Esquinas redondeadas arriba
+  border-radius: 0;
 
   :host-context(.app-dark) & {
     background-color: var(--p-surface-950);
@@ -48,11 +30,6 @@
   @media (min-width: 768px) {
     display: none;
   }
-}
-
-.chat-modal-container.chat-only {
-  top: 0;
-  border-radius: 0;
 }
 
 // ========== CHAT HEADER ==========

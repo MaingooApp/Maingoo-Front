@@ -631,8 +631,4 @@ export class Dashboard implements OnInit {
 
     return titles[panel];
   }
-
-  getMobilePanelTitle(panel: DashboardPanel): string {
-    return `Métricas ${this.getPanelTitle(panel)}`;
-  }
 }

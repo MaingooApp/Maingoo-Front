@@ -45,12 +45,6 @@
         </div>
         <div class="flex items-center gap-3">
           <span class="mg-text font-bold text-sm block">{{ invoice.amount | currency: 'EUR' }}</span>
-          <button
-            pButton
-            class="p-button-rounded p-button-text p-button-sm text-primary hover:bg-surface-0 dark:hover:bg-surface-800 md:hidden"
-            (click)="viewInvoice.emit(invoice); $event.stopPropagation()">
-            <app-icon name="visibility" size="sm"></app-icon>
-          </button>
         </div>
       </div>
     </div>

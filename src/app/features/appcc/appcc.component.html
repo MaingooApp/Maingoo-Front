@@ -42,18 +42,6 @@
         <div class="mg-desktop-detail-panel border border-surface card">
           <ng-container *ngTemplateOutlet="detailContent"></ng-container>
         </div>
-
-        <div class="mg-mobile-overlay">
-          <div class="mg-mobile-backdrop" (click)="closeModule()"></div>
-          <div class="mg-bottom-sheet">
-            <div class="mg-bottom-sheet-handle" (click)="closeModule()">
-              <div class="mg-bottom-sheet-handle-bar"></div>
-            </div>
-            <div class="flex-1 overflow-hidden relative flex flex-col">
-              <ng-container *ngTemplateOutlet="detailContent"></ng-container>
-            </div>
-          </div>
-        </div>
       </ng-container>
 
       <ng-template #detailContent>

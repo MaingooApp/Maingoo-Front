@@ -92,36 +92,6 @@
       </ng-container>
     </ng-template>
   </div>
-
-  <!-- MOBILE: Bottom Sheet — Permissions -->
-  <ng-container *ngIf="selectedUser() && !showCreateForm()">
-    <div class="mg-mobile-overlay">
-      <div class="mg-mobile-backdrop" (click)="closeDetail()"></div>
-      <div class="mg-bottom-sheet">
-        <div class="mg-bottom-sheet-handle" (click)="closeDetail()">
-          <div class="mg-bottom-sheet-handle-bar"></div>
-        </div>
-        <div class="flex-1 overflow-hidden relative flex flex-col">
-          <ng-container *ngTemplateOutlet="permissionPanel"></ng-container>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- MOBILE: Bottom Sheet — Create Form -->
-  <ng-container *ngIf="showCreateForm()">
-    <div class="mg-mobile-overlay">
-      <div class="mg-mobile-backdrop" (click)="closeCreateForm()"></div>
-      <div class="mg-bottom-sheet">
-        <div class="mg-bottom-sheet-handle" (click)="closeCreateForm()">
-          <div class="mg-bottom-sheet-handle-bar"></div>
-        </div>
-        <div class="flex-1 overflow-hidden relative flex flex-col">
-          <ng-container *ngTemplateOutlet="createPanel"></ng-container>
-        </div>
-      </div>
-    </div>
-  </ng-container>
 </div>
 
 <!-- SHARED PERMISSION PANEL TEMPLATE -->

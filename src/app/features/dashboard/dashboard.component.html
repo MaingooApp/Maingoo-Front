@@ -229,31 +229,6 @@
           </ng-container>
         </div>
       </div>
-
-      <!-- MOBILE: Bottom Sheet -->
-      <div class="mg-mobile-overlay">
-        <div class="mg-mobile-backdrop" (click)="closePanel()"></div>
-        <div class="mg-bottom-sheet h-[70vh]">
-          <div class="mg-bottom-sheet-handle" (click)="closePanel()">
-            <div class="mg-bottom-sheet-handle-bar"></div>
-          </div>
-          <div class="px-6 py-3 border-b border-surface flex items-center justify-between">
-            <h2 class="text-lg font-bold mg-text m-0">
-              {{ getMobilePanelTitle(activePanel) }}
-            </h2>
-            <button class="mg-text-muted" (click)="closePanel()">
-              <app-icon name="close" size="md"></app-icon>
-            </button>
-          </div>
-          <div class="flex-1 flex items-center justify-center p-6">
-            <div class="text-center">
-              <app-icon [name]="getPanelIcon(activePanel)" size="5xl" class="mg-icon-muted mb-4"></app-icon>
-              <h3 class="text-lg font-bold mg-text m-0">Más métricas</h3>
-              <p class="mg-text-muted text-sm italic mt-1">Próximamente</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </ng-container>
   </div>
 </div>

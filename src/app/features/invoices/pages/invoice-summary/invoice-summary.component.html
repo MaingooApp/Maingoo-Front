@@ -1,30 +1,4 @@
 <div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
-  <!-- MOBILE HEADER (Search & Controls) -->
-  <div class="md:hidden flex items-center justify-between w-full relative z-20">
-    <!-- Search Input (Expandable) -->
-    <div
-      class="transition-all duration-300 ease-out h-12 flex items-center"
-      [ngClass]="showMobileSearch ? 'w-full z-30' : 'w-12 relative'">
-      <div class="relative flex items-center w-full h-full">
-        <input
-          #mobileSearchInput
-          type="text"
-          pInputText
-          placeholder="Buscar factura..."
-          class="w-full pl-4 pr-14 py-2 rounded-full border border-surface shadow-sm transition-all opacity-0 scale-95 pointer-events-none h-10"
-          [ngClass]="{ '!opacity-100 !scale-100 !pointer-events-auto': showMobileSearch }"
-          (input)="searchTerm.set(getInputValue($event))" />
-        <button
-          type="button"
-          class="absolute right-0 w-12 h-12 z-20 flex items-center justify-center mg-text rounded-full active:bg-surface-100 dark:bg-surface-800 transition-colors"
-          (click)="showMobileSearch = !showMobileSearch; showMobileSearch && mobileSearchInput.focus()">
-          <i class="pi text-xl" [ngClass]="showMobileSearch ? 'pi-times' : 'pi-search'"></i>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- DESKTOP HEADER -->
   <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
   <ng-template #headerTpl>
     <app-invoice-summary-section-header-detail
@@ -43,8 +17,7 @@
     </div>
 
     <ng-template #tablaFacturas>
-      <!-- Desktop Table -->
-      <div class="hidden md:block card rounded-content shadow-md p-6 bg-surface-0 dark:bg-surface-900">
+      <div class="card rounded-content shadow-md p-6 bg-surface-0 dark:bg-surface-900">
         <app-tabla-dinamica
           [data]="invoices()"
           [columns]="columns"
@@ -56,61 +29,6 @@
           [exportFilename]="'facturas'">
         </app-tabla-dinamica>
       </div>
-
-      <!-- Mobile Simplified Table (Excel-like) -->
-      <div
-        class="md:hidden w-full overflow-hidden rounded-content border border-surface bg-surface-0 dark:bg-surface-900 shadow-sm">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm text-left">
-            <thead class="text-xs mg-text-muted uppercase bg-surface-50 dark:bg-surface-800 border-b border-surface">
-              <tr>
-                <th class="px-4 py-3 font-medium">Proveedor</th>
-                <th class="px-3 py-3 font-medium text-right">Fecha</th>
-                <th class="px-4 py-3 font-medium text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr
-                *ngFor="let invoice of filteredInvoices()"
-                (click)="verDetalle(invoice)"
-                class="bg-surface-0 dark:bg-surface-900 active:bg-surface-50 transition-colors cursor-pointer">
-                <td class="px-4 py-3 font-medium mg-text truncate max-w-[140px]">
-                  {{ invoice.supplier.name || 'Sin nombre' }}
-                  <div class="text-[10px] mg-text-muted font-normal mt-0.5">{{ invoice.invoiceNumber }}</div>
-                </td>
-                <td class="px-3 py-3 text-right mg-text-muted whitespace-nowrap">
-                  {{ invoice.date | date: 'dd/MM/yy' }}
-                </td>
-                <td class="px-4 py-3 text-right font-bold mg-text whitespace-nowrap">
-                  {{ invoice.amount | currency: 'EUR' }}
-                </td>
-              </tr>
-              <tr *ngIf="filteredInvoices().length === 0">
-                <td colspan="3" class="px-4 py-8 text-center mg-text-muted">No se encontraron facturas.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </ng-template>
   </div>
-
-  <!-- FAB: Exportar PDF (Bottom Left) -->
-  <button
-    class="mg-mobile-fab left-6 right-auto bg-red-500 shadow-[0_4px_20px_rgba(239,68,68,0.25)] hover:bg-red-600 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)]"
-    (click)="exportarPdf()"
-    pTooltip="Exportar PDF"
-    tooltipPosition="right">
-    <app-icon name="picture_as_pdf" size="xl"></app-icon>
-  </button>
-
-  <!-- FAB: Subir Documento (Bottom Right) -->
-  <button
-    *ngxPermissionsOnly="[P.DocumentsWrite]"
-    class="mg-mobile-fab"
-    (click)="openAddInvoiceModal()"
-    pTooltip="Subir documento"
-    tooltipPosition="left">
-    <app-icon name="add" size="xl"></app-icon>
-  </button>
 </div>

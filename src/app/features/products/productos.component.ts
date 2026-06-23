@@ -21,7 +21,6 @@ import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.servic
 import { ModalService } from '@app/shared/services/modal.service';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { LayoutService } from '@app/layout/service/layout.service';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -70,7 +69,6 @@ type ProductWithLegacyUnitCount = Product & {
 })
 export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
-  public layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
   private sectionNavigationService = inject(SectionNavigationService);
   private productService = inject(ProductService);
@@ -92,15 +90,10 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
-  showMobileSearch = false; // New state for mobile search toggle
   searchTerm: string = '';
 
   // View State
   selectedCategory: string | null = null;
-
-  get isMobile(): boolean {
-    return window.innerWidth < 768;
-  }
 
   get uniqueCategories(): { name: string; count: number }[] {
     const categoryCounts = new Map<string, number>();
@@ -121,25 +114,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         count
       }))
       .sort((a, b) => b.count - a.count);
-  }
-
-  get currentCategoryIndex(): number {
-    if (!this.selectedCategory) return -1;
-    return this.uniqueCategories.findIndex((c) => c.name === this.selectedCategory);
-  }
-
-  nextCategory() {
-    const currentIndex = this.currentCategoryIndex;
-    if (currentIndex !== -1 && currentIndex < this.uniqueCategories.length - 1) {
-      this.selectCategory(this.uniqueCategories[currentIndex + 1].name);
-    }
-  }
-
-  prevCategory() {
-    const currentIndex = this.currentCategoryIndex;
-    if (currentIndex > 0) {
-      this.selectCategory(this.uniqueCategories[currentIndex - 1].name);
-    }
   }
 
   get filteredProducts(): Product[] {
@@ -250,37 +224,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  // --- Swipe Handling ---
-  private touchStartX = 0;
-  private touchStartY = 0;
-
-  onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.changedTouches[0].screenX;
-    this.touchStartY = event.changedTouches[0].screenY;
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    const touchEndX = event.changedTouches[0].screenX;
-    const touchEndY = event.changedTouches[0].screenY;
-    this.handleSwipeGesture(touchEndX, touchEndY);
-  }
-
-  private handleSwipeGesture(touchEndX: number, touchEndY: number) {
-    const deltaX = touchEndX - this.touchStartX;
-    const deltaY = touchEndY - this.touchStartY;
-
-    // Minimum swipe distance threshold (e.g., 50px)
-    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX < 0) {
-        // Swipe Left -> Next Category
-        this.nextCategory();
-      } else {
-        // Swipe Right -> Prev Category
-        this.prevCategory();
-      }
-    }
-  }
-
   // --- Initialization & Lifecycle ---
 
   ngAfterViewInit() {
@@ -291,7 +234,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
 
     this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
@@ -321,7 +263,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.layoutService.setPageTitle('');
     this.headerService.reset();
   }
 
@@ -421,7 +362,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedCategory = null;
     this.selectedProduct = null;
     this.showMenu = false;
-    this.showMobileSearch = false;
   }
 
   verFactura(invoice: Invoice) {

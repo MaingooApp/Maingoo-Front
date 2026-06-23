@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
-import { LayoutService } from '../../layout/service/layout.service';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -20,7 +19,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
-import { IconComponent } from '@shared/components/icon/icon.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -65,7 +63,6 @@ type SupplierTableSelectionEvent = {
     TagModule,
     TooltipModule,
     EmptyStateComponent,
-    IconComponent,
     SkeletonComponent,
     SupplierDetailComponent,
     SupplierCardComponent,
@@ -83,7 +80,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
   private modalService = inject(ModalService);
-  private layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
   private sectionNavigationService = inject(SectionNavigationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -96,12 +92,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   supplierInvoices: Invoice[] = [];
   selectedSupplier: Supplier | null = null;
   cargando = true;
-
-  // UI State
-  showMobileSearch = false; // New state for mobile search toggle
-  get isMobile(): boolean {
-    return window.innerWidth < 768;
-  }
 
   // --- UI Handlers & Interactivity ---
 
@@ -135,7 +125,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
     this.cargando = true;
 
     this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
@@ -167,7 +156,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.layoutService.setPageTitle('');
     this.headerService.reset();
   }
 
@@ -262,7 +250,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private resetToMainView(): void {
     this.hideDialog();
-    this.showMobileSearch = false;
   }
 
   loadInvoices(supplierId: string) {

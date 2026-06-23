@@ -26,7 +26,6 @@ import { ModalService } from '@shared/services/modal.service';
 import { ToastService } from '@shared/services/toast.service';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LayoutService } from '../../../../layout/service/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -36,7 +35,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { AddInvoiceModalComponent } from '../../components/add-invoice-modal/add-invoice-modal.component';
-import { IconComponent } from '@shared/components/icon/icon.component';
 import { InvoiceSummarySectionHeaderDetailComponent } from './components/invoice-summary-section-header-detail/invoice-summary-section-header-detail.component';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '../../../../core/constants/permissions.enum';
@@ -56,7 +54,6 @@ import { AppPermission } from '../../../../core/constants/permissions.enum';
     DialogModule,
     FormsModule,
     FileUploadModule,
-    IconComponent,
     InvoiceSummarySectionHeaderDetailComponent,
     NgxPermissionsModule
   ],
@@ -100,19 +97,11 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
     private readonly toastService: ToastService,
     private readonly router: Router,
     private readonly modalService: ModalService,
-    private readonly layoutService: LayoutService,
     private readonly headerService: SectionHeaderService,
     private readonly destroyRef: DestroyRef
   ) {}
 
-  showMobileSearch = false;
-
-  get isMobile(): boolean {
-    return window.innerWidth < 768;
-  }
-
   ngOnInit(): void {
-    this.layoutService.setPageTitle('Facturas y albaranes');
     this.invoiceService
       .getInvoices()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -129,7 +118,6 @@ export class InvoiceSummaryComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnDestroy() {
-    this.layoutService.setPageTitle('');
     this.headerService.reset();
   }
 
