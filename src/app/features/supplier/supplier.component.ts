@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
 import { LayoutService } from '../../layout/service/layout.service';
-import { TableModule } from 'primeng/table';
 import { ChartModule } from 'primeng/chart';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -37,14 +36,8 @@ import { AppPermission } from '../../core/constants/permissions.enum';
 import { SupplierDetailComponent } from './components/supplier-detail/supplier-detail.component';
 
 import { SupplierCardComponent } from './components/supplier-card/supplier-card.component';
-import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
 import { SupplierSectionHeaderDetailComponent } from './components/supplier-section-header-detail/supplier-section-header-detail.component';
 
-type SupplierViewMode = 'grid' | 'list';
-type SupplierViewOption = {
-  icon: string;
-  value: SupplierViewMode;
-};
 type SupplierTableAction = {
   action: string;
   row: Supplier;
@@ -58,7 +51,6 @@ type SupplierTableSelectionEvent = {
   standalone: true,
   imports: [
     CommonModule,
-    TableModule,
     InputTextModule,
     IconFieldModule,
     InputIconModule,
@@ -77,7 +69,6 @@ type SupplierTableSelectionEvent = {
     SkeletonComponent,
     SupplierDetailComponent,
     SupplierCardComponent,
-    SupplierListComponent,
     SupplierSectionHeaderDetailComponent,
     NgxPermissionsModule
   ],
@@ -108,22 +99,11 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // UI State
   showMobileSearch = false; // New state for mobile search toggle
-  viewMode: SupplierViewMode = 'grid';
-  viewOptions: SupplierViewOption[] = [
-    { icon: 'grid_view', value: 'grid' },
-    { icon: 'view_list', value: 'list' }
-  ];
-
   get isMobile(): boolean {
     return window.innerWidth < 768;
   }
 
   // --- UI Handlers & Interactivity ---
-
-  setViewMode(mode: SupplierViewMode) {
-    this.viewMode = mode;
-    this.hideDialog();
-  }
 
   openAddInvoiceModal() {
     this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {

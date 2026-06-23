@@ -3,30 +3,6 @@
   <div class="flex items-center gap-4 shrink-0">
     <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">Proveedores</h2>
 
-    <!-- View Switcher -->
-    <div *ngIf="supplier.length > 0" class="bg-surface-100 dark:bg-surface-800 p-1 rounded-lg flex items-center gap-1">
-      <button
-        (click)="setViewMode('grid')"
-        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="
-          viewMode === 'grid'
-            ? 'bg-surface-0 dark:bg-surface-700 text-primary shadow-sm'
-            : 'mg-icon-muted hover:text-surface-600 dark:hover:text-surface-300'
-        ">
-        <app-icon name="grid_view" size="md"></app-icon>
-      </button>
-      <button
-        (click)="setViewMode('list')"
-        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="
-          viewMode === 'list'
-            ? 'bg-surface-0 dark:bg-surface-700 text-primary shadow-sm'
-            : 'mg-icon-muted hover:text-surface-600 dark:hover:text-surface-300'
-        ">
-        <app-icon name="list" size="md"></app-icon>
-      </button>
-    </div>
-
     <!-- Primary Action -->
     <button
       pButton

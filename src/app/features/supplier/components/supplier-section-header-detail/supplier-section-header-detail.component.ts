@@ -15,17 +15,11 @@ import { Supplier } from '../../interfaces/supplier.interface';
 })
 export class SupplierSectionHeaderDetailComponent {
   @Input() supplier: Supplier[] = [];
-  @Input() viewMode: 'grid' | 'list' = 'grid';
 
-  @Output() viewModeChange = new EventEmitter<'grid' | 'list'>();
   @Output() search = new EventEmitter<Event>();
   @Output() addInvoice = new EventEmitter<void>();
 
   readonly P = AppPermission;
-
-  setViewMode(mode: 'grid' | 'list') {
-    this.viewModeChange.emit(mode);
-  }
 
   onSearch(event: Event) {
     this.search.emit(event);

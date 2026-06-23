@@ -37,27 +37,6 @@
           (click)="eliminarTodo()">
           <app-icon name="delete" size="md"></app-icon>
         </button>
-
-        <!-- View Toggle Switch -->
-        <div
-          class="bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface rounded-full h-12 p-1 flex items-center gap-1">
-          <button
-            class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-200"
-            [class.bg-primary]="viewMode === 'list'"
-            [class.text-primary-contrast]="viewMode === 'list'"
-            [class.mg-text-muted]="viewMode !== 'list'"
-            (click)="setViewMode('list')">
-            <app-icon name="view_headline" size="sm"></app-icon>
-          </button>
-          <button
-            class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-200"
-            [class.bg-primary]="viewMode === 'cards'"
-            [class.text-primary-contrast]="viewMode === 'cards'"
-            [class.mg-text-muted]="viewMode !== 'cards'"
-            (click)="setViewMode('cards')">
-            <app-icon name="grid_view" size="sm"></app-icon>
-          </button>
-        </div>
       </div>
     </div>
 
@@ -65,9 +44,7 @@
     <ng-template #headerTpl>
       <app-products-section-header-detail
         [productos]="productos"
-        [viewMode]="viewMode"
         [cargando]="cargando"
-        (viewModeChange)="setViewMode($event)"
         (search)="filterProductos($event)"
         (addInvoice)="openAddInvoiceModal()"
         (deleteAll)="eliminarTodo()">
@@ -87,11 +64,8 @@
     <ng-template #contenidoPrincipal>
       <!-- LOADING: Skeleton States -->
       <ng-container *ngIf="cargando">
-        <!-- Skeleton List View -->
-        <app-skeleton *ngIf="viewMode === 'list'" mode="list" [count]="8"></app-skeleton>
-
         <!-- Skeleton Cards View (Categories) -->
-        <app-skeleton *ngIf="viewMode === 'cards'" mode="grid" [count]="8"></app-skeleton>
+        <app-skeleton mode="grid" [count]="8"></app-skeleton>
       </ng-container>
 
       <!-- LOADED: Actual Content -->
@@ -106,18 +80,8 @@
               selectedCategory && selectedProduct ? 'w-0 overflow-hidden opacity-0 flex-none' : 'flex-1 min-w-0'
             "
             class="h-full min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar">
-            <!-- VIEW: List Mode -->
-            <div *ngIf="viewMode === 'list'">
-              <app-product-list
-                [products]="filteredProducts"
-                [selectedProduct]="selectedProduct"
-                [loading]="cargando"
-                (selectProduct)="showDialog($event)"></app-product-list>
-            </div>
-
             <!-- VIEW: Cards Mode (Root Categories) -->
             <div
-              *ngIf="viewMode === 'cards'"
               class="grid gap-3 md:gap-6 animate-fade-in"
               [ngClass]="
                 selectedCategory || selectedProduct ? 'grid-cols-1' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'

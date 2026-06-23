@@ -1,16 +1,12 @@
 <div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
   <div class="flex-1 w-full min-w-0">
     <ng-template #headerTpl>
-      <app-appcc-section-header-detail [viewMode]="viewMode" (viewModeChange)="setViewMode($event)">
-      </app-appcc-section-header-detail>
+      <app-appcc-section-header-detail></app-appcc-section-header-detail>
     </ng-template>
 
     <div class="flex flex-row gap-6 w-full items-start">
       <div class="min-w-0" [ngClass]="{ 'flex-1': !selectedModule, 'w-full md:w-1/4': selectedModule }">
-        <div
-          *ngIf="viewMode === 'cards'"
-          class="grid gap-6 grid-cols-1"
-          [ngClass]="{ 'sm:grid-cols-2 lg:grid-cols-4': !selectedModule }">
+        <div class="grid gap-6 grid-cols-1" [ngClass]="{ 'sm:grid-cols-2 lg:grid-cols-4': !selectedModule }">
           <div
             *ngFor="let module of modules"
             (click)="openModule(module)"
@@ -38,50 +34,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div
-          *ngIf="viewMode === 'list'"
-          class="flex flex-col gap-0 bg-surface-0 dark:bg-surface-900 rounded-content shadow-sm border border-surface overflow-hidden">
-          <div
-            *ngFor="let module of modules"
-            (click)="openModule(module)"
-            class="border-b border-surface last:border-0 p-4 flex items-center gap-4 hover:bg-surface-50 dark:hover:bg-surface-800 cursor-pointer group"
-            [class.bg-surface-50]="selectedModule?.id === module.id"
-            [class.dark:bg-surface-800]="selectedModule?.id === module.id">
-            <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-              <app-icon [name]="module.icon" size="md"></app-icon>
-            </div>
-
-            <div class="flex-1 min-w-0 flex flex-col gap-1">
-              <h3 class="font-bold mg-text text-base truncate">{{ module.title }}</h3>
-              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm mg-text-muted">
-                <div class="flex items-center gap-1.5">
-                  <app-icon [name]="module.itemIcon" size="xs" class="text-primary"></app-icon>
-                  <span>{{ module.itemsCount }} {{ module.itemsLabel }}</span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <app-icon name="update" size="xs" class="text-primary"></app-icon>
-                  <span>
-                    {{ module.lastUpdateLabel }}:
-                    <span class="font-medium mg-text">{{ module.lastUpdate }}</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <app-icon name="chevron_right" size="sm" class="mg-icon-muted group-hover:text-primary"></app-icon>
-          </div>
-
-          <div *ngIf="modules.length === 0" class="p-8">
-            <app-empty-state
-              class="w-full"
-              icon="shield"
-              title="Sin módulos"
-              description="No hay módulos APPCC configurados."
-              [showComingSoon]="false">
-            </app-empty-state>
           </div>
         </div>
       </div>
@@ -246,7 +198,8 @@
                     <div class="min-w-0">
                       <h3 class="text-xl font-bold mg-text truncate m-0">{{ selectedDevice.name }}</h3>
                       <p class="text-sm mg-text-muted mt-1">
-                        {{ getDeviceTypeLabel(selectedDevice.type) }} · {{ selectedDevice.locationName || 'Sin ubicación' }}
+                        {{ getDeviceTypeLabel(selectedDevice.type) }} ·
+                        {{ selectedDevice.locationName || 'Sin ubicación' }}
                       </p>
                     </div>
                   </div>
@@ -305,14 +258,15 @@
                     *ngFor="let reading of selectedReadings"
                     class="flex items-center justify-between gap-3 py-2 px-3 bg-surface-50 dark:bg-surface-800 rounded-lg">
                     <div class="flex items-center gap-3">
-                      <app-icon [name]="getDeviceTypeIcon(selectedDevice.type)" size="sm" class="text-primary"></app-icon>
+                      <app-icon
+                        [name]="getDeviceTypeIcon(selectedDevice.type)"
+                        size="sm"
+                        class="text-primary"></app-icon>
                       <div>
                         <p class="font-bold text-lg mg-text m-0">
                           {{ getSensorMetricLabel(selectedDevice, reading) }}
                         </p>
-                        <p class="text-xs mg-text-muted m-0">
-                          Batería: {{ getBatteryValue(reading) ?? '-' }}%
-                        </p>
+                        <p class="text-xs mg-text-muted m-0">Batería: {{ getBatteryValue(reading) ?? '-' }}%</p>
                       </div>
                     </div>
                     <div class="text-right text-sm mg-text-muted">

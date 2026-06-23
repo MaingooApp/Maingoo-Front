@@ -22,8 +22,6 @@ interface AppccModule {
   lastUpdateLabel: string;
 }
 
-type AppccViewMode = 'cards' | 'list';
-
 @Component({
   selector: 'app-appcc',
   standalone: true,
@@ -37,8 +35,6 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
-
-  viewMode: AppccViewMode = 'cards';
 
   modules: AppccModule[] = [
     {
@@ -94,10 +90,6 @@ export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.headerService.reset();
-  }
-
-  setViewMode(mode: AppccViewMode) {
-    this.viewMode = mode;
   }
 
   openModule(module: AppccModule) {

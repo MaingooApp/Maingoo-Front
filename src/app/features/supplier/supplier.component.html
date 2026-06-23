@@ -25,41 +25,12 @@
           (input)="filterSuppliers($event)"
           autofocus />
       </div>
-
-      <!-- Right: View Toggle Switch -->
-      <div
-        class="pointer-events-auto absolute right-0 top-0 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface rounded-full h-12 p-1 flex items-center gap-1">
-        <!-- Grid Option -->
-        <button
-          (click)="setViewMode('grid')"
-          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
-          [ngClass]="
-            viewMode === 'grid'
-              ? 'bg-primary text-primary-contrast shadow-sm'
-              : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
-          ">
-          <app-icon name="grid_view" size="md"></app-icon>
-        </button>
-        <!-- List Option -->
-        <button
-          (click)="setViewMode('list')"
-          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
-          [ngClass]="
-            viewMode === 'list'
-              ? 'bg-primary text-primary-contrast shadow-sm'
-              : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
-          ">
-          <app-icon name="view_list" size="md"></app-icon>
-        </button>
-      </div>
     </div>
 
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
       <app-supplier-section-header-detail
         [supplier]="supplier"
-        [viewMode]="viewMode"
-        (viewModeChange)="setViewMode($event)"
         (search)="filterSuppliers($event)"
         (addInvoice)="openAddInvoiceModal()">
       </app-supplier-section-header-detail>
@@ -81,34 +52,21 @@
         <ng-template #contenidoPrincipal>
           <!-- LOADING: Skeleton Grid -->
           <ng-container *ngIf="cargando">
-            <app-skeleton *ngIf="viewMode === 'grid'" mode="grid" [count]="8"></app-skeleton>
-
-            <app-skeleton *ngIf="viewMode === 'list'" mode="list" [count]="6"></app-skeleton>
+            <app-skeleton mode="grid" [count]="8"></app-skeleton>
           </ng-container>
 
           <!-- LOADED: Actual Content -->
           <ng-container *ngIf="!cargando">
             <!-- VIEW: Grid Mode -->
-            <ng-container *ngIf="viewMode === 'grid'">
-              <div
-                class="grid gap-6"
-                [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
-                <app-supplier-card
-                  *ngFor="let item of filteredSupplier"
-                  [supplier]="item"
-                  [isSelected]="selectedSupplier?.id === item.id"
-                  (cardClick)="showDialog($event)">
-                </app-supplier-card>
-              </div>
-            </ng-container>
-
-            <!-- VIEW: List Mode -->
-            <div *ngIf="viewMode === 'list'">
-              <app-supplier-list
-                [suppliers]="filteredSupplier"
-                [selectedSupplier]="selectedSupplier"
-                (selectSupplier)="showDialog($event)">
-              </app-supplier-list>
+            <div
+              class="grid gap-6"
+              [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+              <app-supplier-card
+                *ngFor="let item of filteredSupplier"
+                [supplier]="item"
+                [isSelected]="selectedSupplier?.id === item.id"
+                (cardClick)="showDialog($event)">
+              </app-supplier-card>
             </div>
           </ng-container>
         </ng-template>

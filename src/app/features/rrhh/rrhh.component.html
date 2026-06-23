@@ -2,11 +2,7 @@
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
-      <app-rrhh-section-header-detail
-        [viewMode]="viewMode"
-        (viewModeChange)="setViewMode($event)"
-        (search)="onSearch($event)">
-      </app-rrhh-section-header-detail>
+      <app-rrhh-section-header-detail (search)="onSearch($event)"> </app-rrhh-section-header-detail>
     </ng-template>
 
     <!-- KPI Cards -->
@@ -25,7 +21,7 @@
     </div>
 
     <!-- Cards View -->
-    <div *ngIf="viewMode === 'cards'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div
         *ngFor="let employee of filteredEmployees"
         class="bg-surface-0 dark:bg-surface-900 rounded-content border border-surface shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col items-center text-center relative group">
@@ -81,107 +77,6 @@
           [showComingSoon]="false">
         </app-empty-state>
       </div>
-    </div>
-
-    <!-- Employee Table (List View) -->
-    <div
-      *ngIf="viewMode === 'list'"
-      class="card bg-surface-0 dark:bg-surface-900 border border-surface rounded-content shadow-sm overflow-hidden">
-      <p-table
-        #dt
-        [value]="filteredEmployees"
-        [rows]="10"
-        [paginator]="true"
-        [globalFilterFields]="['name', 'role', 'department', 'email']"
-        [tableStyle]="{ 'min-width': '75rem' }"
-        [rowHover]="true"
-        dataKey="id"
-        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} empleados"
-        [showCurrentPageReport]="true">
-        <ng-template pTemplate="header">
-          <tr>
-            <th style="width: 25%">Nombre</th>
-            <th style="width: 20%">Rol / Departamento</th>
-            <th style="width: 15%">Estado</th>
-            <th style="width: 25%">Contacto</th>
-            <th style="width: 15%"></th>
-          </tr>
-        </ng-template>
-
-        <ng-template pTemplate="body" let-employee>
-          <tr class="hover:bg-surface-50 dark:bg-surface-800 transition-colors">
-            <td>
-              <div class="flex items-center gap-3">
-                <p-avatar
-                  [image]="employee.avatar"
-                  [label]="!employee.avatar ? employee.name.charAt(0) : ''"
-                  shape="circle"
-                  size="normal"
-                  [styleClass]="!employee.avatar ? 'bg-primary/10 text-primary' : ''">
-                </p-avatar>
-                <div class="flex flex-col">
-                  <span class="font-medium mg-text">{{ employee.name }}</span>
-                  <span class="text-xs mg-text-muted">ID: {{ employee.id }}</span>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="flex flex-col">
-                <span class="mg-text">{{ employee.role }}</span>
-                <span class="text-xs mg-text-muted">{{ employee.department }}</span>
-              </div>
-            </td>
-            <td>
-              <p-tag
-                [value]="getStatusLabel(employee.status)"
-                [severity]="getSeverity(employee.status)"
-                [rounded]="true">
-              </p-tag>
-            </td>
-            <td>
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-300">
-                  <i class="pi pi-envelope text-xs"></i>
-                  <span>{{ employee.email }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-sm text-surface-600 dark:text-surface-300">
-                  <i class="pi pi-phone text-xs"></i>
-                  <span>{{ employee.phone }}</span>
-                </div>
-              </div>
-            </td>
-            <td class="text-right">
-              <div class="flex justify-end gap-2">
-                <button
-                  pButton
-                  pRipple
-                  icon="pi pi-pencil"
-                  class="p-button-text p-button-secondary p-button-sm p-button-rounded hover:bg-surface-100 dark:hover:bg-surface-800"
-                  pTooltip="Editar"></button>
-                <button
-                  pButton
-                  pRipple
-                  icon="pi pi-calendar"
-                  class="p-button-text p-button-info p-button-sm p-button-rounded hover:bg-primary/10"
-                  pTooltip="Turnos"></button>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="5">
-              <app-empty-state
-                class="py-8"
-                icon="search_off"
-                title="Sin resultados"
-                description="No se encontraron empleados con los criterios de búsqueda."
-                [showComingSoon]="false">
-              </app-empty-state>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
     </div>
   </div>
 </div>

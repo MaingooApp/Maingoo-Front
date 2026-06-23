@@ -65,7 +65,6 @@ export interface GroupedInvoices {
 }
 
 type FiscalView = 'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies';
-type FiscalViewMode = 'cards' | 'list';
 type ToggleableInvoiceGroup = GroupedInvoices | QuarterGroup | SupplierGroup;
 type GestorForm = {
   name: string;
@@ -106,7 +105,6 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // View Control
   view = signal<FiscalView>('hub');
-  viewMode = signal<FiscalViewMode>('cards');
 
   // Invoice Data
   invoices = signal<Invoice[]>([]);
@@ -381,10 +379,6 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isEditingManager.set(false);
     this.showDeleteVerificationModal.set(false);
     this.deleteVerificationText.set('');
-  }
-
-  setViewMode(mode: FiscalViewMode) {
-    this.viewMode.set(mode);
   }
 
   verDetalle(factura: Invoice) {

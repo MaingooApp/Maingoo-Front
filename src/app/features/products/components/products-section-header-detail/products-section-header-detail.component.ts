@@ -16,17 +16,11 @@ import { Product } from '@app/core/interfaces/Invoice.interfaces';
 export class ProductsSectionHeaderDetailComponent {
   readonly P = AppPermission;
   @Input() productos: Product[] = [];
-  @Input() viewMode: 'cards' | 'list' = 'cards';
   @Input() cargando: boolean = false;
 
-  @Output() viewModeChange = new EventEmitter<'cards' | 'list'>();
   @Output() search = new EventEmitter<Event>();
   @Output() addInvoice = new EventEmitter<void>();
   @Output() deleteAll = new EventEmitter<void>();
-
-  setViewMode(mode: 'cards' | 'list') {
-    this.viewModeChange.emit(mode);
-  }
 
   onSearch(event: Event) {
     this.search.emit(event);

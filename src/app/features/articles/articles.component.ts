@@ -17,7 +17,6 @@ import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from '../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
-import { TableModule } from 'primeng/table';
 import { ToastService } from '../../shared/services/toast.service';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -32,15 +31,12 @@ interface ArticleSummary {
   name: string;
 }
 
-type ArticleViewMode = 'list' | 'cards';
-
 @Component({
   selector: 'app-articles',
   standalone: true,
   imports: [
     CommonModule,
     ButtonModule,
-    TableModule,
     IconComponent,
     ArticlesCardComponent,
     ArticlesDetailComponent,
@@ -69,8 +65,6 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Local state for created articles (temporary)
   articles = signal<ArticleSummary[]>([]);
-
-  viewMode: ArticleViewMode = 'cards';
 
   availableProducts = signal<Product[]>([]);
 
@@ -148,10 +142,6 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.headerService.reset();
-  }
-
-  setViewMode(mode: ArticleViewMode) {
-    this.viewMode = mode;
   }
 
   onAddPreparation() {

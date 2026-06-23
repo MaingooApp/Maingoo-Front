@@ -10,7 +10,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { SkeletonModule } from 'primeng/skeleton';
-import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -27,7 +26,6 @@ import { SectionHeaderService } from '@app/layout/service/section-header.service
 import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
-import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
 import { DetailCardShellComponent } from '@shared/components/detail-card-shell/detail-card-shell.component';
@@ -35,7 +33,6 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '../../core/constants/permissions.enum';
 
-type ProductViewMode = 'list' | 'cards';
 type CategoryStyle = Record<string, string>;
 type ProductWithLegacyUnitCount = Product & {
   unit_count?: number | string | null;
@@ -48,7 +45,6 @@ type ProductWithLegacyUnitCount = Product & {
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
     ButtonModule,
     InputTextModule,
     TagModule,
@@ -60,7 +56,6 @@ type ProductWithLegacyUnitCount = Product & {
     ProductDetailComponent,
     IconComponent,
     SkeletonComponent,
-    ProductListComponent,
     ProductCardComponent,
     DetailCardShellComponent,
     CategoryDetailComponent,
@@ -88,7 +83,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // --- State & Data Definitions ---
 
-  @ViewChild('dt') dt!: Table;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   productos: Product[] = [];
@@ -102,7 +96,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   searchTerm: string = '';
 
   // View State
-  viewMode: ProductViewMode = 'cards';
   selectedCategory: string | null = null;
 
   get isMobile(): boolean {
@@ -231,12 +224,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   // --- UI Handlers & Interactivity ---
-
-  setViewMode(mode: ProductViewMode) {
-    this.viewMode = mode;
-    this.selectedCategory = null;
-    this.selectedProduct = null;
-  }
 
   elaborarInventario() {
     /* this.toastService.info('Funcionalidad deshabilitada', 'La elaboración de inventario no está disponible.'); */
@@ -453,9 +440,5 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   filterProductos(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm = value;
-
-    if (this.dt) {
-      this.dt.filterGlobal(value, 'contains');
-    }
   }
 }

@@ -4,8 +4,6 @@ import { SectionHeaderService } from '@app/layout/service/section-header.service
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 
-// PrimeNG Imports
-import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
@@ -27,8 +25,6 @@ export interface Employee {
   avatar?: string;
 }
 
-type RrhhViewMode = 'list' | 'cards';
-
 interface KpiCard {
   label: string;
   value: number;
@@ -43,7 +39,6 @@ interface KpiCard {
   imports: [
     CommonModule,
     EmptyStateComponent,
-    TableModule,
     ButtonModule,
     TagModule,
     AvatarModule,
@@ -59,7 +54,6 @@ export class RrhhComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
   private headerService = inject(SectionHeaderService);
 
-  viewMode: RrhhViewMode = 'list';
   employees: Employee[] = [];
   filteredEmployees: Employee[] = [];
 
@@ -91,10 +85,6 @@ export class RrhhComponent implements OnInit, OnDestroy, AfterViewInit {
         emp.department.toLowerCase().includes(query) ||
         emp.email.toLowerCase().includes(query)
     );
-  }
-
-  setViewMode(mode: RrhhViewMode) {
-    this.viewMode = mode;
   }
 
   kpis: KpiCard[] = [

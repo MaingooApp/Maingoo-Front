@@ -2,11 +2,7 @@
   <div class="flex-1 w-full min-w-0 transition-all duration-300">
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
-      <app-fiscal-section-header-detail
-        [viewMode]="viewMode()"
-        (viewModeChange)="setViewMode($event)"
-        (search)="onHeaderSearch($event)">
-      </app-fiscal-section-header-detail>
+      <app-fiscal-section-header-detail (search)="onHeaderSearch($event)"> </app-fiscal-section-header-detail>
     </ng-template>
 
     <div class="flex items-start relative w-full" [class.gap-6]="view() !== 'hub'" [class.gap-0]="view() === 'hub'">
@@ -14,7 +10,6 @@
       <div [ngClass]="view() !== 'hub' ? 'w-full md:w-1/4' : 'w-full'">
         <!-- GRID VIEW -->
         <div
-          *ngIf="viewMode() === 'cards'"
           class="grid gap-6 animate-fade-in"
           [ngClass]="view() !== 'hub' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
           <!-- Mi Gestor Card -->
@@ -110,107 +105,6 @@
             <div *ngIf="view() !== 'supplies'" class="flex flex-col gap-2 items-center">
               <span class="mg-feature-pill"> Luz, agua, gas... </span>
             </div>
-          </div>
-        </div>
-
-        <!-- LIST VIEW -->
-        <div *ngIf="viewMode() === 'list'" class="flex flex-col gap-3 animate-fade-in w-full">
-          <!-- Mi Gestor List Item -->
-          <div
-            class="mg-feature-list-item group relative"
-            [ngClass]="view() === 'manager' ? 'border-primary/50 ring-1 ring-primary' : ''"
-            (click)="setView('manager')">
-            <!-- Demo Tag -->
-            <span class="mg-demo-badge absolute top-2 right-2 text-[9px] font-bold"> Demo </span>
-
-            <div class="flex items-center gap-4">
-              <div
-                class="rounded-full flex items-center justify-center transition-transform group-hover:scale-110 bg-primary/10"
-                [ngClass]="view() === 'manager' ? 'w-8 h-8' : 'w-10 h-10'">
-                <app-icon
-                  name="support_agent"
-                  [size]="view() === 'manager' ? 'lg' : 'xl'"
-                  class="text-primary"></app-icon>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="font-bold mg-text m-0" [ngClass]="view() === 'manager' ? 'text-sm' : 'text-base'">
-                  Mi gestor
-                </h3>
-                <p *ngIf="view() !== 'manager'" class="mg-text-muted text-xs m-0 hidden sm:block">
-                  Contacta con tu gestor asignado
-                </p>
-              </div>
-            </div>
-            <app-icon
-              name="chevron_right"
-              size="md"
-              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
-          </div>
-
-          <!-- Invoice List Item -->
-          <div
-            class="mg-feature-list-item group"
-            [ngClass]="view() === 'invoices' ? 'border-primary/50 ring-1 ring-primary' : ''"
-            (click)="setView('invoices')">
-            <div class="flex items-center gap-4">
-              <div
-                class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'invoices' ? 'bg-surface-0 dark:bg-surface-900' : 'bg-primary/10'">
-                <app-icon name="receipt_long" size="xl" class="text-primary"></app-icon>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="font-bold mg-text text-base m-0">Facturas Proveedores</h3>
-                <p class="mg-text-muted text-xs m-0 hidden sm:block">Gestiona tus compras y documentos</p>
-              </div>
-            </div>
-            <app-icon
-              name="chevron_right"
-              size="md"
-              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
-          </div>
-
-          <!-- Payroll List Item -->
-          <div
-            class="mg-feature-list-item group"
-            [ngClass]="view() === 'payroll' ? 'border-primary/50 ring-1 ring-primary' : ''"
-            (click)="setView('payroll')">
-            <div class="flex items-center gap-4">
-              <div
-                class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'payroll' ? 'bg-surface-0 dark:bg-surface-900' : 'bg-primary/10'">
-                <app-icon name="badge" size="xl" class="text-primary"></app-icon>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="font-bold mg-text text-base m-0">Nominas Equipo</h3>
-                <p class="mg-text-muted text-xs m-0 hidden sm:block">Gestión de nóminas y personal</p>
-              </div>
-            </div>
-            <app-icon
-              name="chevron_right"
-              size="md"
-              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
-          </div>
-
-          <!-- Supplies List Item -->
-          <div
-            class="mg-feature-list-item group"
-            [ngClass]="view() === 'supplies' ? 'border-primary/50 ring-1 ring-primary' : ''"
-            (click)="setView('supplies')">
-            <div class="flex items-center gap-4">
-              <div
-                class="w-10 h-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-                [ngClass]="view() === 'supplies' ? 'bg-surface-0 dark:bg-surface-900' : 'bg-primary/10'">
-                <app-icon name="bolt" size="xl" class="text-primary"></app-icon>
-              </div>
-              <div class="flex flex-col">
-                <h3 class="font-bold mg-text text-base m-0">Facturas suministros</h3>
-                <p class="mg-text-muted text-xs m-0 hidden sm:block">Luz, agua, gas, internet...</p>
-              </div>
-            </div>
-            <app-icon
-              name="chevron_right"
-              size="md"
-              class="mg-text-muted group-hover:text-primary transition-colors"></app-icon>
           </div>
         </div>
       </div>
