@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, AfterViewInit, ViewChild, TemplateRef, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
@@ -25,7 +24,7 @@ interface AppccModule {
 @Component({
   selector: 'app-appcc',
   standalone: true,
-  imports: [CommonModule, IconComponent, EmptyStateComponent, ButtonModule, AppccSectionHeaderDetailComponent],
+  imports: [CommonModule, IconComponent, ButtonModule, AppccSectionHeaderDetailComponent],
   templateUrl: './appcc.component.html'
 })
 export class AppccComponent implements OnInit, OnDestroy, AfterViewInit {

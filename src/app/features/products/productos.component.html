@@ -115,7 +115,8 @@
                 [products]="categoryProducts"
                 [selectedProduct]="selectedProduct"
                 (close)="closeCategoryDetail()"
-                (selectProduct)="showDialog($event)"></app-category-detail>
+                (selectProduct)="showDialog($event)"
+                (deleteProduct)="confirmarEliminarProducto($event)"></app-category-detail>
             </div>
 
             <!-- Product Layer (Product Detail Card) -->
