@@ -18,9 +18,6 @@ import { ToastService } from '../../shared/services/toast.service';
 import { ProductService } from './services/product.service';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
-import { ModalService } from '@app/shared/services/modal.service';
-import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -75,9 +72,7 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
-  private modalService = inject(ModalService);
   private readonly destroyRef = inject(DestroyRef);
-  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
 
@@ -214,14 +209,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   closeCategoryDetail() {
     this.selectedCategory = null;
-  }
-
-  openAddInvoiceModal() {
-    this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
-      width: '960px',
-      header: 'Agregar documento',
-      dismissableMask: false
-    });
   }
 
   // --- Initialization & Lifecycle ---

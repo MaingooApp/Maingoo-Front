@@ -19,15 +19,10 @@ export class ProductsSectionHeaderDetailComponent {
   @Input() cargando: boolean = false;
 
   @Output() search = new EventEmitter<Event>();
-  @Output() addInvoice = new EventEmitter<void>();
   @Output() deleteAll = new EventEmitter<void>();
 
   onSearch(event: Event) {
     this.search.emit(event);
-  }
-
-  onAddInvoice() {
-    this.addInvoice.emit();
   }
 
   onDeleteAll() {

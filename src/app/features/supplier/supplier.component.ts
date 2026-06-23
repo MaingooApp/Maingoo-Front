@@ -1,22 +1,7 @@
 import { Component, DestroyRef, inject, OnDestroy, ViewChild, AfterViewInit, TemplateRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
-import { ChartModule } from 'primeng/chart';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -27,10 +12,6 @@ import { SupplierService } from './services/supplier.service';
 import { Supplier, UpdateSupplierDto } from './interfaces/supplier.interface';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
-import { ModalService } from '../../shared/services/modal.service';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { NgxPermissionsModule } from 'ngx-permissions';
-import { AppPermission } from '../../core/constants/permissions.enum';
 import { SupplierDetailComponent } from './components/supplier-detail/supplier-detail.component';
 
 import { SupplierCardComponent } from './components/supplier-card/supplier-card.component';
@@ -49,41 +30,24 @@ type SupplierTableSelectionEvent = {
   standalone: true,
   imports: [
     CommonModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    ButtonModule,
-    InputSwitchModule,
-    InputNumberModule,
-    MultiSelectModule,
-    SelectButtonModule,
-    DropdownModule,
-    FormsModule,
-    ChartModule,
-    TagModule,
-    TooltipModule,
     EmptyStateComponent,
     SkeletonComponent,
     SupplierDetailComponent,
     SupplierCardComponent,
-    SupplierSectionHeaderDetailComponent,
-    NgxPermissionsModule
+    SupplierSectionHeaderDetailComponent
   ],
   templateUrl: './supplier.component.html'
 })
 export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
-  readonly P = AppPermission;
   @ViewChild(SupplierDetailComponent) detailComponent!: SupplierDetailComponent;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
-  private modalService = inject(ModalService);
   private headerService = inject(SectionHeaderService);
   private sectionNavigationService = inject(SectionNavigationService);
   private readonly destroyRef = inject(DestroyRef);
-  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
   // Data
@@ -94,14 +58,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   cargando = true;
 
   // --- UI Handlers & Interactivity ---
-
-  openAddInvoiceModal() {
-    this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
-      width: '960px',
-      header: 'Agregar documento',
-      dismissableMask: false
-    });
-  }
 
   viewInvoice(invoice: Invoice) {
     if (invoice.id) {

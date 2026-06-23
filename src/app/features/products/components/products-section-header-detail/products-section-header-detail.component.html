@@ -3,17 +3,6 @@
   <div class="flex items-center gap-4 shrink-0">
     <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">Mi almacén</h2>
 
-    <!-- Actions -->
-    <button
-      *ngxPermissionsOnly="[P.DocumentsWrite]"
-      pButton
-      label="Subir Factura"
-      severity="primary"
-      (click)="onAddInvoice()"
-      class="whitespace-nowrap">
-      <app-icon name="receipt_long" size="md" class="mr-2"></app-icon>
-    </button>
-
     <!-- Delete button -->
     <button
       *ngxPermissionsOnly="[P.ProductsDelete]"
