@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KpiSlotComponent } from './components/kpi-slot/kpi-slot.component';
-import { DashboardKpiSlotMockService } from './services/dashboard-kpi-slot.mock.service';
 import { KpiSlotVM, KpiSlotClickEvent, KpiSlideChangeEvent } from './interfaces/kpi-slot.interfaces';
 import { Observable, startWith, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -19,7 +18,7 @@ import { SectionNavigationService } from '@app/layout/service/section-navigation
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
 
-type DashboardPanel = 'suppliers' | 'products' | 'articles' | 'sales' | 'staff' | 'gestoria' | 'appcc' | 'docs';
+type DashboardPanel = 'suppliers' | 'products' | 'articles';
 
 interface DashboardChartDataset {
   label?: string;
@@ -64,7 +63,6 @@ interface ChartTooltipContext {
   templateUrl: './dashboard.component.html'
 })
 export class Dashboard implements OnInit {
-  private kpiSlotService = inject(DashboardKpiSlotMockService);
   private invoiceService = inject(InvoiceService);
   private supplierService = inject(SupplierService);
   private platformId = inject(PLATFORM_ID);
@@ -72,12 +70,6 @@ export class Dashboard implements OnInit {
   private toastService = inject(ToastService);
   private sectionNavigationService = inject(SectionNavigationService);
   private destroyRef = inject(DestroyRef);
-
-  /** Observable del slot de Actividad con estado loading inicial */
-  actividadSlot$!: Observable<KpiSlotVM>;
-
-  /** Observable del slot de Incidencias con estado loading inicial */
-  incidenciasSlot$!: Observable<KpiSlotVM>;
 
   /** Observable del slot de Acciones con estado loading inicial */
   actionsSlot$!: Observable<KpiSlotVM>;
@@ -113,82 +105,6 @@ export class Dashboard implements OnInit {
   supplierOptions: { label: string; value: string }[] = [];
   selectedSupplierId: string = 'all';
 
-  /** Datos fake de personal para el dashboard */
-  staffSchedule = [
-    { name: 'María García', role: 'Camarero/a', shift: '10:00 - 18:00' },
-    { name: 'Carlos Ruiz', role: 'Cocinero/a', shift: '08:00 - 16:00' },
-    { name: 'Ana Martínez', role: 'Encargado/a', shift: '09:00 - 17:00' },
-    { name: 'Luis Fernández', role: 'Ayudante cocina', shift: '12:00 - 20:00' },
-    { name: 'Elena López', role: 'Camarero/a', shift: '16:00 - 00:00' }
-  ];
-
-  /** Datos fake de tareas APPCC para el dashboard */
-  appccTasks = {
-    diarias: [
-      { task: 'Registrar temperatura cámaras', done: true },
-      { task: 'Control de aceite freidora', done: true },
-      { task: 'Limpieza de plancha', done: false },
-      { task: 'Limpieza de superficies', done: false },
-      { task: 'Verificar fechas de caducidad', done: false }
-    ],
-    semanales: [
-      { task: 'Limpieza profunda de horno', done: false },
-      { task: 'Limpieza de cámaras frigoríficas', done: false },
-      { task: 'Revisión de stock de productos', done: true }
-    ],
-    mensuales: [
-      { task: 'Calibración de termómetros', done: false },
-      { task: 'Revisión de extintores', done: false }
-    ]
-  };
-
-  /** Contador de tareas APPCC completadas */
-  get completedAppccTasks(): number {
-    return [...this.appccTasks.diarias, ...this.appccTasks.semanales, ...this.appccTasks.mensuales].filter(
-      (t) => t.done
-    ).length;
-  }
-
-  /** Total de tareas APPCC */
-  get totalAppccTasks(): number {
-    return this.appccTasks.diarias.length + this.appccTasks.semanales.length + this.appccTasks.mensuales.length;
-  }
-
-  /** Datos de ventas para la card */
-  salesData = {
-    current: {
-      day: '',
-      time: '',
-      amount: 0
-    },
-    lastWeek: {
-      amount: 0,
-      diff: 0 // Diferencia porcentual
-    },
-    average: {
-      amount: 0
-    }
-  };
-
-  /** Actualiza los datos de ventas (Fake) */
-  updateSalesData(): void {
-    const now = new Date();
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
-    this.salesData.current.day = days[now.getDay()];
-    this.salesData.current.time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-    // Fake data logic
-    this.salesData.current.amount = 1250.5;
-    this.salesData.lastWeek.amount = 1100.2;
-    this.salesData.average.amount = 1150.0; // Media histórica
-
-    // Calcular diferencia porcentual del día actual vs semana pasada
-    const diff =
-      ((this.salesData.current.amount - this.salesData.lastWeek.amount) / this.salesData.lastWeek.amount) * 100;
-    this.salesData.lastWeek.diff = Math.round(diff);
-  }
-
   /** Colores para el gráfico */
   private readonly CHART_COLORS = [
     '#6B9080',
@@ -200,22 +116,6 @@ export class Dashboard implements OnInit {
     '#F97316', // orange-500
     '#9CA3AF' // para "Otros"
   ];
-
-  /** Slot inicial en estado loading para Actividad */
-  private readonly loadingSlotActividad: KpiSlotVM = {
-    id: 'actividad',
-    title: 'Actividad',
-    slides: [],
-    loading: true
-  };
-
-  /** Slot inicial en estado loading para Incidencias */
-  private readonly loadingSlotIncidencias: KpiSlotVM = {
-    id: 'incidencias',
-    title: 'Incidencias',
-    slides: [],
-    loading: true
-  };
 
   /** Slot inicial en estado loading para Acciones */
   private readonly loadingSlotActions: KpiSlotVM = {
@@ -232,26 +132,8 @@ export class Dashboard implements OnInit {
       }
     });
 
-    this.loadActividadSlot();
-    this.loadIncidenciasSlot();
     this.loadActionsSlot();
     this.loadSupplierChart();
-
-    this.updateSalesData();
-  }
-
-  /**
-   * Carga el slot de Actividad con estado loading inicial
-   */
-  loadActividadSlot(): void {
-    this.actividadSlot$ = this.kpiSlotService.getActividadSlot$().pipe(startWith(this.loadingSlotActividad));
-  }
-
-  /**
-   * Carga el slot de Incidencias con estado loading inicial
-   */
-  loadIncidenciasSlot(): void {
-    this.incidenciasSlot$ = this.kpiSlotService.getIncidenciasSlot$().pipe(startWith(this.loadingSlotIncidencias));
   }
 
   /**
@@ -734,12 +616,7 @@ export class Dashboard implements OnInit {
     const icons: Record<DashboardPanel, string> = {
       suppliers: 'local_shipping',
       products: 'inventory_2',
-      articles: 'restaurant',
-      sales: 'payments',
-      staff: 'group',
-      gestoria: 'description',
-      appcc: 'shield',
-      docs: 'folder'
+      articles: 'restaurant'
     };
 
     return icons[panel];
@@ -749,12 +626,7 @@ export class Dashboard implements OnInit {
     const titles: Record<DashboardPanel, string> = {
       suppliers: 'Proveedores',
       products: 'Productos',
-      articles: 'Artículos',
-      sales: 'Ventas',
-      staff: 'Personal',
-      gestoria: 'Gestoría',
-      appcc: 'APPCC',
-      docs: 'Documentos'
+      articles: 'Artículos'
     };
 
     return titles[panel];
@@ -762,19 +634,5 @@ export class Dashboard implements OnInit {
 
   getMobilePanelTitle(panel: DashboardPanel): string {
     return `Métricas ${this.getPanelTitle(panel)}`;
-  }
-
-  /**
-   * Handler para retry tras error en slot Actividad
-   */
-  onRetryActividad(): void {
-    this.loadActividadSlot();
-  }
-
-  /**
-   * Handler para retry tras error en slot Incidencias
-   */
-  onRetryIncidencias(): void {
-    this.loadIncidenciasSlot();
   }
 }
