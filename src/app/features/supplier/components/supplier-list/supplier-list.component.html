@@ -1,40 +1,5 @@
 <app-list-shell>
-  <!-- Mobile Compact List View (Rows) -->
-  <div class="flex flex-col md:hidden">
-    <div
-      *ngFor="let item of suppliers"
-      (click)="onRowClick(item)"
-      class="border-b border-surface last:border-0 p-3 flex items-center gap-3 active:bg-surface-50 dark:bg-surface-800 transition-colors cursor-pointer relative"
-      [class.bg-primary-50]="selectedSupplier?.id === item.id">
-      <!-- Avatar/Icon Compact -->
-      <div
-        class="w-10 h-10 rounded-full bg-surface-50 dark:bg-surface-800 flex items-center justify-center shrink-0 border border-surface">
-        <span class="mg-text font-bold text-sm">{{ item.name.charAt(0).toUpperCase() }}</span>
-      </div>
-
-      <!-- Main Info Compact -->
-      <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-        <div class="flex justify-between items-center">
-          <h3 class="font-semibold mg-text text-sm truncate pr-2">{{ item.name }}</h3>
-        </div>
-
-        <div class="flex items-center gap-2 text-xs mg-text-muted">
-          <span *ngIf="item.commercialName" class="truncate flex items-center gap-1 min-w-0 max-w-[45%]">
-            <app-icon name="person" size="xs" class="text-primary"></app-icon> {{ item.commercialName }}
-          </span>
-          <span *ngIf="item.phoneNumber" class="truncate flex items-center gap-1 min-w-0">
-            <app-icon name="phone" size="xs" class="text-primary"></app-icon> {{ item.phoneNumber }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Chevron -->
-      <app-icon name="chevron_right" size="xs" class="mg-icon-muted"></app-icon>
-    </div>
-  </div>
-
-  <!-- Desktop Table View -->
-  <div class="hidden md:block">
+  <div>
     <p-table [value]="suppliers" [rowHover]="true" styleClass="p-datatable-sm">
       <ng-template pTemplate="header">
         <tr>

@@ -78,9 +78,6 @@ export class LayoutService {
 
   transitionComplete = signal<boolean>(false);
 
-  // Signal para el título de la página (para mostrar en mobile topbar)
-  pageTitle = signal<string>('');
-
   private initialized = false;
 
   constructor() {
@@ -103,10 +100,6 @@ export class LayoutService {
 
       this.handleDarkModeTransition(config);
     });
-  }
-
-  setPageTitle(title: string) {
-    this.pageTitle.set(title);
   }
 
   private handleDarkModeTransition(config: LayoutConfig): void {

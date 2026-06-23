@@ -27,6 +27,7 @@ import { ConfirmDialogService } from '../../shared/services/confirm-dialog.servi
 import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -63,8 +64,7 @@ export interface GroupedInvoices {
   expanded: boolean;
 }
 
-type FiscalView = 'hub' | 'invoices' | 'manager' | 'payroll' | 'supplies';
-type FiscalViewMode = 'cards' | 'list';
+type FiscalView = 'hub' | 'invoices' | 'manager';
 type ToggleableInvoiceGroup = GroupedInvoices | QuarterGroup | SupplierGroup;
 type GestorForm = {
   name: string;
@@ -100,11 +100,11 @@ type GestorForm = {
 export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private readonly destroyRef = inject(DestroyRef);
 
   // View Control
   view = signal<FiscalView>('hub');
-  viewMode = signal<FiscalViewMode>('cards');
 
   // Invoice Data
   invoices = signal<Invoice[]>([]);
@@ -237,6 +237,12 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor() {}
 
   ngOnInit(): void {
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/gestoria') {
+        this.resetToMainView();
+      }
+    });
+
     this.loadInvoices();
     this.loadGestor();
   }
@@ -367,8 +373,12 @@ export class DocGeneratorComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  setViewMode(mode: FiscalViewMode) {
-    this.viewMode.set(mode);
+  private resetToMainView(): void {
+    this.view.set('hub');
+    this.searchTerm.set('');
+    this.isEditingManager.set(false);
+    this.showDeleteVerificationModal.set(false);
+    this.deleteVerificationText.set('');
   }
 
   verDetalle(factura: Invoice) {

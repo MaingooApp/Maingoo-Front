@@ -10,7 +10,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { SkeletonModule } from 'primeng/skeleton';
-import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -19,14 +18,10 @@ import { ToastService } from '../../shared/services/toast.service';
 import { ProductService } from './services/product.service';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
-import { ModalService } from '@app/shared/services/modal.service';
-import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { LayoutService } from '@app/layout/service/layout.service';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { getCategoryStyle as getCategoryColor } from '@app/shared/helpers/category-colors.helper';
-import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { CategoryDetailComponent } from './components/category-detail/category-detail.component';
 import { DetailCardShellComponent } from '@shared/components/detail-card-shell/detail-card-shell.component';
@@ -34,7 +29,6 @@ import { ProductsSectionHeaderDetailComponent } from './components/products-sect
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { AppPermission } from '../../core/constants/permissions.enum';
 
-type ProductViewMode = 'list' | 'cards';
 type CategoryStyle = Record<string, string>;
 type ProductWithLegacyUnitCount = Product & {
   unit_count?: number | string | null;
@@ -47,7 +41,6 @@ type ProductWithLegacyUnitCount = Product & {
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
     ButtonModule,
     InputTextModule,
     TagModule,
@@ -59,7 +52,6 @@ type ProductWithLegacyUnitCount = Product & {
     ProductDetailComponent,
     IconComponent,
     SkeletonComponent,
-    ProductListComponent,
     ProductCardComponent,
     DetailCardShellComponent,
     CategoryDetailComponent,
@@ -74,19 +66,16 @@ type ProductWithLegacyUnitCount = Product & {
 })
 export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   readonly P = AppPermission;
-  public layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmDialogService);
-  private modalService = inject(ModalService);
   private readonly destroyRef = inject(DestroyRef);
-  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
 
-  @ViewChild('dt') dt!: Table;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   productos: Product[] = [];
@@ -96,16 +85,10 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   cargando = false;
   selectedProduct: Product | null = null;
   showMenu = false;
-  showMobileSearch = false; // New state for mobile search toggle
   searchTerm: string = '';
 
   // View State
-  viewMode: ProductViewMode = 'cards';
   selectedCategory: string | null = null;
-
-  get isMobile(): boolean {
-    return window.innerWidth < 768;
-  }
 
   get uniqueCategories(): { name: string; count: number }[] {
     const categoryCounts = new Map<string, number>();
@@ -126,25 +109,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
         count
       }))
       .sort((a, b) => b.count - a.count);
-  }
-
-  get currentCategoryIndex(): number {
-    if (!this.selectedCategory) return -1;
-    return this.uniqueCategories.findIndex((c) => c.name === this.selectedCategory);
-  }
-
-  nextCategory() {
-    const currentIndex = this.currentCategoryIndex;
-    if (currentIndex !== -1 && currentIndex < this.uniqueCategories.length - 1) {
-      this.selectCategory(this.uniqueCategories[currentIndex + 1].name);
-    }
-  }
-
-  prevCategory() {
-    const currentIndex = this.currentCategoryIndex;
-    if (currentIndex > 0) {
-      this.selectCategory(this.uniqueCategories[currentIndex - 1].name);
-    }
   }
 
   get filteredProducts(): Product[] {
@@ -230,12 +194,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // --- UI Handlers & Interactivity ---
 
-  setViewMode(mode: ProductViewMode) {
-    this.viewMode = mode;
-    this.selectedCategory = null;
-    this.selectedProduct = null;
-  }
-
   elaborarInventario() {
     /* this.toastService.info('Funcionalidad deshabilitada', 'La elaboración de inventario no está disponible.'); */
   }
@@ -253,45 +211,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedCategory = null;
   }
 
-  openAddInvoiceModal() {
-    this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
-      width: '960px',
-      header: 'Agregar documento',
-      dismissableMask: false
-    });
-  }
-
-  // --- Swipe Handling ---
-  private touchStartX = 0;
-  private touchStartY = 0;
-
-  onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.changedTouches[0].screenX;
-    this.touchStartY = event.changedTouches[0].screenY;
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    const touchEndX = event.changedTouches[0].screenX;
-    const touchEndY = event.changedTouches[0].screenY;
-    this.handleSwipeGesture(touchEndX, touchEndY);
-  }
-
-  private handleSwipeGesture(touchEndX: number, touchEndY: number) {
-    const deltaX = touchEndX - this.touchStartX;
-    const deltaY = touchEndY - this.touchStartY;
-
-    // Minimum swipe distance threshold (e.g., 50px)
-    if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX < 0) {
-        // Swipe Left -> Next Category
-        this.nextCategory();
-      } else {
-        // Swipe Right -> Prev Category
-        this.prevCategory();
-      }
-    }
-  }
-
   // --- Initialization & Lifecycle ---
 
   ngAfterViewInit() {
@@ -302,8 +221,13 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.layoutService.setPageTitle('Mi almacén');
     this.cargando = true;
+
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/productos') {
+        this.resetToMainView();
+      }
+    });
 
     this.productService
       .getProducts()
@@ -326,7 +250,6 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.layoutService.setPageTitle('');
     this.headerService.reset();
   }
 
@@ -422,6 +345,12 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showMenu = false;
   }
 
+  private resetToMainView(): void {
+    this.selectedCategory = null;
+    this.selectedProduct = null;
+    this.showMenu = false;
+  }
+
   verFactura(invoice: Invoice) {
     this.router.navigate(['/facturas/detalle', invoice.id]);
   }
@@ -438,9 +367,5 @@ export class ProductosComponent implements OnInit, OnDestroy, AfterViewInit {
   filterProductos(event: Event) {
     const value = (event.target as HTMLInputElement).value;
     this.searchTerm = value;
-
-    if (this.dt) {
-      this.dt.filterGlobal(value, 'contains');
-    }
   }
 }

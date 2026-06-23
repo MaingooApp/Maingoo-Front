@@ -1,26 +1,9 @@
 import { Component, DestroyRef, inject, OnDestroy, ViewChild, AfterViewInit, TemplateRef, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AddInvoiceModalComponent } from '../invoices/components/add-invoice-modal/add-invoice-modal.component';
-import { LayoutService } from '../../layout/service/layout.service';
-import { TableModule } from 'primeng/table';
-import { ChartModule } from 'primeng/chart';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { TagModule } from 'primeng/tag';
-import { TooltipModule } from 'primeng/tooltip';
-import { SkeletonModule } from 'primeng/skeleton';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
-import { IconComponent } from '@shared/components/icon/icon.component';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '../../shared/services/confirm-dialog.service';
@@ -29,21 +12,11 @@ import { SupplierService } from './services/supplier.service';
 import { Supplier, UpdateSupplierDto } from './interfaces/supplier.interface';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { Invoice } from '../../core/interfaces/Invoice.interfaces';
-import { ModalService } from '../../shared/services/modal.service';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { NgxPermissionsModule } from 'ngx-permissions';
-import { AppPermission } from '../../core/constants/permissions.enum';
 import { SupplierDetailComponent } from './components/supplier-detail/supplier-detail.component';
 
 import { SupplierCardComponent } from './components/supplier-card/supplier-card.component';
-import { SupplierListComponent } from './components/supplier-list/supplier-list.component';
 import { SupplierSectionHeaderDetailComponent } from './components/supplier-section-header-detail/supplier-section-header-detail.component';
 
-type SupplierViewMode = 'grid' | 'list';
-type SupplierViewOption = {
-  icon: string;
-  value: SupplierViewMode;
-};
 type SupplierTableAction = {
   action: string;
   row: Supplier;
@@ -57,44 +30,24 @@ type SupplierTableSelectionEvent = {
   standalone: true,
   imports: [
     CommonModule,
-    TableModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
-    ButtonModule,
-    InputSwitchModule,
-    InputNumberModule,
-    MultiSelectModule,
-    SelectButtonModule,
-    DropdownModule,
-    FormsModule,
-    ChartModule,
-    TagModule,
-    TooltipModule,
     EmptyStateComponent,
-    IconComponent,
     SkeletonComponent,
     SupplierDetailComponent,
     SupplierCardComponent,
-    SupplierListComponent,
-    SupplierSectionHeaderDetailComponent,
-    NgxPermissionsModule
+    SupplierSectionHeaderDetailComponent
   ],
   templateUrl: './supplier.component.html'
 })
 export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
-  readonly P = AppPermission;
   @ViewChild(SupplierDetailComponent) detailComponent!: SupplierDetailComponent;
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
   private supplierService = inject(SupplierService);
   private invoiceService = inject(InvoiceService);
   private router = inject(Router);
-  private modalService = inject(ModalService);
-  private layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private readonly destroyRef = inject(DestroyRef);
-  private _dynamicDialogRef: DynamicDialogRef | null = null;
 
   // --- State & Data Definitions ---
   // Data
@@ -104,32 +57,7 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   selectedSupplier: Supplier | null = null;
   cargando = true;
 
-  // UI State
-  showMobileSearch = false; // New state for mobile search toggle
-  viewMode: SupplierViewMode = 'grid';
-  viewOptions: SupplierViewOption[] = [
-    { icon: 'grid_view', value: 'grid' },
-    { icon: 'view_list', value: 'list' }
-  ];
-
-  get isMobile(): boolean {
-    return window.innerWidth < 768;
-  }
-
   // --- UI Handlers & Interactivity ---
-
-  setViewMode(mode: SupplierViewMode) {
-    this.viewMode = mode;
-    this.hideDialog();
-  }
-
-  openAddInvoiceModal() {
-    this._dynamicDialogRef = this.modalService.open(AddInvoiceModalComponent, {
-      width: '960px',
-      header: 'Agregar documento',
-      dismissableMask: false
-    });
-  }
 
   viewInvoice(invoice: Invoice) {
     if (invoice.id) {
@@ -153,8 +81,13 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.layoutService.setPageTitle('Proveedores'); // Set title for mobile topbar
     this.cargando = true;
+
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/proveedores') {
+        this.resetToMainView();
+      }
+    });
 
     this.supplierService
       .listSuppliers()
@@ -179,7 +112,6 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    this.layoutService.setPageTitle('');
     this.headerService.reset();
   }
 
@@ -270,6 +202,10 @@ export class SupplierComponent implements OnInit, OnDestroy, AfterViewInit {
   hideDialog() {
     this.selectedSupplier = null;
     this.supplierInvoices = [];
+  }
+
+  private resetToMainView(): void {
+    this.hideDialog();
   }
 
   loadInvoices(supplierId: string) {

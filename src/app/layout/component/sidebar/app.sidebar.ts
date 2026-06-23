@@ -35,6 +35,8 @@ export class AppSidebar implements OnInit {
 
   // Notificaciones
   notifications: SidebarNotification[] = [];
+  unreadNotifications = signal(0);
+  private knownNotificationIds = new Set<string>();
 
   // Acciones rápidas (Menú de navegación)
   quickLinks = [
@@ -64,10 +66,27 @@ export class AppSidebar implements OnInit {
   ngOnInit(): void {
     // Suscribirse a las notificaciones
     this.toastService.notifications$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((notifications) => {
+      if (notifications.length === 0) {
+        this.knownNotificationIds.clear();
+        this.unreadNotifications.set(0);
+      }
+
+      const newNotifications = notifications.filter((notification) => !this.knownNotificationIds.has(notification.id));
+      notifications.forEach((notification) => this.knownNotificationIds.add(notification.id));
+
       this.notifications = notifications.map((notification) => ({
         ...notification,
         severity: this.toSidebarSeverity(notification.severity)
       }));
+
+      if (this.activeTab() === 'notifications') {
+        this.unreadNotifications.set(0);
+        return;
+      }
+
+      if (newNotifications.length > 0) {
+        this.unreadNotifications.update((count) => count + newNotifications.length);
+      }
     });
   }
 
@@ -76,6 +95,8 @@ export class AppSidebar implements OnInit {
    */
   clearAllNotifications(): void {
     this.toastService.clearNotifications();
+    this.knownNotificationIds.clear();
+    this.unreadNotifications.set(0);
   }
 
   /**
@@ -83,6 +104,10 @@ export class AppSidebar implements OnInit {
    */
   setActiveTab(tab: 'chat' | 'notifications'): void {
     this.activeTab.set(tab);
+
+    if (tab === 'notifications') {
+      this.unreadNotifications.set(0);
+    }
   }
 
   private toSidebarSeverity(severity: NotificationItem['severity']): SidebarNotification['severity'] {

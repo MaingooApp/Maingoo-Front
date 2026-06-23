@@ -27,6 +27,7 @@ export class CategoryDetailComponent implements OnChanges {
   @Input() selectedProduct: Product | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() selectProduct = new EventEmitter<Product>();
+  @Output() deleteProduct = new EventEmitter<Product>();
 
   categoryTree: CategoryNode[] = [];
 
@@ -118,5 +119,9 @@ export class CategoryDetailComponent implements OnChanges {
 
   onSelectProduct(product: Product) {
     this.selectProduct.emit(product);
+  }
+
+  onDeleteProduct(product: Product) {
+    this.deleteProduct.emit(product);
   }
 }

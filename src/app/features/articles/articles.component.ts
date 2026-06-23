@@ -12,11 +12,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
+import { SectionNavigationService } from '@app/layout/service/section-navigation.service';
 import { InvoiceService } from '../invoices/services/invoice.service';
 import { ProductService } from '../products/services/product.service';
 import { ButtonModule } from 'primeng/button';
 import { Invoice, Product, ProductGroup } from '@app/core/interfaces/Invoice.interfaces';
-import { TableModule } from 'primeng/table';
 import { ToastService } from '../../shared/services/toast.service';
 
 import { IconComponent } from '../../shared/components/icon/icon.component';
@@ -31,15 +31,12 @@ interface ArticleSummary {
   name: string;
 }
 
-type ArticleViewMode = 'list' | 'cards';
-
 @Component({
   selector: 'app-articles',
   standalone: true,
   imports: [
     CommonModule,
     ButtonModule,
-    TableModule,
     IconComponent,
     ArticlesCardComponent,
     ArticlesDetailComponent,
@@ -57,6 +54,7 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   private productService = inject(ProductService);
   private toastService = inject(ToastService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
@@ -68,11 +66,15 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
   // Local state for created articles (temporary)
   articles = signal<ArticleSummary[]>([]);
 
-  viewMode: ArticleViewMode = 'cards';
-
   availableProducts = signal<Product[]>([]);
 
   ngOnInit() {
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/articulos') {
+        this.resetToMainView();
+      }
+    });
+
     this.invoiceService
       .getInvoices()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -116,6 +118,10 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedCategory = null;
   }
 
+  private resetToMainView(): void {
+    this.closeDetail();
+  }
+
   get categoryDisplayName(): string {
     if (!this.selectedCategory) return '';
     return this.selectedCategory === 'equipment' ? 'Máquinas y utensilios' : this.selectedCategory;
@@ -136,10 +142,6 @@ export class ArticlesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy() {
     this.headerService.reset();
-  }
-
-  setViewMode(mode: ArticleViewMode) {
-    this.viewMode = mode;
   }
 
   onAddPreparation() {

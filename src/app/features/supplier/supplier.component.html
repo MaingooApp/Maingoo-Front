@@ -1,67 +1,10 @@
 <div class="flex flex-col gap-6 relative items-start p-6 -m-6">
   <div class="flex-1 w-full min-w-0">
-    <!-- Mobile Header Controls -->
-    <div class="flex md:hidden justify-between items-start mb-4 sticky top-0 z-20 pointer-events-none">
-      <!-- Left: Search -->
-      <div
-        class="pointer-events-auto flex items-center gap-2 transition-all duration-300 ease-out"
-        [class.w-full]="showMobileSearch"
-        [class.mr-[105px]]="showMobileSearch">
-        <button
-          class="flex items-center justify-center rounded-full w-12 h-12 text-surface-600 dark:text-surface-300 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface transition-all duration-200"
-          [class.bg-primary]="showMobileSearch"
-          [class.text-primary-contrast]="showMobileSearch"
-          [class.border-transparent]="showMobileSearch"
-          (click)="showMobileSearch = !showMobileSearch">
-          <app-icon name="search" size="md"></app-icon>
-        </button>
-
-        <input
-          *ngIf="showMobileSearch"
-          type="text"
-          pInputText
-          placeholder="Buscar proveedor..."
-          class="flex-1 h-12 shadow-lg rounded-full border-none pl-5 pr-4 text-base animate-fade-in bg-surface-0/95 dark:bg-surface-800/95 backdrop-blur-sm"
-          (input)="filterSuppliers($event)"
-          autofocus />
-      </div>
-
-      <!-- Right: View Toggle Switch -->
-      <div
-        class="pointer-events-auto absolute right-0 top-0 bg-surface-0/90 dark:bg-surface-800/90 backdrop-blur-sm shadow-sm border border-surface rounded-full h-12 p-1 flex items-center gap-1">
-        <!-- Grid Option -->
-        <button
-          (click)="setViewMode('grid')"
-          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
-          [ngClass]="
-            viewMode === 'grid'
-              ? 'bg-primary text-primary-contrast shadow-sm'
-              : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
-          ">
-          <app-icon name="grid_view" size="md"></app-icon>
-        </button>
-        <!-- List Option -->
-        <button
-          (click)="setViewMode('list')"
-          class="w-10 h-full rounded-full flex items-center justify-center transition-all duration-300"
-          [ngClass]="
-            viewMode === 'list'
-              ? 'bg-primary text-primary-contrast shadow-sm'
-              : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
-          ">
-          <app-icon name="view_list" size="md"></app-icon>
-        </button>
-      </div>
-    </div>
-
     <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
     <ng-template #headerTpl>
       <app-supplier-section-header-detail
         [supplier]="supplier"
-        [viewMode]="viewMode"
-        (viewModeChange)="setViewMode($event)"
-        (search)="filterSuppliers($event)"
-        (addInvoice)="openAddInvoiceModal()">
+        (search)="filterSuppliers($event)">
       </app-supplier-section-header-detail>
     </ng-template>
 
@@ -81,34 +24,21 @@
         <ng-template #contenidoPrincipal>
           <!-- LOADING: Skeleton Grid -->
           <ng-container *ngIf="cargando">
-            <app-skeleton *ngIf="viewMode === 'grid'" mode="grid" [count]="8"></app-skeleton>
-
-            <app-skeleton *ngIf="viewMode === 'list'" mode="list" [count]="6"></app-skeleton>
+            <app-skeleton mode="grid" [count]="8"></app-skeleton>
           </ng-container>
 
           <!-- LOADED: Actual Content -->
           <ng-container *ngIf="!cargando">
             <!-- VIEW: Grid Mode -->
-            <ng-container *ngIf="viewMode === 'grid'">
-              <div
-                class="grid gap-6"
-                [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
-                <app-supplier-card
-                  *ngFor="let item of filteredSupplier"
-                  [supplier]="item"
-                  [isSelected]="selectedSupplier?.id === item.id"
-                  (cardClick)="showDialog($event)">
-                </app-supplier-card>
-              </div>
-            </ng-container>
-
-            <!-- VIEW: List Mode -->
-            <div *ngIf="viewMode === 'list'">
-              <app-supplier-list
-                [suppliers]="filteredSupplier"
-                [selectedSupplier]="selectedSupplier"
-                (selectSupplier)="showDialog($event)">
-              </app-supplier-list>
+            <div
+              class="grid gap-6"
+              [ngClass]="selectedSupplier ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'">
+              <app-supplier-card
+                *ngFor="let item of filteredSupplier"
+                [supplier]="item"
+                [isSelected]="selectedSupplier?.id === item.id"
+                (cardClick)="showDialog($event)">
+              </app-supplier-card>
             </div>
           </ng-container>
         </ng-template>
@@ -119,25 +49,6 @@
         <!-- DESKTOP: Side Panel (Sticky, In-Flow) -->
         <div class="mg-desktop-detail-panel">
           <ng-container *ngTemplateOutlet="detailContent"></ng-container>
-        </div>
-
-        <!-- MOBILE: Bottom Sheet (Fixed, Overlay) -->
-        <div class="mg-mobile-overlay">
-          <!-- Backdrop -->
-          <div class="mg-mobile-backdrop" (click)="hideDialog()"></div>
-
-          <!-- Sheet -->
-          <div class="mg-bottom-sheet">
-            <!-- Drag Handle Area -->
-            <div class="mg-bottom-sheet-handle" (click)="hideDialog()">
-              <div class="mg-bottom-sheet-handle-bar"></div>
-            </div>
-
-            <!-- Content Wrapper -->
-            <div class="flex-1 overflow-hidden relative flex flex-col">
-              <ng-container *ngTemplateOutlet="detailContent"></ng-container>
-            </div>
-          </div>
         </div>
       </ng-container>
     </div>
@@ -155,16 +66,5 @@
         class="h-full block">
       </app-supplier-detail>
     </ng-template>
-
-    <!-- Mobile FAB (Floating Action Button) -->
-    <button
-      *ngxPermissionsOnly="[P.DocumentsWrite]"
-      class="mg-mobile-fab z-10"
-      (click)="openAddInvoiceModal()"
-      pTooltip="Subir factura"
-      tooltipPosition="left"
-      aria-label="Añadir factura">
-      <app-icon name="add" size="xl"></app-icon>
-    </button>
   </div>
 </div>

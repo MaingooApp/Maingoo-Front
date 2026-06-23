@@ -4,6 +4,7 @@
     <ng-template #headerTpl>
       <div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">
         <div class="flex items-center gap-4 shrink-0">
+          <app-icon name="manage_accounts" size="xl" class="text-primary"></app-icon>
           <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">Gestión de usuarios</h2>
         </div>
         <div class="flex items-center justify-end shrink-0 gap-3">
@@ -92,36 +93,6 @@
       </ng-container>
     </ng-template>
   </div>
-
-  <!-- MOBILE: Bottom Sheet — Permissions -->
-  <ng-container *ngIf="selectedUser() && !showCreateForm()">
-    <div class="mg-mobile-overlay">
-      <div class="mg-mobile-backdrop" (click)="closeDetail()"></div>
-      <div class="mg-bottom-sheet">
-        <div class="mg-bottom-sheet-handle" (click)="closeDetail()">
-          <div class="mg-bottom-sheet-handle-bar"></div>
-        </div>
-        <div class="flex-1 overflow-hidden relative flex flex-col">
-          <ng-container *ngTemplateOutlet="permissionPanel"></ng-container>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <!-- MOBILE: Bottom Sheet — Create Form -->
-  <ng-container *ngIf="showCreateForm()">
-    <div class="mg-mobile-overlay">
-      <div class="mg-mobile-backdrop" (click)="closeCreateForm()"></div>
-      <div class="mg-bottom-sheet">
-        <div class="mg-bottom-sheet-handle" (click)="closeCreateForm()">
-          <div class="mg-bottom-sheet-handle-bar"></div>
-        </div>
-        <div class="flex-1 overflow-hidden relative flex flex-col">
-          <ng-container *ngTemplateOutlet="createPanel"></ng-container>
-        </div>
-      </div>
-    </div>
-  </ng-container>
 </div>
 
 <!-- SHARED PERMISSION PANEL TEMPLATE -->

@@ -1,42 +1,8 @@
 <div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">
   <!-- Left: Title & Actions -->
   <div class="flex items-center gap-4 shrink-0">
+    <app-icon name="local_shipping" size="xl" class="text-primary"></app-icon>
     <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">Proveedores</h2>
-
-    <!-- View Switcher -->
-    <div *ngIf="supplier.length > 0" class="bg-surface-100 dark:bg-surface-800 p-1 rounded-lg flex items-center gap-1">
-      <button
-        (click)="setViewMode('grid')"
-        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="
-          viewMode === 'grid'
-            ? 'bg-surface-0 dark:bg-surface-700 text-primary shadow-sm'
-            : 'mg-icon-muted hover:text-surface-600 dark:hover:text-surface-300'
-        ">
-        <app-icon name="grid_view" size="md"></app-icon>
-      </button>
-      <button
-        (click)="setViewMode('list')"
-        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="
-          viewMode === 'list'
-            ? 'bg-surface-0 dark:bg-surface-700 text-primary shadow-sm'
-            : 'mg-icon-muted hover:text-surface-600 dark:hover:text-surface-300'
-        ">
-        <app-icon name="list" size="md"></app-icon>
-      </button>
-    </div>
-
-    <!-- Primary Action -->
-    <button
-      pButton
-      label="Subir Factura"
-      severity="primary"
-      (click)="onAddInvoice()"
-      class="whitespace-nowrap"
-      *ngxPermissionsOnly="[P.DocumentsRead]">
-      <app-icon name="receipt_long" size="md" class="mr-2"></app-icon>
-    </button>
   </div>
 
   <!-- Right: Search -->

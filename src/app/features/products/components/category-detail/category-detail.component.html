@@ -44,7 +44,10 @@
             [products]="node.products"
             [selectedProduct]="selectedProduct"
             [isNested]="true"
-            (selectProduct)="onSelectProduct($event)">
+            [showStock]="false"
+            [showDeleteAction]="true"
+            (selectProduct)="onSelectProduct($event)"
+            (deleteProduct)="onDeleteProduct($event)">
           </app-product-list>
         </div>
 

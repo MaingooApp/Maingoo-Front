@@ -1,32 +1,8 @@
 <div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">
   <!-- Left: Title & Actions -->
   <div class="flex items-center gap-4 shrink-0">
-    <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">APPCC</h2>
-    <span class="mg-demo-badge">DEMO</span>
-
-    <!-- View Switcher -->
-    <div class="bg-surface-100 dark:bg-surface-800 p-1 rounded-lg flex items-center gap-1 shrink-0">
-      <button
-        (click)="setViewMode('cards')"
-        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="
-          viewMode === 'cards'
-            ? 'bg-surface-0 dark:bg-surface-900 text-primary shadow-sm'
-            : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
-        ">
-        <app-icon name="grid_view" size="md"></app-icon>
-      </button>
-      <button
-        (click)="setViewMode('list')"
-        class="p-2 rounded-md transition-all duration-200 flex items-center justify-center w-8 h-8"
-        [ngClass]="
-          viewMode === 'list'
-            ? 'bg-surface-0 dark:bg-surface-900 text-primary shadow-sm'
-            : 'mg-text-muted hover:text-surface-600 dark:text-surface-300'
-        ">
-        <app-icon name="list" size="md"></app-icon>
-      </button>
-    </div>
+    <app-icon name="shield" size="xl" class="text-primary"></app-icon>
+    <h2 class="text-2xl font-bold mg-text m-0 whitespace-nowrap">Sanidad</h2>
   </div>
 
   <!-- Right: Placeholder for consistency -->

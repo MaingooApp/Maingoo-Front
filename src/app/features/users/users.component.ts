@@ -29,8 +29,8 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
 import { DetailCardShellComponent } from '../../shared/components/detail-card-shell/detail-card-shell.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
-import { LayoutService } from '../../layout/service/layout.service';
 import { SectionHeaderService } from '../../layout/service/section-header.service';
+import { SectionNavigationService } from '../../layout/service/section-navigation.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -63,8 +63,8 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private userService = inject(UserService);
   private toastService = inject(ToastService);
-  private layoutService = inject(LayoutService);
   private headerService = inject(SectionHeaderService);
+  private sectionNavigationService = inject(SectionNavigationService);
   private confirmationService = inject(ConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -143,7 +143,12 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   });
 
   ngOnInit(): void {
-    this.layoutService.setPageTitle('Gestión de usuarios');
+    this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
+      if (route === '/usuarios') {
+        this.resetToMainView();
+      }
+    });
+
     this.loadData();
   }
 
@@ -154,7 +159,6 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
-    this.layoutService.setPageTitle('');
     this.headerService.reset();
   }
 
@@ -299,6 +303,11 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
 
   closeCreateForm(): void {
     this.showCreateForm.set(false);
+  }
+
+  private resetToMainView(): void {
+    this.closeDetail();
+    this.closeCreateForm();
   }
 
   get isCreateFormValid(): boolean {

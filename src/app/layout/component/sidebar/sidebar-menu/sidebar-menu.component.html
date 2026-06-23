@@ -13,7 +13,8 @@
         [routerLink]="link.route"
         routerLinkActive="!text-primary !shadow-[0_6px_16px_rgba(26,60,52,0.1)]"
         class="mg-sidebar-chip"
-        [ngClass]="link.comingSoon ? 'mg-sidebar-chip-soon' : 'mg-sidebar-chip-default'">
+        [ngClass]="link.comingSoon ? 'mg-sidebar-chip-soon' : 'mg-sidebar-chip-default'"
+        (click)="onQuickLinkClick(link)">
         <app-icon [name]="link.icon" size="sm"></app-icon>
         <span class="text-[10px] font-medium whitespace-nowrap">{{ link.label }}</span>
         @if (link.comingSoon) {

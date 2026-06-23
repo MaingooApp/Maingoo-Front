@@ -20,10 +20,8 @@ export class ArticlesSectionHeaderDetailComponent {
   readonly P = AppPermission;
 
   @Input() articles: ArticleSummary[] = [];
-  @Input() viewMode: 'cards' | 'list' = 'cards';
   @Input() selectedCategory: string | null = null;
 
-  @Output() viewModeChange = new EventEmitter<'cards' | 'list'>();
   @Output() search = new EventEmitter<Event>();
   @Output() addPreparation = new EventEmitter<void>();
 
@@ -31,10 +29,6 @@ export class ArticlesSectionHeaderDetailComponent {
     if (this.selectedCategory === 'elaborations') return 'Añadir elaboración';
     if (this.selectedCategory === 'articles') return 'Añadir artículo';
     return '';
-  }
-
-  setViewMode(mode: 'cards' | 'list') {
-    this.viewModeChange.emit(mode);
   }
 
   onSearch(event: Event) {
