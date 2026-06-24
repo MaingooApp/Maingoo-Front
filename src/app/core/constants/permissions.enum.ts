@@ -8,6 +8,9 @@ export enum AppPermission {
 
   PermissionsAssign = 'permissions.assign',
 
+  BillingRead = 'billing.read',
+  BillingWrite = 'billing.write',
+
   InvoicesRead = 'invoices.read',
   InvoicesWrite = 'invoices.write',
   InvoicesDelete = 'invoices.delete',

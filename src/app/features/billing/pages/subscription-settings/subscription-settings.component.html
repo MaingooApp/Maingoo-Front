@@ -1,0 +1,154 @@
+<div class="flex h-full min-h-0 flex-col gap-6 overflow-y-auto p-6 -m-6">
+  <ng-template #headerTpl>
+    <div class="flex h-full w-full items-center justify-between gap-4 overflow-x-auto no-scrollbar">
+      <div class="flex shrink-0 items-center gap-4">
+        <app-icon name="credit_card" size="xl" class="text-primary"></app-icon>
+        <h2 class="m-0 whitespace-nowrap text-2xl font-bold mg-text">Suscripcion y facturacion</h2>
+      </div>
+
+      <div class="flex shrink-0 items-center gap-2">
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          [disabled]="subscriptionState.loading()"
+          (click)="refresh()">
+          <app-icon name="refresh" size="md" class="mr-2"></app-icon>
+          Actualizar
+        </button>
+        <button
+          pButton
+          type="button"
+          severity="primary"
+          [loading]="openingPortal()"
+          (click)="openBillingPortal()">
+          <app-icon name="open_in_new" size="md" class="mr-2"></app-icon>
+          Abrir Stripe
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+  <section class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)]">
+    <article class="mg-surface rounded-content p-6 shadow-sm">
+      <div class="flex flex-col gap-5">
+        <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div class="min-w-0">
+            <p class="m-0 text-sm font-semibold text-primary">Estado de la suscripcion</p>
+            <h3 class="m-0 mt-2 text-xl font-bold mg-text">{{ issueTitle() }}</h3>
+            <p class="m-0 mt-2 max-w-3xl text-sm leading-6 mg-text-muted">{{ issueDetail() }}</p>
+          </div>
+
+          <p-tag [value]="statusLabel()" [severity]="statusSeverity()"></p-tag>
+        </div>
+
+        @if (issue()) {
+          <div class="rounded-content border border-amber-200 bg-amber-50 p-4 text-amber-900 dark:border-amber-700/60 dark:bg-amber-900/20 dark:text-amber-100">
+            <div class="flex items-start gap-3">
+              <app-icon name="warning" size="xl" class="mt-0.5"></app-icon>
+              <div>
+                <p class="m-0 text-sm font-semibold">Accion requerida</p>
+                <p class="m-0 mt-1 text-sm opacity-85">
+                  Abre el portal de Stripe para revisar la suscripcion, metodo de pago y facturas asociadas.
+                </p>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="rounded-content border border-green-200 bg-green-50 p-4 text-green-900 dark:border-green-700/60 dark:bg-green-900/20 dark:text-green-100">
+            <div class="flex items-start gap-3">
+              <app-icon name="check_circle" size="xl" class="mt-0.5"></app-icon>
+              <div>
+                <p class="m-0 text-sm font-semibold">Acceso activo</p>
+                <p class="m-0 mt-1 text-sm opacity-85">Tu empresa tiene acceso a las funciones protegidas por suscripcion.</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+
+    <aside class="mg-surface rounded-content p-6 shadow-sm">
+      <div class="flex flex-col gap-4">
+        <div>
+          <p class="m-0 text-sm font-semibold mg-text">Gestion segura en Stripe</p>
+          <p class="m-0 mt-2 text-sm leading-6 mg-text-muted">
+            Desde el portal puedes cambiar metodo de pago, revisar facturas y reanudar una suscripcion pausada.
+          </p>
+        </div>
+
+        <button
+          pButton
+          type="button"
+          severity="primary"
+          class="w-full justify-center"
+          [loading]="openingPortal()"
+          (click)="openBillingPortal()">
+          <app-icon name="open_in_new" size="md" class="mr-2"></app-icon>
+          Abrir portal de Stripe
+        </button>
+
+        @if (subscriptionState.error()) {
+          <p class="m-0 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600 dark:bg-red-900/20 dark:text-red-300">
+            {{ subscriptionState.error() }}
+          </p>
+        }
+      </div>
+    </aside>
+  </section>
+
+  <section class="mg-surface rounded-content overflow-hidden shadow-sm">
+    <div class="border-b border-surface bg-surface-50 px-6 py-4 dark:bg-surface-800">
+      <h3 class="m-0 text-sm font-semibold mg-text">Detalle actual</h3>
+    </div>
+
+    @if (subscriptionState.loading() && !subscription()) {
+      <div class="p-6">
+        <div class="h-5 w-48 animate-pulse rounded bg-surface-200 dark:bg-surface-700"></div>
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div class="h-20 animate-pulse rounded-content bg-surface-100 dark:bg-surface-800"></div>
+          <div class="h-20 animate-pulse rounded-content bg-surface-100 dark:bg-surface-800"></div>
+          <div class="h-20 animate-pulse rounded-content bg-surface-100 dark:bg-surface-800"></div>
+        </div>
+      </div>
+    } @else {
+      @if (subscription(); as currentSubscription) {
+        <div class="grid grid-cols-1 gap-0 md:grid-cols-3">
+          <div class="border-b border-surface p-5 md:border-b-0 md:border-r">
+            <p class="m-0 text-xs font-semibold uppercase mg-text-muted">Periodo actual</p>
+            <p class="m-0 mt-2 text-sm font-semibold mg-text">{{ formatDate(currentSubscription.currentPeriodStart) }}</p>
+            <p class="m-0 mt-1 text-xs mg-text-muted">hasta {{ formatDate(currentSubscription.currentPeriodEnd) }}</p>
+          </div>
+
+          <div class="border-b border-surface p-5 md:border-b-0 md:border-r">
+            <p class="m-0 text-xs font-semibold uppercase mg-text-muted">Stripe subscription</p>
+            <p class="m-0 mt-2 truncate text-sm font-semibold mg-text" [title]="currentSubscription.stripeSubscriptionId">
+              {{ currentSubscription.stripeSubscriptionId }}
+            </p>
+            <p class="m-0 mt-1 truncate text-xs mg-text-muted" [title]="currentSubscription.stripePriceId || ''">
+              {{ currentSubscription.stripePriceId || 'Sin price id' }}
+            </p>
+          </div>
+
+          <div class="p-5">
+            <p class="m-0 text-xs font-semibold uppercase mg-text-muted">Renovacion</p>
+            <p class="m-0 mt-2 text-sm font-semibold mg-text">
+              {{ currentSubscription.cancelAtPeriodEnd ? 'Cancelacion programada' : 'Renovacion activa' }}
+            </p>
+            <p class="m-0 mt-1 text-xs mg-text-muted">Actualizado {{ formatDate(currentSubscription.updatedAt) }}</p>
+          </div>
+        </div>
+      } @else {
+        <div class="p-6">
+          <div class="flex items-start gap-3 rounded-content bg-surface-50 p-4 dark:bg-surface-800">
+            <app-icon name="info" size="xl" class="text-primary"></app-icon>
+            <div>
+              <p class="m-0 text-sm font-semibold mg-text">Sin suscripcion registrada</p>
+              <p class="m-0 mt-1 text-sm mg-text-muted">Abre Stripe o contacta con soporte para activar una suscripcion.</p>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </section>
+</div>

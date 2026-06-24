@@ -43,6 +43,13 @@ export const appRoutes: Routes = [
         data: { permissions: { only: [AppPermission.ProductsRead] } }
       },
       { path: 'gestoria', component: DocGeneratorComponent },
+      {
+        path: 'suscripcion',
+        loadComponent: () =>
+          import('./features/billing/pages/subscription-settings/subscription-settings.component').then(
+            (m) => m.SubscriptionSettingsComponent
+          )
+      },
       { path: 'appcc', loadComponent: () => import('./features/appcc/appcc.component').then((m) => m.AppccComponent) },
       { path: 'rrhh', loadComponent: () => import('./features/rrhh/rrhh.component').then((m) => m.RrhhComponent) },
       { path: 'miperfil', component: MyProfileComponent },

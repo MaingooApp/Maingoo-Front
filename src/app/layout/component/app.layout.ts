@@ -8,11 +8,20 @@ import { AppSidebar } from './sidebar/app.sidebar';
 import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-sheet.component';
 import { LayoutService } from '../service/layout.service';
 import { AppMain } from './main/app.main';
+import { SubscriptionAlertBannerComponent } from '@features/billing/components/subscription-alert-banner/subscription-alert-banner.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, MobileBottomSheetComponent, AppMain],
+  imports: [
+    CommonModule,
+    AppTopbar,
+    AppSidebar,
+    RouterModule,
+    MobileBottomSheetComponent,
+    AppMain,
+    SubscriptionAlertBannerComponent
+  ],
   templateUrl: './app.layout.html'
 })
 export class AppLayout {
