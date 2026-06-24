@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Observable, throwError, BehaviorSubject, filter, take, switchMap, catchError } from 'rxjs';
 import { AuthService } from '../../features/auth/services/auth-service.service';
 import { Router } from '@angular/router';
+import { SubscriptionStateService } from '@features/billing/services/subscription-state.service';
 
 let isRefreshing = false;
 let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -13,9 +14,14 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const subscriptionState = inject(SubscriptionStateService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      if (error.status === 402) {
+        subscriptionState.markPaymentRequired();
+      }
+
       if (error.status === 401) {
         // Si la petición es al endpoint de refresh, no intentar refrescar
         if (req.url.includes('/auth/refresh')) {

@@ -8,6 +8,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 import { SidebarShellComponent } from './sidebar-shell/sidebar-shell.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { SidebarChatComponent } from './sidebar-chat/sidebar-chat.component';
+import { AppPermission } from '@core/constants/permissions.enum';
 import {
   SidebarNotification,
   SidebarNotificationsComponent
@@ -50,6 +51,12 @@ export class AppSidebar implements OnInit {
     */
     { label: 'Gestoría', icon: 'description', route: '/gestoria' },
     { label: 'Sanidad', icon: 'shield', route: '/appcc' },
+    {
+      label: 'Suscripcion',
+      icon: 'credit_card',
+      route: '/suscripcion',
+      permissions: [AppPermission.BillingRead]
+    },
     {
       label: 'Usuarios',
       icon: 'manage_accounts',
