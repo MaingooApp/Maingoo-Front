@@ -1,12 +1,12 @@
 <!-- ========== SECCIÓN NOTIFICACIONES ========== -->
 
-<!-- Botón limpiar (solo si hay notificaciones) -->
+<!-- Marcar todas como leídas -->
 @if (notifications.length > 0) {
   <div class="flex-shrink-0 px-4 py-2 flex justify-end">
     <button
       (click)="clearAllNotifications()"
       class="text-xs font-medium text-primary hover:text-primary-emphasis dark:hover:text-surface-0 transition-colors">
-      Limpiar todo
+      Marcar todas como leídas
     </button>
   </div>
 }
@@ -27,31 +27,32 @@
     <!-- Lista de notificaciones -->
     <div class="flex flex-col gap-2 p-4">
       @for (notification of notifications; track notification.id) {
-        <div class="p-3 bg-surface-0 dark:bg-surface-700 rounded-content shadow-sm hover:shadow-md transition-all">
+        <button
+          type="button"
+          (click)="selectNotification(notification)"
+          class="w-full p-3 bg-surface-0 dark:bg-surface-700 rounded-content shadow-sm hover:shadow-md transition-all text-left"
+          [class.ring-1]="!notification.readAt"
+          [class.ring-primary]="!notification.readAt">
           <div class="flex gap-3">
             <!-- Icono de estado -->
             <div
               [class]="
                 'w-8 h-8 rounded-full flex items-center justify-center shrink-0 ' +
-                (notification.severity === 'success'
-                  ? 'bg-green-100 dark:bg-green-900/30'
-                  : notification.severity === 'error'
-                    ? 'bg-red-100 dark:bg-red-900/30'
-                    : notification.severity === 'warn'
-                      ? 'bg-orange-100 dark:bg-orange-900/30'
-                      : 'bg-blue-100 dark:bg-blue-900/30')
+                (notification.priority === 'CRITICAL'
+                  ? 'bg-red-100 dark:bg-red-900/30'
+                  : notification.priority === 'WARNING'
+                    ? 'bg-orange-100 dark:bg-orange-900/30'
+                    : 'bg-blue-100 dark:bg-blue-900/30')
               ">
               <app-icon
-                [name]="getSeverityIcon(notification.severity)"
+                [name]="getPriorityIcon(notification.priority)"
                 size="sm"
                 [class]="
-                  notification.severity === 'success'
-                    ? 'text-green-600'
-                    : notification.severity === 'error'
-                      ? 'text-red-600'
-                      : notification.severity === 'warn'
-                        ? 'text-orange-600'
-                        : 'text-blue-600'
+                  notification.priority === 'CRITICAL'
+                    ? 'text-red-600'
+                    : notification.priority === 'WARNING'
+                      ? 'text-orange-600'
+                      : 'text-blue-600'
                 ">
               </app-icon>
             </div>
@@ -60,19 +61,17 @@
             <div class="flex-1 min-w-0">
               <div class="flex justify-between items-start mb-0.5">
                 <p class="text-xs font-semibold mg-text leading-tight pr-2 truncate">
-                  {{ notification.summary }}
+                  {{ notification.title }}
                 </p>
                 <span class="text-[10px] mg-text-muted whitespace-nowrap">{{
-                  formatTime(notification.timestamp)
+                  formatTime(notification.createdAt)
                 }}</span>
               </div>
 
-              @if (notification.detail) {
-                <p class="text-xs mg-text-muted leading-relaxed line-clamp-2">{{ notification.detail }}</p>
-              }
+              <p class="text-xs mg-text-muted leading-relaxed line-clamp-2">{{ notification.body }}</p>
             </div>
           </div>
-        </div>
+        </button>
       }
     </div>
   }
