@@ -7,6 +7,7 @@ export enum AppPermission {
   UsersDelete = 'users.delete',
 
   PermissionsAssign = 'permissions.assign',
+  AuditRead = 'audit.read',
 
   BillingRead = 'billing.read',
   BillingWrite = 'billing.write',

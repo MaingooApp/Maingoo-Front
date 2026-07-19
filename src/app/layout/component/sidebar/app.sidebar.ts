@@ -61,6 +61,12 @@ export class AppSidebar implements OnInit {
       icon: 'manage_accounts',
       route: '/usuarios',
       permissions: ['users.read', 'permissions.assign']
+    },
+    {
+      label: 'Auditoría',
+      icon: 'history',
+      route: '/auditoria',
+      permissions: [AppPermission.AuditRead]
     }
   ];
 
