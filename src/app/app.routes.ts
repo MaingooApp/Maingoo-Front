@@ -60,6 +60,12 @@ export const appRoutes: Routes = [
         data: { permissions: { only: [AppPermission.UsersRead, AppPermission.PermissionsAssign] } }
       },
       {
+        path: 'auditoria',
+        loadComponent: () => import('./features/audit/audit-logs.component').then((m) => m.AuditLogsComponent),
+        canActivate: [ngxPermissionsGuard],
+        data: { permissions: { only: [AppPermission.AuditRead] } }
+      },
+      {
         path: 'ventas',
         loadComponent: () => import('./features/ventas/ventas.component').then((m) => m.VentasComponent)
       }

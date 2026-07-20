@@ -93,6 +93,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     const moduleLabels: Record<string, string> = {
       users: 'Usuarios',
       permissions: 'Permisos',
+      audit: 'Auditoría',
       invoices: 'Facturas',
       suppliers: 'Proveedores',
       enterprises: 'Empresa',
@@ -256,6 +257,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
       'users.write': 'Editar usuarios',
       'users.delete': 'Eliminar usuarios',
       'permissions.assign': 'Asignar permisos',
+      'audit.read': 'Ver historial de auditoría',
       'invoices.read': 'Ver facturas',
       'invoices.write': 'Crear/editar facturas',
       'invoices.delete': 'Eliminar facturas',
@@ -278,6 +280,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     const icons: Record<string, string> = {
       users: 'group',
       permissions: 'admin_panel_settings',
+      audit: 'history',
       invoices: 'receipt_long',
       suppliers: 'local_shipping',
       enterprises: 'business',

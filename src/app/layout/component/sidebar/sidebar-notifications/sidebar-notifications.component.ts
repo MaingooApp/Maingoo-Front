@@ -1,17 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconComponent } from '@shared/components/icon/icon.component';
-
-/**
- * Interfaz para las notificaciones
- */
-export interface SidebarNotification {
-  id: string;
-  severity: 'success' | 'info' | 'warn' | 'error';
-  summary: string;
-  detail?: string;
-  timestamp: Date;
-}
+import { NotificationItem } from '@core/services/notification.service';
 
 /**
  * SidebarNotificationsComponent
@@ -30,28 +20,27 @@ export interface SidebarNotification {
 })
 export class SidebarNotificationsComponent {
   /** Lista de notificaciones */
-  @Input() notifications: SidebarNotification[] = [];
+  @Input() notifications: NotificationItem[] = [];
 
-  /** Evento para limpiar todas las notificaciones */
-  @Output() clearAll = new EventEmitter<void>();
+  @Output() markAllRead = new EventEmitter<void>();
+  @Output() notificationSelected = new EventEmitter<NotificationItem>();
 
   /**
    * Obtiene el icono Material Symbol según la severidad
    */
-  getSeverityIcon(severity: string): string {
+  getPriorityIcon(priority: NotificationItem['priority']): string {
     const icons: { [key: string]: string } = {
-      success: 'check_circle',
-      info: 'info',
-      warn: 'warning',
-      error: 'cancel'
+      INFO: 'info',
+      WARNING: 'warning',
+      CRITICAL: 'error'
     };
-    return icons[severity] || 'info';
+    return icons[priority] || 'info';
   }
 
   /**
    * Formatea el timestamp de la notificación
    */
-  formatTime(timestamp: Date): string {
+  formatTime(timestamp: string): string {
     const now = new Date();
     const diff = now.getTime() - new Date(timestamp).getTime();
     const minutes = Math.floor(diff / 60000);
@@ -68,6 +57,10 @@ export class SidebarNotificationsComponent {
    * Limpia todas las notificaciones
    */
   clearAllNotifications(): void {
-    this.clearAll.emit();
+    this.markAllRead.emit();
+  }
+
+  selectNotification(notification: NotificationItem): void {
+    this.notificationSelected.emit(notification);
   }
 }

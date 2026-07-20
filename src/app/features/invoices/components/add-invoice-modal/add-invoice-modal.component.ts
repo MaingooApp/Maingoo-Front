@@ -225,8 +225,8 @@ export class AddInvoiceModalComponent {
         next: (document) => {
           if (document.status === 'DONE') {
             this._toastService.success(
-              'Análisis completo',
-              `El documento "${document.filename}" ha sido analizado correctamente`,
+              'Extracción completada',
+              `Estamos terminando la factura y preparando sus productos. Te notificaremos cuando estén listos.`,
               5000
             );
           } else if (document.status === 'FAILED') {

@@ -1,18 +1,16 @@
 import { Component, DestroyRef, signal, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { exhaustMap, filter, fromEvent, merge, timer } from 'rxjs';
 import { LayoutService } from '../../service/layout.service';
-import { NotificationItem, ToastService } from '@shared/services/toast.service';
+import { NotificationItem, NotificationService } from '@core/services/notification.service';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SidebarShellComponent } from './sidebar-shell/sidebar-shell.component';
 import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { SidebarChatComponent } from './sidebar-chat/sidebar-chat.component';
 import { AppPermission } from '@core/constants/permissions.enum';
-import {
-  SidebarNotification,
-  SidebarNotificationsComponent
-} from './sidebar-notifications/sidebar-notifications.component';
+import { SidebarNotificationsComponent } from './sidebar-notifications/sidebar-notifications.component';
 
 @Component({
   selector: 'app-sidebar',
@@ -30,14 +28,15 @@ import {
 })
 export class AppSidebar implements OnInit {
   private destroyRef = inject(DestroyRef);
+  private notificationService = inject(NotificationService);
+  private router = inject(Router);
 
   // Tab activo: 'chat' o 'notifications'
   activeTab = signal<'chat' | 'notifications'>('chat');
 
   // Notificaciones
-  notifications: SidebarNotification[] = [];
-  unreadNotifications = signal(0);
-  private knownNotificationIds = new Set<string>();
+  notifications = this.notificationService.items;
+  unreadNotifications = this.notificationService.unreadCount;
 
   // Acciones rápidas (Menú de navegación)
   quickLinks = [
@@ -62,48 +61,32 @@ export class AppSidebar implements OnInit {
       icon: 'manage_accounts',
       route: '/usuarios',
       permissions: ['users.read', 'permissions.assign']
+    },
+    {
+      label: 'Auditoría',
+      icon: 'history',
+      route: '/auditoria',
+      permissions: [AppPermission.AuditRead]
     }
   ];
 
-  constructor(
-    public layoutService: LayoutService,
-    private toastService: ToastService
-  ) {}
+  constructor(public layoutService: LayoutService) {}
 
   ngOnInit(): void {
-    // Suscribirse a las notificaciones
-    this.toastService.notifications$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((notifications) => {
-      if (notifications.length === 0) {
-        this.knownNotificationIds.clear();
-        this.unreadNotifications.set(0);
-      }
-
-      const newNotifications = notifications.filter((notification) => !this.knownNotificationIds.has(notification.id));
-      notifications.forEach((notification) => this.knownNotificationIds.add(notification.id));
-
-      this.notifications = notifications.map((notification) => ({
-        ...notification,
-        severity: this.toSidebarSeverity(notification.severity)
-      }));
-
-      if (this.activeTab() === 'notifications') {
-        this.unreadNotifications.set(0);
-        return;
-      }
-
-      if (newNotifications.length > 0) {
-        this.unreadNotifications.update((count) => count + newNotifications.length);
-      }
-    });
+    merge(timer(0, 120_000), fromEvent(window, 'focus'))
+      .pipe(
+        filter(() => document.visibilityState === 'visible'),
+        exhaustMap(() => this.notificationService.refresh()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
   }
 
   /**
    * Limpia todas las notificaciones
    */
   clearAllNotifications(): void {
-    this.toastService.clearNotifications();
-    this.knownNotificationIds.clear();
-    this.unreadNotifications.set(0);
+    this.notificationService.markAllRead().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   /**
@@ -113,11 +96,17 @@ export class AppSidebar implements OnInit {
     this.activeTab.set(tab);
 
     if (tab === 'notifications') {
-      this.unreadNotifications.set(0);
+      this.notificationService.refresh().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
 
-  private toSidebarSeverity(severity: NotificationItem['severity']): SidebarNotification['severity'] {
-    return severity === 'success' || severity === 'warn' || severity === 'error' ? severity : 'info';
+  openNotification(notification: NotificationItem): void {
+    if (!notification.readAt) {
+      this.notificationService.markRead(notification.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    }
+
+    if (notification.actionPath) {
+      void this.router.navigateByUrl(notification.actionPath);
+    }
   }
 }
