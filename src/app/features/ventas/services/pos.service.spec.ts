@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { environment } from '@env/environment';
 
 import { CreateOrderCommandData, UpdateKitchenTicketCommandData } from '../models/pos-command.models';
+import { CreateModifierGroupDto, UpdatePosSettingsDto } from '../models/pos-configuration.models';
 import { PosService } from './pos.service';
 
 describe('PosService', () => {
@@ -66,5 +67,61 @@ describe('PosService', () => {
     );
     expect(request.request.method).toBe('GET');
     request.flush({ changes: [], serverCursor: 'cursor' });
+  });
+
+  it('updates settings with a flat body and without idempotency', () => {
+    const dto: UpdatePosSettingsDto = {
+      enabled: true,
+      currency: 'EUR',
+      timezone: 'Europe/Madrid'
+    };
+
+    service.updateSettings(dto).subscribe();
+
+    const request = http.expectOne(`${apiUrl}/settings`);
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body).toEqual(dto);
+    expect(request.request.headers.has('Idempotency-Key')).toBeFalse();
+    request.flush({});
+  });
+
+  it('encodes menu item filters including false', () => {
+    service.listMenuItems({ categoryId: 'category-id', active: false, search: 'café' }).subscribe();
+
+    const request = http.expectOne(
+      (candidate) =>
+        candidate.url === `${apiUrl}/menu/items` &&
+        candidate.params.get('categoryId') === 'category-id' &&
+        candidate.params.get('active') === 'false' &&
+        candidate.params.get('search') === 'café'
+    );
+    expect(request.request.method).toBe('GET');
+    request.flush([]);
+  });
+
+  it('creates a modifier group with its nested options and without idempotency', () => {
+    const dto: CreateModifierGroupDto = {
+      name: 'Tamaño',
+      maxSelections: 1,
+      required: true,
+      options: [{ name: 'Grande', priceDeltaGross: '1.50' }]
+    };
+
+    service.createModifierGroup(dto).subscribe();
+
+    const request = http.expectOne(`${apiUrl}/menu/modifier-groups`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(dto);
+    expect(request.request.headers.has('Idempotency-Key')).toBeFalse();
+    request.flush({});
+  });
+
+  it('sends null when unlinking a menu item recipe', () => {
+    service.updateMenuItem('item-id', { foodPreparationId: null, trackStock: false }).subscribe();
+
+    const request = http.expectOne(`${apiUrl}/menu/items/item-id`);
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ foodPreparationId: null, trackStock: false });
+    request.flush({});
   });
 });

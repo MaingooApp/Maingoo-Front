@@ -12,8 +12,8 @@
 
 | Fase | Estado |
 |---|---|
-| F0 — Contratos y navegación | Implementada |
-| F1 — Bootstrap y configuración mínima | Pendiente |
+| F0 — Contratos y navegación | Implementada (`5f54fdd`) |
+| F1 — Bootstrap y configuración mínima | Implementada |
 | F2 — Terminal online | Pendiente |
 | F3 — Cocina y caja | Pendiente |
 | F4 — Inventario y margen | Pendiente |
@@ -796,6 +796,8 @@ No declarar terminado con errores TypeScript, traducciones faltantes o warnings 
 ### F1 — Bootstrap y configuración mínima
 
 - Alta de dispositivo solo para `pos.manage`; selección de uno existente para el terminal.
+- Hasta F5, persistir únicamente el `deviceId` no secreto en `localStorage`; F5 lo
+  migra al store IndexedDB aislado por empresa.
 - Store signals y bootstrap online.
 - Carta/categorías/mesas/dispositivos.
 - Estados loading/error/permissions.

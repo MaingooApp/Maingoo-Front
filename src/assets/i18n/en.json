@@ -46,6 +46,117 @@
       "settings": "POS settings",
       "reports": "Sales reports",
       "pendingDescription": "This screen will be enabled in the next POS phase."
+    },
+    "actions": {
+      "retry": "Retry"
+    },
+    "landing": {
+      "title": "Point of sale",
+      "description": "Open the POS areas available to your user.",
+      "terminalDescription": "Manage tables, orders, and payments.",
+      "kitchenDescription": "View and prepare kitchen tickets.",
+      "cashDescription": "Open, review, and close the cash session.",
+      "historyDescription": "Review orders, receipts, and issued documents.",
+      "settingsDescription": "Configure devices, dining areas, menu, and kitchen.",
+      "reportsDescription": "Review sales, costs, and cash differences."
+    },
+    "terminal": {
+      "title": "Sales terminal",
+      "description": "Select this device and load its operational configuration.",
+      "selectDevice": "Select device",
+      "device": "Device",
+      "chooseDevice": "Choose a device",
+      "continue": "Continue",
+      "changeDevice": "Change device",
+      "noDevices": "No active registers are configured. Ask a manager to create one.",
+      "configureDevices": "Configure devices",
+      "deviceLoadError": "Devices could not be loaded.",
+      "bootstrapError": "The terminal could not be started",
+      "disabledTitle": "POS disabled",
+      "disabledDescription": "POS operation has not been enabled for this business yet.",
+      "readyTitle": "Configuration loaded",
+      "readyDescription": "The device, menu, and dining areas are ready. The sales flow is enabled in F2.",
+      "cashOpen": "Open",
+      "cashClosed": "Closed",
+      "metrics": {
+        "menuItems": "Active items",
+        "tables": "Tables",
+        "orders": "Active orders",
+        "cash": "Cash session"
+      }
+    },
+    "errors": {
+      "POS_LOAD_FAILED": "The POS configuration could not be loaded.",
+      "POS_SYNC_CURSOR_STALLED": "Synchronization could not advance.",
+      "POS_DISABLED": "The POS is disabled.",
+      "DEVICE_NOT_REGISTERED": "The device is not registered.",
+      "DEVICE_REVOKED": "The device has been revoked.",
+      "POS_DEVICE_NOT_FOUND": "The device does not exist or is not active.",
+      "INVALID_SYNC_CURSOR": "The synchronization cursor is invalid."
+    },
+    "settings": {
+      "title": "POS settings",
+      "description": "Manage operational settings and the structure of your point of sale.",
+      "sectionsLabel": "POS settings sections",
+      "sections": {
+        "general": "General",
+        "devices": "Devices",
+        "areas": "Areas",
+        "tables": "Tables",
+        "categories": "Categories",
+        "items": "Menu",
+        "stations": "Kitchen stations"
+      },
+      "catalogDescription": "Create and edit the items available in the terminal.",
+      "loading": "Loading settings...",
+      "loadError": "The settings could not be loaded or saved.",
+      "retry": "Retry",
+      "empty": "No items have been configured yet.",
+      "add": "Add",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "unknownArea": "Area unavailable",
+      "unknownCategory": "Category unavailable",
+      "none": "None",
+      "foodPreparationRequired": "The recipe is required when stock tracking is enabled.",
+      "appVersionCannotClear": "If left empty, the current version is kept because the backend cannot clear it.",
+      "fields": {
+        "enabled": "POS enabled",
+        "currency": "Currency",
+        "timezone": "Time zone",
+        "pricesIncludeTax": "Prices include tax",
+        "allowNegativeStock": "Allow negative stock",
+        "receiptFooter": "Receipt footer",
+        "name": "Name",
+        "code": "Code",
+        "type": "Type",
+        "appVersion": "Application version",
+        "area": "Area",
+        "capacity": "Capacity",
+        "color": "Color",
+        "category": "Category",
+        "priceGross": "Tax-inclusive price",
+        "taxRate": "Tax rate",
+        "trackStock": "Track stock",
+        "foodPreparation": "Recipe",
+        "kitchenStation": "Kitchen station",
+        "sortOrder": "Order",
+        "active": "Active"
+      },
+      "deviceTypes": {
+        "REGISTER": "Register",
+        "KDS": "Kitchen display",
+        "BACKOFFICE": "Back office"
+      },
+      "deviceStatuses": {
+        "ACTIVE": "Active",
+        "REVOKED": "Revoked"
+      },
+      "activeStates": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
     }
   },
   "inventory": {

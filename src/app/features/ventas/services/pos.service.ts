@@ -23,23 +23,53 @@ import {
   VoidPaymentCommandData
 } from '../models/pos-command.models';
 import {
+  ActiveListFilters,
+  CreateKitchenStationDto,
+  CreateModifierGroupDto,
+  CreatePosAreaDto,
+  CreatePosDeviceDto,
+  CreatePosMenuCategoryDto,
+  CreatePosMenuItemDto,
+  CreatePosTableDto,
+  EnterpriseScopedFilters,
+  ListPosDevicesFilters,
+  ListPosMenuItemsFilters,
+  ListPosTablesFilters,
+  UpdateKitchenStationDto,
+  UpdateModifierGroupDto,
+  UpdatePosAreaDto,
+  UpdatePosDeviceDto,
+  UpdatePosMenuCategoryDto,
+  UpdatePosMenuItemDto,
+  UpdatePosSettingsDto,
+  UpdatePosTableDto
+} from '../models/pos-configuration.models';
+import {
   CashMovement,
   CashSessionWithMovements,
   DailySalesSummary,
+  DiningArea,
+  DiningTable,
   FiscalDocumentSummary,
   FiscalDocumentType,
   FiscalReceipt,
   FiscalSubmissionStatus,
+  KitchenStation,
   KitchenTicketListItem,
   KitchenTicketUpdateResponse,
   KitchenTicketStatus,
+  MenuCategory,
+  MenuItem,
+  ModifierGroup,
   PagedResponse,
   Payment,
   PosBootstrapResponse,
+  PosDevice,
   PosOperationalSyncResponse,
   PosOrder,
   PosOrderChannel,
   PosOrderStatus,
+  PosSettings,
   Refund
 } from '../models/pos.models';
 
@@ -125,6 +155,98 @@ export class PosService extends BaseHttpService {
       undefined,
       this.params({ deviceId, cursor, enterpriseId })
     );
+  }
+
+  getSettings(enterpriseId?: string): Observable<PosSettings> {
+    return this.get<PosSettings>(`${this.apiUrl}/settings`, undefined, this.params({ enterpriseId }));
+  }
+
+  updateSettings(dto: UpdatePosSettingsDto): Observable<PosSettings> {
+    return this.put<PosSettings>(`${this.apiUrl}/settings`, dto);
+  }
+
+  listDevices(filters: ListPosDevicesFilters = {}): Observable<PosDevice[]> {
+    return this.get<PosDevice[]>(`${this.apiUrl}/devices`, undefined, this.params(filters));
+  }
+
+  createDevice(dto: CreatePosDeviceDto): Observable<PosDevice> {
+    return this.post<PosDevice>(`${this.apiUrl}/devices`, dto);
+  }
+
+  updateDevice(deviceId: string, dto: UpdatePosDeviceDto): Observable<PosDevice> {
+    return this.patch<PosDevice>(`${this.apiUrl}/devices/${deviceId}`, dto);
+  }
+
+  listAreas(filters: ActiveListFilters = {}): Observable<DiningArea[]> {
+    return this.get<DiningArea[]>(`${this.apiUrl}/areas`, undefined, this.params(filters));
+  }
+
+  createArea(dto: CreatePosAreaDto): Observable<DiningArea> {
+    return this.post<DiningArea>(`${this.apiUrl}/areas`, dto);
+  }
+
+  updateArea(areaId: string, dto: UpdatePosAreaDto): Observable<DiningArea> {
+    return this.patch<DiningArea>(`${this.apiUrl}/areas/${areaId}`, dto);
+  }
+
+  listTables(filters: ListPosTablesFilters = {}): Observable<DiningTable[]> {
+    return this.get<DiningTable[]>(`${this.apiUrl}/tables`, undefined, this.params(filters));
+  }
+
+  createTable(dto: CreatePosTableDto): Observable<DiningTable> {
+    return this.post<DiningTable>(`${this.apiUrl}/tables`, dto);
+  }
+
+  updateTable(tableId: string, dto: UpdatePosTableDto): Observable<DiningTable> {
+    return this.patch<DiningTable>(`${this.apiUrl}/tables/${tableId}`, dto);
+  }
+
+  listMenuCategories(filters: ActiveListFilters = {}): Observable<MenuCategory[]> {
+    return this.get<MenuCategory[]>(`${this.apiUrl}/menu/categories`, undefined, this.params(filters));
+  }
+
+  createMenuCategory(dto: CreatePosMenuCategoryDto): Observable<MenuCategory> {
+    return this.post<MenuCategory>(`${this.apiUrl}/menu/categories`, dto);
+  }
+
+  updateMenuCategory(categoryId: string, dto: UpdatePosMenuCategoryDto): Observable<MenuCategory> {
+    return this.patch<MenuCategory>(`${this.apiUrl}/menu/categories/${categoryId}`, dto);
+  }
+
+  listMenuItems(filters: ListPosMenuItemsFilters = {}): Observable<MenuItem[]> {
+    return this.get<MenuItem[]>(`${this.apiUrl}/menu/items`, undefined, this.params(filters));
+  }
+
+  createMenuItem(dto: CreatePosMenuItemDto): Observable<MenuItem> {
+    return this.post<MenuItem>(`${this.apiUrl}/menu/items`, dto);
+  }
+
+  updateMenuItem(itemId: string, dto: UpdatePosMenuItemDto): Observable<MenuItem> {
+    return this.patch<MenuItem>(`${this.apiUrl}/menu/items/${itemId}`, dto);
+  }
+
+  listKitchenStations(filters: ActiveListFilters = {}): Observable<KitchenStation[]> {
+    return this.get<KitchenStation[]>(`${this.apiUrl}/kitchen/stations`, undefined, this.params(filters));
+  }
+
+  createKitchenStation(dto: CreateKitchenStationDto): Observable<KitchenStation> {
+    return this.post<KitchenStation>(`${this.apiUrl}/kitchen/stations`, dto);
+  }
+
+  updateKitchenStation(stationId: string, dto: UpdateKitchenStationDto): Observable<KitchenStation> {
+    return this.patch<KitchenStation>(`${this.apiUrl}/kitchen/stations/${stationId}`, dto);
+  }
+
+  listModifierGroups(filters: EnterpriseScopedFilters = {}): Observable<ModifierGroup[]> {
+    return this.get<ModifierGroup[]>(`${this.apiUrl}/menu/modifier-groups`, undefined, this.params(filters));
+  }
+
+  createModifierGroup(dto: CreateModifierGroupDto): Observable<ModifierGroup> {
+    return this.post<ModifierGroup>(`${this.apiUrl}/menu/modifier-groups`, dto);
+  }
+
+  updateModifierGroup(groupId: string, dto: UpdateModifierGroupDto): Observable<ModifierGroup> {
+    return this.patch<ModifierGroup>(`${this.apiUrl}/menu/modifier-groups/${groupId}`, dto);
   }
 
   createOrder(command: CreateOrderCommandData, idempotencyKey: string): Observable<PosOrder> {

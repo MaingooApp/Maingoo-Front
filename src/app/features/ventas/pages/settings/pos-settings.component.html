@@ -1,0 +1,327 @@
+<section class="flex flex-col gap-6 p-4 md:p-6">
+  <header>
+    <h1 class="m-0 text-2xl font-bold mg-text">{{ 'pos.settings.title' | translate }}</h1>
+    <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.settings.description' | translate }}</p>
+  </header>
+
+  <nav class="flex gap-2 overflow-x-auto pb-1" [attr.aria-label]="'pos.settings.sectionsLabel' | translate">
+    @for (section of sections; track section) {
+      <button
+        pButton
+        type="button"
+        class="shrink-0"
+        [outlined]="activeSection() !== section"
+        [label]="'pos.settings.sections.' + section | translate"
+        (click)="selectSection(section)"></button>
+    }
+  </nav>
+
+  @if (loading()) {
+    <div class="flex min-h-64 flex-col items-center justify-center gap-3" role="status">
+      <span class="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent"></span>
+      <span class="mg-text-muted">{{ 'pos.settings.loading' | translate }}</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="flex min-h-64 flex-col items-center justify-center gap-4 text-center" role="alert">
+      <p class="m-0 mg-text-muted">{{ 'pos.settings.loadError' | translate }}</p>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [label]="'pos.settings.retry' | translate"
+        (click)="loadAll()"></button>
+    </div>
+  } @else if (activeSection() === 'general') {
+    <form
+      #settingsNgForm="ngForm"
+      class="grid max-w-4xl gap-5 rounded-xl border border-surface p-5 md:grid-cols-2"
+      (ngSubmit)="saveSettings(settingsNgForm)">
+      <label class="flex items-center gap-3 md:col-span-2">
+        <input type="checkbox" name="enabled" [(ngModel)]="settingsForm.enabled" />
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.enabled' | translate }}</span>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.currency' | translate }}</span>
+        <input
+          pInputText
+          required
+          maxlength="3"
+          pattern="[A-Za-z]{3}"
+          name="currency"
+          [(ngModel)]="settingsForm.currency" />
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.timezone' | translate }}</span>
+        <input pInputText required maxlength="64" name="timezone" [(ngModel)]="settingsForm.timezone" />
+      </label>
+
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="pricesIncludeTax" [(ngModel)]="settingsForm.pricesIncludeTax" />
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.pricesIncludeTax' | translate }}</span>
+      </label>
+
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="allowNegativeStock" [(ngModel)]="settingsForm.allowNegativeStock" />
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.allowNegativeStock' | translate }}</span>
+      </label>
+
+      <label class="flex flex-col gap-2 md:col-span-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.receiptFooter' | translate }}</span>
+        <textarea
+          rows="3"
+          maxlength="500"
+          name="receiptFooter"
+          class="w-full rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="settingsForm.receiptFooter"></textarea>
+      </label>
+
+      <div class="md:col-span-2">
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-save"
+          [disabled]="settingsNgForm.invalid"
+          [loading]="saving()"
+          [label]="'pos.settings.save' | translate"></button>
+      </div>
+    </form>
+  } @else {
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h2 class="m-0 text-xl font-semibold mg-text">
+          {{ 'pos.settings.sections.' + activeSection() | translate }}
+        </h2>
+        <p class="mb-0 mt-1 text-sm mg-text-muted">{{ 'pos.settings.catalogDescription' | translate }}</p>
+      </div>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-plus"
+        [disabled]="
+          (activeSection() === 'tables' && !areas().length) || (activeSection() === 'items' && !categories().length)
+        "
+        [label]="'pos.settings.add' | translate"
+        (click)="openCreate()"></button>
+    </div>
+
+    @if (!items().length) {
+      <div
+        class="flex min-h-48 items-center justify-center rounded-xl border border-dashed border-surface p-6 text-center">
+        <p class="m-0 mg-text-muted">{{ 'pos.settings.empty' | translate }}</p>
+      </div>
+    } @else {
+      <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        @for (item of items(); track item.id) {
+          <article class="flex items-center justify-between gap-3 rounded-xl border border-surface p-4">
+            <div class="min-w-0">
+              <h3 class="m-0 truncate font-semibold mg-text">{{ item.name }}</h3>
+              <p class="mb-0 mt-1 truncate text-sm mg-text-muted">{{ entityMeta(item) }}</p>
+            </div>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              [attr.aria-label]="'pos.settings.edit' | translate"
+              (click)="openEdit(item)"></button>
+          </article>
+        }
+      </div>
+    }
+  }
+</section>
+
+<p-dialog
+  [visible]="dialogVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [closable]="!saving()"
+  [style]="{ width: 'min(34rem, 94vw)' }"
+  [header]="(editingEntityId ? 'pos.settings.edit' : 'pos.settings.add') | translate"
+  (visibleChange)="$event ? dialogVisible.set(true) : closeDialog()">
+  <form #entityNgForm="ngForm" class="flex flex-col gap-4 pt-2" (ngSubmit)="saveEntity(entityNgForm)">
+    <label class="flex flex-col gap-2">
+      <span class="font-medium mg-text">{{ 'pos.settings.fields.name' | translate }}</span>
+      <input
+        pInputText
+        required
+        [maxlength]="activeSection() === 'tables' ? 80 : 120"
+        name="name"
+        [(ngModel)]="entityForm.name" />
+    </label>
+
+    @if (activeSection() === 'devices') {
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.code' | translate }}</span>
+        <input
+          pInputText
+          required
+          minlength="3"
+          maxlength="50"
+          pattern="[A-Za-z0-9][A-Za-z0-9_-]{2,49}"
+          name="code"
+          [disabled]="!!editingEntityId"
+          [(ngModel)]="entityForm.code" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.type' | translate }}</span>
+        <select
+          required
+          name="type"
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="entityForm.type">
+          @for (type of deviceTypes; track type) {
+            <option [ngValue]="type">{{ 'pos.settings.deviceTypes.' + type | translate }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.appVersion' | translate }}</span>
+        <input pInputText maxlength="40" name="appVersion" [(ngModel)]="entityForm.appVersion" />
+        @if (editingEntityId) {
+          <small class="mg-text-muted">{{ 'pos.settings.appVersionCannotClear' | translate }}</small>
+        }
+      </label>
+    }
+
+    @if (activeSection() === 'tables') {
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.area' | translate }}</span>
+        <select
+          required
+          name="areaId"
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="entityForm.areaId">
+          @for (area of areas(); track area.id) {
+            <option [ngValue]="area.id">{{ area.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.capacity' | translate }}</span>
+        <p-inputnumber
+          required
+          name="capacity"
+          [min]="1"
+          [max]="999"
+          [useGrouping]="false"
+          [(ngModel)]="entityForm.capacity"></p-inputnumber>
+      </label>
+    }
+
+    @if (activeSection() === 'categories') {
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.color' | translate }}</span>
+        <input
+          type="color"
+          name="color"
+          class="h-11 w-full rounded-md border border-surface p-1"
+          [(ngModel)]="entityForm.color" />
+      </label>
+    }
+
+    @if (activeSection() === 'items') {
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.category' | translate }}</span>
+        <select
+          required
+          name="categoryId"
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="entityForm.categoryId">
+          @for (category of categories(); track category.id) {
+            <option [ngValue]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.priceGross' | translate }}</span>
+        <input
+          pInputText
+          required
+          inputmode="decimal"
+          pattern="[0-9]{1,10}([.][0-9]{1,2})?"
+          name="priceGross"
+          [(ngModel)]="entityForm.priceGross" />
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.taxRate' | translate }}</span>
+        <input
+          pInputText
+          required
+          inputmode="decimal"
+          pattern="(100([.]0{1,2})?|([0-9]|[1-9][0-9])([.][0-9]{1,2})?)"
+          name="taxRate"
+          [(ngModel)]="entityForm.taxRate" />
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="trackStock" [(ngModel)]="entityForm.trackStock" />
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.trackStock' | translate }}</span>
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.foodPreparation' | translate }}</span>
+        <select
+          name="foodPreparationId"
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [required]="entityForm.trackStock"
+          [(ngModel)]="entityForm.foodPreparationId">
+          <option [ngValue]="''">{{ 'pos.settings.none' | translate }}</option>
+          @for (preparation of foodPreparations(); track preparation.id) {
+            <option [ngValue]="preparation.id">{{ preparation.name }}</option>
+          }
+        </select>
+        @if (entityForm.trackStock) {
+          <small class="mg-text-muted">{{ 'pos.settings.foodPreparationRequired' | translate }}</small>
+        }
+      </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.kitchenStation' | translate }}</span>
+        <select
+          name="kitchenStationId"
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="entityForm.kitchenStationId">
+          <option [ngValue]="''">{{ 'pos.settings.none' | translate }}</option>
+          @for (station of stations(); track station.id) {
+            <option [ngValue]="station.id">{{ station.name }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (activeSection() !== 'devices') {
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.sortOrder' | translate }}</span>
+        <p-inputnumber
+          required
+          name="sortOrder"
+          [min]="0"
+          [useGrouping]="false"
+          [(ngModel)]="entityForm.sortOrder"></p-inputnumber>
+      </label>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="active" [(ngModel)]="entityForm.active" />
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.active' | translate }}</span>
+      </label>
+    }
+
+    <div class="mt-2 flex justify-end gap-2">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="saving()"
+        [label]="'pos.settings.cancel' | translate"
+        (click)="closeDialog()"></button>
+      <button
+        pButton
+        type="submit"
+        icon="pi pi-save"
+        [disabled]="entityNgForm.invalid"
+        [loading]="saving()"
+        [label]="'pos.settings.save' | translate"></button>
+    </div>
+  </form>
+</p-dialog>

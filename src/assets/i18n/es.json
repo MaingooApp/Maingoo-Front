@@ -46,6 +46,117 @@
       "settings": "Configuración TPV",
       "reports": "Informes de ventas",
       "pendingDescription": "Esta pantalla se habilitará en la siguiente fase del TPV."
+    },
+    "actions": {
+      "retry": "Reintentar"
+    },
+    "landing": {
+      "title": "Punto de venta",
+      "description": "Accede a las áreas del TPV disponibles para tu usuario.",
+      "terminalDescription": "Gestiona mesas, pedidos y cobros.",
+      "kitchenDescription": "Consulta y prepara los tickets de cocina.",
+      "cashDescription": "Abre, revisa y cierra la sesión de caja.",
+      "historyDescription": "Consulta pedidos, tickets y documentos emitidos.",
+      "settingsDescription": "Configura dispositivos, sala, carta y cocina.",
+      "reportsDescription": "Revisa ventas, costes y diferencias de caja."
+    },
+    "terminal": {
+      "title": "Terminal de venta",
+      "description": "Selecciona este dispositivo y carga la configuración operativa.",
+      "selectDevice": "Seleccionar dispositivo",
+      "device": "Dispositivo",
+      "chooseDevice": "Elige un dispositivo",
+      "continue": "Continuar",
+      "changeDevice": "Cambiar dispositivo",
+      "noDevices": "No hay cajas activas configuradas. Solicita a un responsable que cree una.",
+      "configureDevices": "Configurar dispositivos",
+      "deviceLoadError": "No se han podido cargar los dispositivos.",
+      "bootstrapError": "No se pudo iniciar el terminal",
+      "disabledTitle": "TPV deshabilitado",
+      "disabledDescription": "Este establecimiento todavía no tiene habilitada la operación TPV.",
+      "readyTitle": "Configuración cargada",
+      "readyDescription": "El dispositivo, la carta y la sala están listos. El flujo de venta se habilita en F2.",
+      "cashOpen": "Abierta",
+      "cashClosed": "Cerrada",
+      "metrics": {
+        "menuItems": "Artículos activos",
+        "tables": "Mesas",
+        "orders": "Pedidos activos",
+        "cash": "Caja"
+      }
+    },
+    "errors": {
+      "POS_LOAD_FAILED": "No se pudo cargar la configuración del TPV.",
+      "POS_SYNC_CURSOR_STALLED": "La sincronización no pudo avanzar.",
+      "POS_DISABLED": "El TPV está deshabilitado.",
+      "DEVICE_NOT_REGISTERED": "El dispositivo no está registrado.",
+      "DEVICE_REVOKED": "El dispositivo ha sido revocado.",
+      "POS_DEVICE_NOT_FOUND": "El dispositivo no existe o no está activo.",
+      "INVALID_SYNC_CURSOR": "El cursor de sincronización no es válido."
+    },
+    "settings": {
+      "title": "Configuración del TPV",
+      "description": "Gestiona los ajustes operativos y la estructura de tu punto de venta.",
+      "sectionsLabel": "Secciones de configuración del TPV",
+      "sections": {
+        "general": "General",
+        "devices": "Dispositivos",
+        "areas": "Áreas",
+        "tables": "Mesas",
+        "categories": "Categorías",
+        "items": "Carta",
+        "stations": "Estaciones de cocina"
+      },
+      "catalogDescription": "Crea y edita los elementos disponibles en el terminal.",
+      "loading": "Cargando configuración...",
+      "loadError": "No se ha podido cargar o guardar la configuración.",
+      "retry": "Reintentar",
+      "empty": "Todavía no hay elementos configurados.",
+      "add": "Añadir",
+      "edit": "Editar",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "unknownArea": "Área no disponible",
+      "unknownCategory": "Categoría no disponible",
+      "none": "Ninguna",
+      "foodPreparationRequired": "La receta es obligatoria cuando se controla el stock.",
+      "appVersionCannotClear": "Si se deja vacío, se conserva la versión actual porque el backend no permite borrarla.",
+      "fields": {
+        "enabled": "TPV habilitado",
+        "currency": "Moneda",
+        "timezone": "Zona horaria",
+        "pricesIncludeTax": "Los precios incluyen impuestos",
+        "allowNegativeStock": "Permitir existencias negativas",
+        "receiptFooter": "Pie del recibo",
+        "name": "Nombre",
+        "code": "Código",
+        "type": "Tipo",
+        "appVersion": "Versión de la aplicación",
+        "area": "Área",
+        "capacity": "Capacidad",
+        "color": "Color",
+        "category": "Categoría",
+        "priceGross": "Precio con impuestos",
+        "taxRate": "Impuesto",
+        "trackStock": "Controlar existencias",
+        "foodPreparation": "Receta",
+        "kitchenStation": "Estación de cocina",
+        "sortOrder": "Orden",
+        "active": "Activo"
+      },
+      "deviceTypes": {
+        "REGISTER": "Caja",
+        "KDS": "Pantalla de cocina",
+        "BACKOFFICE": "Administración"
+      },
+      "deviceStatuses": {
+        "ACTIVE": "Activo",
+        "REVOKED": "Revocado"
+      },
+      "activeStates": {
+        "active": "Activo",
+        "inactive": "Inactivo"
+      }
     }
   },
   "inventory": {
