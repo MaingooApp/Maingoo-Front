@@ -67,7 +67,15 @@ export const appRoutes: Routes = [
       },
       {
         path: 'ventas',
-        loadComponent: () => import('./features/ventas/ventas.component').then((m) => m.VentasComponent)
+        loadChildren: () => import('./features/ventas/ventas.routes'),
+        canActivate: [ngxPermissionsGuard],
+        data: { permissions: { only: [AppPermission.PosRead] } }
+      },
+      {
+        path: 'inventario',
+        loadChildren: () => import('./features/inventory/inventory.routes'),
+        canActivate: [ngxPermissionsGuard],
+        data: { permissions: { only: [AppPermission.InventoryRead] } }
       }
     ]
   },

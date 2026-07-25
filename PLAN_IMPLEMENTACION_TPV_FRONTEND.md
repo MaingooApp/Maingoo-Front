@@ -8,6 +8,18 @@
 >
 > Estado: plan ejecutable; este documento es autónomo y contiene los contratos backend que necesita el frontend.
 
+## Estado de ejecución
+
+| Fase | Estado |
+|---|---|
+| F0 — Contratos y navegación | Implementada |
+| F1 — Bootstrap y configuración mínima | Pendiente |
+| F2 — Terminal online | Pendiente |
+| F3 — Cocina y caja | Pendiente |
+| F4 — Inventario y margen | Pendiente |
+| F5 — Offline | Pendiente |
+| F6 — Endurecimiento | Pendiente |
+
 ## 1. Objetivo del frontend
 
 Convertir la ruta existente `/ventas`, hoy marcada como sección en construcción, en un TPV usable en portátil y tablet que conecte:
@@ -78,14 +90,22 @@ El frontend consumirá bajo `/api`:
 /inventory/counts
 ```
 
-Mutaciones desde un terminal envían:
+Los comandos operativos POS envían:
 
-- header `Idempotency-Key` con UUID;
-- `clientMutationId` igual al header;
+- body DTO plano, nunca envuelto en `{ data }`;
 - `deviceId` persistido localmente;
 - `expectedVersion` para agregados existentes;
 - `clientCreatedAt` ISO-8601;
-- cuerpo `data` tipado.
+- header `Idempotency-Key` con UUID v4 creado por el frontend.
+
+`clientMutationId` solo existe como clave local de la cola y debe coincidir con
+`Idempotency-Key` al enviar/reintentar. No se incluye en el body porque el Gateway
+usa `forbidNonWhitelisted`. Las mutaciones de configuración no usan ese header. El
+movimiento manual de inventario es la excepción: lleva `idempotencyKey` dentro del
+body porque así lo define `/api/inventory/movements`.
+
+Para usuarios tenant se omite `enterpriseId`; el backend usa la empresa autenticada.
+Un usuario `admin.super` debe enviarlo explícitamente.
 
 Importes llegan y salen como cadenas decimales (`"12.50"`). El frontend puede formatearlos para UI, pero no decide totales finales ni impuestos.
 
@@ -104,10 +124,19 @@ IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD
 MENU_ITEM_INACTIVE
 RECIPE_REQUIRED
 RECIPE_INVALID
-STOCK_SYNC_PENDING
 FISCAL_CONFIGURATION_INCOMPLETE
-FISCAL_SUBMISSION_REJECTED
 ```
+
+También deben contemplarse, entre otros, `INVALID_IDEMPOTENCY_KEY`,
+`INVALID_SYNC_CURSOR`, `MISSING_PERMISSION`, `POS_DEVICE_NOT_FOUND`,
+`ORDER_NOT_FOUND`, `ORDER_NOT_FULLY_PAID`, `ORDER_CLOSED`,
+`OPEN_CASH_SESSION_NOT_FOUND`, `KITCHEN_TICKET_STATE_CONFLICT`,
+`STOCK_UNIT_MISMATCH` y `STOCK_CHANGED_DURING_COUNT`. Los errores de validación
+pueden no incluir `code` y devolver `message` como `string[]`.
+
+`STOCK_SYNC_PENDING` y `FISCAL_SUBMISSION_REJECTED` no son códigos de error del
+Gateway: la UI deriva esos estados de `StockSyncJob.status` y
+`FiscalRecord.submissionStatus`.
 
 ## 5. Rutas y permisos
 
@@ -126,7 +155,7 @@ Crear `src/app/features/ventas/ventas.routes.ts`:
 
 | Ruta | Vista | Permiso |
 |---|---|---|
-| `/ventas` | redirección a `terminal` | `pos.read` |
+| `/ventas` | landing TPV con accesos permitidos | `pos.read` |
 | `/ventas/terminal` | sala y venta | `pos.sell` |
 | `/ventas/cocina` | KDS | `pos.kitchen` |
 | `/ventas/caja` | apertura, movimientos y cierre | `pos.cash` |
@@ -275,6 +304,10 @@ export interface QueuedPosCommand<TData = unknown> {
 }
 ```
 
+`data` es exactamente el DTO plano que se enviará. No contiene
+`clientMutationId`; durante el replay la cola usa esa metadata como valor del
+header `Idempotency-Key`.
+
 No usar un comando genérico para acciones administrativas, devoluciones, anulaciones de líneas enviadas o cierre de caja. Esas operaciones sensibles requieren conexión y confirmación servidor en el MVP.
 
 ## 8. Servicios
@@ -286,27 +319,39 @@ Extiende `BaseHttpService` y expone métodos tipados que reflejan exactamente en
 Mínimos:
 
 ```text
-getBootstrap(deviceId, cursor?)
+getBootstrap(deviceId?, isoCursor?)
+getSync(deviceId, opaqueServerCursor?)
 createOrder(command)
 addLine(orderId, command)
 updateLine(orderId, lineId, command)
 sendOrder(orderId, command)
+cancelOrder(orderId, command)
 voidLine(orderId, command)
 addPayment(orderId, command)
+voidPayment(orderId, paymentId, command)
 finalizeOrder(orderId, command)
-createRefund(orderId, dto)
+createRefund(orderId, command)
+cancelRefund(orderId, refundId, command)
 listKitchenTickets(filters)
-updateKitchenTicket(id, command)
+updateKitchenTicket(command)
 openCashSession(dto)
 getCurrentCashSession(deviceId)
 createCashMovement(sessionId, dto)
 closeCashSession(sessionId, dto)
 listOrders(filters)
 getReceipt(fiscalDocumentId)
-getSalesSummary(filters)
+getDailySales(filters)
 ```
 
 Cada método de comando añade `Idempotency-Key` mediante opciones HTTP locales. No modificar el interceptor global para generar claves: una repetición debe reutilizar la misma clave, no crear una nueva en cada retry.
+
+`PATCH /api/pos/kitchen/tickets` no lleva ID en la URL; `ticketId` va en el body.
+Después de crear una devolución hay que volver a consultar el pedido porque esa
+respuesta no incluye la nueva `orderVersion`.
+
+F4 añade métodos tipados separados para `sales-by-item`, `sales-by-category`,
+`sales-by-hour`, `sales-by-payment-method`, `cash-deviation` e
+`incomplete-costs`; no existe un endpoint genérico `getSalesSummary`.
 
 ### 8.2 `PosSessionStore`
 
@@ -351,7 +396,7 @@ Implementar IndexedDB nativo mediante una única pequeña envoltura Promise. Bas
 | Store | Key | Contenido |
 |---|---|---|
 | `device` | `enterpriseId` | `deviceId`, código y última validación. |
-| `bootstrap` | `enterpriseId` | carta/mesas/settings y `serverUpdatedAt`. |
+| `bootstrap` | `enterpriseId` | carta/mesas/settings, `cursor` ISO y hora de cache local. |
 | `orders` | `orderId` | pedidos activos necesarios para continuar. |
 | `commands` | `clientMutationId` | cola ordenada por `clientCreatedAt`. |
 
@@ -374,7 +419,7 @@ Responsabilidades:
 4. En `ORDER_VERSION_CONFLICT`, detener solo los comandos de ese pedido, guardar estado servidor y marcar `CONFLICT`.
 5. En error transitorio/5xx, volver a `PENDING` con backoff; no bucle agresivo.
 6. En 4xx de negocio, marcar `FAILED` y pedir intervención.
-7. Al vaciar cola, ejecutar bootstrap incremental para confirmar convergencia.
+7. Al vaciar cola, drenar `/sync` con su cursor opaco para confirmar convergencia; refrescar `/bootstrap` solo si se necesita configuración/catálogo.
 
 No lanzar dos sincronizadores. Proteger con un boolean/signal `isSyncing` y una única suscripción creada en el shell.
 
@@ -393,14 +438,22 @@ Al entrar en `/ventas/terminal`:
 
 1. Resolver identidad/permisos ya cargados por auth.
 2. Leer `deviceId` de IndexedDB.
-3. Si no existe, mostrar registro por código/nombre; requiere conexión.
+3. Si no existe, un usuario con `pos.manage` puede crear el dispositivo por
+   nombre/código/tipo mediante `POST /api/pos/devices`; no existe endpoint público
+   de vinculación por código para un cajero.
 4. Renderizar inmediatamente bootstrap local válido, marcado “sin conexión/datos de hora X”.
-5. Solicitar `GET /api/pos/bootstrap?deviceId=...&cursor=...`.
+5. Solicitar `GET /api/pos/bootstrap?deviceId=...&cursor=<ISO>`.
 6. Validar `settings.enabled`, dispositivo y permisos.
 7. Reemplazar cache y signals con respuesta servidor.
-8. Iniciar polling/sync solo mientras documento sea visible.
+8. Solicitar `GET /api/pos/sync?deviceId=...&cursor=<opaco>` hasta recibir menos
+   de 200 cambios; guardar `serverCursor` sin interpretarlo.
+9. Iniciar polling/sync solo mientras documento sea visible.
 
-El bootstrap debe devolver en una llamada: settings, dispositivo, categorías/artículos activos, áreas/mesas, pedidos activos, sesión de caja, cursor y hora servidor. Evitar siete llamadas iniciales y estados parciales.
+El bootstrap devuelve settings, dispositivo, categorías/artículos, modificadores,
+estaciones, áreas/mesas, caja, cambios de configuración y cursor ISO. No devuelve
+pedidos activos, tickets, `serverUpdatedAt` ni una hora de servidor separada. El
+estado operacional llega por `/sync`; sus cambios incluyen pedidos, tickets,
+sesiones/movimientos de caja y jobs de stock.
 
 ## 10. Shell operativo
 
@@ -508,7 +561,8 @@ Sonido para ticket nuevo es opcional y requiere permiso del navegador; no bloque
 
 - usuario introduce contado sin ver/ocultando esperado según decisión del negocio; por defecto mostrar esperado después de introducir contado para reducir sesgo;
 - backend devuelve diferencia;
-- diferencia relevante requiere nota según umbral que el backend decida/configure;
+- el contrato actual de cierre solo acepta `countedCash`; si el negocio exige nota
+  por diferencia habrá que ampliar primero el backend;
 - recibo/resumen de cierre imprimible;
 - una sesión cerrada es solo lectura.
 
@@ -522,6 +576,7 @@ No permitir cierre offline en MVP.
 - paginación/cursor servidor;
 - detalle abre drawer/modal con líneas, pagos, documento fiscal, stock/coste y auditoría resumida;
 - reimprimir no reemite ni renumera;
+- reimprimir y consultar estado fiscal requieren además `fiscal.read`;
 - devolución exige `pos.refund`, conexión, motivo, importe permitido y confirmación;
 - mostrar claramente que una devolución crea rectificativa/registro nuevo y no edita ticket original.
 
@@ -535,7 +590,8 @@ No descargar un historial completo para filtrarlo localmente.
 2. Carta: categorías, artículos, precio, impuesto, receta y estación.
 3. Sala: áreas/mesas, orden y capacidad.
 4. Cocina: estaciones.
-5. Dispositivos: alta, última conexión y revocación.
+5. Dispositivos: alta, edición y última conexión. El Gateway tenant actual no
+   expone revocación; no mostrar esa acción hasta ampliar el backend.
 6. Fiscal: estado/configuración no secreta y validaciones; no exponer certificados.
 
 Para vincular `MenuItem.foodPreparationId`, reutilizar el servicio/listado de elaboraciones existente. Mostrar coste por porción, precio, food cost y margen estimado antes de guardar. Si `trackStock=true`, bloquear guardado sin receta válida.
@@ -546,7 +602,9 @@ No construir un editor visual drag-and-drop de sala inicialmente. Una lista orde
 
 ### 16.1 Resumen
 
-Tabla con producto, saldo base/unidad, mínimo, coste, valor, última actualización y estado de revisión. Filtros servidor por búsqueda, bajo mínimo, categoría y revisión.
+Tabla con producto, saldo base/unidad, mínimo, valor, última actualización y
+estado de revisión. Los filtros servidor actuales son búsqueda, bajo mínimo e
+incluir inactivos; categoría y revisión quedan pendientes de ampliar backend.
 
 Estados claros:
 
@@ -579,6 +637,11 @@ Requiere `inventory.write`:
 - mostrar diferencia;
 - completar una sola vez con confirmación;
 - no editar después.
+
+El Gateway actual solo permite crear y completar un recuento; no ofrece
+listado/detalle para reanudarlo. En el MVP la UI conserva el recuento recién creado
+en memoria hasta completarlo y deja claro que recargar obliga a iniciar otro. Si
+se necesita reanudación, se amplía backend antes de implementarla.
 
 El recuento no necesita modo offline en la primera versión; priorizar la cola de venta.
 
@@ -732,7 +795,7 @@ No declarar terminado con errores TypeScript, traducciones faltantes o warnings 
 
 ### F1 — Bootstrap y configuración mínima
 
-- Registro de dispositivo.
+- Alta de dispositivo solo para `pos.manage`; selección de uno existente para el terminal.
 - Store signals y bootstrap online.
 - Carta/categorías/mesas/dispositivos.
 - Estados loading/error/permissions.

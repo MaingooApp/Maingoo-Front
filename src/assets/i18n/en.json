@@ -10,6 +10,12 @@
     "invoices": "Invoices",
     "suppliers": "Suppliers",
     "products": "Products",
+    "articles": "Items",
+    "accounting": "Accounting",
+    "health": "Food safety",
+    "subscription": "Subscription",
+    "users": "Users",
+    "audit": "Audit",
     "documentation": "Documentation",
     "schedules": "Schedules",
     "settings": "Settings",
@@ -29,5 +35,24 @@
     "chart": "Chart",
     "timeline": "Timeline",
     "misc": "Misc"
+  },
+  "pos": {
+    "navigation": {
+      "sales": "Sales",
+      "terminal": "Terminal",
+      "kitchen": "Kitchen",
+      "cash": "Cash register",
+      "history": "History",
+      "settings": "POS settings",
+      "reports": "Sales reports",
+      "pendingDescription": "This screen will be enabled in the next POS phase."
+    }
+  },
+  "inventory": {
+    "navigation": {
+      "inventory": "Inventory",
+      "summary": "Stock",
+      "pendingDescription": "Stock management will be enabled in the inventory phase."
+    }
   }
 }

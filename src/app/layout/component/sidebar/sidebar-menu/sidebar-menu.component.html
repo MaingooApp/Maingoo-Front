@@ -2,7 +2,9 @@
 <div class="flex-shrink-0 px-4 pt-4 pb-3">
   <!-- Etiqueta MENU -->
   <div class="mb-3">
-    <p class="text-xs font-semibold mg-text-muted uppercase tracking-wide mb-0">Menú</p>
+    <p class="text-xs font-semibold mg-text-muted uppercase tracking-wide mb-0">
+      {{ 'menu.menu' | translate }}
+    </p>
     <div class="h-px bg-surface-200 dark:bg-surface-700 mt-2"></div>
   </div>
 
@@ -12,14 +14,10 @@
       <a
         [routerLink]="link.route"
         routerLinkActive="!text-primary !shadow-[0_6px_16px_rgba(26,60,52,0.1)]"
-        class="mg-sidebar-chip"
-        [ngClass]="link.comingSoon ? 'mg-sidebar-chip-soon' : 'mg-sidebar-chip-default'"
+        class="mg-sidebar-chip mg-sidebar-chip-default"
         (click)="onQuickLinkClick(link)">
         <app-icon [name]="link.icon" size="sm"></app-icon>
-        <span class="text-[10px] font-medium whitespace-nowrap">{{ link.label }}</span>
-        @if (link.comingSoon) {
-          <app-icon name="construction" size="xs" class="text-amber-500"></app-icon>
-        }
+        <span class="text-[10px] font-medium whitespace-nowrap">{{ link.label | translate }}</span>
       </a>
     }
   </div>

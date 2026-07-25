@@ -40,30 +40,53 @@ export class AppSidebar implements OnInit {
 
   // Acciones rápidas (Menú de navegación)
   quickLinks = [
-    { label: 'Dashboard', icon: 'monitoring', route: '/' },
-    { label: 'Proveedores', icon: 'local_shipping', route: '/proveedores', permissions: ['suppliers.read'] },
-    { label: 'Almacén', icon: 'warehouse', route: '/productos', permissions: ['products.read'] },
-    { label: 'Artículos', icon: 'restaurant', route: '/articulos', permissions: ['products.read'] },
-    /*
-    { label: 'Ventas', icon: 'payments', route: '/ventas', comingSoon: true },
-    { label: 'Equípo', icon: 'group', route: '/rrhh', comingSoon: true },
-    */
-    { label: 'Gestoría', icon: 'description', route: '/gestoria' },
-    { label: 'Sanidad', icon: 'shield', route: '/appcc' },
+    { label: 'menu.dashboard', icon: 'monitoring', route: '/' },
     {
-      label: 'Suscripcion',
+      label: 'menu.suppliers',
+      icon: 'local_shipping',
+      route: '/proveedores',
+      permissions: [AppPermission.SuppliersRead]
+    },
+    {
+      label: 'menu.products',
+      icon: 'inventory_2',
+      route: '/productos',
+      permissions: [AppPermission.ProductsRead]
+    },
+    {
+      label: 'pos.navigation.sales',
+      icon: 'point_of_sale',
+      route: '/ventas',
+      permissions: [AppPermission.PosRead]
+    },
+    {
+      label: 'inventory.navigation.inventory',
+      icon: 'warehouse',
+      route: '/inventario',
+      permissions: [AppPermission.InventoryRead]
+    },
+    {
+      label: 'menu.articles',
+      icon: 'restaurant',
+      route: '/articulos',
+      permissions: [AppPermission.ProductsRead]
+    },
+    { label: 'menu.accounting', icon: 'description', route: '/gestoria' },
+    { label: 'menu.health', icon: 'shield', route: '/appcc' },
+    {
+      label: 'menu.subscription',
       icon: 'credit_card',
       route: '/suscripcion',
       permissions: [AppPermission.BillingRead]
     },
     {
-      label: 'Usuarios',
+      label: 'menu.users',
       icon: 'manage_accounts',
       route: '/usuarios',
-      permissions: ['users.read', 'permissions.assign']
+      permissions: [AppPermission.UsersRead, AppPermission.PermissionsAssign]
     },
     {
-      label: 'Auditoría',
+      label: 'menu.audit',
       icon: 'history',
       route: '/auditoria',
       permissions: [AppPermission.AuditRead]

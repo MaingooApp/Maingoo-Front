@@ -1,28 +1,27 @@
-import { Component, inject, OnDestroy, AfterViewInit, ViewChild, TemplateRef } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VentasSectionHeaderDetailComponent } from './components/ventas-section-header-detail/ventas-section-header-detail.component';
 import { SectionHeaderService } from '@app/layout/service/section-header.service';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
+import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-ventas',
   standalone: true,
-  imports: [CommonModule, EmptyStateComponent, VentasSectionHeaderDetailComponent],
+  imports: [CommonModule, EmptyStateComponent, TranslateModule, VentasSectionHeaderDetailComponent],
   template: `
     <div class="flex flex-col gap-6 relative items-start min-h-screen p-6 -m-6">
       <div class="flex-1 w-full min-w-0 transition-all duration-300">
-        <!-- GLOBAL HEADER TEMPLATE (Projected to Layout Shell) -->
         <ng-template #headerTpl>
-          <app-ventas-section-header-detail></app-ventas-section-header-detail>
+          <app-ventas-section-header-detail [titleKey]="titleKey"></app-ventas-section-header-detail>
         </ng-template>
 
-        <!-- Empty State -->
         <app-empty-state
           class="w-full"
           icon="payments"
-          title="Sección en construcción"
-          description="Estamos trabajando en esta funcionalidad. Pronto podrás gestionar tu TPV y tus precios de venta."
-          [showComingSoon]="true">
+          [title]="titleKey | translate"
+          [description]="'pos.navigation.pendingDescription' | translate">
         </app-empty-state>
       </div>
     </div>
@@ -30,15 +29,17 @@ import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.
 })
 export class VentasComponent implements OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
+  readonly titleKey = inject(ActivatedRoute).snapshot.data['titleKey'] as string;
+
   @ViewChild('headerTpl') headerTpl!: TemplateRef<unknown>;
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     setTimeout(() => {
       this.headerService.setContent(this.headerTpl);
     });
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.headerService.reset();
   }
 }

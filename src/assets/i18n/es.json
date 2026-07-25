@@ -10,6 +10,12 @@
     "invoices": "Facturas",
     "suppliers": "Proveedores",
     "products": "Productos",
+    "articles": "Artículos",
+    "accounting": "Gestoría",
+    "health": "Sanidad",
+    "subscription": "Suscripción",
+    "users": "Usuarios",
+    "audit": "Auditoría",
     "documentation": "Documentación",
     "schedules": "Horarios",
     "settings": "Configuración",
@@ -29,5 +35,24 @@
     "chart": "Gráfico",
     "timeline": "Línea de tiempo",
     "misc": "Varios"
+  },
+  "pos": {
+    "navigation": {
+      "sales": "Ventas",
+      "terminal": "Terminal",
+      "kitchen": "Cocina",
+      "cash": "Caja",
+      "history": "Historial",
+      "settings": "Configuración TPV",
+      "reports": "Informes de ventas",
+      "pendingDescription": "Esta pantalla se habilitará en la siguiente fase del TPV."
+    }
+  },
+  "inventory": {
+    "navigation": {
+      "inventory": "Inventario",
+      "summary": "Existencias",
+      "pendingDescription": "La gestión de existencias se habilitará en la fase de inventario."
+    }
   }
 }

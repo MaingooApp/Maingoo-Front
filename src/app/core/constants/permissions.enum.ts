@@ -43,5 +43,20 @@ export enum AppPermission {
 
   MachineryRead = 'machinery.read',
   MachineryWrite = 'machinery.write',
-  MachineryDelete = 'machinery.delete'
+  MachineryDelete = 'machinery.delete',
+
+  PosRead = 'pos.read',
+  PosSell = 'pos.sell',
+  PosVoid = 'pos.void',
+  PosRefund = 'pos.refund',
+  PosCash = 'pos.cash',
+  PosKitchen = 'pos.kitchen',
+  PosManage = 'pos.manage',
+
+  InventoryRead = 'inventory.read',
+  InventoryWrite = 'inventory.write',
+
+  SalesReportsRead = 'reports.sales.read',
+  FiscalRead = 'fiscal.read',
+  FiscalWrite = 'fiscal.write'
 }

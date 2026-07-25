@@ -261,10 +261,6 @@
     @apply bg-surface-0 dark:bg-surface-700 mg-text shadow-[0_4px_12px_rgba(26,60,52,0.05)] hover:text-primary hover:shadow-[0_6px_16px_rgba(26,60,52,0.1)];
   }
 
-  .mg-sidebar-chip-soon {
-    @apply bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400;
-  }
-
   /* Ajuste de posición para toasts de PrimeNG (migrado de _utils.scss) */
   .p-toast.p-toast-top-right,
   .p-toast.p-toast-top-left,
