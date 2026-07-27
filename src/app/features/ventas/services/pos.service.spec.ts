@@ -141,4 +141,29 @@ describe('PosService', () => {
     expect(request.request.body).toEqual({ foodPreparationId: null, trackStock: false });
     request.flush({});
   });
+
+  it('uses each dedicated sales report endpoint with the same typed filters', () => {
+    const filters = { date: '2026-07-27', deviceId: '7b9c70e2-c246-4e30-a1ac-2e4305044cd4' };
+    const reports: Array<readonly [string, () => void]> = [
+      ['daily-sales', () => service.getDailySales(filters).subscribe()],
+      ['sales-by-item', () => service.getSalesByItem(filters).subscribe()],
+      ['sales-by-category', () => service.getSalesByCategory(filters).subscribe()],
+      ['sales-by-hour', () => service.getSalesByHour(filters).subscribe()],
+      ['sales-by-payment-method', () => service.getSalesByPaymentMethod(filters).subscribe()],
+      ['cash-deviation', () => service.getCashDeviation(filters).subscribe()],
+      ['incomplete-costs', () => service.getIncompleteCosts(filters).subscribe()]
+    ];
+
+    for (const [path, requestReport] of reports) {
+      requestReport();
+      const request = http.expectOne(
+        (candidate) =>
+          candidate.url === `${apiUrl}/reports/${path}` &&
+          candidate.params.get('date') === filters.date &&
+          candidate.params.get('deviceId') === filters.deviceId
+      );
+      expect(request.request.method).toBe('GET');
+      request.flush({});
+    }
+  });
 });

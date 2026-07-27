@@ -47,6 +47,7 @@ import {
 } from '../models/pos-configuration.models';
 import {
   CashMovement,
+  CashDeviationReport,
   CashSessionWithMovements,
   DailySalesSummary,
   DiningArea,
@@ -59,6 +60,7 @@ import {
   KitchenTicketListItem,
   KitchenTicketUpdateResponse,
   KitchenTicketStatus,
+  IncompleteCostsReport,
   MenuCategory,
   MenuItem,
   ModifierGroup,
@@ -71,7 +73,10 @@ import {
   PosOrderChannel,
   PosOrderStatus,
   PosSettings,
-  Refund
+  Refund,
+  SalesBreakdownReport,
+  SalesByHourReport,
+  SalesByPaymentMethodReport
 } from '../models/pos.models';
 
 export interface PosOrderFilters {
@@ -443,6 +448,34 @@ export class PosService extends BaseHttpService {
 
   getDailySales(filters: DailySalesFilters = {}): Observable<DailySalesSummary> {
     return this.get<DailySalesSummary>(`${this.apiUrl}/reports/daily-sales`, undefined, this.params(filters));
+  }
+
+  getSalesByItem(filters: DailySalesFilters = {}): Observable<SalesBreakdownReport> {
+    return this.get<SalesBreakdownReport>(`${this.apiUrl}/reports/sales-by-item`, undefined, this.params(filters));
+  }
+
+  getSalesByCategory(filters: DailySalesFilters = {}): Observable<SalesBreakdownReport> {
+    return this.get<SalesBreakdownReport>(`${this.apiUrl}/reports/sales-by-category`, undefined, this.params(filters));
+  }
+
+  getSalesByHour(filters: DailySalesFilters = {}): Observable<SalesByHourReport> {
+    return this.get<SalesByHourReport>(`${this.apiUrl}/reports/sales-by-hour`, undefined, this.params(filters));
+  }
+
+  getSalesByPaymentMethod(filters: DailySalesFilters = {}): Observable<SalesByPaymentMethodReport> {
+    return this.get<SalesByPaymentMethodReport>(
+      `${this.apiUrl}/reports/sales-by-payment-method`,
+      undefined,
+      this.params(filters)
+    );
+  }
+
+  getCashDeviation(filters: DailySalesFilters = {}): Observable<CashDeviationReport> {
+    return this.get<CashDeviationReport>(`${this.apiUrl}/reports/cash-deviation`, undefined, this.params(filters));
+  }
+
+  getIncompleteCosts(filters: DailySalesFilters = {}): Observable<IncompleteCostsReport> {
+    return this.get<IncompleteCostsReport>(`${this.apiUrl}/reports/incomplete-costs`, undefined, this.params(filters));
   }
 
   private idempotencyHeader(idempotencyKey: string): Record<string, string> {

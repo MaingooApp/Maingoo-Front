@@ -44,8 +44,7 @@
       "cash": "Cash register",
       "history": "History",
       "settings": "POS settings",
-      "reports": "Sales reports",
-      "pendingDescription": "This screen will be enabled in the next POS phase."
+      "reports": "Sales reports"
     },
     "actions": {
       "retry": "Retry",
@@ -191,6 +190,8 @@
       "POS_CASH_OPERATION_FAILED": "The cash operation could not be completed.",
       "POS_CASH_CLOSE_FAILED": "The cash session could not be closed.",
       "OPEN_CASH_SESSION_NOT_FOUND": "There is no open cash session for this device.",
+      "REPORT_QUERY_INVALID": "The report filters are invalid.",
+      "REPORT_TIMEZONE_INVALID": "The business timezone is invalid.",
       "UNKNOWN": "An unexpected error occurred.",
       "ORDER_NOT_PAID": "Only paid orders can be refunded.",
       "REFUND_EXCEEDS_PAID": "The refund exceeds the order's refundable amount.",
@@ -611,10 +612,278 @@
     }
   },
   "inventory": {
+    "title": "Inventory",
+    "description": "Review stock, movements and physical counts.",
+    "offline": "Inventory requires a connection. Queries and changes are disabled while offline.",
     "navigation": {
       "inventory": "Inventory",
+      "label": "Inventory sections",
       "summary": "Stock",
-      "pendingDescription": "Stock management will be enabled in the inventory phase."
+      "movements": "Movements",
+      "count": "Stock count"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "clearFilters": "Clear filters",
+      "filter": "Filter",
+      "loadMore": "Load more",
+      "retry": "Retry"
+    },
+    "filters": {
+      "search": "Search product",
+      "lowStockOnly": "Low stock only",
+      "includeInactive": "Include inactive",
+      "product": "Product",
+      "allProducts": "All products",
+      "type": "Type",
+      "allTypes": "All types",
+      "from": "From",
+      "to": "To"
+    },
+    "columns": {
+      "actions": "Actions",
+      "actor": "Actor",
+      "balance": "Balance",
+      "balanceAfter": "Resulting balance",
+      "cost": "Cost",
+      "date": "Date",
+      "delta": "Change",
+      "minimum": "Minimum",
+      "product": "Product",
+      "source": "Source",
+      "status": "Status",
+      "type": "Type",
+      "updatedAt": "Updated",
+      "value": "Value"
+    },
+    "units": {
+      "g": "g",
+      "ml": "ml",
+      "ud": "units"
+    },
+    "values": {
+      "costUnavailable": "Cost unavailable",
+      "never": "No movements",
+      "notConfigured": "Not configured",
+      "system": "System",
+      "totalCost": "Total: {{value}}",
+      "unitCost": "Unit: {{value}}"
+    },
+    "status": {
+      "NORMAL": "Normal",
+      "LOW": "Low stock",
+      "NEGATIVE": "Negative",
+      "REVIEW": "Review required"
+    },
+    "summary": {
+      "title": "Stock summary",
+      "description": "Balances calculated from the stock ledger.",
+      "adjustmentHint": "Use the pencil to record an adjustment or waste.",
+      "totalProducts": "Products",
+      "lowStock": "Low stock",
+      "manualReview": "Manual review",
+      "empty": "No products match the filters."
+    },
+    "adjustment": {
+      "title": "Stock adjustment",
+      "currentBalance": "Current balance",
+      "onlineRequired": "Adjustments require a connection.",
+      "permissionRequired": "You do not have permission to change inventory.",
+      "type": "Movement type",
+      "quantity": "Quantity",
+      "wasteHelp": "Enter the lost quantity as a positive value; it will be recorded as an outgoing movement.",
+      "adjustmentHelp": "Use a positive quantity to add and a negative one to subtract.",
+      "reason": "Reason",
+      "note": "Note",
+      "previewBalance": "Estimated balance",
+      "submit": "Record movement",
+      "openFor": "Adjust stock for {{product}}",
+      "success": "Movement recorded successfully.",
+      "confirmHeader": "Confirm movement",
+      "confirmMessage": "{{quantity}} {{unit}} will be applied to {{product}}.",
+      "confirmAccept": "Confirm",
+      "reasons": {
+        "EXPIRED": "Expired",
+        "DAMAGED": "Damaged product",
+        "SPILLAGE": "Spillage",
+        "OTHER_WASTE": "Other waste",
+        "CORRECTION": "Correction",
+        "FOUND_STOCK": "Found stock",
+        "OTHER_ADJUSTMENT": "Other adjustment"
+      }
+    },
+    "movementTypes": {
+      "OPENING": "Opening balance",
+      "PURCHASE": "Purchase",
+      "SALE": "Sale",
+      "WASTE": "Waste",
+      "COUNT_ADJUSTMENT": "Count adjustment",
+      "MANUAL_ADJUSTMENT": "Manual adjustment",
+      "PURCHASE_REVERSAL": "Purchase reversal",
+      "TRANSFER_IN": "Transfer in",
+      "TRANSFER_OUT": "Transfer out"
+    },
+    "movements": {
+      "title": "Stock movements",
+      "description": "Auditable, read-only movement history.",
+      "empty": "No movements match the filters."
+    },
+    "sources": {
+      "manual": "Manual",
+      "agent": "Agent",
+      "invoiceLine": "Invoice",
+      "posSale": "POS sale",
+      "stockCount": "Stock count"
+    },
+    "pagination": {
+      "previous": "Previous page",
+      "next": "Next page",
+      "summary": "Page {{page}} · {{total}} movements"
+    },
+    "count": {
+      "title": "Physical stock count",
+      "description": "Compare physical quantities with the recorded balance.",
+      "memoryWarning": "The count is only kept on this screen until completion. If you reload, you must start another.",
+      "noProducts": "There are no products available to count.",
+      "selectVisible": "Select visible",
+      "clearSelection": "Clear selection",
+      "startTitle": "Start stock count",
+      "selectedCount": "{{count}} of {{max}} products selected",
+      "note": "Note",
+      "ambiguousCreate": "The count creation could not be confirmed. Do not repeat it to avoid duplicates; reload the screen.",
+      "create": "Create count",
+      "session": "Count session",
+      "searchLines": "Search within the count",
+      "expected": "Expected",
+      "counted": "Counted",
+      "difference": "Estimated difference",
+      "complete": "Complete count",
+      "completedReadOnly": "Count completed. Quantities are now read-only.",
+      "startNew": "Start another count",
+      "confirmCreateHeader": "Start stock count",
+      "confirmCreateMessage": "A count will be created for {{count}} products.",
+      "confirmCreateAccept": "Start",
+      "confirmCompleteHeader": "Complete stock count",
+      "confirmCompleteMessage": "Quantities for {{count}} products will be submitted. This action cannot be edited.",
+      "confirmCompleteAccept": "Complete",
+      "status": {
+        "DRAFT": "In progress",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled"
+      }
+    },
+    "errors": {
+      "INVENTORY_SUMMARY_LOAD_FAILED": "The inventory summary could not be loaded.",
+      "INVENTORY_MOVEMENTS_LOAD_FAILED": "Stock movements could not be loaded.",
+      "INVENTORY_MOVEMENT_FAILED": "The movement could not be recorded.",
+      "INVENTORY_COUNT_CREATE_FAILED": "The stock count could not be started.",
+      "INVENTORY_COUNT_COMPLETE_FAILED": "The stock count could not be completed.",
+      "VALIDATION_ERROR": "The submitted data is invalid.",
+      "MISSING_PERMISSION": "You do not have permission for this operation.",
+      "INVENTORY_PRODUCT_NOT_FOUND": "The product does not exist or does not belong to this company.",
+      "STOCK_UNIT_MISMATCH": "The unit does not match the product configuration.",
+      "STOCK_QUANTITY_ZERO": "Quantity cannot be zero.",
+      "STOCK_QUANTITY_SIGN": "The quantity sign is invalid for this movement.",
+      "STOCK_REASON_REQUIRED": "A reason is required.",
+      "IDEMPOTENCY_KEY_REUSED": "This movement key was already used with different data.",
+      "STOCK_COUNT_EMPTY": "There are no active products to count.",
+      "STOCK_COUNT_DUPLICATE_LINE": "The count contains duplicate products.",
+      "STOCK_COUNT_NOT_FOUND": "The stock count was not found.",
+      "STOCK_COUNT_ALREADY_COMPLETED": "The stock count was already completed.",
+      "STOCK_COUNT_NOT_DRAFT": "Only an in-progress count can be completed.",
+      "STOCK_COUNT_LINES_MISMATCH": "You must submit exactly every product in the count.",
+      "STOCK_CHANGED_DURING_COUNT": "Stock changed during the count. Start a new one."
+    }
+  },
+  "salesReports": {
+    "title": "Sales reports",
+    "description": "Sales, costs and margin calculated by the POS.",
+    "offline": "Reports require a connection.",
+    "filters": {
+      "date": "Date",
+      "deviceId": "Device ID",
+      "allDevices": "All devices",
+      "deviceHint": "Optional. Enter the UUID of a specific register.",
+      "apply": "Apply",
+      "invalid": "Review the date and device identifier."
+    },
+    "empty": {
+      "title": "No activity",
+      "description": "There are no sales, refunds or closings for these filters.",
+      "reload": "Reload"
+    },
+    "summary": {
+      "title": "Daily summary",
+      "grossSales": "Gross sales",
+      "discounts": "Discounts",
+      "refunds": "Refunds",
+      "netTax": "Net tax",
+      "netSales": "Net sales",
+      "orders": "Orders",
+      "theoreticalCost": "Theoretical cost",
+      "margin": "Net margin"
+    },
+    "byHour": { "title": "Sales by hour" },
+    "byCategory": { "title": "Sales by category" },
+    "byItem": { "title": "Sales by item" },
+    "byPaymentMethod": { "title": "Sales by payment method" },
+    "cashDeviation": {
+      "title": "Cash deviation",
+      "total": "Total difference"
+    },
+    "incompleteCosts": {
+      "title": "Incomplete costs",
+      "description": "{{count}} lines require a recipe or cost review.",
+      "empty": "There are no incomplete costs."
+    },
+    "tables": { "empty": "No data" },
+    "columns": {
+      "hour": "Hour",
+      "orders": "Orders",
+      "netSales": "Net sales",
+      "cost": "Cost",
+      "margin": "Margin",
+      "costStatus": "Cost status",
+      "category": "Category",
+      "quantity": "Quantity",
+      "item": "Item",
+      "paymentMethod": "Payment method",
+      "payments": "Payments",
+      "refunds": "Refunds",
+      "netCollected": "Net collected",
+      "closedAt": "Closed",
+      "expected": "Expected",
+      "counted": "Counted",
+      "deviation": "Difference",
+      "sku": "SKU",
+      "issues": "Issues",
+      "sales": "Sales",
+      "estimatedCost": "Estimated cost"
+    },
+    "costStatus": {
+      "label": "Margin status",
+      "incompleteOrders": "{{count}} orders with incomplete cost",
+      "CALCULATED": "Calculated",
+      "INCOMPLETE": "Incomplete",
+      "PENDING": "Pending",
+      "FAILED": "Failed"
+    },
+    "paymentMethods": {
+      "CASH": "Cash",
+      "CARD": "Card",
+      "OTHER": "Other",
+      "UNALLOCATED": "No linked payment"
+    },
+    "deviationCodes": {
+      "CASH_BALANCED": "Balanced",
+      "CASH_OVER": "Over",
+      "CASH_SHORT": "Short"
+    },
+    "issueCodes": {
+      "MISSING_RECIPE": "Missing recipe",
+      "COST_PENDING": "Cost pending",
+      "COST_INCOMPLETE": "Incomplete cost",
+      "COST_FAILED": "Cost failed"
     }
   }
 }

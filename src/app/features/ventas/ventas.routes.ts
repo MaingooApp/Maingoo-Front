@@ -3,8 +3,6 @@ import { ngxPermissionsGuard } from 'ngx-permissions';
 import { AppPermission } from '@core/constants/permissions.enum';
 import { PosSessionStore } from './services/pos-session.store';
 
-const loadPlaceholder = () => import('./ventas.component').then((m) => m.VentasComponent);
-
 const ventasRoutes: Routes = [
   {
     path: '',
@@ -52,12 +50,10 @@ const ventasRoutes: Routes = [
       },
       {
         path: 'informes',
-        loadComponent: loadPlaceholder,
+        loadComponent: () =>
+          import('./pages/reports/sales-reports.component').then((component) => component.SalesReportsComponent),
         canActivate: [ngxPermissionsGuard],
-        data: {
-          permissions: { only: [AppPermission.SalesReportsRead] },
-          titleKey: 'pos.navigation.reports'
-        }
+        data: { permissions: { only: [AppPermission.SalesReportsRead] } }
       },
       { path: '**', redirectTo: '' }
     ]

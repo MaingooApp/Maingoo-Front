@@ -1,0 +1,128 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [closable]="!busy"
+  [style]="{ width: 'min(34rem, 94vw)' }"
+  [header]="'inventory.adjustment.title' | translate"
+  (visibleChange)="$event ? visibleChange.emit(true) : close()">
+  @if (product) {
+    <form class="flex flex-col gap-4 pt-2" (ngSubmit)="submit()">
+      <div class="rounded-xl border border-surface p-4">
+        <strong class="mg-text">{{ product.name }}</strong>
+        <span class="mt-1 block text-sm mg-text-muted">
+          {{ 'inventory.adjustment.currentBalance' | translate }}: {{ product.stockBaseQuantity }}
+          {{ 'inventory.units.' + product.stockBaseUnit | translate }}
+        </span>
+      </div>
+
+      @if (!online()) {
+        <p class="m-0 rounded-lg border border-orange-400 p-3 text-orange-800 dark:text-orange-200" role="status">
+          {{ 'inventory.adjustment.onlineRequired' | translate }}
+        </p>
+      }
+
+      @if (!canWrite) {
+        <p class="m-0 rounded-lg border border-red-400 p-3 text-red-700 dark:text-red-300" role="alert">
+          {{ 'inventory.adjustment.permissionRequired' | translate }}
+        </p>
+      }
+
+      @if (errorCode()) {
+        <div class="flex items-center justify-between gap-3 rounded-lg border border-red-400 p-3" role="alert">
+          <span class="mg-text"
+            >{{ errorText() }} <small>({{ errorCode() }})</small></span
+          >
+          <button
+            pButton
+            type="button"
+            icon="pi pi-refresh"
+            [disabled]="!online() || busy"
+            [label]="'inventory.actions.retry' | translate"
+            (click)="retry()"></button>
+        </div>
+      }
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'inventory.adjustment.type' | translate }}</span>
+        <select
+          class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+          name="type"
+          [(ngModel)]="type"
+          (ngModelChange)="typeChanged()">
+          <option value="WASTE">{{ 'inventory.movementTypes.WASTE' | translate }}</option>
+          <option value="MANUAL_ADJUSTMENT">{{ 'inventory.movementTypes.MANUAL_ADJUSTMENT' | translate }}</option>
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'inventory.adjustment.quantity' | translate }}</span>
+        <div class="flex items-center gap-2">
+          <input
+            pInputText
+            required
+            class="min-w-0 flex-1"
+            inputmode="decimal"
+            name="quantity"
+            autocomplete="off"
+            [(ngModel)]="quantity" />
+          <span class="mg-text-muted">{{ 'inventory.units.' + product.stockBaseUnit | translate }}</span>
+        </div>
+        <small class="mg-text-muted">
+          {{
+            (type === 'WASTE' ? 'inventory.adjustment.wasteHelp' : 'inventory.adjustment.adjustmentHelp') | translate
+          }}
+        </small>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'inventory.adjustment.reason' | translate }}</span>
+        <select
+          required
+          class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+          name="reasonCode"
+          [(ngModel)]="reasonCode">
+          @for (reason of reasons; track reason) {
+            <option [value]="reason">{{ 'inventory.adjustment.reasons.' + reason | translate }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'inventory.adjustment.note' | translate }}</span>
+        <textarea
+          maxlength="500"
+          rows="3"
+          name="note"
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="note"></textarea>
+      </label>
+
+      @if (previewBalance(); as preview) {
+        <div class="rounded-xl border border-surface p-4" aria-live="polite">
+          <span class="block text-sm mg-text-muted">{{ 'inventory.adjustment.previewBalance' | translate }}</span>
+          <strong class="text-xl mg-text"
+            >{{ preview }} {{ 'inventory.units.' + product.stockBaseUnit | translate }}</strong
+          >
+        </div>
+      }
+
+      <div class="flex justify-end gap-3">
+        <button
+          pButton
+          type="button"
+          [outlined]="true"
+          [disabled]="busy"
+          [label]="'inventory.actions.cancel' | translate"
+          (click)="close()"></button>
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-check"
+          [disabled]="!canWrite || !online() || !quantityValid() || !reasonCode || busy"
+          [loading]="busy"
+          [label]="'inventory.adjustment.submit' | translate"></button>
+      </div>
+    </form>
+  }
+</p-dialog>

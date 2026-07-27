@@ -563,6 +563,112 @@ export interface DailyCashSessionSummary {
   closedAt: IsoDateString | null;
 }
 
+export type SalesReportCostStatus = 'CALCULATED' | 'INCOMPLETE';
+
+export interface SalesReportAccountingBasis {
+  sales: 'VAT_EXCLUDED';
+  cost: 'HISTORICAL_RECIPE_COST_NET';
+  margin: 'NET_SALES_MINUS_THEORETICAL_COST_NET';
+}
+
+export interface SalesBreakdownItem {
+  id: string | null;
+  name: string;
+  quantity: DecimalString;
+  lineCount: number;
+  grossSalesBeforeDiscounts: DecimalString;
+  discountGross: DecimalString;
+  salesAfterDiscountsGross: DecimalString;
+  salesNet: DecimalString;
+  theoreticalCostNet: DecimalString;
+  netMargin: DecimalString;
+  costStatus: SalesReportCostStatus;
+  incompleteCostLineCount: number;
+}
+
+export interface SalesBreakdownReport {
+  date: string;
+  currency: string;
+  items: SalesBreakdownItem[];
+  accountingBasis: SalesReportAccountingBasis;
+}
+
+export interface SalesByHourItem {
+  hour: number;
+  label: string;
+  orderCount: number;
+  grossSalesBeforeDiscounts: DecimalString;
+  discountGross: DecimalString;
+  salesAfterDiscountsGross: DecimalString;
+  salesNet: DecimalString;
+  theoreticalCostNet: DecimalString;
+  netMargin: DecimalString;
+  costStatus: SalesReportCostStatus;
+  incompleteCostOrderCount: number;
+}
+
+export interface SalesByHourReport {
+  date: string;
+  currency: string;
+  items: SalesByHourItem[];
+  accountingBasis: SalesReportAccountingBasis;
+}
+
+export interface SalesByPaymentMethodItem {
+  method: PaymentMethod | 'UNALLOCATED';
+  paymentCount: number;
+  refundCount: number;
+  paymentGross: DecimalString;
+  refundGross: DecimalString;
+  netCollectedGross: DecimalString;
+}
+
+export interface SalesByPaymentMethodReport {
+  date: string;
+  currency: string;
+  items: SalesByPaymentMethodItem[];
+}
+
+export type CashDeviationCode = 'CASH_BALANCED' | 'CASH_OVER' | 'CASH_SHORT';
+
+export interface CashDeviationItem {
+  id: string;
+  deviceId: string;
+  expectedCash: DecimalString;
+  countedCash: DecimalString | null;
+  difference: DecimalString;
+  openedAt: IsoDateString;
+  closedAt: IsoDateString | null;
+  deviationCode: CashDeviationCode;
+}
+
+export interface CashDeviationReport {
+  date: string;
+  currency: string;
+  sessionCount: number;
+  totalDifference: DecimalString;
+  items: CashDeviationItem[];
+}
+
+export interface IncompleteCostItem {
+  orderLineId: string;
+  menuItemId: string | null;
+  itemName: string;
+  sku: string | null;
+  costStatus: PosCostStatus;
+  estimatedCostNet: DecimalString | null;
+  salesAfterDiscountsGross: DecimalString;
+  issueCodes: string[];
+}
+
+export interface IncompleteCostsReport {
+  date: string;
+  currency: string;
+  itemCount: number;
+  items: IncompleteCostItem[];
+  accountingBasis: SalesReportAccountingBasis;
+}
+
 export interface ApiErrorResponse {
   statusCode: number;
   message: string | string[];

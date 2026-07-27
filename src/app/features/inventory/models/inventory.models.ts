@@ -112,3 +112,20 @@ export interface CompleteStockCountResponse extends StockCount {
   movements: StockMovement[];
   replayed: boolean;
 }
+
+export interface InventorySummaryFilters {
+  enterpriseId?: string;
+  lowStockOnly?: boolean;
+  includeInactive?: boolean;
+  search?: string;
+}
+
+export interface StockMovementFilters {
+  enterpriseId?: string;
+  enterpriseProductId?: string;
+  type?: StockMovementType;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
+}

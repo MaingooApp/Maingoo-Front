@@ -1,0 +1,399 @@
+<section class="mx-auto flex w-full max-w-[1600px] flex-col gap-5 p-4 md:p-6">
+  <header class="space-y-1">
+    <h1 class="m-0 text-3xl font-bold mg-text">{{ 'salesReports.title' | translate }}</h1>
+    <p class="m-0 mg-text-muted">{{ 'salesReports.description' | translate }}</p>
+  </header>
+
+  @if (!online()) {
+    <div
+      class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+      role="status">
+      {{ 'salesReports.offline' | translate }}
+    </div>
+  }
+
+  <form
+    class="grid items-end gap-4 rounded-content border border-surface p-4 mg-surface md:grid-cols-[minmax(12rem,1fr)_minmax(18rem,2fr)_auto]"
+    (ngSubmit)="loadReports()">
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'salesReports.filters.date' | translate }}</span>
+      <input
+        type="date"
+        name="date"
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        [(ngModel)]="date"
+        [disabled]="loading()" />
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'salesReports.filters.deviceId' | translate }}</span>
+      <input
+        type="text"
+        name="deviceId"
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        [(ngModel)]="deviceId"
+        [placeholder]="'salesReports.filters.allDevices' | translate"
+        [disabled]="loading()"
+        [attr.aria-invalid]="deviceId.trim() && !filtersValid() ? true : null" />
+      <small class="mg-text-muted">{{ 'salesReports.filters.deviceHint' | translate }}</small>
+    </label>
+    <button
+      pButton
+      type="submit"
+      class="min-h-11"
+      [loading]="loading()"
+      [disabled]="!online() || !filtersValid()"
+      [label]="'salesReports.filters.apply' | translate"></button>
+  </form>
+
+  @if (filterInvalid()) {
+    <div
+      class="rounded-xl border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200"
+      role="alert">
+      {{ 'salesReports.filters.invalid' | translate }}
+    </div>
+  }
+
+  @if (loading() && !reports()) {
+    <app-skeleton mode="grid" [count]="8"></app-skeleton>
+  } @else if (errorCode()) {
+    <section
+      class="rounded-content border border-red-300 bg-red-50 p-5 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200"
+      role="alert">
+      <p class="mt-0">{{ 'pos.errors.' + errorCode() | translate }}</p>
+      @if (errorMessage()) {
+        <p>{{ errorMessage() }}</p>
+      }
+      <code>{{ errorCode() }}</code>
+      <button
+        pButton
+        type="button"
+        class="mt-3 min-h-11 p-button-outlined p-button-danger"
+        [disabled]="!online()"
+        [label]="'pos.actions.retry' | translate"
+        (click)="loadReports()"></button>
+    </section>
+  } @else {
+    @if (reports(); as data) {
+      @if (!hasActivity()) {
+        <section class="rounded-content border border-surface p-8 text-center mg-surface">
+          <h2 class="mg-text">{{ 'salesReports.empty.title' | translate }}</h2>
+          <p class="mg-text-muted">{{ 'salesReports.empty.description' | translate }}</p>
+          <button
+            pButton
+            type="button"
+            class="min-h-11 p-button-outlined"
+            [disabled]="!online()"
+            [label]="'salesReports.empty.reload' | translate"
+            (click)="loadReports()"></button>
+        </section>
+      } @else {
+        <section
+          class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+          [attr.aria-label]="'salesReports.summary.title' | translate">
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.grossSales' | translate }}</p>
+            <strong class="text-2xl mg-text">{{
+              data.daily.grossSalesBeforeDiscounts | currency: data.daily.currency
+            }}</strong>
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.discounts' | translate }}</p>
+            <strong class="text-2xl mg-text">{{ data.daily.discountGross | currency: data.daily.currency }}</strong>
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.refunds' | translate }}</p>
+            <strong class="text-2xl mg-text">{{ data.daily.refundsGross | currency: data.daily.currency }}</strong>
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.netTax' | translate }}</p>
+            <strong class="text-2xl mg-text">{{ data.daily.netTaxGross | currency: data.daily.currency }}</strong>
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.netSales' | translate }}</p>
+            <strong class="text-2xl mg-text">{{ data.daily.netSales | currency: data.daily.currency }}</strong>
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.orders' | translate }}</p>
+            <strong class="text-2xl mg-text">{{ data.daily.orderCount }}</strong>
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.theoreticalCost' | translate }}</p>
+            @if (costValue(data.daily.theoreticalCostNet, data.daily.marginStatus); as cost) {
+              <strong class="text-2xl mg-text">{{ cost | currency: data.daily.currency }}</strong>
+            } @else {
+              <strong class="text-2xl mg-text">—</strong>
+            }
+          </article>
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <p class="m-0 text-sm mg-text-muted">{{ 'salesReports.summary.margin' | translate }}</p>
+            @if (costValue(data.daily.netMargin, data.daily.marginStatus); as margin) {
+              <strong class="text-2xl mg-text">{{ margin | currency: data.daily.currency }}</strong>
+            } @else {
+              <strong class="text-2xl mg-text">—</strong>
+            }
+          </article>
+        </section>
+
+        <div class="rounded-xl border border-surface p-4 mg-surface" role="status">
+          <strong class="mg-text">{{ 'salesReports.costStatus.label' | translate }}:</strong>
+          <span class="ml-2">{{ 'salesReports.costStatus.' + data.daily.marginStatus | translate }}</span>
+          @if (data.daily.incompleteCostOrderCount) {
+            <span class="ml-2 mg-text-muted">{{
+              'salesReports.costStatus.incompleteOrders' | translate: { count: data.daily.incompleteCostOrderCount }
+            }}</span>
+          }
+        </div>
+
+        <section class="rounded-content border border-surface p-4 mg-surface">
+          <h2 class="mg-text">{{ 'salesReports.byHour.title' | translate }}</h2>
+          <p-table [value]="activeHours()" styleClass="p-datatable-sm" [scrollable]="true">
+            <ng-template pTemplate="header"
+              ><tr>
+                <th>{{ 'salesReports.columns.hour' | translate }}</th>
+                <th>{{ 'salesReports.columns.orders' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.netSales' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.cost' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.margin' | translate }}</th>
+                <th>{{ 'salesReports.columns.costStatus' | translate }}</th>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="body" let-item
+              ><tr>
+                <td>{{ item.label }}</td>
+                <td>{{ item.orderCount }}</td>
+                <td class="text-right">{{ item.salesNet | currency: data.byHour.currency }}</td>
+                <td class="text-right">
+                  {{
+                    costValue(item.theoreticalCostNet, item.costStatus)
+                      ? (item.theoreticalCostNet | currency: data.byHour.currency)
+                      : '—'
+                  }}
+                </td>
+                <td class="text-right">
+                  {{
+                    costValue(item.netMargin, item.costStatus) ? (item.netMargin | currency: data.byHour.currency) : '—'
+                  }}
+                </td>
+                <td>{{ 'salesReports.costStatus.' + item.costStatus | translate }}</td>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="emptymessage"
+              ><tr>
+                <td colspan="6" class="py-8 text-center mg-text-muted">
+                  {{ 'salesReports.tables.empty' | translate }}
+                </td>
+              </tr></ng-template
+            >
+          </p-table>
+        </section>
+
+        <section class="rounded-content border border-surface p-4 mg-surface">
+          <h2 class="mg-text">{{ 'salesReports.byCategory.title' | translate }}</h2>
+          <p-table [value]="data.byCategory.items" styleClass="p-datatable-sm" [scrollable]="true">
+            <ng-template pTemplate="header"
+              ><tr>
+                <th>{{ 'salesReports.columns.category' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.quantity' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.netSales' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.cost' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.margin' | translate }}</th>
+                <th>{{ 'salesReports.columns.costStatus' | translate }}</th>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="body" let-item
+              ><tr>
+                <td>{{ item.name }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">{{ item.salesNet | currency: data.byCategory.currency }}</td>
+                <td class="text-right">
+                  {{
+                    costValue(item.theoreticalCostNet, item.costStatus)
+                      ? (item.theoreticalCostNet | currency: data.byCategory.currency)
+                      : '—'
+                  }}
+                </td>
+                <td class="text-right">
+                  {{
+                    costValue(item.netMargin, item.costStatus)
+                      ? (item.netMargin | currency: data.byCategory.currency)
+                      : '—'
+                  }}
+                </td>
+                <td>{{ 'salesReports.costStatus.' + item.costStatus | translate }}</td>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="emptymessage"
+              ><tr>
+                <td colspan="6" class="py-8 text-center mg-text-muted">
+                  {{ 'salesReports.tables.empty' | translate }}
+                </td>
+              </tr></ng-template
+            >
+          </p-table>
+        </section>
+
+        <section class="rounded-content border border-surface p-4 mg-surface">
+          <h2 class="mg-text">{{ 'salesReports.byItem.title' | translate }}</h2>
+          <p-table [value]="data.byItem.items" styleClass="p-datatable-sm" [scrollable]="true">
+            <ng-template pTemplate="header"
+              ><tr>
+                <th>{{ 'salesReports.columns.item' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.quantity' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.netSales' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.cost' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.margin' | translate }}</th>
+                <th>{{ 'salesReports.columns.costStatus' | translate }}</th>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="body" let-item
+              ><tr>
+                <td>{{ item.name }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">{{ item.salesNet | currency: data.byItem.currency }}</td>
+                <td class="text-right">
+                  {{
+                    costValue(item.theoreticalCostNet, item.costStatus)
+                      ? (item.theoreticalCostNet | currency: data.byItem.currency)
+                      : '—'
+                  }}
+                </td>
+                <td class="text-right">
+                  {{
+                    costValue(item.netMargin, item.costStatus) ? (item.netMargin | currency: data.byItem.currency) : '—'
+                  }}
+                </td>
+                <td>{{ 'salesReports.costStatus.' + item.costStatus | translate }}</td>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="emptymessage"
+              ><tr>
+                <td colspan="6" class="py-8 text-center mg-text-muted">
+                  {{ 'salesReports.tables.empty' | translate }}
+                </td>
+              </tr></ng-template
+            >
+          </p-table>
+        </section>
+
+        <section class="grid gap-5 xl:grid-cols-2">
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <h2 class="mg-text">{{ 'salesReports.byPaymentMethod.title' | translate }}</h2>
+            <p-table [value]="data.byPaymentMethod.items" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header"
+                ><tr>
+                  <th>{{ 'salesReports.columns.paymentMethod' | translate }}</th>
+                  <th class="text-right">{{ 'salesReports.columns.payments' | translate }}</th>
+                  <th class="text-right">{{ 'salesReports.columns.refunds' | translate }}</th>
+                  <th class="text-right">{{ 'salesReports.columns.netCollected' | translate }}</th>
+                </tr></ng-template
+              >
+              <ng-template pTemplate="body" let-item
+                ><tr>
+                  <td>{{ 'salesReports.paymentMethods.' + item.method | translate }}</td>
+                  <td class="text-right">{{ item.paymentGross | currency: data.byPaymentMethod.currency }}</td>
+                  <td class="text-right">{{ item.refundGross | currency: data.byPaymentMethod.currency }}</td>
+                  <td class="text-right">{{ item.netCollectedGross | currency: data.byPaymentMethod.currency }}</td>
+                </tr></ng-template
+              >
+              <ng-template pTemplate="emptymessage"
+                ><tr>
+                  <td colspan="4" class="py-8 text-center mg-text-muted">
+                    {{ 'salesReports.tables.empty' | translate }}
+                  </td>
+                </tr></ng-template
+              >
+            </p-table>
+          </article>
+
+          <article class="rounded-content border border-surface p-4 mg-surface">
+            <h2 class="mg-text">{{ 'salesReports.cashDeviation.title' | translate }}</h2>
+            <p class="mg-text-muted">
+              {{ 'salesReports.cashDeviation.total' | translate }}:
+              <strong class="mg-text">{{
+                data.cashDeviation.totalDifference | currency: data.cashDeviation.currency
+              }}</strong>
+            </p>
+            <p-table [value]="data.cashDeviation.items" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header"
+                ><tr>
+                  <th>{{ 'salesReports.columns.closedAt' | translate }}</th>
+                  <th class="text-right">{{ 'salesReports.columns.expected' | translate }}</th>
+                  <th class="text-right">{{ 'salesReports.columns.counted' | translate }}</th>
+                  <th>{{ 'salesReports.columns.deviation' | translate }}</th>
+                </tr></ng-template
+              >
+              <ng-template pTemplate="body" let-item
+                ><tr>
+                  <td>{{ item.closedAt | date: 'short' }}</td>
+                  <td class="text-right">{{ item.expectedCash | currency: data.cashDeviation.currency }}</td>
+                  <td class="text-right">
+                    {{ item.countedCash === null ? '—' : (item.countedCash | currency: data.cashDeviation.currency) }}
+                  </td>
+                  <td>
+                    {{ 'salesReports.deviationCodes.' + item.deviationCode | translate }} ·
+                    {{ item.difference | currency: data.cashDeviation.currency }}
+                  </td>
+                </tr></ng-template
+              >
+              <ng-template pTemplate="emptymessage"
+                ><tr>
+                  <td colspan="4" class="py-8 text-center mg-text-muted">
+                    {{ 'salesReports.tables.empty' | translate }}
+                  </td>
+                </tr></ng-template
+              >
+            </p-table>
+          </article>
+        </section>
+
+        <section class="rounded-content border border-surface p-4 mg-surface">
+          <h2 class="mg-text">{{ 'salesReports.incompleteCosts.title' | translate }}</h2>
+          <p class="mg-text-muted">
+            {{ 'salesReports.incompleteCosts.description' | translate: { count: data.incompleteCosts.itemCount } }}
+          </p>
+          <p-table [value]="data.incompleteCosts.items" styleClass="p-datatable-sm" [scrollable]="true">
+            <ng-template pTemplate="header"
+              ><tr>
+                <th>{{ 'salesReports.columns.item' | translate }}</th>
+                <th>{{ 'salesReports.columns.sku' | translate }}</th>
+                <th>{{ 'salesReports.columns.costStatus' | translate }}</th>
+                <th>{{ 'salesReports.columns.issues' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.sales' | translate }}</th>
+                <th class="text-right">{{ 'salesReports.columns.estimatedCost' | translate }}</th>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="body" let-item
+              ><tr>
+                <td>{{ item.itemName }}</td>
+                <td>{{ item.sku || '—' }}</td>
+                <td>{{ 'salesReports.costStatus.' + item.costStatus | translate }}</td>
+                <td>
+                  @for (issue of item.issueCodes; track issue) {
+                    <span class="mr-2">{{ 'salesReports.issueCodes.' + issue | translate }}</span>
+                  }
+                </td>
+                <td class="text-right">
+                  {{ item.salesAfterDiscountsGross | currency: data.incompleteCosts.currency }}
+                </td>
+                <td class="text-right">
+                  {{
+                    costValue(item.estimatedCostNet, item.costStatus)
+                      ? (item.estimatedCostNet | currency: data.incompleteCosts.currency)
+                      : '—'
+                  }}
+                </td>
+              </tr></ng-template
+            >
+            <ng-template pTemplate="emptymessage"
+              ><tr>
+                <td colspan="6" class="py-8 text-center mg-text-muted">
+                  {{ 'salesReports.incompleteCosts.empty' | translate }}
+                </td>
+              </tr></ng-template
+            >
+          </p-table>
+        </section>
+      }
+    }
+  }
+</section>

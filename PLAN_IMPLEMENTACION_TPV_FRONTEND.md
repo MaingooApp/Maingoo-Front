@@ -15,8 +15,8 @@
 | F0 — Contratos y navegación | Implementada (`5f54fdd`) |
 | F1 — Bootstrap y configuración mínima | Implementada (`0a17ce2`) |
 | F2 — Terminal online | Implementada (`e883c89`) |
-| F3 — Cocina y caja | Implementada |
-| F4 — Inventario y margen | Pendiente |
+| F3 — Cocina y caja | Implementada (`f7e9def`) |
+| F4 — Inventario y margen | Implementada |
 | F5 — Offline | Pendiente |
 | F6 — Endurecimiento | Pendiente |
 

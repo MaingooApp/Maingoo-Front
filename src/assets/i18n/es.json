@@ -44,8 +44,7 @@
       "cash": "Caja",
       "history": "Historial",
       "settings": "Configuración TPV",
-      "reports": "Informes de ventas",
-      "pendingDescription": "Esta pantalla se habilitará en la siguiente fase del TPV."
+      "reports": "Informes de ventas"
     },
     "actions": {
       "retry": "Reintentar",
@@ -191,6 +190,8 @@
       "POS_CASH_OPERATION_FAILED": "No se pudo completar la operación de caja.",
       "POS_CASH_CLOSE_FAILED": "No se pudo cerrar la sesión de caja.",
       "OPEN_CASH_SESSION_NOT_FOUND": "No hay una sesión de caja abierta para este dispositivo.",
+      "REPORT_QUERY_INVALID": "Los filtros del informe no son válidos.",
+      "REPORT_TIMEZONE_INVALID": "La zona horaria del comercio no es válida.",
       "UNKNOWN": "Se produjo un error inesperado.",
       "ORDER_NOT_PAID": "Solo se pueden devolver pedidos pagados.",
       "REFUND_EXCEEDS_PAID": "La devolución supera el importe reembolsable del pedido.",
@@ -611,10 +612,278 @@
     }
   },
   "inventory": {
+    "title": "Inventario",
+    "description": "Consulta existencias, movimientos y recuentos físicos.",
+    "offline": "El inventario requiere conexión. Las consultas y cambios están deshabilitados sin red.",
     "navigation": {
       "inventory": "Inventario",
+      "label": "Secciones de inventario",
       "summary": "Existencias",
-      "pendingDescription": "La gestión de existencias se habilitará en la fase de inventario."
+      "movements": "Movimientos",
+      "count": "Recuento"
+    },
+    "actions": {
+      "cancel": "Cancelar",
+      "clearFilters": "Limpiar filtros",
+      "filter": "Filtrar",
+      "loadMore": "Cargar más",
+      "retry": "Reintentar"
+    },
+    "filters": {
+      "search": "Buscar producto",
+      "lowStockOnly": "Solo bajo mínimo",
+      "includeInactive": "Incluir inactivos",
+      "product": "Producto",
+      "allProducts": "Todos los productos",
+      "type": "Tipo",
+      "allTypes": "Todos los tipos",
+      "from": "Desde",
+      "to": "Hasta"
+    },
+    "columns": {
+      "actions": "Acciones",
+      "actor": "Actor",
+      "balance": "Saldo",
+      "balanceAfter": "Saldo resultante",
+      "cost": "Coste",
+      "date": "Fecha",
+      "delta": "Variación",
+      "minimum": "Mínimo",
+      "product": "Producto",
+      "source": "Origen",
+      "status": "Estado",
+      "type": "Tipo",
+      "updatedAt": "Actualizado",
+      "value": "Valor"
+    },
+    "units": {
+      "g": "g",
+      "ml": "ml",
+      "ud": "ud"
+    },
+    "values": {
+      "costUnavailable": "Coste no disponible",
+      "never": "Sin movimientos",
+      "notConfigured": "No configurado",
+      "system": "Sistema",
+      "totalCost": "Total: {{value}}",
+      "unitCost": "Unitario: {{value}}"
+    },
+    "status": {
+      "NORMAL": "Normal",
+      "LOW": "Bajo mínimo",
+      "NEGATIVE": "Negativo",
+      "REVIEW": "Revisión necesaria"
+    },
+    "summary": {
+      "title": "Resumen de existencias",
+      "description": "Saldos calculados por el libro de movimientos.",
+      "adjustmentHint": "Usa el lápiz para registrar un ajuste o una merma.",
+      "totalProducts": "Productos",
+      "lowStock": "Bajo mínimo",
+      "manualReview": "Revisión manual",
+      "empty": "No hay productos que coincidan con los filtros."
+    },
+    "adjustment": {
+      "title": "Ajuste de existencias",
+      "currentBalance": "Saldo actual",
+      "onlineRequired": "Los ajustes requieren conexión.",
+      "permissionRequired": "No tienes permiso para modificar el inventario.",
+      "type": "Tipo de movimiento",
+      "quantity": "Cantidad",
+      "wasteHelp": "Introduce la cantidad perdida en positivo; se registrará como salida.",
+      "adjustmentHelp": "Usa una cantidad positiva para añadir y negativa para descontar.",
+      "reason": "Motivo",
+      "note": "Nota",
+      "previewBalance": "Saldo estimado",
+      "submit": "Registrar movimiento",
+      "openFor": "Ajustar existencias de {{product}}",
+      "success": "Movimiento registrado correctamente.",
+      "confirmHeader": "Confirmar movimiento",
+      "confirmMessage": "Se aplicará {{quantity}} {{unit}} a {{product}}.",
+      "confirmAccept": "Confirmar",
+      "reasons": {
+        "EXPIRED": "Caducidad",
+        "DAMAGED": "Producto dañado",
+        "SPILLAGE": "Derrame",
+        "OTHER_WASTE": "Otra merma",
+        "CORRECTION": "Corrección",
+        "FOUND_STOCK": "Existencias encontradas",
+        "OTHER_ADJUSTMENT": "Otro ajuste"
+      }
+    },
+    "movementTypes": {
+      "OPENING": "Saldo inicial",
+      "PURCHASE": "Compra",
+      "SALE": "Venta",
+      "WASTE": "Merma",
+      "COUNT_ADJUSTMENT": "Ajuste por recuento",
+      "MANUAL_ADJUSTMENT": "Ajuste manual",
+      "PURCHASE_REVERSAL": "Reversión de compra",
+      "TRANSFER_IN": "Entrada por traspaso",
+      "TRANSFER_OUT": "Salida por traspaso"
+    },
+    "movements": {
+      "title": "Movimientos de existencias",
+      "description": "Historial auditable y de solo lectura.",
+      "empty": "No hay movimientos que coincidan con los filtros."
+    },
+    "sources": {
+      "manual": "Manual",
+      "agent": "Agente",
+      "invoiceLine": "Factura",
+      "posSale": "Venta TPV",
+      "stockCount": "Recuento"
+    },
+    "pagination": {
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "summary": "Página {{page}} · {{total}} movimientos"
+    },
+    "count": {
+      "title": "Recuento físico",
+      "description": "Compara cantidades físicas con el saldo registrado.",
+      "memoryWarning": "El recuento solo se conserva en esta pantalla hasta completarlo. Si recargas, deberás iniciar otro.",
+      "noProducts": "No hay productos disponibles para contar.",
+      "selectVisible": "Seleccionar visibles",
+      "clearSelection": "Limpiar selección",
+      "startTitle": "Iniciar recuento",
+      "selectedCount": "{{count}} de {{max}} productos seleccionados",
+      "note": "Nota",
+      "ambiguousCreate": "No se pudo confirmar si el recuento se creó. No lo repitas para evitar duplicados; recarga la pantalla.",
+      "create": "Crear recuento",
+      "session": "Sesión de recuento",
+      "searchLines": "Buscar dentro del recuento",
+      "expected": "Esperado",
+      "counted": "Contado",
+      "difference": "Diferencia estimada",
+      "complete": "Completar recuento",
+      "completedReadOnly": "Recuento completado. Las cantidades ya son de solo lectura.",
+      "startNew": "Iniciar otro recuento",
+      "confirmCreateHeader": "Iniciar recuento",
+      "confirmCreateMessage": "Se creará un recuento para {{count}} productos.",
+      "confirmCreateAccept": "Iniciar",
+      "confirmCompleteHeader": "Completar recuento",
+      "confirmCompleteMessage": "Se enviarán las cantidades de {{count}} productos. Esta acción no se puede editar.",
+      "confirmCompleteAccept": "Completar",
+      "status": {
+        "DRAFT": "En curso",
+        "COMPLETED": "Completado",
+        "CANCELLED": "Cancelado"
+      }
+    },
+    "errors": {
+      "INVENTORY_SUMMARY_LOAD_FAILED": "No se pudo cargar el resumen de inventario.",
+      "INVENTORY_MOVEMENTS_LOAD_FAILED": "No se pudieron cargar los movimientos.",
+      "INVENTORY_MOVEMENT_FAILED": "No se pudo registrar el movimiento.",
+      "INVENTORY_COUNT_CREATE_FAILED": "No se pudo iniciar el recuento.",
+      "INVENTORY_COUNT_COMPLETE_FAILED": "No se pudo completar el recuento.",
+      "VALIDATION_ERROR": "Los datos enviados no son válidos.",
+      "MISSING_PERMISSION": "No tienes permiso para esta operación.",
+      "INVENTORY_PRODUCT_NOT_FOUND": "El producto no existe o no pertenece a esta empresa.",
+      "STOCK_UNIT_MISMATCH": "La unidad no coincide con la configurada para el producto.",
+      "STOCK_QUANTITY_ZERO": "La cantidad no puede ser cero.",
+      "STOCK_QUANTITY_SIGN": "El signo de la cantidad no es válido para este movimiento.",
+      "STOCK_REASON_REQUIRED": "El motivo es obligatorio.",
+      "IDEMPOTENCY_KEY_REUSED": "Este movimiento ya se usó con datos diferentes.",
+      "STOCK_COUNT_EMPTY": "No hay productos activos para el recuento.",
+      "STOCK_COUNT_DUPLICATE_LINE": "El recuento contiene productos duplicados.",
+      "STOCK_COUNT_NOT_FOUND": "No se encontró el recuento.",
+      "STOCK_COUNT_ALREADY_COMPLETED": "El recuento ya estaba completado.",
+      "STOCK_COUNT_NOT_DRAFT": "Solo se puede completar un recuento en curso.",
+      "STOCK_COUNT_LINES_MISMATCH": "Debes enviar exactamente todos los productos del recuento.",
+      "STOCK_CHANGED_DURING_COUNT": "Las existencias cambiaron durante el recuento. Inicia uno nuevo."
+    }
+  },
+  "salesReports": {
+    "title": "Informes de ventas",
+    "description": "Ventas, costes y margen calculados por el TPV.",
+    "offline": "Los informes requieren conexión.",
+    "filters": {
+      "date": "Fecha",
+      "deviceId": "ID de dispositivo",
+      "allDevices": "Todos los dispositivos",
+      "deviceHint": "Opcional. Introduce el UUID de una caja concreta.",
+      "apply": "Aplicar",
+      "invalid": "Revisa la fecha y el identificador del dispositivo."
+    },
+    "empty": {
+      "title": "Sin actividad",
+      "description": "No hay ventas, devoluciones ni cierres para estos filtros.",
+      "reload": "Recargar"
+    },
+    "summary": {
+      "title": "Resumen diario",
+      "grossSales": "Venta bruta",
+      "discounts": "Descuentos",
+      "refunds": "Devoluciones",
+      "netTax": "Impuestos netos",
+      "netSales": "Venta neta",
+      "orders": "Pedidos",
+      "theoreticalCost": "Coste teórico",
+      "margin": "Margen neto"
+    },
+    "byHour": { "title": "Ventas por hora" },
+    "byCategory": { "title": "Ventas por categoría" },
+    "byItem": { "title": "Ventas por artículo" },
+    "byPaymentMethod": { "title": "Ventas por medio de pago" },
+    "cashDeviation": {
+      "title": "Diferencia de caja",
+      "total": "Diferencia total"
+    },
+    "incompleteCosts": {
+      "title": "Costes incompletos",
+      "description": "{{count}} líneas requieren revisión de receta o coste.",
+      "empty": "No hay costes incompletos."
+    },
+    "tables": { "empty": "Sin datos" },
+    "columns": {
+      "hour": "Hora",
+      "orders": "Pedidos",
+      "netSales": "Venta neta",
+      "cost": "Coste",
+      "margin": "Margen",
+      "costStatus": "Estado del coste",
+      "category": "Categoría",
+      "quantity": "Cantidad",
+      "item": "Artículo",
+      "paymentMethod": "Medio de pago",
+      "payments": "Cobros",
+      "refunds": "Devoluciones",
+      "netCollected": "Cobro neto",
+      "closedAt": "Cierre",
+      "expected": "Esperado",
+      "counted": "Contado",
+      "deviation": "Diferencia",
+      "sku": "SKU",
+      "issues": "Incidencias",
+      "sales": "Ventas",
+      "estimatedCost": "Coste estimado"
+    },
+    "costStatus": {
+      "label": "Estado del margen",
+      "incompleteOrders": "{{count}} pedidos con coste incompleto",
+      "CALCULATED": "Calculado",
+      "INCOMPLETE": "Incompleto",
+      "PENDING": "Pendiente",
+      "FAILED": "Fallido"
+    },
+    "paymentMethods": {
+      "CASH": "Efectivo",
+      "CARD": "Tarjeta",
+      "OTHER": "Otro",
+      "UNALLOCATED": "Sin pago asociado"
+    },
+    "deviationCodes": {
+      "CASH_BALANCED": "Cuadre correcto",
+      "CASH_OVER": "Sobrante",
+      "CASH_SHORT": "Faltante"
+    },
+    "issueCodes": {
+      "MISSING_RECIPE": "Falta receta",
+      "COST_PENDING": "Coste pendiente",
+      "COST_INCOMPLETE": "Coste incompleto",
+      "COST_FAILED": "Error de coste"
     }
   }
 }

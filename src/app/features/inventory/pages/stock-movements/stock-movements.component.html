@@ -1,0 +1,165 @@
+<section class="flex h-full min-h-0 flex-col gap-5 overflow-y-auto p-4 md:p-6">
+  <header>
+    <h2 class="m-0 text-xl font-semibold mg-text">{{ 'inventory.movements.title' | translate }}</h2>
+    <p class="mb-0 mt-1 mg-text-muted">{{ 'inventory.movements.description' | translate }}</p>
+  </header>
+
+  <form
+    class="grid gap-3 rounded-xl border border-surface p-4 md:grid-cols-2 xl:grid-cols-5"
+    (ngSubmit)="applyFilters()">
+    <label class="flex flex-col gap-2">
+      <span class="text-sm font-medium mg-text">{{ 'inventory.filters.product' | translate }}</span>
+      <select
+        class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+        name="productId"
+        [(ngModel)]="productId">
+        <option value="">{{ 'inventory.filters.allProducts' | translate }}</option>
+        @for (product of products(); track product.enterpriseProductId) {
+          <option [value]="product.enterpriseProductId">{{ product.name }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-2">
+      <span class="text-sm font-medium mg-text">{{ 'inventory.filters.type' | translate }}</span>
+      <select
+        class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+        name="type"
+        [(ngModel)]="type">
+        <option value="">{{ 'inventory.filters.allTypes' | translate }}</option>
+        @for (movementType of movementTypes; track movementType) {
+          <option [value]="movementType">{{ 'inventory.movementTypes.' + movementType | translate }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-2">
+      <span class="text-sm font-medium mg-text">{{ 'inventory.filters.from' | translate }}</span>
+      <input
+        type="date"
+        class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+        name="from"
+        [(ngModel)]="from" />
+    </label>
+    <label class="flex flex-col gap-2">
+      <span class="text-sm font-medium mg-text">{{ 'inventory.filters.to' | translate }}</span>
+      <input
+        type="date"
+        class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+        name="to"
+        [(ngModel)]="to" />
+    </label>
+    <button
+      pButton
+      type="submit"
+      class="self-end"
+      icon="pi pi-filter"
+      [disabled]="!connectivity.online()"
+      [loading]="loading()"
+      [label]="'inventory.actions.filter' | translate"></button>
+  </form>
+
+  @if (loading() && !response()) {
+    <app-skeleton mode="list" [count]="7"></app-skeleton>
+  } @else if (errorCode()) {
+    <div class="flex min-h-52 flex-col items-center justify-center gap-4 text-center" role="alert">
+      <p class="m-0 mg-text-muted">
+        {{ errorText() }} <small>({{ errorCode() }})</small>
+      </p>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [disabled]="!connectivity.online()"
+        [label]="'inventory.actions.retry' | translate"
+        (click)="load(!products().length)"></button>
+    </div>
+  } @else {
+    @if (response(); as movements) {
+      @if (!movements.items.length) {
+        <div
+          class="flex min-h-48 flex-col items-center justify-center gap-4 rounded-xl border border-dashed border-surface p-6 text-center">
+          <p class="m-0 mg-text-muted">{{ 'inventory.movements.empty' | translate }}</p>
+          <button
+            pButton
+            type="button"
+            [outlined]="true"
+            [label]="'inventory.actions.clearFilters' | translate"
+            (click)="clearFilters()"></button>
+        </div>
+      } @else {
+        <div class="min-h-0 overflow-auto rounded-xl border border-surface">
+          <p-table [value]="movements.items" [loading]="loading()" [rowHover]="true" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>{{ 'inventory.columns.date' | translate }}</th>
+                <th>{{ 'inventory.columns.product' | translate }}</th>
+                <th>{{ 'inventory.columns.type' | translate }}</th>
+                <th>{{ 'inventory.columns.delta' | translate }}</th>
+                <th>{{ 'inventory.columns.balanceAfter' | translate }}</th>
+                <th>{{ 'inventory.columns.cost' | translate }}</th>
+                <th>{{ 'inventory.columns.source' | translate }}</th>
+                <th>{{ 'inventory.columns.actor' | translate }}</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-movement>
+              <tr>
+                <td class="whitespace-nowrap">{{ movement.createdAt | date: 'short' }}</td>
+                <td class="font-medium mg-text">{{ movement.productName }}</td>
+                <td>{{ 'inventory.movementTypes.' + movement.type | translate }}</td>
+                <td
+                  [class.text-red-600]="movement.quantityBase.startsWith('-')"
+                  [class.text-green-700]="!movement.quantityBase.startsWith('-')">
+                  {{ movement.quantityBase }} {{ 'inventory.units.' + movement.baseUnit | translate }}
+                </td>
+                <td>{{ movement.balanceAfterBase }} {{ 'inventory.units.' + movement.baseUnit | translate }}</td>
+                <td>
+                  @if (movement.totalCost !== null) {
+                    <span class="block">{{
+                      'inventory.values.totalCost' | translate: { value: movement.totalCost }
+                    }}</span>
+                  }
+                  @if (movement.unitCost !== null) {
+                    <small class="block mg-text-muted">{{
+                      'inventory.values.unitCost' | translate: { value: movement.unitCost }
+                    }}</small>
+                  }
+                  @if (movement.totalCost === null && movement.unitCost === null) {
+                    <span class="mg-text-muted">{{ 'inventory.values.costUnavailable' | translate }}</span>
+                  }
+                </td>
+                <td>
+                  <span class="block">{{ sourceLabel(movement.sourceType) }}</span
+                  ><small class="mg-text-muted">{{ movement.reasonCode || movement.sourceId }}</small>
+                </td>
+                <td>{{ movement.createdByUserId ?? ('inventory.values.system' | translate) }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      }
+
+      <footer class="flex items-center justify-between gap-4">
+        <span class="text-sm mg-text-muted">{{
+          'inventory.pagination.summary' | translate: { page: movements.page, total: movements.total }
+        }}</span>
+        <div class="flex gap-2">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-chevron-left"
+            [outlined]="true"
+            [disabled]="!connectivity.online() || movements.page <= 1 || loading()"
+            [attr.aria-label]="'inventory.pagination.previous' | translate"
+            (click)="previousPage()"></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-chevron-right"
+            [outlined]="true"
+            [disabled]="!connectivity.online() || !hasNextPage() || loading()"
+            [attr.aria-label]="'inventory.pagination.next' | translate"
+            (click)="nextPage()"></button>
+        </div>
+      </footer>
+    }
+  }
+</section>
