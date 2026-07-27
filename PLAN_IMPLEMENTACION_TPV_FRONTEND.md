@@ -8,6 +8,10 @@
 >
 > Estado: plan ejecutable; este documento es autónomo y contiene los contratos backend que necesita el frontend.
 
+> Plan complementario posterior: `PLAN_EMPAREJAMIENTO_DISPOSITIVOS_TPV_FRONTEND.md`
+> define KDS emparejado sin login, terminal emparejado con PIN y traslada el cobro
+> operativo a Caja con autenticación humana.
+
 ## Estado de ejecución
 
 | Fase | Estado |
