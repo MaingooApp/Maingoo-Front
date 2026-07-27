@@ -1,12 +1,14 @@
 import { Routes } from '@angular/router';
 import { ngxPermissionsGuard } from 'ngx-permissions';
 import { AppPermission } from '@core/constants/permissions.enum';
+import { PosOfflineQueueService } from './services/pos-offline-queue.service';
 import { PosSessionStore } from './services/pos-session.store';
+import { PosSyncService } from './services/pos-sync.service';
 
 const ventasRoutes: Routes = [
   {
     path: '',
-    providers: [PosSessionStore],
+    providers: [PosOfflineQueueService, PosSyncService, PosSessionStore],
     children: [
       {
         path: '',

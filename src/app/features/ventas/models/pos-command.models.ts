@@ -4,6 +4,7 @@ export type PosCommandType =
   | 'CREATE_ORDER'
   | 'ADD_LINE'
   | 'UPDATE_LINE'
+  | 'REMOVE_LINE'
   | 'SEND_ORDER'
   | 'ADD_PAYMENT'
   | 'FINALIZE_ORDER'
@@ -31,6 +32,8 @@ export interface UpdateLineCommandData extends VersionedDeviceCommandData {
   discountGross?: DecimalString;
   note?: string;
 }
+
+export type RemoveLineCommandData = VersionedDeviceCommandData;
 
 export interface SendOrderCommandData extends VersionedDeviceCommandData {
   lineIds?: string[];
@@ -98,8 +101,9 @@ export interface CloseCashSessionCommandData extends DeviceCommandData {
 
 export type QueuedPosCommand =
   | QueuedCreateOrderCommand
-  | QueuedOrderCommand<'ADD_LINE', AddLineCommandData>
+  | QueuedLineCommand<'ADD_LINE', AddLineCommandData>
   | QueuedLineCommand<'UPDATE_LINE', UpdateLineCommandData>
+  | QueuedLineCommand<'REMOVE_LINE', RemoveLineCommandData>
   | QueuedOrderCommand<'SEND_ORDER', SendOrderCommandData>
   | QueuedOrderCommand<'ADD_PAYMENT', AddPaymentCommandData>
   | QueuedOrderCommand<'FINALIZE_ORDER', FinalizeOrderCommandData>
@@ -117,28 +121,35 @@ export interface VersionedDeviceCommandData extends DeviceCommandData {
 
 interface QueueMetadata<TType extends PosCommandType, TData> {
   clientMutationId: string;
+  deviceId: string;
   enterpriseId: string;
+  clientCreatedAt: string;
+  expectedVersion?: number;
   type: TType;
   data: TData;
   status: PosCommandStatus;
   attempts: number;
   lastErrorCode?: string;
+  nextAttemptAt?: string;
 }
 
 interface QueuedCreateOrderCommand extends QueueMetadata<'CREATE_ORDER', CreateOrderCommandData> {
-  aggregateId?: never;
+  aggregateId: string;
   targetId?: never;
 }
 
 interface QueuedOrderCommand<
-  TType extends 'ADD_LINE' | 'SEND_ORDER' | 'ADD_PAYMENT' | 'FINALIZE_ORDER',
+  TType extends 'SEND_ORDER' | 'ADD_PAYMENT' | 'FINALIZE_ORDER',
   TData
 > extends QueueMetadata<TType, TData> {
   aggregateId: string;
   targetId?: never;
 }
 
-interface QueuedLineCommand<TType extends 'UPDATE_LINE', TData> extends QueueMetadata<TType, TData> {
+interface QueuedLineCommand<TType extends 'ADD_LINE' | 'UPDATE_LINE' | 'REMOVE_LINE', TData> extends QueueMetadata<
+  TType,
+  TData
+> {
   aggregateId: string;
   targetId: string;
 }

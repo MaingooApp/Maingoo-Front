@@ -1,31 +1,38 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { of, Subject, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
+import { QueuedPosCommand } from '../models/pos-command.models';
+import { LocalPosOrder } from '../models/pos-local.models';
+import { PosBootstrapResponse, PosDevice, PosOrder, PosSettings } from '../models/pos.models';
 import {
-  CashSessionWithMovements,
-  OperationalPosOrder,
-  Payment,
-  PosBootstrapResponse,
-  PosOperationalChange,
-  PosOrder
-} from '../models/pos.models';
+  CachedPosBootstrap,
+  CachedPosDevice,
+  OfflineStoredOrder,
+  PosOfflineQueueService,
+  PosOfflineStorageError
+} from './pos-offline-queue.service';
 import { PosSessionStore } from './pos-session.store';
 import { PosService } from './pos.service';
+import { PosSyncCallbacks, PosSyncService } from './pos-sync.service';
 
-describe('PosSessionStore', () => {
+describe('PosSessionStore offline', () => {
   let store: PosSessionStore;
   let posService: jasmine.SpyObj<PosService>;
+  let queue: jasmine.SpyObj<PosOfflineQueueService>;
+  let sync: jasmine.SpyObj<PosSyncService>;
+  let callbacks: PosSyncCallbacks;
+  let storedOrders: OfflineStoredOrder[];
+  let storedCommands: QueuedPosCommand[];
+  let online: boolean;
 
   beforeEach(() => {
+    online = false;
+    spyOnProperty(navigator, 'onLine', 'get').and.callFake(() => online);
+    storedOrders = [];
+    storedCommands = [];
     posService = jasmine.createSpyObj<PosService>('PosService', [
       'getBootstrap',
-      'getSync',
-      'createOrder',
-      'addLine',
-      'updateLine',
-      'removeLine',
-      'sendOrder',
       'voidLine',
       'openCashSession',
       'addPayment',
@@ -33,505 +40,367 @@ describe('PosSessionStore', () => {
       'getCurrentCashSession',
       'finalizeOrder'
     ]);
+    queue = jasmine.createSpyObj<PosOfflineQueueService>('PosOfflineQueueService', [
+      'useEnterprise',
+      'getCachedBootstrap',
+      'getDevice',
+      'getOrders',
+      'listCommands',
+      'saveDevice',
+      'clearDevice',
+      'cacheBootstrap',
+      'enqueueWithOrder',
+      'discardAggregateCommands',
+      'saveOrder',
+      'close'
+    ]);
+    sync = jasmine.createSpyObj<PosSyncService>('PosSyncService', ['start', 'requestSync', 'stop']);
+    queue.useEnterprise.and.resolveTo();
+    queue.getCachedBootstrap.and.resolveTo(cachedBootstrap());
+    queue.getDevice.and.resolveTo(cachedDevice());
+    queue.getOrders.and.callFake(async () => [...storedOrders]);
+    queue.listCommands.and.callFake(async () => [...storedCommands]);
+    queue.saveDevice.and.resolveTo();
+    queue.clearDevice.and.resolveTo();
+    queue.cacheBootstrap.and.resolveTo();
+    queue.saveOrder.and.resolveTo();
+    queue.enqueueWithOrder.and.callFake(async (order, input) => {
+      storedOrders = [...storedOrders.filter(({ id }) => id !== order.id), order];
+      const command = {
+        ...input,
+        clientMutationId: crypto.randomUUID(),
+        enterpriseId: 'enterprise-1',
+        deviceId: input.data.deviceId,
+        clientCreatedAt: input.data.clientCreatedAt,
+        ...('expectedVersion' in input.data ? { expectedVersion: input.data.expectedVersion } : {}),
+        status: 'PENDING',
+        attempts: 0
+      } as QueuedPosCommand;
+      storedCommands.push(command);
+      return command;
+    });
+    queue.discardAggregateCommands.and.callFake(async (aggregateId, authoritative) => {
+      storedCommands = storedCommands.filter((command) => command.aggregateId !== aggregateId);
+      storedOrders = storedOrders.filter(({ id }) => id !== aggregateId);
+      if (authoritative) storedOrders.push(authoritative);
+    });
+    sync.start.and.callFake((value) => {
+      callbacks = value;
+    });
+    sync.requestSync.and.resolveTo();
+
     TestBed.configureTestingModule({
-      providers: [PosSessionStore, { provide: PosService, useValue: posService }]
+      providers: [
+        PosSessionStore,
+        { provide: PosService, useValue: posService },
+        { provide: PosOfflineQueueService, useValue: queue },
+        { provide: PosSyncService, useValue: sync }
+      ]
     });
     store = TestBed.inject(PosSessionStore);
   });
 
-  it('hydrates bootstrap and drains every operational sync page', async () => {
-    const firstPageChanges = Array.from({ length: 200 }, (_, index) =>
-      orderChange(createOperationalOrder(`order-${index}`, '10.00', '0.00'))
-    );
-    posService.getBootstrap.and.returnValue(of(createBootstrap()));
-    posService.getSync.and.callFake((_deviceId, cursor) =>
-      of(
-        cursor
-          ? { changes: [], serverCursor: 'cursor-final' }
-          : { changes: firstPageChanges, serverCursor: 'cursor-200' }
-      )
-    );
+  it('hydrates bootstrap, device, orders and commands from cache before any request', async () => {
+    const local = localOrder();
+    storedOrders = [local];
+    storedCommands = [createCommand(local.id)];
 
-    await store.load('device-1');
+    await store.initialize('enterprise-1');
+    store.selectOrder(local.id);
 
-    expect(posService.getBootstrap).toHaveBeenCalledOnceWith('device-1');
-    expect(posService.getSync.calls.allArgs()).toEqual([
-      ['device-1', undefined],
-      ['device-1', 'cursor-200']
-    ]);
+    expect(posService.getBootstrap).not.toHaveBeenCalled();
     expect(store.settings()?.currency).toBe('EUR');
     expect(store.device()?.id).toBe('device-1');
-    expect(store.activeOrders()).toHaveSize(200);
-    expect(store.syncCursor()).toBe('cursor-final');
-    expect(store.syncState()).toBe('ONLINE');
-    expect(store.loading()).toBeFalse();
+    expect(store.selectedOrder()?.source).toBe('LOCAL');
+    expect(store.selectedOrder()?.temporaryNumber).toBe('L-LOCAL001');
+    expect(store.pendingCommandCount()).toBe(1);
+    expect(store.cachedAt()).toBe('2026-07-27T09:00:00.000Z');
+    expect(store.lastSyncAt()).toBe('2026-07-27T09:30:00.000Z');
+    expect(store.syncState()).toBe('OFFLINE');
   });
 
-  it('selects an order and calculates its balance without floating point arithmetic', async () => {
-    posService.getBootstrap.and.returnValue(of(createBootstrap()));
-    posService.getSync.and.returnValue(
-      of({
-        changes: [orderChange(createOperationalOrder('order-1', '0.30', '0.10'))],
-        serverCursor: 'cursor-1'
-      })
+  it('persists an offline order before exposing it and never starts network sync offline', async () => {
+    await store.initialize('enterprise-1');
+
+    await store.createOrder('TAKEAWAY');
+
+    expect(queue.enqueueWithOrder).toHaveBeenCalledTimes(1);
+    expect(store.selectedOrder()?.source).toBe('LOCAL');
+    expect(store.selectedOrder()?.serverVersion).toBeNull();
+    expect(store.pendingCommandCount()).toBe(1);
+    expect(sync.requestSync).not.toHaveBeenCalled();
+
+    await store.addItem('menu-item-1');
+    const input = queue.enqueueWithOrder.calls.mostRecent().args[1];
+    expect(input.type).toBe('ADD_LINE');
+    expect(input.type === 'ADD_LINE' && input.data.expectedVersion).toBe(1);
+    expect(store.pendingCommandCount()).toBe(2);
+  });
+
+  it('does not mutate memory when atomic storage fails', async () => {
+    await store.initialize('enterprise-1');
+    queue.enqueueWithOrder.and.rejectWith(new PosOfflineStorageError('POS_OFFLINE_STORAGE_QUOTA_EXCEEDED'));
+
+    await store.createOrder('DINE_IN');
+
+    expect(store.orders()).toEqual([]);
+    expect(store.selectedOrder()).toBeNull();
+    expect(store.storageErrorCode()).toBe('POS_OFFLINE_STORAGE_QUOTA_EXCEEDED');
+    expect(store.operationErrorCode()).toBe('POS_OFFLINE_STORAGE_QUOTA_EXCEEDED');
+  });
+
+  it('uses the ISO bootstrap cursor, retries once without it and starts operational sync', async () => {
+    online = true;
+    await store.initialize('enterprise-1');
+    posService.getBootstrap.and.returnValues(
+      throwError(() => new HttpErrorResponse({ status: 400, error: { code: 'INVALID_SYNC_CURSOR' } })),
+      of(bootstrap())
     );
 
-    await store.load('device-1');
-    store.selectOrder('order-1');
+    await store.activateDevice('device-1');
 
-    expect(store.selectedOrder()?.id).toBe('order-1');
-    expect(store.selectedOrderBalance()).toBe('0.20');
+    expect(posService.getBootstrap.calls.allArgs()).toEqual([
+      ['device-1', '2026-07-27T09:00:00.000Z', 'enterprise-1'],
+      ['device-1', undefined, 'enterprise-1']
+    ]);
+    expect(queue.cacheBootstrap).toHaveBeenCalledOnceWith(jasmine.objectContaining({ cursor: 'bootstrap-2' }));
+    expect(queue.saveDevice).toHaveBeenCalledOnceWith(jasmine.objectContaining({ id: 'device-1' }));
+    expect(sync.requestSync).toHaveBeenCalledTimes(1);
   });
 
-  it('resets loaded state and exposes a stable backend error code', async () => {
-    posService.getBootstrap.and.returnValue(of(createBootstrap()));
-    posService.getSync.and.returnValue(of({ changes: [], serverCursor: 'cursor-1' }));
-    await store.load('device-1');
+  it('applies sync conflicts and discards every aggregate command when choosing the server', async () => {
+    online = true;
+    const server = order();
+    storedOrders = [server];
+    storedCommands = [addLineCommand(server.id, 'CONFLICT')];
+    await store.initialize('enterprise-1');
+    store.selectOrder(server.id);
+
+    await callbacks.conflict?.(storedCommands[0], server, 'ORDER_VERSION_CONFLICT');
+    expect(store.conflictOrder()).toEqual({ id: server.id, orderNumber: 7, version: 4 });
+    expect(store.syncState()).toBe('CONFLICT');
+
+    await store.useServerConflict();
+
+    expect(queue.discardAggregateCommands).toHaveBeenCalledOnceWith(server.id, server);
+    expect(store.pendingCommandCount()).toBe(0);
+    expect(store.conflictOrder()).toBeNull();
+    expect(store.selectedOrder()?.serverVersion).toBe(4);
+  });
+
+  it('keeps the next aggregate conflict actionable after resolving the first one', async () => {
+    const first = order();
+    const second = { ...order(), id: 'order-2', orderNumber: 8 };
+    storedOrders = [first, second];
+    storedCommands = [addLineCommand(first.id, 'CONFLICT'), addLineCommand(second.id, 'CONFLICT')];
+    await store.initialize('enterprise-1');
+
+    expect(store.conflictOrder()?.id).toBe(first.id);
+    await store.useServerConflict();
+
+    expect(store.conflictOrder()).toEqual({ id: second.id, orderNumber: 8, version: 4 });
+    expect(store.syncState()).toBe('CONFLICT');
+  });
+
+  it('invalidates a cached device without deleting queued orders and restarts sync after reselection', async () => {
+    online = true;
+    await store.initialize('enterprise-1');
+
+    await store.invalidateCachedDevice();
+
+    expect(sync.stop).toHaveBeenCalled();
+    expect(queue.clearDevice).toHaveBeenCalledTimes(1);
+    expect(queue.discardAggregateCommands).not.toHaveBeenCalled();
+    expect(store.device()).toBeNull();
+
+    posService.getBootstrap.and.returnValue(of(bootstrap()));
+    await store.activateDevice('device-1');
+    expect(sync.start).toHaveBeenCalledTimes(2);
+    expect(sync.requestSync).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps cached data visible when operational sync fails transiently', async () => {
+    const local = localOrder();
+    storedOrders = [local];
+    await store.initialize('enterprise-1');
+
+    callbacks.error?.('POS_SYNC_FAILED');
+
+    expect(store.orders()).toHaveSize(1);
+    expect(store.errorCode()).toBeNull();
+    expect(store.syncErrorCode()).toBe('POS_SYNC_FAILED');
+    expect(store.syncState()).toBe('ERROR');
+
+    store.reset();
+    expect(store.syncErrorCode()).toBeNull();
+  });
+
+  it('never pays or finalizes offline or while the server order still has pending commands', async () => {
+    const server = order();
+    storedOrders = [server];
+    await store.initialize('enterprise-1');
+    store.selectOrder(server.id);
+
+    await store.finalizeSelectedOrder();
+    await store.addPayment('CASH', '10.00');
+
+    expect(posService.finalizeOrder).not.toHaveBeenCalled();
+    expect(posService.addPayment).not.toHaveBeenCalled();
+    expect(store.operationErrorCode()).toBe('POS_ONLINE_REQUIRED');
+
+    online = true;
+    storedCommands = [addLineCommand(server.id, 'PENDING')];
+    await callbacks.commandChanged?.(storedCommands[0]);
+    await store.finalizeSelectedOrder();
+
+    expect(posService.finalizeOrder).not.toHaveBeenCalled();
+    expect(store.operationErrorCode()).toBe('POS_ORDER_SYNC_PENDING');
+  });
+
+  it('reset only closes the current namespace and preserves persistent data', async () => {
+    await store.initialize('enterprise-1');
 
     store.reset();
 
-    expect(store.device()).toBeNull();
+    expect(queue.close).toHaveBeenCalledTimes(1);
+    expect(queue.discardAggregateCommands).not.toHaveBeenCalled();
     expect(store.orders()).toEqual([]);
     expect(store.syncState()).toBe('OFFLINE');
-
-    posService.getBootstrap.and.returnValue(
-      throwError(
-        () =>
-          new HttpErrorResponse({
-            status: 409,
-            error: { code: 'DEVICE_REVOKED' }
-          })
-      )
-    );
-    await store.load('device-1');
-
-    expect(store.errorCode()).toBe('DEVICE_REVOKED');
-    expect(store.syncState()).toBe('ERROR');
-    expect(store.loading()).toBeFalse();
   });
 
-  it('creates, updates, sends and voids an order line using the current authoritative version', async () => {
-    await loadStore();
-    const created = createOrder('order-1', '10.00', '0.00', 1);
-    const withLine = createOrder('order-1', '12.00', '0.00', 2);
-    const updated = createOrder('order-1', '18.00', '0.00', 3);
-    const sent = createOrder('order-1', '18.00', '0.00', 4, 'SENT');
-    const voided = createOrder('order-1', '0.00', '0.00', 5, 'SENT');
-    posService.createOrder.and.returnValue(of(created));
-    posService.addLine.and.returnValue(of(withLine));
-    posService.updateLine.and.returnValue(of(updated));
-    posService.sendOrder.and.returnValue(of(sent));
-    posService.voidLine.and.returnValue(of(voided));
+  it('stops sync and closes IndexedDB when the route-scoped store is destroyed', async () => {
+    await store.initialize('enterprise-1');
 
-    await store.createOrder('DINE_IN', 'table-1', 3);
-    await store.addItem('menu-item-1', ['modifier-1'], '2', 'Sin sal');
-    await store.updateLine('line-1', { quantity: '3' });
-    await store.sendSelectedOrder();
-    await store.voidSelectedOrderLine('line-1', 'Error de comanda');
+    store.ngOnDestroy();
 
-    expect(posService.createOrder).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        deviceId: 'device-1',
-        channel: 'DINE_IN',
-        tableId: 'table-1',
-        guestCount: 3,
-        clientCreatedAt: jasmine.any(String)
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(posService.addLine).toHaveBeenCalledWith(
-      'order-1',
-      jasmine.objectContaining({
-        deviceId: 'device-1',
-        expectedVersion: 1,
-        menuItemId: 'menu-item-1',
-        modifierOptionIds: ['modifier-1'],
-        quantity: '2',
-        note: 'Sin sal'
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(posService.updateLine).toHaveBeenCalledWith(
-      'order-1',
-      'line-1',
-      jasmine.objectContaining({ expectedVersion: 2, quantity: '3' }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(posService.sendOrder).toHaveBeenCalledWith(
-      'order-1',
-      jasmine.objectContaining({ expectedVersion: 3 }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(posService.voidLine).toHaveBeenCalledWith(
-      'order-1',
-      jasmine.objectContaining({
-        deviceId: 'device-1',
-        expectedVersion: 4,
-        lineId: 'line-1',
-        reason: 'Error de comanda'
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(store.selectedOrder()?.version).toBe(5);
-    expect(store.selectedOrder()?.status).toBe('SENT');
-    expect(store.operationPending()).toBeFalse();
+    expect(sync.stop).toHaveBeenCalledTimes(2);
+    expect(queue.close).toHaveBeenCalledTimes(1);
   });
-
-  it('removes an open line using the current version and applies the authoritative order', async () => {
-    const current = createOperationalOrder('order-1', '10.00', '0.00', 3);
-    const updated = createOrder('order-1', '0.00', '0.00', 4);
-    await loadStore(current);
-    posService.removeLine.and.returnValue(of(updated));
-
-    await store.removeOpenLine('line-1');
-
-    expect(posService.removeLine).toHaveBeenCalledWith(
-      'order-1',
-      'line-1',
-      jasmine.objectContaining({
-        deviceId: 'device-1',
-        expectedVersion: 3,
-        clientCreatedAt: jasmine.any(String)
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(store.selectedOrder()?.version).toBe(4);
-    expect(store.selectedOrder()?.totalGross).toBe('0.00');
-  });
-
-  it('refetches the authoritative order after a payment advances its version', async () => {
-    const order = createOperationalOrder('order-1', '10.00', '0.00', 4, 'SENT');
-    await loadStore(order, createCashSession());
-    const paidOrder = createOrder('order-1', '10.00', '10.00', 5, 'PARTIALLY_PAID');
-    const refreshedCashSession = { ...createCashSession(), expectedCash: '60.00' };
-    posService.addPayment.and.returnValue(of({ ...createPayment(), orderVersion: 5 }));
-    posService.getOrder.and.returnValue(of(paidOrder));
-    posService.getCurrentCashSession.and.returnValue(of(refreshedCashSession));
-
-    await store.addPayment('CASH', '10.00');
-
-    expect(posService.addPayment).toHaveBeenCalledWith(
-      'order-1',
-      jasmine.objectContaining({
-        deviceId: 'device-1',
-        expectedVersion: 4,
-        cashSessionId: 'cash-1',
-        method: 'CASH',
-        amount: '10.00'
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(posService.getOrder).toHaveBeenCalledOnceWith('order-1');
-    expect(posService.getCurrentCashSession).toHaveBeenCalledOnceWith('device-1');
-    expect(store.selectedOrder()?.version).toBe(5);
-    expect(store.selectedOrder()?.paidGross).toBe('10.00');
-    expect(store.cashSession()?.expectedCash).toBe('60.00');
-  });
-
-  it('refetches a complete order before accepting a partial payment conflict', async () => {
-    const localOrder = createOperationalOrder('order-1', '10.00', '0.00', 1);
-    const serverOrder = createOrder('order-1', '12.00', '0.00', 2);
-    await loadStore(localOrder);
-    posService.addLine.and.returnValue(
-      throwError(
-        () =>
-          new HttpErrorResponse({
-            status: 409,
-            error: {
-              code: 'ORDER_VERSION_CONFLICT',
-              currentOrder: {
-                id: serverOrder.id,
-                orderNumber: serverOrder.orderNumber,
-                version: serverOrder.version,
-                lines: [{ status: 'SENT' }]
-              }
-            }
-          })
-      )
-    );
-
-    await store.addItem('menu-item-1');
-
-    expect(store.selectedOrder()?.version).toBe(1);
-    expect(store.conflictOrder()).toEqual({ id: 'order-1', orderNumber: 1, version: 2 });
-    expect(store.operationErrorCode()).toBe('ORDER_VERSION_CONFLICT');
-    expect(store.syncState()).toBe('CONFLICT');
-
-    posService.getOrder.and.returnValue(of(serverOrder));
-    await store.useServerConflict();
-
-    expect(posService.getOrder).toHaveBeenCalledOnceWith('order-1');
-    expect(store.selectedOrder()?.version).toBe(2);
-    expect(store.selectedOrder()?.payments).toEqual([]);
-    expect(store.conflictOrder()).toBeNull();
-    expect(store.operationErrorCode()).toBeNull();
-    expect(store.syncState()).toBe('ONLINE');
-  });
-
-  it('reuses the complete create-order intent after an ambiguous failure and clears it after a 4xx', async () => {
-    await loadStore();
-    posService.createOrder.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 0, error: new ProgressEvent('error') }))
-    );
-
-    await store.createOrder('TAKEAWAY');
-    const firstPayload = posService.createOrder.calls.argsFor(0)[0];
-    const firstKey = posService.createOrder.calls.argsFor(0)[1];
-
-    await store.createOrder('DINE_IN');
-
-    expect(posService.createOrder).toHaveBeenCalledTimes(1);
-    expect(store.operationErrorCode()).toBe('POS_OPERATION_RECONCILIATION_REQUIRED');
-
-    posService.createOrder.and.returnValue(of(createOrder('order-1', '0.00', '0.00')));
-    await store.createOrder('TAKEAWAY');
-
-    expect(posService.createOrder.calls.argsFor(1)).toEqual([firstPayload, firstKey]);
-
-    posService.createOrder.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 422, error: { code: 'VALIDATION_ERROR' } }))
-    );
-    await store.createOrder('DINE_IN');
-    const rejectedKey = posService.createOrder.calls.mostRecent().args[1];
-
-    posService.createOrder.and.returnValue(of(createOrder('order-2', '0.00', '0.00')));
-    await store.createOrder('DINE_IN');
-
-    expect(posService.createOrder.calls.mostRecent().args[1]).not.toBe(rejectedKey);
-  });
-
-  it('blocks a different order mutation while an add-line result is ambiguous', async () => {
-    const order = createOperationalOrder('order-1', '10.00', '0.00', 1);
-    await loadStore(order);
-    posService.addLine.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 0, error: new ProgressEvent('error') }))
-    );
-
-    await store.addItem('menu-item-1');
-    const firstPayload = posService.addLine.calls.argsFor(0)[1];
-    const firstKey = posService.addLine.calls.argsFor(0)[2];
-    await store.updateLine('line-1', { quantity: '2' });
-
-    expect(posService.updateLine).not.toHaveBeenCalled();
-    expect(store.operationErrorCode()).toBe('POS_OPERATION_RECONCILIATION_REQUIRED');
-
-    posService.addLine.and.returnValue(of(createOrder('order-1', '12.00', '0.00', 2)));
-    await store.addItem('menu-item-1');
-
-    expect(posService.addLine.calls.argsFor(1)).toEqual(['order-1', firstPayload, firstKey]);
-  });
-
-  it('does not replace an order with a lower server version', async () => {
-    const current = createOperationalOrder('order-1', '12.00', '0.00', 2);
-    await loadStore(current);
-    posService.addLine.and.returnValue(of(createOrder('order-1', '5.00', '0.00', 1)));
-
-    await store.addItem('menu-item-1');
-
-    expect(store.selectedOrder()?.version).toBe(2);
-    expect(store.selectedOrder()?.totalGross).toBe('12.00');
-  });
-
-  it('blocks every other mutation until a confirmed cash payment is fully refreshed', async () => {
-    const order = createOperationalOrder('order-1', '10.00', '0.00', 4, 'SENT');
-    await loadStore(order, createCashSession());
-    const paidOrder = createOrder('order-1', '10.00', '10.00', 5, 'PARTIALLY_PAID');
-    const refreshedCashSession = { ...createCashSession(), expectedCash: '60.00' };
-    posService.addPayment.and.returnValue(of({ ...createPayment(), orderVersion: 5 }));
-    posService.getOrder.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 0, error: new ProgressEvent('error') }))
-    );
-
-    await store.addPayment('CASH', '10.00');
-    await store.addItem('menu-item-2');
-
-    expect(posService.addLine).not.toHaveBeenCalled();
-    expect(store.operationErrorCode()).toBe('POS_ORDER_REFRESH_REQUIRED');
-
-    posService.getOrder.and.returnValue(of(paidOrder));
-    posService.getCurrentCashSession.and.returnValue(of(refreshedCashSession));
-    await store.addPayment('CASH', '10.00');
-
-    expect(posService.addPayment).toHaveBeenCalledTimes(1);
-    expect(posService.getOrder).toHaveBeenCalledTimes(2);
-    expect(store.selectedOrder()?.version).toBe(5);
-    expect(store.cashSession()?.expectedCash).toBe('60.00');
-  });
-
-  it('keeps the confirmed payment usable when cash-session refresh is forbidden', async () => {
-    const order = createOperationalOrder('order-1', '10.00', '0.00', 4, 'SENT');
-    await loadStore(order, createCashSession());
-    posService.addPayment.and.returnValue(of({ ...createPayment(), orderVersion: 5 }));
-    posService.getOrder.and.returnValue(of(createOrder('order-1', '10.00', '10.00', 5, 'PARTIALLY_PAID')));
-    posService.getCurrentCashSession.and.returnValue(
-      throwError(() => new HttpErrorResponse({ status: 403, error: { code: 'FORBIDDEN' } }))
-    );
-
-    await store.addPayment('CASH', '10.00');
-
-    expect(store.selectedOrder()?.version).toBe(5);
-    expect(store.operationErrorCode()).toBeNull();
-    expect(store.operationPending()).toBeFalse();
-  });
-
-  it('opens the cash session and finalizes the selected order with server responses', async () => {
-    const paidOrder = createOperationalOrder('order-1', '10.00', '10.00', 2, 'PARTIALLY_PAID');
-    await loadStore(paidOrder);
-    const cashSession = createCashSession();
-    const finalized = createOrder('order-1', '10.00', '10.00', 3, 'PAID');
-    posService.openCashSession.and.returnValue(of(cashSession));
-    posService.finalizeOrder.and.returnValue(of(finalized));
-
-    await store.openCashSession('50.00');
-    await store.finalizeSelectedOrder({
-      legalName: 'Cliente SA',
-      taxId: 'B12345678',
-      fiscalAddress: 'Calle Mayor 1'
-    });
-
-    expect(posService.openCashSession).toHaveBeenCalledWith(
-      jasmine.objectContaining({
-        deviceId: 'device-1',
-        openingAmount: '50.00',
-        clientCreatedAt: jasmine.any(String)
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(posService.finalizeOrder).toHaveBeenCalledWith(
-      'order-1',
-      jasmine.objectContaining({
-        expectedVersion: 2,
-        fiscalCustomer: {
-          legalName: 'Cliente SA',
-          taxId: 'B12345678',
-          fiscalAddress: 'Calle Mayor 1'
-        }
-      }),
-      jasmine.stringMatching(UUID_PATTERN)
-    );
-    expect(store.cashSession()).toBe(cashSession);
-    expect(store.selectedOrder()?.status).toBe('PAID');
-    expect(posService.getSync).toHaveBeenCalledWith('device-1', 'cursor-1');
-    expect(store.syncState()).toBe('ONLINE');
-  });
-
-  it('ignores a second submit while the first operation is pending', async () => {
-    await loadStore();
-    const response = new Subject<PosOrder>();
-    posService.createOrder.and.returnValue(response);
-
-    const firstSubmit = store.createOrder('TAKEAWAY');
-    await store.createOrder('TAKEAWAY');
-
-    expect(posService.createOrder).toHaveBeenCalledTimes(1);
-    expect(store.operationPending()).toBeTrue();
-
-    response.next(createOrder('order-1', '0.00', '0.00'));
-    response.complete();
-    await firstSubmit;
-
-    expect(store.operationPending()).toBeFalse();
-  });
-
-  async function loadStore(
-    order?: OperationalPosOrder,
-    cashSession: CashSessionWithMovements | null = null
-  ): Promise<void> {
-    posService.getBootstrap.and.returnValue(of(createBootstrap(cashSession)));
-    posService.getSync.and.returnValue(
-      of({
-        changes: order ? [orderChange(order)] : [],
-        serverCursor: 'cursor-1'
-      })
-    );
-    await store.load('device-1');
-    if (order) store.selectOrder(order.id);
-  }
 });
 
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-function createBootstrap(cashSession: CashSessionWithMovements | null = null): PosBootstrapResponse {
-  const timestamp = '2026-07-25T10:00:00.000Z';
+function cachedDevice(): CachedPosDevice {
   return {
-    settings: {
-      id: 'settings-1',
-      enterpriseId: 'enterprise-1',
-      enabled: true,
-      currency: 'EUR',
-      timezone: 'Europe/Madrid',
-      pricesIncludeTax: true,
-      allowNegativeStock: false,
-      receiptFooter: null,
-      fiscalMode: 'DISABLED',
-      issuerLegalName: null,
-      issuerTaxId: null,
-      issuerAddress: null,
-      fiscalSeriesPrefix: null,
-      createdAt: timestamp,
-      updatedAt: timestamp
-    },
-    device: {
-      id: 'device-1',
-      enterpriseId: 'enterprise-1',
-      name: 'Caja',
-      code: 'CAJA-1',
-      type: 'REGISTER',
-      status: 'ACTIVE',
-      lastSeenAt: timestamp,
-      appVersion: null,
-      createdByUserId: 'user-1',
-      createdAt: timestamp,
-      updatedAt: timestamp
-    },
+    enterpriseId: 'enterprise-1',
+    deviceId: 'device-1',
+    code: 'REG-1',
+    device: device(),
+    lastValidatedAt: '2026-07-27T09:00:00.000Z',
+    syncCursor: 'operational-1',
+    lastSyncAt: '2026-07-27T09:30:00.000Z'
+  };
+}
+
+function cachedBootstrap(): CachedPosBootstrap {
+  return {
+    enterpriseId: 'enterprise-1',
+    settings: settings(),
     areas: [],
     tables: [],
     kitchenStations: [],
     menuCategories: [],
     modifierGroups: [],
     menuItems: [],
-    cashSession,
-    changes: [],
-    cursor: timestamp
+    cursor: '2026-07-27T09:00:00.000Z',
+    cachedAt: '2026-07-27T09:00:00.000Z'
   };
 }
 
-function createOrder(
-  id: string,
-  totalGross: string,
-  paidGross: string,
-  version = 1,
-  status: PosOrder['status'] = 'OPEN'
-): PosOrder {
-  const timestamp = '2026-07-25T10:00:00.000Z';
+function bootstrap(): PosBootstrapResponse {
   return {
-    id,
+    settings: settings(),
+    device: device(),
+    areas: [],
+    tables: [],
+    kitchenStations: [],
+    menuCategories: [],
+    modifierGroups: [],
+    menuItems: [],
+    cashSession: null,
+    changes: [],
+    cursor: 'bootstrap-2'
+  };
+}
+
+function settings(): PosSettings {
+  return {
+    id: 'settings-1',
+    enterpriseId: 'enterprise-1',
+    enabled: true,
+    currency: 'EUR',
+    timezone: 'Europe/Madrid',
+    pricesIncludeTax: true,
+    allowNegativeStock: false,
+    receiptFooter: null,
+    fiscalMode: 'SANDBOX',
+    issuerLegalName: null,
+    issuerTaxId: null,
+    issuerAddress: null,
+    fiscalSeriesPrefix: null,
+    createdAt: '2026-07-27T08:00:00.000Z',
+    updatedAt: '2026-07-27T08:00:00.000Z'
+  };
+}
+
+function device(): PosDevice {
+  return {
+    id: 'device-1',
+    enterpriseId: 'enterprise-1',
+    name: 'Caja',
+    code: 'REG-1',
+    type: 'REGISTER',
+    status: 'ACTIVE',
+    lastSeenAt: null,
+    appVersion: null,
+    createdByUserId: 'user-1',
+    createdAt: '2026-07-27T08:00:00.000Z',
+    updatedAt: '2026-07-27T08:00:00.000Z'
+  };
+}
+
+function localOrder(): LocalPosOrder {
+  return {
+    kind: 'LOCAL_POS_ORDER',
+    id: 'local:local001',
+    temporaryNumber: 'L-LOCAL001',
     enterpriseId: 'enterprise-1',
     deviceId: 'device-1',
     tableId: null,
-    orderDate: timestamp,
-    orderNumber: 1,
     channel: 'TAKEAWAY',
-    status,
     guestCount: null,
     note: null,
-    version,
-    subtotalGross: totalGross,
+    clientCreatedAt: '2026-07-27T10:00:00.000Z'
+  };
+}
+
+function order(): PosOrder {
+  return {
+    id: 'order-1',
+    enterpriseId: 'enterprise-1',
+    deviceId: 'device-1',
+    tableId: null,
+    orderDate: '2026-07-27T10:00:00.000Z',
+    orderNumber: 7,
+    channel: 'TAKEAWAY',
+    status: 'SENT',
+    guestCount: null,
+    note: null,
+    version: 4,
+    subtotalGross: '10.00',
     discountGross: '0.00',
-    taxGross: '0.00',
-    totalGross,
-    paidGross,
+    taxGross: '0.91',
+    totalGross: '10.00',
+    paidGross: '0.00',
     costNet: null,
     costStatus: 'PENDING',
     openedByUserId: 'user-1',
     closedByUserId: null,
     cancelledByUserId: null,
     cancellationReason: null,
-    openedAt: timestamp,
+    openedAt: '2026-07-27T10:00:00.000Z',
     closedAt: null,
     cancelledAt: null,
-    createdAt: timestamp,
-    updatedAt: timestamp,
+    createdAt: '2026-07-27T10:00:00.000Z',
+    updatedAt: '2026-07-27T10:00:00.000Z',
     lines: [],
     kitchenTickets: [],
     payments: [],
@@ -540,73 +409,45 @@ function createOrder(
   };
 }
 
-function createOperationalOrder(
-  id: string,
-  totalGross: string,
-  paidGross: string,
-  version = 1,
-  status: PosOrder['status'] = 'OPEN'
-): OperationalPosOrder {
-  const order = createOrder(id, totalGross, paidGross, version, status);
+function createCommand(aggregateId: string): QueuedPosCommand {
   return {
-    ...order,
-    lines: order.lines.map(({ menuItem: _menuItem, ...line }) => line),
-    kitchenTickets: order.kitchenTickets.map(({ station: _station, ...ticket }) => ticket),
-    stockSyncJob: null
-  };
-}
-
-function createCashSession(): CashSessionWithMovements {
-  const timestamp = '2026-07-25T10:00:00.000Z';
-  return {
-    id: 'cash-1',
+    type: 'CREATE_ORDER',
+    aggregateId,
+    clientMutationId: 'mutation-create',
     enterpriseId: 'enterprise-1',
     deviceId: 'device-1',
-    status: 'OPEN',
-    openingAmount: '50.00',
-    expectedCash: '50.00',
-    countedCash: null,
-    difference: null,
-    idempotencyKey: 'cash-key',
-    openedByUserId: 'user-1',
-    closedByUserId: null,
-    openedAt: timestamp,
-    closedAt: null,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    cashMovements: []
+    clientCreatedAt: '2026-07-27T10:00:00.000Z',
+    data: {
+      deviceId: 'device-1',
+      clientCreatedAt: '2026-07-27T10:00:00.000Z',
+      channel: 'TAKEAWAY'
+    },
+    status: 'PENDING',
+    attempts: 0
   };
 }
 
-function createPayment(): Payment {
-  const timestamp = '2026-07-25T10:00:00.000Z';
+function addLineCommand(
+  aggregateId: string,
+  status: Extract<QueuedPosCommand, { type: 'ADD_LINE' }>['status']
+): Extract<QueuedPosCommand, { type: 'ADD_LINE' }> {
   return {
-    id: 'payment-1',
+    type: 'ADD_LINE',
+    aggregateId,
+    targetId: 'local-line:1',
+    clientMutationId: 'mutation-line',
     enterpriseId: 'enterprise-1',
-    orderId: 'order-1',
-    cashSessionId: 'cash-1',
-    method: 'CASH',
-    amount: '10.00',
-    tenderedAmount: '10.00',
-    changeGross: '0.00',
-    status: 'RECORDED',
-    idempotencyKey: 'payment-key',
-    externalReference: null,
-    createdByUserId: 'user-1',
-    createdAt: timestamp,
-    voidedAt: null,
-    voidedByUserId: null,
-    voidReason: null,
-    updatedAt: timestamp
-  };
-}
-
-function orderChange(order: OperationalPosOrder): PosOperationalChange {
-  return {
-    resourceType: 'POS_ORDER',
-    resourceId: order.id,
-    operation: 'UPSERT',
-    updatedAt: order.updatedAt,
-    data: order
+    deviceId: 'device-1',
+    clientCreatedAt: '2026-07-27T10:01:00.000Z',
+    expectedVersion: 4,
+    data: {
+      deviceId: 'device-1',
+      clientCreatedAt: '2026-07-27T10:01:00.000Z',
+      expectedVersion: 4,
+      menuItemId: 'menu-item-1',
+      quantity: '1'
+    },
+    status,
+    attempts: 0
   };
 }

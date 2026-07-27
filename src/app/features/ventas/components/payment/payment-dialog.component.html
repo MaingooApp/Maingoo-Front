@@ -31,6 +31,14 @@
         </p>
       }
 
+      @if (blockedReason) {
+        <p
+          class="m-0 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+          role="status">
+          {{ 'pos.payment.blockedReasons.' + blockedReason | translate }}
+        </p>
+      }
+
       @if (!hasOpenCashSession) {
         @if (canOpenCash) {
           <form #cashForm="ngForm" class="flex flex-col gap-4" (ngSubmit)="submitOpenCash(cashForm)">
@@ -47,7 +55,7 @@
                 autocomplete="off"
                 [(ngModel)]="openingAmount" />
             </label>
-            <button pButton type="submit" [disabled]="busy || cashForm.invalid">
+            <button pButton type="submit" [disabled]="!!blockedReason || busy || cashForm.invalid">
               {{ 'pos.payment.openCash' | translate }}
             </button>
           </form>
@@ -113,7 +121,7 @@
               <small class="mg-text-muted">{{ 'pos.payment.referenceHelp' | translate }}</small>
             </label>
 
-            <button pButton type="submit" [disabled]="busy || paymentForm.invalid">
+            <button pButton type="submit" [disabled]="!!blockedReason || busy || paymentForm.invalid">
               {{ 'pos.payment.addPayment' | translate }}
             </button>
           </form>

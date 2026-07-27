@@ -5,21 +5,30 @@ import { Confirmation, ConfirmationService } from 'primeng/api';
 import { Subject, of } from 'rxjs';
 
 import { AppPermission } from '@core/constants/permissions.enum';
+import { AuthService } from '@features/auth/services/auth-service.service';
 
 import { PosOrder, PosSettings, Refund } from '../../models/pos.models';
+import { PosOfflineQueueService } from '../../services/pos-offline-queue.service';
 import { PosService } from '../../services/pos.service';
 import { SalesHistoryComponent } from './sales-history.component';
 
 describe('SalesHistoryComponent', () => {
   let fixture: ComponentFixture<SalesHistoryComponent>;
   let component: SalesHistoryComponent;
+  let authService: jasmine.SpyObj<AuthService>;
+  let offlineQueue: jasmine.SpyObj<PosOfflineQueueService>;
   let posService: jasmine.SpyObj<PosService>;
   let confirmation: jasmine.SpyObj<ConfirmationService>;
   let grantedPermissions: Set<string>;
 
   beforeEach(() => {
-    localStorage.clear();
     grantedPermissions = new Set([AppPermission.PosRead, AppPermission.PosRefund, AppPermission.FiscalRead]);
+    authService = jasmine.createSpyObj<AuthService>('AuthService', ['getEnterpriseId']);
+    offlineQueue = jasmine.createSpyObj<PosOfflineQueueService>('PosOfflineQueueService', [
+      'useEnterprise',
+      'currentEnterpriseId',
+      'getDevice'
+    ]);
     posService = jasmine.createSpyObj<PosService>('PosService', [
       'listOrders',
       'getOrder',
@@ -30,6 +39,15 @@ describe('SalesHistoryComponent', () => {
       'listDevices',
       'getSettings'
     ]);
+    authService.getEnterpriseId.and.returnValue(order().enterpriseId);
+    offlineQueue.useEnterprise.and.resolveTo();
+    offlineQueue.currentEnterpriseId.and.returnValue(order().enterpriseId);
+    offlineQueue.getDevice.and.resolveTo({
+      enterpriseId: order().enterpriseId,
+      deviceId: order().deviceId,
+      code: 'CAJA-1',
+      lastValidatedAt: order().updatedAt
+    });
     posService.listOrders.and.returnValue(of({ items: [order()], page: 1, limit: 20, nextPage: 2 }));
     posService.listTables.and.returnValue(of([]));
     posService.listDevices.and.returnValue(of([registerDevice()]));
@@ -40,6 +58,8 @@ describe('SalesHistoryComponent', () => {
     TestBed.configureTestingModule({
       imports: [SalesHistoryComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: AuthService, useValue: authService },
+        { provide: PosOfflineQueueService, useValue: offlineQueue },
         { provide: PosService, useValue: posService },
         { provide: ConfirmationService, useValue: confirmation },
         {
@@ -50,10 +70,8 @@ describe('SalesHistoryComponent', () => {
     });
   });
 
-  afterEach(() => localStorage.clear());
-
-  it('sends only supported filters and keeps pagination on the server', () => {
-    createComponent();
+  it('sends only supported filters and keeps pagination on the server', async () => {
+    await createComponent();
     component.status = 'PAID';
     component.channel = 'DINE_IN';
     component.tableId = '11111111-1111-4111-8111-111111111111';
@@ -90,14 +108,13 @@ describe('SalesHistoryComponent', () => {
     );
   });
 
-  it('validates refundable cents, reuses the complete retry and refetches the authoritative order', () => {
+  it('validates refundable cents, reuses the complete retry and refetches the authoritative order', async () => {
     const current = order();
     const updated = order({ version: 8, refunds: [...current.refunds, refund('refund-2', '50.25')] });
     const refundResponse = new Subject<Refund>();
     posService.createRefund.and.returnValue(refundResponse);
     posService.getOrder.and.returnValue(of(updated));
-    localStorage.setItem('maingoo-pos-device-id', current.deviceId);
-    createComponent();
+    await createComponent();
     component.orders.set([current]);
     component.selectedOrder.set(current);
     component.openRefund();
@@ -141,11 +158,10 @@ describe('SalesHistoryComponent', () => {
     expect(component.refundSuccess()).toBeTrue();
   });
 
-  it('requires an open cash session and hides refund capability without pos.refund', () => {
+  it('requires an open cash session and hides refund capability without pos.refund', async () => {
     const cashOrder = order({ payments: [{ ...order().payments[0], method: 'CASH' }] });
-    localStorage.setItem('maingoo-pos-device-id', cashOrder.deviceId);
     posService.getCurrentCashSession.and.returnValue(of(null));
-    createComponent();
+    await createComponent();
     component.selectedOrder.set(cashOrder);
     component.openRefund();
     component.refundReason = 'Salida de caja por devolución';
@@ -161,6 +177,8 @@ describe('SalesHistoryComponent', () => {
     TestBed.configureTestingModule({
       imports: [SalesHistoryComponent, TranslateModule.forRoot()],
       providers: [
+        { provide: AuthService, useValue: authService },
+        { provide: PosOfflineQueueService, useValue: offlineQueue },
         { provide: PosService, useValue: posService },
         { provide: ConfirmationService, useValue: confirmation },
         {
@@ -169,17 +187,16 @@ describe('SalesHistoryComponent', () => {
         }
       ]
     });
-    createComponent();
+    await createComponent();
     component.selectedOrder.set(cashOrder);
 
     expect(component.canRefund).toBeFalse();
     expect(component.canOpenRefund()).toBeFalse();
   });
 
-  it('rejects a stored device that is not an active register', () => {
+  it('rejects a stored device that is not an active register', async () => {
     const current = order();
-    localStorage.setItem('maingoo-pos-device-id', current.deviceId);
-    createComponent();
+    await createComponent();
     component.selectedOrder.set(current);
     component.devices.set([{ ...registerDevice(), status: 'REVOKED' }]);
 
@@ -190,10 +207,38 @@ describe('SalesHistoryComponent', () => {
     expect(component.hasActiveDevice()).toBeFalse();
   });
 
-  function createComponent(): void {
+  it('does not expose a cached register from another enterprise', async () => {
+    offlineQueue.getDevice.and.resolveTo({
+      enterpriseId: 'other-enterprise',
+      deviceId: order().deviceId,
+      code: 'CAJA-1',
+      lastValidatedAt: order().updatedAt
+    });
+
+    await createComponent();
+    component.selectedOrder.set(order());
+
+    expect(component.cachedDeviceId()).toBe('');
+    expect(component.deviceSelectionErrorCode()).toBe('POS_OFFLINE_NAMESPACE_MISMATCH');
+    expect(component.hasActiveDevice()).toBeFalse();
+    expect(component.canOpenRefund()).toBeFalse();
+  });
+
+  it('stops exposing the cached register when the authenticated enterprise changes', async () => {
+    await createComponent();
+    component.selectedOrder.set(order());
+
+    authService.getEnterpriseId.and.returnValue('other-enterprise');
+
+    expect(component.hasActiveDevice()).toBeFalse();
+    expect(component.canOpenRefund()).toBeFalse();
+  });
+
+  function createComponent(): Promise<void> {
     fixture = TestBed.createComponent(SalesHistoryComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    return fixture.whenStable();
   }
 });
 

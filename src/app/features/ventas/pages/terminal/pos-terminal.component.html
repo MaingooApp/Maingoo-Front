@@ -11,19 +11,58 @@
           {{ 'pos.terminal.syncState.' + store.syncState() | translate }}
         </span>
       }
+      @if (store.pendingCommandCount() > 0) {
+        <span
+          class="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+          {{ 'pos.terminal.pendingCommands' | translate: { count: store.pendingCommandCount() } }}
+        </span>
+      }
       @if (store.device(); as device) {
         <button
           pButton
           type="button"
           class="p-button-outlined p-button-secondary"
+          [disabled]="store.pendingCommandCount() > 0"
           (click)="changeDevice()"
-          [attr.aria-label]="'pos.terminal.changeDevice' | translate">
+          [attr.aria-label]="
+            (store.pendingCommandCount() > 0 ? 'pos.terminal.changeDeviceBlocked' : 'pos.terminal.changeDevice')
+              | translate
+          ">
           <span class="pi pi-desktop" aria-hidden="true"></span>
           <span>{{ device.name }}</span>
         </button>
       }
     </div>
   </header>
+
+  @if (store.device()) {
+    <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs mg-text-muted" role="status">
+      @if (store.cachedAt(); as cachedAt) {
+        <span>{{ 'pos.terminal.cachedAt' | translate: { date: (cachedAt | date: 'short') } }}</span>
+      }
+      @if (store.lastSyncAt(); as lastSyncAt) {
+        <span>{{ 'pos.terminal.lastSyncAt' | translate: { date: (lastSyncAt | date: 'short') } }}</span>
+      }
+    </div>
+  }
+
+  @if (store.storageErrorCode(); as storageErrorCode) {
+    <div
+      class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+      role="alert">
+      {{ 'pos.terminal.storageError' | translate }}
+      <code class="ml-2">{{ storageErrorCode }}</code>
+    </div>
+  }
+
+  @if (store.syncErrorCode(); as syncErrorCode) {
+    <div
+      class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+      role="status">
+      {{ 'pos.errors.' + syncErrorCode | translate }}
+      <code class="ml-2">{{ syncErrorCode }}</code>
+    </div>
+  }
 
   @if (store.loading()) {
     <app-skeleton mode="grid" [count]="6"></app-skeleton>
@@ -45,7 +84,7 @@
         </button>
       </div>
     </section>
-  } @else if (!store.device()) {
+  } @else if (!store.device() || selectingDevice()) {
     <section
       class="rounded-2xl border border-surface-200 bg-surface-0 p-5 dark:border-surface-700 dark:bg-surface-800"
       [attr.aria-busy]="loadingDevices()">
@@ -86,6 +125,11 @@
           <button pButton type="button" [disabled]="!selectedDeviceId()" (click)="activateDevice()">
             {{ 'pos.terminal.continue' | translate }}
           </button>
+          @if (store.device()) {
+            <button pButton type="button" severity="secondary" [outlined]="true" (click)="selectingDevice.set(false)">
+              {{ 'pos.actions.cancel' | translate }}
+            </button>
+          }
         </div>
       }
     </section>
@@ -161,7 +205,10 @@
                     [class.border-surface-300]="store.selectedOrderId() !== order.id"
                     [attr.aria-pressed]="store.selectedOrderId() === order.id"
                     (click)="store.selectOrder(order.id)">
-                    {{ 'pos.terminal.takeawayOrder' | translate: { order: order.orderNumber } }}
+                    {{ 'pos.terminal.takeawayOrder' | translate: { order: order.displayNumber } }}
+                    @if (order.syncStatus) {
+                      <small class="block">{{ 'pos.terminal.syncStatus.' + order.syncStatus | translate }}</small>
+                    }
                   </button>
                 }
               </div>
@@ -220,7 +267,7 @@
                     </span>
                     @if (order) {
                       <span class="font-semibold text-amber-700 dark:text-amber-300">
-                        {{ order.totalGross | currency: settings.currency : 'symbol' : '1.2-2' }}
+                        {{ orderTotal(order) | currency: settings.currency : 'symbol' : '1.2-2' }}
                       </span>
                     }
                   </button>
@@ -304,27 +351,40 @@
             class="flex min-h-[34rem] flex-col rounded-2xl border border-surface-200 bg-surface-0 p-4 dark:border-surface-700 dark:bg-surface-800 lg:sticky lg:top-4"
             [attr.aria-label]="'pos.terminal.order' | translate">
             @if (store.selectedOrder(); as order) {
+              @let authoritative = store.selectedAuthoritativeOrder();
               <div
                 class="flex items-start justify-between gap-3 border-b border-surface-200 pb-4 dark:border-surface-700">
                 <div>
                   <span class="text-sm mg-text-muted">{{ 'pos.terminal.order' | translate }}</span>
                   <h2 class="m-0 text-2xl mg-text">
-                    {{ 'pos.terminal.orderNumber' | translate: { order: order.orderNumber } }}
+                    {{ 'pos.terminal.orderNumber' | translate: { order: order.displayNumber } }}
                   </h2>
                   <p class="mb-0 mt-1 text-sm mg-text-muted">
                     {{ selectedOrderTable() ? selectedOrderTable()!.name : ('pos.terminal.takeaway' | translate) }}
                   </p>
                 </div>
-                <span class="rounded-full bg-surface-100 px-3 py-1 text-sm font-medium mg-text dark:bg-surface-700">
-                  {{ 'pos.terminal.status.' + order.status | translate }}
-                </span>
+                <div class="flex flex-col items-end gap-1">
+                  <span class="rounded-full bg-surface-100 px-3 py-1 text-sm font-medium mg-text dark:bg-surface-700">
+                    {{ 'pos.terminal.status.' + orderStatus(order) | translate }}
+                  </span>
+                  @if (order.syncStatus) {
+                    <span
+                      class="rounded-full px-2 py-0.5 text-xs font-medium"
+                      [class.bg-red-100]="order.syncStatus === 'FAILED' || order.syncStatus === 'CONFLICT'"
+                      [class.text-red-700]="order.syncStatus === 'FAILED' || order.syncStatus === 'CONFLICT'"
+                      [class.bg-amber-100]="order.syncStatus !== 'FAILED' && order.syncStatus !== 'CONFLICT'"
+                      [class.text-amber-800]="order.syncStatus !== 'FAILED' && order.syncStatus !== 'CONFLICT'">
+                      {{ 'pos.terminal.syncStatus.' + order.syncStatus | translate }}
+                    </span>
+                  }
+                </div>
               </div>
 
               <div class="flex flex-1 flex-col gap-3 overflow-y-auto py-4">
                 @for (line of order.lines; track line.id) {
                   <article
                     class="rounded-xl border border-surface-200 p-3 dark:border-surface-700"
-                    [class.opacity-60]="line.status === 'VOIDED'">
+                    [class.opacity-60]="line.serverStatus === 'VOIDED'">
                     <div class="flex items-start justify-between gap-3">
                       <div class="min-w-0">
                         <strong class="block mg-text">{{ line.itemName }}</strong>
@@ -336,12 +396,15 @@
                         }
                       </div>
                       <strong class="shrink-0 mg-text">
-                        {{ line.lineTotalGross | currency: settings.currency : 'symbol' : '1.2-2' }}
+                        {{ line.estimatedLineTotalGross ?? '0.00' | currency: settings.currency : 'symbol' : '1.2-2' }}
                       </strong>
                     </div>
 
                     <div class="mt-3 flex items-center justify-between gap-3">
-                      @if (line.status === 'OPEN') {
+                      @if (
+                        (line.serverStatus === null || line.serverStatus === 'OPEN') &&
+                        order.localStatus !== 'PENDING_SEND'
+                      ) {
                         <div class="flex items-center gap-1">
                           <button
                             pButton
@@ -373,9 +436,14 @@
                       } @else {
                         <div class="flex w-full flex-wrap items-center justify-between gap-2">
                           <span class="text-sm mg-text-muted">
-                            {{ 'pos.terminal.lineStatus.' + line.status | translate }} · {{ line.quantity }}
+                            {{ 'pos.terminal.lineStatus.' + lineStatus(line) | translate }} · {{ line.quantity }}
+                            @if (line.syncStatus) {
+                              · {{ 'pos.terminal.syncStatus.' + line.syncStatus | translate }}
+                            }
                           </span>
-                          @if (line.status === 'SENT' && canVoidLines) {
+                          @if (
+                            line.serverStatus === 'SENT' && canVoidLines && online() && order.pendingCommandCount === 0
+                          ) {
                             <button
                               pButton
                               type="button"
@@ -396,23 +464,27 @@
               </div>
 
               <div class="space-y-3 border-t border-surface-200 pt-4 dark:border-surface-700">
-                <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
-                  <dt class="mg-text-muted">{{ 'pos.terminal.subtotal' | translate }}</dt>
-                  <dd class="m-0 text-right mg-text">
-                    {{ order.subtotalGross | currency: settings.currency : 'symbol' : '1.2-2' }}
-                  </dd>
-                  <dt class="mg-text-muted">{{ 'pos.terminal.discount' | translate }}</dt>
-                  <dd class="m-0 text-right mg-text">
-                    {{ order.discountGross | currency: settings.currency : 'symbol' : '1.2-2' }}
-                  </dd>
-                  <dt class="mg-text-muted">{{ 'pos.terminal.tax' | translate }}</dt>
-                  <dd class="m-0 text-right mg-text">
-                    {{ order.taxGross | currency: settings.currency : 'symbol' : '1.2-2' }}
-                  </dd>
-                </dl>
+                @if (authoritative) {
+                  <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                    <dt class="mg-text-muted">{{ 'pos.terminal.subtotal' | translate }}</dt>
+                    <dd class="m-0 text-right mg-text">
+                      {{ authoritative.subtotalGross | currency: settings.currency : 'symbol' : '1.2-2' }}
+                    </dd>
+                    <dt class="mg-text-muted">{{ 'pos.terminal.discount' | translate }}</dt>
+                    <dd class="m-0 text-right mg-text">
+                      {{ authoritative.discountGross | currency: settings.currency : 'symbol' : '1.2-2' }}
+                    </dd>
+                    <dt class="mg-text-muted">{{ 'pos.terminal.tax' | translate }}</dt>
+                    <dd class="m-0 text-right mg-text">
+                      {{ authoritative.taxGross | currency: settings.currency : 'symbol' : '1.2-2' }}
+                    </dd>
+                  </dl>
+                }
                 <div class="flex items-center justify-between text-xl font-bold mg-text">
-                  <span>{{ 'pos.terminal.total' | translate }}</span>
-                  <span>{{ order.totalGross | currency: settings.currency : 'symbol' : '1.2-2' }}</span>
+                  <span>
+                    {{ (order.totalIsEstimated ? 'pos.terminal.estimatedTotal' : 'pos.terminal.total') | translate }}
+                  </span>
+                  <span>{{ orderTotal(order) | currency: settings.currency : 'symbol' : '1.2-2' }}</span>
                 </div>
                 <button
                   pButton
@@ -531,12 +603,13 @@
 
 <app-payment-dialog
   [visible]="paymentVisible()"
-  [order]="store.selectedOrder()"
+  [order]="store.selectedAuthoritativeOrder()"
   [balance]="store.selectedOrderBalance()"
   [cashSession]="store.cashSession()"
   [canOpenCash]="canOpenCash"
   [loading]="store.operationPending()"
   [errorCode]="store.operationErrorCode()"
+  [blockedReason]="paymentBlockedReason()"
   (visibleChange)="paymentVisible.set($event)"
   (openCash)="openCash($event)"
   (addPayment)="addPayment($event)"

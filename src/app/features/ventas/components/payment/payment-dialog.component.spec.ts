@@ -107,6 +107,28 @@ describe('PaymentDialogComponent', () => {
 
     expect(fixture.nativeElement.querySelector('#payment-opening-amount')).toBeNull();
   });
+
+  it('blocks cash, payment and finalization until the server is reachable and synchronized', () => {
+    const openCash = spyOn(component.openCash, 'emit');
+    const payment = spyOn(component.addPayment, 'emit');
+    const finalize = spyOn(component.finalize, 'emit');
+    const form = jasmine.createSpyObj('NgForm', [], {
+      invalid: false,
+      control: jasmine.createSpyObj('control', ['markAllAsTouched'])
+    });
+    component.blockedReason = 'OFFLINE';
+    component.amount = '8.50';
+    component.balance = '0.00';
+
+    component.submitOpenCash(form);
+    component.submitPayment(form);
+    component.submitFinalize();
+
+    expect(openCash).not.toHaveBeenCalled();
+    expect(payment).not.toHaveBeenCalled();
+    expect(finalize).not.toHaveBeenCalled();
+    expect(component.canFinalize).toBeFalse();
+  });
 });
 
 function createOrder(): OperationalPosOrder {

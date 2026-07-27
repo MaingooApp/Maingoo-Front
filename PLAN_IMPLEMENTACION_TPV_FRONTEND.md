@@ -16,8 +16,8 @@
 | F1 — Bootstrap y configuración mínima | Implementada (`0a17ce2`) |
 | F2 — Terminal online | Implementada (`e883c89`) |
 | F3 — Cocina y caja | Implementada (`f7e9def`) |
-| F4 — Inventario y margen | Implementada |
-| F5 — Offline | Pendiente |
+| F4 — Inventario y margen | Implementada (`90c9b8b`) |
+| F5 — Offline | Implementada |
 | F6 — Endurecimiento | Pendiente |
 
 ## 1. Objetivo del frontend
@@ -395,7 +395,7 @@ Implementar IndexedDB nativo mediante una única pequeña envoltura Promise. Bas
 
 | Store | Key | Contenido |
 |---|---|---|
-| `device` | `enterpriseId` | `deviceId`, código y última validación. |
+| `device` | `enterpriseId` | Dispositivo validado, cursor operacional opaco y última sincronización. |
 | `bootstrap` | `enterpriseId` | carta/mesas/settings, `cursor` ISO y hora de cache local. |
 | `orders` | `orderId` | pedidos activos necesarios para continuar. |
 | `commands` | `clientMutationId` | cola ordenada por `clientCreatedAt`. |
@@ -404,6 +404,7 @@ Reglas:
 
 - Usar `crypto.randomUUID()`; no añadir librería UUID.
 - Una transacción IndexedDB guarda a la vez pedido local y comando cuando proceda.
+- El cursor ISO de `bootstrap` y el cursor opaco de `/sync` se persisten en campos separados y nunca se intercambian.
 - No guardar JWT, PIN, certificado, respuesta fiscal completa ni historial ilimitado.
 - Borrar comandos confirmados y pedidos cerrados tras bootstrap confirmado.
 - Limitar bootstrap/historial local a la empresa autenticada; al cambiar empresa/usuario, limpiar memoria y abrir su namespace lógico.
@@ -678,7 +679,7 @@ No representar un coste incompleto como cero.
 - crear pedido con ID cliente;
 - añadir/editar líneas no enviadas;
 - enviar pedido a una KDS que esté en el mismo cliente solo visualmente; la entrega real a otra pantalla espera red;
-- registrar pagos y finalizar solo si la política del piloto lo autoriza y existe configuración fiscal compatible; por defecto, permitir preparar y dejar pendiente de confirmación al recuperar red.
+- preparar el pedido para cobro, manteniéndolo pendiente hasta recuperar la conexión.
 
 ### Requiere conexión en MVP
 
@@ -687,10 +688,14 @@ No representar un coste incompleto como cero.
 - anular línea ya enviada;
 - devoluciones;
 - movimientos/cierre de caja;
-- fiscalización definitiva cuando la modalidad/configuración no permita completar offline;
+- pagos, finalización y fiscalización mientras backend no exponga una política offline explícita;
 - soporte y reintentos.
 
-Regla de producto para piloto: si aún no está validado el comportamiento fiscal offline, no mostrar “venta completada”; mostrar `Cobro guardado, pendiente de sincronizar` y bloquear reutilización del pedido hasta confirmación. Esto evita prometer un documento fiscal inexistente.
+Resultado de la validación F5: `fiscalMode` no autoriza por sí solo operaciones
+offline. La numeración, hash, documento fiscal y job de stock se crean en una
+transacción servidor, y backend no expone todavía una política
+`offlinePaymentsAllowed`. Por ello el MVP bloquea abrir caja, cobrar y finalizar
+sin conexión, no imprime recibo y no muestra “venta completada”.
 
 ## 19. Conflictos
 

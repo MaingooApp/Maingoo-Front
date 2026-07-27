@@ -12,6 +12,7 @@ import { TableModule } from 'primeng/table';
 import { Observable, finalize, forkJoin, fromEvent, map, of, switchMap, throwError } from 'rxjs';
 
 import { AppPermission } from '@core/constants/permissions.enum';
+import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 
 import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
@@ -25,9 +26,9 @@ import {
   PosOrderChannel,
   PosOrderStatus
 } from '../../models/pos.models';
+import { PosOfflineQueueService, PosOfflineStorageError } from '../../services/pos-offline-queue.service';
 import { PosOrderFilters, PosService } from '../../services/pos.service';
 
-const DEVICE_STORAGE_KEY = 'maingoo-pos-device-id';
 const MONEY_PATTERN = /^\d{1,10}(?:\.\d{1,2})?$/;
 
 type StatusFilter = '' | PosOrderStatus;
@@ -63,6 +64,8 @@ interface ApiFailure {
 })
 export class SalesHistoryComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
+  private readonly offlineQueue = inject(PosOfflineQueueService);
   private readonly posService = inject(PosService);
   private readonly permissions = inject(NgxPermissionsService);
   private readonly confirmation = inject(ConfirmationService);
@@ -71,6 +74,7 @@ export class SalesHistoryComponent implements OnInit {
   private refundFocusTarget: HTMLElement | null = null;
   private receiptFocusTarget: HTMLElement | null = null;
   private refundAttempt: RefundAttempt | null = null;
+  private deviceLoadVersion = 0;
 
   readonly statuses: PosOrderStatus[] = ['DRAFT', 'OPEN', 'SENT', 'PARTIALLY_PAID', 'PAID', 'CANCELLED'];
   readonly channels: PosOrderChannel[] = ['DINE_IN', 'TAKEAWAY'];
@@ -103,6 +107,8 @@ export class SalesHistoryComponent implements OnInit {
   readonly refundErrorCode = signal<string | null>(null);
   readonly refundErrorMessage = signal<string | null>(null);
   readonly refundSuccess = signal(false);
+  readonly cachedDeviceId = signal('');
+  readonly deviceSelectionErrorCode = signal<string | null>(null);
 
   status: StatusFilter = '';
   channel: ChannelFilter = '';
@@ -147,10 +153,7 @@ export class SalesHistoryComponent implements OnInit {
   }
 
   hasActiveDevice(): boolean {
-    const selectedDeviceId = localStorage.getItem(DEVICE_STORAGE_KEY);
-    return this.devices().some(
-      ({ id, status, type }) => id === selectedDeviceId && status === 'ACTIVE' && type === 'REGISTER'
-    );
+    return this.activeDeviceId() !== null;
   }
 
   canOpenRefund(): boolean {
@@ -185,6 +188,7 @@ export class SalesHistoryComponent implements OnInit {
     fromEvent(window, 'offline')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.online.set(false));
+    void this.loadDeviceSelection();
     this.loadFilterOptions();
     this.loadOrders();
   }
@@ -366,8 +370,18 @@ export class SalesHistoryComponent implements OnInit {
   private submitRefund(): void {
     const order = this.selectedOrder();
     const payment = this.selectedRefundPayment();
-    const deviceId = localStorage.getItem(DEVICE_STORAGE_KEY);
-    if (!order || !payment || !deviceId || !this.refundFormValid() || this.refundSubmitting()) return;
+    const deviceId = this.activeDeviceId();
+    const enterpriseId = this.authService.getEnterpriseId();
+    if (
+      !order ||
+      order.enterpriseId !== enterpriseId ||
+      !payment ||
+      !deviceId ||
+      !this.refundFormValid() ||
+      this.refundSubmitting()
+    ) {
+      return;
+    }
 
     const amount = money(optionalCents(this.refundAmount) ?? 0);
     const reason = this.refundReason.trim();
@@ -385,6 +399,7 @@ export class SalesHistoryComponent implements OnInit {
       )
       .subscribe({
         next: (updated) => {
+          if (this.authService.getEnterpriseId() !== enterpriseId || updated.enterpriseId !== enterpriseId) return;
           this.selectedOrder.set(updated);
           this.orders.update((orders) => orders.map((item) => (item.id === updated.id ? updated : item)));
           this.refundAttempt = null;
@@ -457,6 +472,48 @@ export class SalesHistoryComponent implements OnInit {
 
   private returnFocus(target: HTMLElement | null): void {
     if (target) queueMicrotask(() => target.focus());
+  }
+
+  private activeDeviceId(): string | null {
+    const enterpriseId = this.authService.getEnterpriseId();
+    const cachedDeviceId = this.cachedDeviceId();
+    return (
+      this.devices().find(
+        ({ id, enterpriseId: deviceEnterpriseId, status, type }) =>
+          id === cachedDeviceId && deviceEnterpriseId === enterpriseId && status === 'ACTIVE' && type === 'REGISTER'
+      )?.id ?? null
+    );
+  }
+
+  private async loadDeviceSelection(): Promise<void> {
+    const version = ++this.deviceLoadVersion;
+    const enterpriseId = this.authService.getEnterpriseId();
+    this.cachedDeviceId.set('');
+    this.deviceSelectionErrorCode.set(null);
+    if (!enterpriseId) {
+      this.deviceSelectionErrorCode.set('POS_OFFLINE_NAMESPACE_REQUIRED');
+      return;
+    }
+
+    try {
+      await this.offlineQueue.useEnterprise(enterpriseId);
+      const device = await this.offlineQueue.getDevice();
+      if (version !== this.deviceLoadVersion) return;
+      if (
+        this.authService.getEnterpriseId() !== enterpriseId ||
+        this.offlineQueue.currentEnterpriseId() !== enterpriseId ||
+        (device !== null && device.enterpriseId !== enterpriseId)
+      ) {
+        throw new PosOfflineStorageError('POS_OFFLINE_NAMESPACE_MISMATCH');
+      }
+      this.cachedDeviceId.set(device?.deviceId ?? '');
+    } catch (error: unknown) {
+      if (version !== this.deviceLoadVersion) return;
+      this.cachedDeviceId.set('');
+      this.deviceSelectionErrorCode.set(
+        error instanceof PosOfflineStorageError ? error.code : 'POS_OFFLINE_STORAGE_FAILED'
+      );
+    }
   }
 }
 

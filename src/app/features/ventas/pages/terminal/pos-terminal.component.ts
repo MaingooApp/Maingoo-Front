@@ -24,12 +24,13 @@ import {
   PosDevice,
   PosOrder
 } from '../../models/pos.models';
+import { PosOrderLineViewModel, PosOrderViewModel } from '../../models/pos-local.models';
 import { PosSessionStore } from '../../services/pos-session.store';
 import { PosService } from '../../services/pos.service';
 import { AppPermission } from '@core/constants/permissions.enum';
+import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 
-// ponytail: F1 stores only the non-secret device ID; F5 migrates it to the tenant-scoped IndexedDB store.
 const DEVICE_STORAGE_KEY = 'maingoo-pos-device-id';
 
 @Component({
@@ -54,12 +55,16 @@ export class PosTerminalComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly posService = inject(PosService);
   private readonly permissions = inject(NgxPermissionsService);
+  private readonly authService = inject(AuthService);
+  private legacyMigrationAttempted = false;
 
   readonly store = inject(PosSessionStore);
+  readonly online = signal(typeof navigator === 'undefined' || navigator.onLine);
   readonly devices = signal<PosDevice[]>([]);
   readonly loadingDevices = signal(false);
   readonly deviceListError = signal(false);
   readonly selectedDeviceId = signal('');
+  readonly selectingDevice = signal(false);
   readonly canManageDevices = !!this.permissions.getPermission(AppPermission.PosManage);
   readonly selectedAreaId = signal<string | null>(null);
   readonly selectedCategoryId = signal<string | null>(null);
@@ -103,7 +108,7 @@ export class PosTerminalComponent implements OnInit {
     this.store
       .activeOrders()
       .filter(({ channel, tableId }) => channel === 'TAKEAWAY' && tableId === null)
-      .sort((left, right) => left.orderNumber - right.orderNumber)
+      .sort((left, right) => left.displayNumber.localeCompare(right.displayNumber))
   );
   readonly activeCategories = computed(() =>
     this.store
@@ -140,34 +145,55 @@ export class PosTerminalComponent implements OnInit {
     const tableId = this.store.selectedOrder()?.tableId;
     return tableId ? (this.store.tables().find(({ id }) => id === tableId) ?? null) : null;
   });
-  readonly canSendOrder = computed(
-    () =>
-      this.store.selectedOrder()?.status !== 'PAID' &&
-      this.store.selectedOrder()?.status !== 'CANCELLED' &&
-      (this.store.selectedOrder()?.lines.some(({ status }) => status === 'OPEN') ?? false)
-  );
-  readonly canOpenPayment = computed(() => {
+  readonly canSendOrder = computed(() => {
     const order = this.store.selectedOrder();
-    const activeLines = order?.lines.filter(({ status }) => status !== 'VOIDED') ?? [];
     return (
       !!order &&
-      order.status !== 'PAID' &&
-      order.status !== 'CANCELLED' &&
-      activeLines.length > 0 &&
-      activeLines.every(({ status }) => status === 'SENT')
+      order.serverStatus !== 'PAID' &&
+      order.serverStatus !== 'CANCELLED' &&
+      order.localStatus !== 'PENDING_SEND' &&
+      order.syncStatus !== 'FAILED' &&
+      order.syncStatus !== 'CONFLICT' &&
+      order.lines.some(({ serverStatus }) => serverStatus === null || serverStatus === 'OPEN')
     );
+  });
+  readonly canOpenPayment = computed(() => {
+    const order = this.store.selectedOrder();
+    const activeLines = order?.lines.filter(({ serverStatus }) => serverStatus !== 'VOIDED') ?? [];
+    return (
+      !!order &&
+      !!this.store.selectedAuthoritativeOrder() &&
+      order.serverStatus !== 'PAID' &&
+      order.serverStatus !== 'CANCELLED' &&
+      activeLines.length > 0 &&
+      activeLines.every(({ serverStatus }) => serverStatus === 'SENT')
+    );
+  });
+  readonly paymentBlockedReason = computed<'OFFLINE' | 'PENDING_SYNC' | null>(() => {
+    if (!this.online()) return 'OFFLINE';
+    return this.store.selectedOrder()?.pendingCommandCount ? 'PENDING_SYNC' : null;
   });
   readonly receiptFiscalDocument = computed(() => this.receiptOrder()?.fiscalDocuments.at(-1) ?? null);
   readonly receiptStockSyncStatus = computed(() => {
     const orderId = this.receiptOrder()?.id;
     if (!orderId) return null;
 
-    const storedOrder = this.store.orders().find(({ id }) => id === orderId);
+    const storedOrder = this.store.authoritativeOrder(orderId);
     if (storedOrder && 'stockSyncJob' in storedOrder) return storedOrder.stockSyncJob?.status ?? null;
     return this.store.stockSyncJobs().find((job) => job.orderId === orderId)?.status ?? null;
   });
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    const enterpriseId = this.authService.getEnterpriseId();
+    if (!enterpriseId) {
+      this.store.errorCode.set('POS_ENTERPRISE_REQUIRED');
+      return;
+    }
+
+    this.bindConnectivity();
+    await this.store.initialize(enterpriseId);
+    const cachedDevice = this.store.device();
+    if (cachedDevice) this.selectedDeviceId.set(cachedDevice.id);
     this.loadDevices();
   }
 
@@ -182,34 +208,42 @@ export class PosTerminalComponent implements OnInit {
       )
       .subscribe({
         next: (devices) => {
-          this.devices.set(devices);
-          const savedDeviceId = localStorage.getItem(DEVICE_STORAGE_KEY);
-          if (savedDeviceId && devices.some(({ id }) => id === savedDeviceId)) {
-            this.selectedDeviceId.set(savedDeviceId);
-            void this.store.load(savedDeviceId);
-          } else if (savedDeviceId) {
-            localStorage.removeItem(DEVICE_STORAGE_KEY);
+          const enterpriseId = this.authService.getEnterpriseId();
+          const registers = devices.filter(
+            (device) => device.enterpriseId === enterpriseId && device.type === 'REGISTER' && device.status === 'ACTIVE'
+          );
+          this.devices.set(registers);
+          const cachedDevice = this.store.device();
+          if (cachedDevice && registers.some(({ id }) => id === cachedDevice.id)) {
+            this.selectedDeviceId.set(cachedDevice.id);
+            void this.store.activateDevice(cachedDevice.id);
+          } else if (cachedDevice) {
+            this.selectedDeviceId.set('');
+            this.selectingDevice.set(true);
+            void this.store.invalidateCachedDevice();
+          } else {
+            void this.migrateLegacyDevice(registers);
           }
         },
         error: () => this.deviceListError.set(true)
       });
   }
 
-  activateDevice(): void {
+  async activateDevice(): Promise<void> {
     const deviceId = this.selectedDeviceId();
     if (!deviceId) return;
 
-    localStorage.setItem(DEVICE_STORAGE_KEY, deviceId);
-    void this.store.load(deviceId);
+    await this.store.activateDevice(deviceId);
+    if (this.store.device()?.id === deviceId && !this.store.errorCode()) this.selectingDevice.set(false);
   }
 
   changeDevice(): void {
-    localStorage.removeItem(DEVICE_STORAGE_KEY);
+    if (this.store.pendingCommandCount() > 0) return;
     this.selectedDeviceId.set('');
-    this.store.reset();
+    this.selectingDevice.set(true);
   }
 
-  tableOrder(tableId: string): OperationalPosOrder | PosOrder | undefined {
+  tableOrder(tableId: string): PosOrderViewModel | undefined {
     return this.activeOrderByTable().get(tableId);
   }
 
@@ -248,7 +282,15 @@ export class PosTerminalComponent implements OnInit {
 
   chooseMenuItem(item: MenuItem): void {
     const order = this.store.selectedOrder();
-    if (!order || order.status === 'PAID' || order.status === 'CANCELLED' || this.store.operationPending()) return;
+    if (
+      !order ||
+      order.serverStatus === 'PAID' ||
+      order.serverStatus === 'CANCELLED' ||
+      order.localStatus === 'PENDING_SEND' ||
+      this.store.operationPending()
+    ) {
+      return;
+    }
 
     if (item.modifierGroups.length > 0) {
       this.modifierItem.set(item);
@@ -337,7 +379,7 @@ export class PosTerminalComponent implements OnInit {
 
   async finalizeOrder(): Promise<void> {
     await this.store.finalizeSelectedOrder();
-    const order = this.store.selectedOrder();
+    const order = this.store.selectedAuthoritativeOrder();
     if (!this.store.operationErrorCode() && order?.status === 'PAID') {
       this.paymentVisible.set(false);
       this.receiptOrder.set(order);
@@ -368,5 +410,51 @@ export class PosTerminalComponent implements OnInit {
 
     await this.store.voidSelectedOrderLine(lineId, reason);
     if (!this.store.operationErrorCode()) this.closeVoidLine();
+  }
+
+  orderStatus(order: PosOrderViewModel): string {
+    return order.serverStatus ?? order.localStatus ?? 'DRAFT';
+  }
+
+  lineStatus(line: PosOrderLineViewModel): string {
+    return line.serverStatus ?? 'OPEN';
+  }
+
+  orderTotal(order: PosOrderViewModel): string {
+    return order.authoritativeTotalGross ?? order.estimatedTotalGross ?? '0.00';
+  }
+
+  private bindConnectivity(): void {
+    const sync = (): void => {
+      this.online.set(typeof navigator === 'undefined' || navigator.onLine);
+      this.store.connectivityChanged(this.online());
+    };
+    const syncIfVisible = (): void => {
+      if (document.visibilityState === 'visible') sync();
+    };
+
+    window.addEventListener('online', sync);
+    window.addEventListener('offline', sync);
+    window.addEventListener('focus', sync);
+    document.addEventListener('visibilitychange', syncIfVisible);
+    this.destroyRef.onDestroy(() => {
+      window.removeEventListener('online', sync);
+      window.removeEventListener('offline', sync);
+      window.removeEventListener('focus', sync);
+      document.removeEventListener('visibilitychange', syncIfVisible);
+    });
+  }
+
+  private async migrateLegacyDevice(devices: readonly PosDevice[]): Promise<void> {
+    if (this.legacyMigrationAttempted || this.store.device()) return;
+    this.legacyMigrationAttempted = true;
+    const legacyDeviceId = localStorage.getItem(DEVICE_STORAGE_KEY);
+    if (!legacyDeviceId || !devices.some(({ id }) => id === legacyDeviceId)) return;
+
+    this.selectedDeviceId.set(legacyDeviceId);
+    await this.store.activateDevice(legacyDeviceId);
+    if (this.store.device()?.id === legacyDeviceId && !this.store.errorCode()) {
+      localStorage.removeItem(DEVICE_STORAGE_KEY);
+    }
   }
 }

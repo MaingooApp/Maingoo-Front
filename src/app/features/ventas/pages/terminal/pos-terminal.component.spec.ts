@@ -1,13 +1,79 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NgxPermissionsService } from 'ngx-permissions';
+import { of } from 'rxjs';
 
+import { AuthService } from '@features/auth/services/auth-service.service';
 import { MenuItem, MenuItemModifierGroup } from '../../models/pos.models';
 import { PosSessionStore } from '../../services/pos-session.store';
 import { PosService } from '../../services/pos.service';
 import { PosTerminalComponent } from './pos-terminal.component';
 
 describe('PosTerminalComponent', () => {
+  it('hydrates the tenant cache before requesting devices and protects a pending queue', async () => {
+    const calls: string[] = [];
+    const pendingCommandCount = signal(1);
+    const store = {
+      device: signal(null),
+      errorCode: signal<string | null>(null),
+      pendingCommandCount,
+      initialize: async () => {
+        calls.push('initialize');
+      },
+      connectivityChanged: () => undefined
+    };
+    const posService = {
+      listDevices: () => {
+        calls.push('listDevices');
+        return of([]);
+      }
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PosSessionStore, useValue: store },
+        { provide: PosService, useValue: posService },
+        { provide: AuthService, useValue: { getEnterpriseId: () => 'enterprise-1' } },
+        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } }
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new PosTerminalComponent());
+
+    await component.ngOnInit();
+    component.selectedDeviceId.set('device-1');
+    component.changeDevice();
+
+    expect(calls).toEqual(['initialize', 'listDevices']);
+    expect(component.selectedDeviceId()).toBe('device-1');
+    expect(component.selectingDevice()).toBeFalse();
+  });
+
+  it('invalidates a cached register that is no longer active', async () => {
+    const invalidateCachedDevice = jasmine.createSpy().and.resolveTo();
+    const store = {
+      device: signal({ id: 'revoked-device' }),
+      errorCode: signal<string | null>(null),
+      pendingCommandCount: signal(0),
+      initialize: async () => undefined,
+      connectivityChanged: () => undefined,
+      invalidateCachedDevice
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PosSessionStore, useValue: store },
+        { provide: PosService, useValue: { listDevices: () => of([]) } },
+        { provide: AuthService, useValue: { getEnterpriseId: () => 'enterprise-1' } },
+        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } }
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new PosTerminalComponent());
+
+    await component.ngOnInit();
+
+    expect(invalidateCachedDevice).toHaveBeenCalledTimes(1);
+    expect(component.selectedDeviceId()).toBe('');
+    expect(component.selectingDevice()).toBeTrue();
+  });
+
   it('enforces modifier and guest-count constraints', () => {
     TestBed.configureTestingModule({
       providers: [
@@ -24,6 +90,7 @@ describe('PosTerminalComponent', () => {
           }
         },
         { provide: PosService, useValue: {} },
+        { provide: AuthService, useValue: { getEnterpriseId: () => 'enterprise-1' } },
         { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } }
       ]
     });

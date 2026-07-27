@@ -26,6 +26,8 @@ export interface AddPaymentRequest {
   externalReference?: string;
 }
 
+export type PaymentBlockedReason = 'OFFLINE' | 'PENDING_SYNC';
+
 const MONEY_PATTERN = /^\d{1,10}(?:\.\d{1,2})?$/;
 const ZERO_PATTERN = /^0(?:\.0+)?$/;
 
@@ -45,6 +47,7 @@ export class PaymentDialogComponent implements OnChanges {
   @Input() canOpenCash = false;
   @Input() loading = false;
   @Input() errorCode: string | null = null;
+  @Input() blockedReason: PaymentBlockedReason | null = null;
 
   @Output() readonly visibleChange = new EventEmitter<boolean>();
   @Output() readonly openCash = new EventEmitter<OpenCashRequest>();
@@ -78,7 +81,7 @@ export class PaymentDialogComponent implements OnChanges {
   }
 
   get canFinalize(): boolean {
-    return !!this.order && this.fullyPaid && !this.busy;
+    return !!this.order && this.fullyPaid && !this.busy && !this.blockedReason;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -99,7 +102,7 @@ export class PaymentDialogComponent implements OnChanges {
   }
 
   submitOpenCash(form: NgForm): void {
-    if (this.busy || form.invalid || !MONEY_PATTERN.test(this.openingAmount)) {
+    if (this.blockedReason || this.busy || form.invalid || !MONEY_PATTERN.test(this.openingAmount)) {
       form.control.markAllAsTouched();
       return;
     }
@@ -110,7 +113,7 @@ export class PaymentDialogComponent implements OnChanges {
   }
 
   submitPayment(form: NgForm): void {
-    if (this.busy || form.invalid || !this.isPositiveMoney(this.amount)) {
+    if (this.blockedReason || this.busy || form.invalid || !this.isPositiveMoney(this.amount)) {
       form.control.markAllAsTouched();
       return;
     }
