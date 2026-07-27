@@ -14,8 +14,8 @@
 |---|---|
 | F0 — Contratos y navegación | Implementada (`5f54fdd`) |
 | F1 — Bootstrap y configuración mínima | Implementada (`0a17ce2`) |
-| F2 — Terminal online | Implementada |
-| F3 — Cocina y caja | Pendiente |
+| F2 — Terminal online | Implementada (`e883c89`) |
+| F3 — Cocina y caja | Implementada |
 | F4 — Inventario y margen | Pendiente |
 | F5 — Offline | Pendiente |
 | F6 — Endurecimiento | Pendiente |
@@ -572,9 +572,12 @@ No permitir cierre offline en MVP.
 
 `SalesHistoryComponent` usa `ListShell/TablaDinamica` existentes si encajan:
 
-- filtros por fecha, estado, número, mesa, medio de pago;
+- filtros servidor actuales por fecha, estado, canal, mesa y dispositivo;
+- número de pedido y medio de pago requieren ampliar primero `GET /api/pos/orders`;
 - paginación/cursor servidor;
-- detalle abre drawer/modal con líneas, pagos, documento fiscal, stock/coste y auditoría resumida;
+- detalle abre drawer/modal con líneas, pagos, documento fiscal, control/coste y auditoría resumida;
+- `getOrder` no devuelve todavía `stockSyncJob` ni una cronología de auditoría con nombres de actores;
+  esos dos detalles requieren ampliar backend, no se simulan en cliente;
 - reimprimir no reemite ni renumera;
 - reimprimir y consultar estado fiscal requieren además `fiscal.read`;
 - devolución exige `pos.refund`, conexión, motivo, importe permitido y confirmación;

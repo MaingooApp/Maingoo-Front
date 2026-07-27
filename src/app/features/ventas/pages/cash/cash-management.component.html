@@ -1,0 +1,369 @@
+<section class="flex h-full flex-col gap-5 overflow-y-auto p-4 md:p-6">
+  <header class="cash-no-print flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <h1 class="m-0 text-2xl font-bold mg-text">{{ 'pos.cash.title' | translate }}</h1>
+      <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.description' | translate }}</p>
+    </div>
+
+    @if (selectedDevice(); as device) {
+      <div class="rounded-xl border border-surface px-4 py-3 text-right">
+        <span class="block text-xs uppercase tracking-wide mg-text-muted">{{ 'pos.cash.device' | translate }}</span>
+        <strong class="mg-text">{{ device.name }}</strong>
+        <span class="ml-2 text-sm mg-text-muted">{{ device.code }}</span>
+      </div>
+    }
+  </header>
+
+  @if (!online()) {
+    <div
+      class="cash-no-print rounded-xl border border-orange-400 bg-orange-50 p-4 text-orange-900 dark:border-orange-800 dark:bg-orange-950/30 dark:text-orange-200"
+      role="status">
+      <i class="pi pi-wifi mr-2" aria-hidden="true"></i>{{ 'pos.cash.offline' | translate }}
+    </div>
+  }
+
+  @if (errorCode()) {
+    <div
+      class="cash-no-print flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-400 p-4"
+      role="alert">
+      <span class="mg-text"
+        >{{ errorText() }} <small>({{ errorCode() }})</small></span
+      >
+      @if (lastIntent()) {
+        <button
+          pButton
+          type="button"
+          icon="pi pi-refresh"
+          [disabled]="!online() || busy()"
+          [loading]="submitting()"
+          [label]="'pos.cash.retryAction' | translate"
+          (click)="retryLastAction()"></button>
+      }
+    </div>
+  }
+
+  @if (successKey()) {
+    <div
+      class="cash-no-print rounded-xl border border-green-500 p-4 text-green-700 dark:border-green-800 dark:text-green-300"
+      role="status">
+      <i class="pi pi-check-circle mr-2" aria-hidden="true"></i>{{ successKey()! | translate }}
+    </div>
+  }
+
+  @if (loadingDevices()) {
+    <app-skeleton class="cash-no-print" mode="list" [count]="2"></app-skeleton>
+  } @else if (deviceLoadFailed()) {
+    <div class="cash-no-print flex min-h-52 flex-col items-center justify-center gap-4 text-center">
+      <p class="m-0 mg-text-muted">{{ 'pos.cash.deviceLoadError' | translate }}</p>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-refresh"
+        [label]="'pos.cash.retry' | translate"
+        (click)="loadDevices()"></button>
+    </div>
+  } @else if (!selectedDeviceId()) {
+    <div class="cash-no-print mx-auto flex w-full max-w-xl flex-col gap-5 rounded-xl border border-surface p-5">
+      <div>
+        <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.selectDeviceTitle' | translate }}</h2>
+        <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.selectDeviceDescription' | translate }}</p>
+      </div>
+
+      @if (devices().length) {
+        <label class="flex flex-col gap-2">
+          <span class="font-medium mg-text">{{ 'pos.cash.device' | translate }}</span>
+          <select
+            class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+            [attr.aria-label]="'pos.cash.device' | translate"
+            [ngModel]="selectedDeviceId()"
+            (ngModelChange)="selectDevice($event)">
+            <option value="">{{ 'pos.cash.selectDevicePlaceholder' | translate }}</option>
+            @for (device of devices(); track device.id) {
+              <option [value]="device.id">{{ device.name }} · {{ device.code }}</option>
+            }
+          </select>
+        </label>
+      } @else {
+        <div class="flex flex-col items-center gap-4 rounded-xl border border-dashed border-surface p-6 text-center">
+          <p class="m-0 mg-text-muted">{{ 'pos.cash.noRegisterDevices' | translate }}</p>
+          <a pButton routerLink="/ventas/configuracion" [label]="'pos.cash.configureDevices' | translate"></a>
+        </div>
+      }
+    </div>
+  } @else if (loadingSession()) {
+    <app-skeleton class="cash-no-print" mode="list" [count]="4"></app-skeleton>
+  } @else if (!session()) {
+    <form
+      class="cash-no-print mx-auto flex w-full max-w-xl flex-col gap-5 rounded-xl border border-surface p-5"
+      (ngSubmit)="openSession()">
+      <div>
+        <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.open.title' | translate }}</h2>
+        <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.open.description' | translate }}</p>
+      </div>
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.cash.open.openingAmount' | translate }}</span>
+        <input
+          pInputText
+          required
+          inputmode="decimal"
+          pattern="\d{1,10}(\.\d{1,2})?"
+          name="openingAmount"
+          autocomplete="off"
+          [(ngModel)]="openingAmount" />
+        @if (openingAmount && !openingAmountValid()) {
+          <small class="text-red-600 dark:text-red-400">{{
+            'pos.cash.validation.nonNegativeAmount' | translate
+          }}</small>
+        }
+      </label>
+
+      <button
+        pButton
+        type="submit"
+        class="min-h-11"
+        icon="pi pi-lock-open"
+        [disabled]="!online() || !openingAmountValid() || busy()"
+        [loading]="busy()"
+        [label]="'pos.cash.open.submit' | translate"></button>
+    </form>
+  } @else {
+    @if (session(); as cashSession) {
+      @if (cashSession.status === 'CLOSED') {
+        <article
+          class="cash-print-area mx-auto flex w-full max-w-3xl flex-col gap-5 rounded-xl border border-surface p-5">
+          <header class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.closed.title' | translate }}</h2>
+              <p class="mb-0 mt-1 text-sm mg-text-muted">{{ cashSession.closedAt | date: 'short' }}</p>
+            </div>
+            <span class="rounded-full border border-surface px-3 py-1 text-sm font-semibold mg-text">
+              {{ 'pos.cash.status.CLOSED' | translate }}
+            </span>
+          </header>
+
+          <dl class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <dt class="text-sm mg-text-muted">{{ 'pos.cash.openingAmount' | translate }}</dt>
+              <dd class="m-0 text-lg font-semibold mg-text">{{ cashSession.openingAmount }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm mg-text-muted">{{ 'pos.cash.expectedCash' | translate }}</dt>
+              <dd class="m-0 text-lg font-semibold mg-text">{{ cashSession.expectedCash }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm mg-text-muted">{{ 'pos.cash.countedCash' | translate }}</dt>
+              <dd class="m-0 text-lg font-semibold mg-text">{{ cashSession.countedCash }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm mg-text-muted">{{ 'pos.cash.difference' | translate }}</dt>
+              <dd class="m-0 text-lg font-semibold mg-text">{{ cashSession.difference }}</dd>
+            </div>
+          </dl>
+
+          <div>
+            <h3 class="mb-3 mt-0 text-lg font-semibold mg-text">{{ 'pos.cash.movements.title' | translate }}</h3>
+            <div class="divide-y divide-surface rounded-xl border border-surface">
+              @for (movement of cashSession.cashMovements; track movement.id) {
+                <div class="flex items-center justify-between gap-4 p-3">
+                  <div>
+                    <strong class="mg-text">{{ 'pos.cash.movementTypes.' + movement.type | translate }}</strong>
+                    @if (movement.reason) {
+                      <p class="mb-0 mt-1 text-sm mg-text-muted">{{ movement.reason }}</p>
+                    }
+                  </div>
+                  <div class="text-right">
+                    <strong class="mg-text">{{ movement.amount }}</strong
+                    ><small class="block mg-text-muted">{{ movement.createdAt | date: 'shortTime' }}</small>
+                  </div>
+                </div>
+              } @empty {
+                <p class="m-0 p-4 text-center mg-text-muted">{{ 'pos.cash.movements.empty' | translate }}</p>
+              }
+            </div>
+          </div>
+
+          <button
+            pButton
+            type="button"
+            class="cash-no-print self-start"
+            icon="pi pi-print"
+            [label]="'pos.cash.print' | translate"
+            (click)="printSummary()"></button>
+        </article>
+      } @else if (closing()) {
+        <form
+          class="cash-no-print mx-auto flex w-full max-w-xl flex-col gap-5 rounded-xl border border-surface p-5"
+          (ngSubmit)="closeSession()">
+          <div>
+            <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.close.title' | translate }}</h2>
+            <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.close.description' | translate }}</p>
+          </div>
+
+          <label class="flex flex-col gap-2">
+            <span class="font-medium mg-text">{{ 'pos.cash.countedCash' | translate }}</span>
+            <input
+              pInputText
+              required
+              inputmode="decimal"
+              pattern="\d{1,10}(\.\d{1,2})?"
+              name="countedCash"
+              autocomplete="off"
+              [(ngModel)]="countedCash" />
+          </label>
+
+          @if (countedCashValid()) {
+            <div class="rounded-xl border border-surface p-4" aria-live="polite">
+              <span class="block text-sm mg-text-muted">{{ 'pos.cash.expectedCash' | translate }}</span>
+              <strong class="text-xl mg-text">{{ cashSession.expectedCash }}</strong>
+            </div>
+          }
+
+          @if (!online()) {
+            <p class="m-0 text-sm text-orange-700 dark:text-orange-300">
+              {{ 'pos.cash.close.onlineRequired' | translate }}
+            </p>
+          }
+
+          <div class="flex flex-wrap gap-3">
+            <button
+              pButton
+              type="button"
+              [outlined]="true"
+              [disabled]="busy()"
+              [label]="'pos.cash.close.back' | translate"
+              (click)="cancelClosing()"></button>
+            <button
+              pButton
+              type="submit"
+              severity="danger"
+              icon="pi pi-lock"
+              [disabled]="!online() || !countedCashValid() || busy()"
+              [loading]="busy()"
+              [label]="'pos.cash.close.submit' | translate"></button>
+          </div>
+        </form>
+      } @else {
+        <div class="cash-no-print grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.65fr)]">
+          <div class="flex flex-col gap-5">
+            <article class="rounded-xl border border-surface p-5">
+              <header class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.openSession.title' | translate }}</h2>
+                  <p class="mb-0 mt-1 text-sm mg-text-muted">{{ cashSession.openedAt | date: 'short' }}</p>
+                </div>
+                <span
+                  class="rounded-full border border-green-500 px-3 py-1 text-sm font-semibold text-green-700 dark:border-green-700 dark:text-green-300"
+                  >{{ 'pos.cash.status.OPEN' | translate }}</span
+                >
+              </header>
+
+              <dl class="mt-5 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <dt class="text-sm mg-text-muted">{{ 'pos.cash.openingAmount' | translate }}</dt>
+                  <dd class="m-0 text-xl font-semibold mg-text">{{ cashSession.openingAmount }}</dd>
+                </div>
+                <div>
+                  <dt class="text-sm mg-text-muted">{{ 'pos.cash.expectedCash' | translate }}</dt>
+                  <dd class="m-0 text-xl font-semibold mg-text">{{ cashSession.expectedCash }}</dd>
+                </div>
+              </dl>
+
+              <button
+                pButton
+                type="button"
+                class="mt-5 min-h-11"
+                severity="danger"
+                [outlined]="true"
+                icon="pi pi-lock"
+                [disabled]="busy() || !online()"
+                [label]="'pos.cash.close.start' | translate"
+                (click)="startClosing()"></button>
+            </article>
+
+            <article class="rounded-xl border border-surface p-5">
+              <h2 class="mb-4 mt-0 text-xl font-semibold mg-text">{{ 'pos.cash.movements.title' | translate }}</h2>
+              <div class="divide-y divide-surface rounded-xl border border-surface">
+                @for (movement of cashSession.cashMovements; track movement.id) {
+                  <div class="flex items-center justify-between gap-4 p-3">
+                    <div>
+                      <strong class="mg-text">{{ 'pos.cash.movementTypes.' + movement.type | translate }}</strong>
+                      @if (movement.reason) {
+                        <p class="mb-0 mt-1 text-sm mg-text-muted">{{ movement.reason }}</p>
+                      }
+                    </div>
+                    <div class="text-right">
+                      <strong class="mg-text">{{ movement.amount }}</strong
+                      ><small class="block mg-text-muted">{{ movement.createdAt | date: 'shortTime' }}</small>
+                    </div>
+                  </div>
+                } @empty {
+                  <p class="m-0 p-4 text-center mg-text-muted">{{ 'pos.cash.movements.empty' | translate }}</p>
+                }
+              </div>
+            </article>
+          </div>
+
+          <form class="flex h-fit flex-col gap-4 rounded-xl border border-surface p-5" (ngSubmit)="createMovement()">
+            <div>
+              <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.movementForm.title' | translate }}</h2>
+              <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.movementForm.description' | translate }}</p>
+            </div>
+
+            <label class="flex flex-col gap-2">
+              <span class="font-medium mg-text">{{ 'pos.cash.movementForm.type' | translate }}</span>
+              <select
+                class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+                name="movementType"
+                [(ngModel)]="movementType">
+                @for (type of movementTypes; track type) {
+                  <option [ngValue]="type">{{ 'pos.cash.movementTypes.' + type | translate }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="flex flex-col gap-2">
+              <span class="font-medium mg-text">{{ 'pos.cash.movementForm.amount' | translate }}</span>
+              <input
+                pInputText
+                required
+                inputmode="decimal"
+                name="movementAmount"
+                autocomplete="off"
+                [(ngModel)]="movementAmount" />
+              @if (movementAmount && !movementAmountValid()) {
+                <small class="text-red-600 dark:text-red-400">{{
+                  'pos.cash.validation.nonZeroAmount' | translate
+                }}</small>
+              }
+            </label>
+
+            <label class="flex flex-col gap-2">
+              <span class="font-medium mg-text">{{ 'pos.cash.movementForm.reason' | translate }}</span>
+              <textarea
+                required
+                minlength="3"
+                maxlength="300"
+                rows="4"
+                name="movementReason"
+                class="rounded-md border border-surface bg-transparent p-3 mg-text"
+                [(ngModel)]="movementReason"></textarea>
+              <small class="mg-text-muted">{{
+                'pos.cash.movementForm.reasonHelp' | translate: { count: movementReason.trim().length }
+              }}</small>
+            </label>
+
+            <button
+              pButton
+              type="submit"
+              class="min-h-11"
+              icon="pi pi-plus"
+              [disabled]="!online() || !movementAmountValid() || !movementReasonValid() || busy()"
+              [loading]="busy()"
+              [label]="'pos.cash.movementForm.submit' | translate"></button>
+          </form>
+        </div>
+      }
+    }
+  }
+</section>

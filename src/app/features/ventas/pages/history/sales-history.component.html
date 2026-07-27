@@ -1,0 +1,514 @@
+<section class="mx-auto flex w-full max-w-[1600px] flex-col gap-5 p-4 md:p-6">
+  <header class="space-y-1">
+    <h1 class="m-0 text-3xl font-bold mg-text">{{ 'pos.history.title' | translate }}</h1>
+    <p class="m-0 mg-text-muted">{{ 'pos.history.description' | translate }}</p>
+  </header>
+
+  @if (!online()) {
+    <div
+      class="rounded-xl border border-amber-300 bg-amber-50 p-4 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+      role="status">
+      <span class="pi pi-wifi" aria-hidden="true"></span>
+      <span class="ml-2">{{ 'pos.history.offline' | translate }}</span>
+    </div>
+  }
+
+  @if (refundSuccess()) {
+    <div
+      class="rounded-xl border border-green-300 bg-green-50 p-4 text-green-900 dark:border-green-800 dark:bg-green-950/30 dark:text-green-200"
+      role="status">
+      {{ 'pos.history.refund.success' | translate }}
+    </div>
+  }
+
+  <form
+    class="grid gap-4 rounded-content border border-surface p-4 mg-surface md:grid-cols-2 xl:grid-cols-4"
+    (ngSubmit)="applyFilters()">
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.from' | translate }}</span>
+      <input
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        type="date"
+        name="from"
+        [(ngModel)]="from" />
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.to' | translate }}</span>
+      <input
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        type="date"
+        name="to"
+        [(ngModel)]="to" />
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.status' | translate }}</span>
+      <select class="min-h-11 rounded-lg border border-surface bg-transparent px-3" name="status" [(ngModel)]="status">
+        <option value="">{{ 'pos.history.filters.allStatuses' | translate }}</option>
+        @for (item of statuses; track item) {
+          <option [value]="item">{{ 'pos.order.statuses.' + item | translate }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.channel' | translate }}</span>
+      <select
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        name="channel"
+        [(ngModel)]="channel">
+        <option value="">{{ 'pos.history.filters.allChannels' | translate }}</option>
+        @for (item of channels; track item) {
+          <option [value]="item">{{ 'pos.order.channels.' + item | translate }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.table' | translate }}</span>
+      <select
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        name="table"
+        [(ngModel)]="tableId"
+        [disabled]="optionsLoading()">
+        <option value="">{{ 'pos.history.filters.allTables' | translate }}</option>
+        @for (table of tables(); track table.id) {
+          <option [value]="table.id">{{ table.name }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.device' | translate }}</span>
+      <select
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        name="device"
+        [(ngModel)]="deviceId"
+        [disabled]="optionsLoading()">
+        <option value="">{{ 'pos.history.filters.allDevices' | translate }}</option>
+        @for (device of devices(); track device.id) {
+          <option [value]="device.id">{{ device.name }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex flex-col gap-2 font-medium mg-text">
+      <span>{{ 'pos.history.filters.pageSize' | translate }}</span>
+      <select class="min-h-11 rounded-lg border border-surface bg-transparent px-3" name="limit" [(ngModel)]="limit">
+        <option [ngValue]="10">10</option>
+        <option [ngValue]="20">20</option>
+        <option [ngValue]="50">50</option>
+        <option [ngValue]="100">100</option>
+      </select>
+    </label>
+    <div class="flex items-end gap-2">
+      <button
+        pButton
+        type="submit"
+        class="min-h-11"
+        [loading]="loading()"
+        [label]="'pos.history.filters.apply' | translate"></button>
+      <button
+        pButton
+        type="button"
+        class="min-h-11 p-button-outlined"
+        [label]="'pos.history.filters.clear' | translate"
+        (click)="clearFilters()"></button>
+    </div>
+  </form>
+
+  @if (optionsErrorCode()) {
+    <div
+      class="flex flex-wrap items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+      role="alert">
+      <span>{{ 'pos.history.filters.optionsError' | translate }}</span>
+      @if (optionsErrorMessage()) {
+        <span>{{ optionsErrorMessage() }}</span>
+      }
+      <code>{{ optionsErrorCode() }}</code>
+      <button
+        pButton
+        type="button"
+        size="small"
+        class="p-button-outlined"
+        [label]="'pos.actions.retry' | translate"
+        (click)="loadFilterOptions()"></button>
+    </div>
+  }
+
+  @if (loading() && orders().length === 0) {
+    <app-skeleton mode="list" [count]="8"></app-skeleton>
+  } @else if (loadErrorCode()) {
+    <section
+      class="rounded-content border border-red-300 bg-red-50 p-5 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200"
+      role="alert">
+      <p class="mt-0">{{ 'pos.errors.' + loadErrorCode() | translate }}</p>
+      @if (loadErrorMessage()) {
+        <p>{{ loadErrorMessage() }}</p>
+      }
+      <code>{{ loadErrorCode() }}</code>
+      <button
+        pButton
+        type="button"
+        class="mt-3 p-button-outlined p-button-danger"
+        [label]="'pos.actions.retry' | translate"
+        (click)="loadOrders()"></button>
+    </section>
+  } @else {
+    <div class="overflow-hidden rounded-content border border-surface mg-surface">
+      <p-table [value]="orders()" [loading]="loading()" [rowHover]="true" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'pos.history.columns.date' | translate }}</th>
+            <th>{{ 'pos.history.columns.order' | translate }}</th>
+            <th>{{ 'pos.history.columns.channel' | translate }}</th>
+            <th>{{ 'pos.history.columns.table' | translate }}</th>
+            <th>{{ 'pos.history.columns.device' | translate }}</th>
+            <th>{{ 'pos.history.columns.status' | translate }}</th>
+            <th class="text-right">{{ 'pos.history.columns.total' | translate }}</th>
+            <th>
+              <span class="sr-only">{{ 'pos.history.columns.actions' | translate }}</span>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+          <tr>
+            <td class="whitespace-nowrap">{{ order.closedAt || order.openedAt | date: 'short' }}</td>
+            <td class="font-semibold">#{{ order.orderNumber }}</td>
+            <td>{{ 'pos.order.channels.' + order.channel | translate }}</td>
+            <td>{{ tableName(order.tableId) }}</td>
+            <td>{{ deviceName(order.deviceId) }}</td>
+            <td>{{ 'pos.order.statuses.' + order.status | translate }}</td>
+            <td class="text-right font-semibold">{{ order.totalGross | currency: currency() : 'symbol' : '1.2-2' }}</td>
+            <td class="text-right">
+              <button
+                pButton
+                type="button"
+                size="small"
+                class="min-h-11 p-button-outlined"
+                [label]="'pos.history.actions.details' | translate"
+                (click)="openDetails(order, $event)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="py-12 text-center">
+              <p class="mg-text-muted">{{ 'pos.history.empty' | translate }}</p>
+              <button
+                pButton
+                type="button"
+                class="p-button-outlined"
+                [label]="'pos.history.filters.clear' | translate"
+                (click)="clearFilters()"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <nav class="flex items-center justify-center gap-3" [attr.aria-label]="'pos.history.pagination.label' | translate">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-chevron-left"
+        class="min-h-11 min-w-11 p-button-outlined"
+        [disabled]="page() <= 1 || loading()"
+        [attr.aria-label]="'pos.history.pagination.previous' | translate"
+        (click)="previousPage()"></button>
+      <span class="font-medium mg-text">{{ 'pos.history.pagination.page' | translate: { page: page() } }}</span>
+      <button
+        pButton
+        type="button"
+        icon="pi pi-chevron-right"
+        class="min-h-11 min-w-11 p-button-outlined"
+        [disabled]="!nextPageNumber() || loading()"
+        [attr.aria-label]="'pos.history.pagination.next' | translate"
+        (click)="nextPage()"></button>
+    </nav>
+  }
+</section>
+
+<p-dialog
+  [visible]="detailVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(70rem, 96vw)' }"
+  [header]="'pos.history.detail.title' | translate"
+  (onHide)="closeDetails()">
+  @if (detailLoading()) {
+    <app-skeleton mode="list" [count]="5"></app-skeleton>
+  } @else if (detailErrorCode()) {
+    <div class="space-y-3 text-red-700 dark:text-red-300" role="alert">
+      <p>{{ 'pos.errors.' + detailErrorCode() | translate }}</p>
+      @if (detailErrorMessage()) {
+        <p>{{ detailErrorMessage() }}</p>
+      }
+      <code>{{ detailErrorCode() }}</code>
+      @if (detailOrderId(); as orderId) {
+        <button
+          pButton
+          type="button"
+          class="p-button-outlined"
+          [label]="'pos.actions.retry' | translate"
+          (click)="retryDetails(orderId)"></button>
+      }
+    </div>
+  } @else {
+    @if (selectedOrder(); as order) {
+      <div class="flex flex-col gap-5">
+        <header class="flex flex-wrap items-center justify-between gap-3 border-b border-surface pb-4">
+          <div>
+            <h2 class="m-0 text-2xl font-bold mg-text">#{{ order.orderNumber }}</h2>
+            <p class="m-0 mg-text-muted">{{ 'pos.order.statuses.' + order.status | translate }}</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @if (canRefund) {
+              <button
+                pButton
+                type="button"
+                severity="danger"
+                class="min-h-11"
+                [outlined]="true"
+                [disabled]="!canOpenRefund()"
+                [title]="
+                  !online()
+                    ? ('pos.history.refund.offlineHint' | translate)
+                    : !hasActiveDevice()
+                      ? ('pos.history.refund.deviceHint' | translate)
+                      : ''
+                "
+                [label]="'pos.history.refund.open' | translate"
+                (click)="openRefund($event)"></button>
+            }
+          </div>
+        </header>
+
+        <section>
+          <h3 class="mg-text">{{ 'pos.history.detail.lines' | translate }}</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-sm">
+              <thead>
+                <tr class="border-b border-surface text-left">
+                  <th class="p-2">{{ 'pos.history.detail.item' | translate }}</th>
+                  <th class="p-2">{{ 'pos.history.detail.quantity' | translate }}</th>
+                  <th class="p-2">{{ 'pos.history.detail.stock' | translate }}</th>
+                  <th class="p-2">{{ 'pos.history.detail.cost' | translate }}</th>
+                  <th class="p-2 text-right">{{ 'pos.history.detail.total' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (line of order.lines; track line.id) {
+                  <tr class="border-b border-surface">
+                    <td class="p-2">
+                      <strong>{{ line.itemName }}</strong>
+                      @if (line.note) {
+                        <p class="m-0 mg-text-muted">{{ line.note }}</p>
+                      }
+                    </td>
+                    <td class="p-2">{{ line.quantity }}</td>
+                    <td class="p-2">
+                      {{
+                        (line.trackStock ? 'pos.history.detail.stockTracked' : 'pos.history.detail.stockNotTracked')
+                          | translate
+                      }}
+                    </td>
+                    <td class="p-2">
+                      {{ 'pos.history.costStatuses.' + line.costStatus | translate }}
+                      @if (line.estimatedCostNet !== null) {
+                        · {{ line.estimatedCostNet | currency: currency() }}
+                      }
+                    </td>
+                    <td class="p-2 text-right">{{ line.lineTotalGross | currency: currency() }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <p class="mg-text-muted">
+            {{ 'pos.history.detail.orderCost' | translate }}:
+            {{ 'pos.history.costStatuses.' + order.costStatus | translate }}
+            @if (order.costNet !== null) {
+              · {{ order.costNet | currency: currency() }}
+            }
+          </p>
+        </section>
+
+        <section>
+          <h3 class="mg-text">{{ 'pos.history.detail.payments' | translate }}</h3>
+          @if (order.payments.length) {
+            <ul class="m-0 grid list-none gap-2 p-0 md:grid-cols-2">
+              @for (payment of order.payments; track payment.id) {
+                <li class="rounded-xl border border-surface p-3">
+                  <strong class="mg-text"
+                    >{{ 'pos.payment.methods.' + payment.method | translate }} ·
+                    {{ payment.amount | currency: currency() }}</strong
+                  >
+                  <p class="m-0 text-sm mg-text-muted">
+                    {{ 'pos.history.paymentStatuses.' + payment.status | translate }} ·
+                    {{ payment.createdAt | date: 'short' }}
+                  </p>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="mg-text-muted">{{ 'pos.history.detail.noPayments' | translate }}</p>
+          }
+        </section>
+
+        @if (order.refunds.length) {
+          <section>
+            <h3 class="mg-text">{{ 'pos.history.detail.refunds' | translate }}</h3>
+            <ul class="m-0 grid list-none gap-2 p-0 md:grid-cols-2">
+              @for (refund of order.refunds; track refund.id) {
+                <li class="rounded-xl border border-surface p-3">
+                  <strong class="mg-text"
+                    >{{ refund.amount | currency: currency() }} ·
+                    {{ 'pos.history.refund.statuses.' + refund.status | translate }}</strong
+                  >
+                  <p class="m-0 text-sm mg-text-muted">{{ refund.reason }} · {{ refund.createdAt | date: 'short' }}</p>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+
+        @if (canReadFiscal) {
+          <section>
+            <h3 class="mg-text">{{ 'pos.history.detail.fiscal' | translate }}</h3>
+            @if (order.fiscalDocuments.length) {
+              <ul class="m-0 flex list-none flex-col gap-2 p-0">
+                @for (document of order.fiscalDocuments; track document.id) {
+                  <li class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-surface p-3">
+                    <span class="mg-text"
+                      >{{ 'pos.payment.receipt.documentTypes.' + document.type | translate }} · {{ document.series }}/{{
+                        document.number
+                      }}
+                      · {{ document.issuedAt | date: 'short' }}</span
+                    ><button
+                      pButton
+                      type="button"
+                      class="min-h-11 p-button-outlined"
+                      [label]="'pos.history.actions.reprint' | translate"
+                      (click)="openReceipt(document, $event)"></button>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="mg-text-muted">{{ 'pos.history.detail.noFiscalDocuments' | translate }}</p>
+            }
+          </section>
+        }
+
+        <section>
+          <h3 class="mg-text">{{ 'pos.history.detail.audit' | translate }}</h3>
+          <dl class="grid gap-x-4 gap-y-2 text-sm md:grid-cols-[auto_1fr_auto_1fr]">
+            <dt class="mg-text-muted">{{ 'pos.history.detail.openedAt' | translate }}</dt>
+            <dd class="m-0 mg-text">{{ order.openedAt | date: 'short' }}</dd>
+            <dt class="mg-text-muted">{{ 'pos.history.detail.openedBy' | translate }}</dt>
+            <dd class="m-0 break-all mg-text">{{ order.openedByUserId }}</dd>
+            <dt class="mg-text-muted">{{ 'pos.history.detail.closedAt' | translate }}</dt>
+            <dd class="m-0 mg-text">{{ order.closedAt ? (order.closedAt | date: 'short') : '—' }}</dd>
+            <dt class="mg-text-muted">{{ 'pos.history.detail.closedBy' | translate }}</dt>
+            <dd class="m-0 break-all mg-text">{{ order.closedByUserId || '—' }}</dd>
+            <dt class="mg-text-muted">{{ 'pos.history.detail.version' | translate }}</dt>
+            <dd class="m-0 mg-text">{{ order.version }}</dd>
+          </dl>
+        </section>
+      </div>
+    }
+  }
+</p-dialog>
+
+<p-dialog
+  [visible]="receiptVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(36rem, 96vw)' }"
+  [header]="'pos.history.receipt.title' | translate"
+  (onHide)="closeReceipt()">
+  @if (selectedOrder(); as order) {
+    <app-receipt-view
+      [order]="order"
+      [fiscalDocument]="receiptDocument()"
+      [canReadFiscal]="canReadFiscal"
+      [currency]="currency()"></app-receipt-view>
+  }
+</p-dialog>
+
+<p-dialog
+  [visible]="refundVisible()"
+  [modal]="true"
+  [closable]="!refundSubmitting()"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: 'min(34rem, 96vw)' }"
+  [header]="'pos.history.refund.title' | translate"
+  (onHide)="closeRefund()">
+  <div class="flex flex-col gap-4" [attr.aria-busy]="refundSubmitting()">
+    <div
+      class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+      role="note">
+      {{ 'pos.history.refund.rectifyingNotice' | translate }}
+    </div>
+    <label class="flex flex-col gap-2 font-medium mg-text"
+      ><span>{{ 'pos.history.refund.payment' | translate }}</span
+      ><select
+        class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+        [(ngModel)]="refundPaymentId"
+        [disabled]="refundSubmitting()">
+        @for (payment of recordedPayments(); track payment.id) {
+          <option [value]="payment.id">
+            {{ 'pos.payment.methods.' + payment.method | translate }} · {{ payment.amount | currency: currency() }}
+          </option>
+        }
+      </select></label
+    >
+    <p class="m-0 text-sm mg-text-muted">{{ 'pos.history.refund.maximum' | translate: { amount: refundLimit() } }}</p>
+    <label class="flex flex-col gap-2 font-medium mg-text"
+      ><span>{{ 'pos.history.refund.amount' | translate }}</span
+      ><input
+        pInputText
+        class="min-h-11"
+        inputmode="decimal"
+        maxlength="13"
+        [(ngModel)]="refundAmount"
+        [disabled]="refundSubmitting()"
+        [attr.aria-invalid]="refundAmount && (!refundFormValid() ? true : null)"
+    /></label>
+    <label class="flex flex-col gap-2 font-medium mg-text"
+      ><span>{{ 'pos.history.refund.reason' | translate }}</span
+      ><textarea
+        class="min-h-24 rounded-lg border border-surface bg-transparent p-3"
+        minlength="3"
+        maxlength="300"
+        [(ngModel)]="refundReason"
+        [disabled]="refundSubmitting()"></textarea
+      ><small class="mg-text-muted">{{ 'pos.history.refund.reasonHint' | translate }}</small></label
+    >
+    @if (refundErrorCode()) {
+      <div class="text-red-700 dark:text-red-300" role="alert">
+        <p>{{ 'pos.errors.' + refundErrorCode() | translate }}</p>
+        @if (refundErrorMessage()) {
+          <p>{{ refundErrorMessage() }}</p>
+        }
+        <code>{{ refundErrorCode() }}</code>
+      </div>
+    }
+    <div class="flex justify-end gap-2">
+      <button
+        pButton
+        type="button"
+        class="min-h-11 p-button-text"
+        [disabled]="refundSubmitting()"
+        [label]="'pos.actions.cancel' | translate"
+        (click)="closeRefund()"></button
+      ><button
+        pButton
+        type="button"
+        severity="danger"
+        class="min-h-11"
+        [loading]="refundSubmitting() || refundConfirming()"
+        [disabled]="!refundFormValid() || refundSubmitting() || refundConfirming()"
+        [label]="'pos.history.refund.submit' | translate"
+        (click)="confirmRefund()"></button>
+    </div>
+  </div>
+</p-dialog>

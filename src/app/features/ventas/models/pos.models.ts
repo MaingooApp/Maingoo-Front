@@ -204,6 +204,12 @@ export interface KitchenTicketItem {
   updatedAt: IsoDateString;
 }
 
+export interface KitchenTicketItemModifier {
+  id: string;
+  name: string;
+  quantity: DecimalString;
+}
+
 export interface KitchenTicket {
   id: string;
   enterpriseId: string;
@@ -222,18 +228,24 @@ export interface KitchenTicket {
 }
 
 export interface KitchenTicketListItem extends KitchenTicket {
+  items: Array<KitchenTicketItem & { modifiers: KitchenTicketItemModifier[] }>;
   order: {
     id: string;
     orderNumber: number;
     tableId: string | null;
     channel: PosOrderChannel;
+    table: { id: string; name: string } | null;
   };
 }
 
 export interface KitchenTicketUpdateResponse extends KitchenTicket {
+  items: Array<KitchenTicketItem & { modifiers: KitchenTicketItemModifier[] }>;
   order: {
     id: string;
     orderNumber: number;
+    tableId: string | null;
+    channel: PosOrderChannel;
+    table: { id: string; name: string } | null;
   };
 }
 

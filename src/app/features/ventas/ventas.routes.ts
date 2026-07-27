@@ -25,30 +25,24 @@ const ventasRoutes: Routes = [
       },
       {
         path: 'cocina',
-        loadComponent: loadPlaceholder,
+        loadComponent: () =>
+          import('./pages/kitchen/kitchen-display.component').then((component) => component.KitchenDisplayComponent),
         canActivate: [ngxPermissionsGuard],
-        data: {
-          permissions: { only: [AppPermission.PosKitchen] },
-          titleKey: 'pos.navigation.kitchen'
-        }
+        data: { permissions: { only: [AppPermission.PosKitchen] } }
       },
       {
         path: 'caja',
-        loadComponent: loadPlaceholder,
+        loadComponent: () =>
+          import('./pages/cash/cash-management.component').then((component) => component.CashManagementComponent),
         canActivate: [ngxPermissionsGuard],
-        data: {
-          permissions: { only: [AppPermission.PosCash] },
-          titleKey: 'pos.navigation.cash'
-        }
+        data: { permissions: { only: [AppPermission.PosCash] } }
       },
       {
         path: 'historial',
-        loadComponent: loadPlaceholder,
+        loadComponent: () =>
+          import('./pages/history/sales-history.component').then((component) => component.SalesHistoryComponent),
         canActivate: [ngxPermissionsGuard],
-        data: {
-          permissions: { only: [AppPermission.PosRead] },
-          titleKey: 'pos.navigation.history'
-        }
+        data: { permissions: { only: [AppPermission.PosRead] } }
       },
       {
         path: 'configuracion',

@@ -1,0 +1,215 @@
+<section class="mx-auto flex w-full max-w-[1920px] flex-col gap-4 p-3 md:p-5">
+  <header class="flex flex-wrap items-start justify-between gap-4">
+    <div class="space-y-1">
+      <h1 class="m-0 text-3xl font-bold mg-text">{{ 'pos.kitchen.title' | translate }}</h1>
+      <p class="m-0 mg-text-muted">{{ 'pos.kitchen.description' | translate }}</p>
+    </div>
+
+    @if (selectedDeviceId()) {
+      <div class="flex flex-wrap items-center gap-3">
+        <span
+          class="rounded-full border px-3 py-1 text-sm font-medium dark:border-surface-500 dark:text-surface-100"
+          [class.border-green-300]="online()"
+          [class.text-green-700]="online()"
+          [class.border-red-300]="!online()"
+          [class.text-red-700]="!online()"
+          role="status">
+          {{ (online() ? 'pos.kitchen.online' : 'pos.kitchen.offline') | translate }}
+        </span>
+        <button pButton type="button" class="p-button-outlined p-button-secondary" (click)="changeDevice()">
+          {{ 'pos.kitchen.changeDevice' | translate }}
+        </button>
+      </div>
+    }
+  </header>
+
+  @if (!online()) {
+    <div
+      class="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+      role="status">
+      {{ 'pos.kitchen.offlineDescription' | translate }}
+    </div>
+  }
+
+  @if (!selectedDeviceId()) {
+    <section
+      class="rounded-2xl border border-surface-200 bg-surface-0 p-5 dark:border-surface-700 dark:bg-surface-800"
+      [attr.aria-busy]="loadingDevices()">
+      <h2 class="mt-0 text-xl mg-text">{{ 'pos.kitchen.selectDevice' | translate }}</h2>
+      @if (loadingDevices()) {
+        <app-skeleton mode="list" [count]="3"></app-skeleton>
+      } @else if (deviceErrorCode()) {
+        <div class="space-y-3" role="alert">
+          <p class="m-0 text-red-600 dark:text-red-400">
+            {{ 'pos.errors.' + deviceErrorCode() | translate }} <code>{{ deviceErrorCode() }}</code>
+          </p>
+          <button pButton type="button" class="p-button-outlined" (click)="loadDevices()">
+            {{ 'pos.actions.retry' | translate }}
+          </button>
+        </div>
+      } @else if (devices().length === 0) {
+        <p class="m-0 mg-text-muted">{{ 'pos.kitchen.noDevices' | translate }}</p>
+      } @else {
+        <div class="flex max-w-xl flex-col gap-3">
+          <label for="kds-device" class="font-medium mg-text">{{ 'pos.kitchen.device' | translate }}</label>
+          <select
+            id="kds-device"
+            name="kds-device"
+            class="min-h-12 rounded-lg border border-surface-300 bg-surface-0 px-3 mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:border-surface-600 dark:bg-surface-900"
+            [ngModel]="selectedDeviceId()"
+            (ngModelChange)="selectedDeviceId.set($event)">
+            <option value="">{{ 'pos.kitchen.chooseDevice' | translate }}</option>
+            @for (device of devices(); track device.id) {
+              <option [value]="device.id">{{ device.name }} · {{ device.code }}</option>
+            }
+          </select>
+          <button pButton type="button" [disabled]="!selectedDeviceId()" (click)="activateDevice()">
+            {{ 'pos.kitchen.continue' | translate }}
+          </button>
+        </div>
+      }
+    </section>
+  } @else if (loading()) {
+    <app-skeleton mode="grid" [count]="6"></app-skeleton>
+  } @else {
+    @if (errorCode()) {
+      <div
+        class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+        role="alert">
+        <span
+          >{{ 'pos.errors.' + errorCode() | translate }} <code>{{ errorCode() }}</code></span
+        >
+        <button
+          pButton
+          type="button"
+          class="p-button-outlined p-button-danger"
+          [disabled]="!online()"
+          (click)="retry()">
+          {{ 'pos.actions.retry' | translate }}
+        </button>
+      </div>
+    }
+
+    <div class="flex flex-wrap items-center gap-3">
+      <label for="kds-station" class="font-medium mg-text">{{ 'pos.kitchen.station' | translate }}</label>
+      <select
+        id="kds-station"
+        name="kds-station"
+        class="min-h-12 min-w-52 rounded-lg border border-surface-300 bg-surface-0 px-3 mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:border-surface-600 dark:bg-surface-900"
+        [ngModel]="selectedStationId()"
+        (ngModelChange)="selectedStationId.set($event)">
+        <option value="">{{ 'pos.kitchen.allStations' | translate }}</option>
+        @for (station of stations(); track station.id) {
+          <option [value]="station.id">{{ station.name }}</option>
+        }
+      </select>
+      @if (refreshing()) {
+        <span class="text-sm mg-text-muted" role="status" aria-live="polite">
+          {{ 'pos.kitchen.refreshing' | translate }}
+        </span>
+      }
+    </div>
+
+    @if (stationGroups().length === 0) {
+      <section
+        class="rounded-2xl border border-surface-200 bg-surface-0 p-8 text-center dark:border-surface-700 dark:bg-surface-800">
+        <h2 class="mt-0 text-xl mg-text">{{ 'pos.kitchen.emptyTitle' | translate }}</h2>
+        <p class="mg-text-muted">{{ 'pos.kitchen.emptyDescription' | translate }}</p>
+        <button pButton type="button" class="p-button-outlined" [disabled]="!online()" (click)="retry()">
+          {{ 'pos.actions.retry' | translate }}
+        </button>
+      </section>
+    } @else {
+      @for (group of stationGroups(); track group.id) {
+        <section class="space-y-3" [attr.aria-labelledby]="'station-' + group.id">
+          <h2 [id]="'station-' + group.id" class="m-0 text-2xl font-semibold mg-text">{{ group.name }}</h2>
+          <div class="grid items-start gap-4 lg:grid-cols-3">
+            @for (status of activeStatuses; track status) {
+              <section
+                class="min-h-40 rounded-2xl border border-surface-200 bg-surface-50 p-3 dark:border-surface-700 dark:bg-surface-900/50"
+                [attr.aria-label]="'pos.kitchen.status.' + status | translate">
+                <h3 class="mt-0 flex items-center justify-between text-lg mg-text">
+                  <span>{{ 'pos.kitchen.status.' + status | translate }}</span>
+                  <span class="rounded-full bg-surface-200 px-2 py-0.5 text-sm dark:bg-surface-700">
+                    {{ group.ticketsByStatus[status].length }}
+                  </span>
+                </h3>
+
+                <div class="flex flex-col gap-3">
+                  @for (ticket of group.ticketsByStatus[status]; track ticket.id) {
+                    <article
+                      class="rounded-xl border border-surface-200 bg-surface-0 p-4 shadow-sm dark:border-surface-700 dark:bg-surface-800">
+                      <header class="flex items-start justify-between gap-3">
+                        <div>
+                          <h4 class="m-0 text-xl font-bold mg-text">
+                            {{ 'pos.kitchen.orderNumber' | translate: { order: ticket.order.orderNumber } }}
+                          </h4>
+                          <p class="mb-0 mt-1 text-sm mg-text-muted">
+                            @if (ticket.order.tableId) {
+                              {{
+                                'pos.kitchen.table'
+                                  | translate: { table: ticket.order.table?.name || ticket.order.tableId }
+                              }}
+                            } @else {
+                              {{ 'pos.kitchen.takeaway' | translate }}
+                            }
+                          </p>
+                        </div>
+                        <span
+                          class="rounded-full bg-surface-100 px-2 py-1 text-sm font-semibold mg-text dark:bg-surface-700">
+                          {{ 'pos.kitchen.ageMinutes' | translate: { minutes: ageMinutes(ticket) } }}
+                        </span>
+                      </header>
+
+                      <p class="my-3 text-sm font-medium mg-text-muted">
+                        {{ 'pos.kitchen.round' | translate: { round: ticket.sequence } }}
+                      </p>
+
+                      <ul class="m-0 list-none space-y-3 p-0">
+                        @for (item of ticket.items; track item.id) {
+                          <li
+                            class="border-t border-surface-200 pt-3 first:border-0 first:pt-0 dark:border-surface-700">
+                            <div class="flex gap-2 font-semibold mg-text">
+                              <span>{{ item.quantity }}×</span>
+                              <span>{{ item.itemName }}</span>
+                            </div>
+                            @for (modifier of item.modifiers; track modifier.id) {
+                              <p class="mb-0 mt-1 text-sm mg-text-muted">
+                                {{ modifier.quantity }}× {{ modifier.name }}
+                              </p>
+                            }
+                            @if (item.note) {
+                              <p class="mb-0 mt-1 whitespace-pre-wrap text-sm text-amber-700 dark:text-amber-300">
+                                {{ 'pos.kitchen.note' | translate: { note: item.note } }}
+                              </p>
+                            }
+                          </li>
+                        }
+                      </ul>
+
+                      @if (nextStatus(ticket.status); as targetStatus) {
+                        <button
+                          pButton
+                          type="button"
+                          class="mt-4 min-h-12 w-full"
+                          [disabled]="updatingTicketIds().has(ticket.id) || !online()"
+                          [loading]="updatingTicketIds().has(ticket.id)"
+                          (click)="transition(ticket)">
+                          {{ 'pos.kitchen.action.' + targetStatus | translate }}
+                        </button>
+                      }
+                    </article>
+                  } @empty {
+                    <p class="m-0 py-5 text-center text-sm mg-text-muted">
+                      {{ 'pos.kitchen.emptyStatus' | translate }}
+                    </p>
+                  }
+                </div>
+              </section>
+            }
+          </div>
+        </section>
+      }
+    }
+  }
+</section>

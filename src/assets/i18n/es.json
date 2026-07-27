@@ -48,7 +48,22 @@
       "pendingDescription": "Esta pantalla se habilitará en la siguiente fase del TPV."
     },
     "actions": {
-      "retry": "Reintentar"
+      "retry": "Reintentar",
+      "cancel": "Cancelar"
+    },
+    "order": {
+      "statuses": {
+        "DRAFT": "Borrador",
+        "OPEN": "Abierto",
+        "SENT": "Enviado",
+        "PARTIALLY_PAID": "Pago parcial",
+        "PAID": "Pagado",
+        "CANCELLED": "Cancelado"
+      },
+      "channels": {
+        "DINE_IN": "Sala",
+        "TAKEAWAY": "Para llevar"
+      }
     },
     "landing": {
       "title": "Punto de venta",
@@ -167,6 +182,23 @@
       "POS_DEVICE_REQUIRED": "Selecciona un dispositivo.",
       "POS_ORDER_REQUIRED": "Selecciona un pedido.",
       "POS_REGISTER_NOT_FOUND": "La caja no existe o no está activa.",
+      "POS_DEVICE_LOAD_FAILED": "No se pudieron cargar los dispositivos TPV.",
+      "KITCHEN_TICKETS_LOAD_FAILED": "No se pudieron cargar las comandas de cocina.",
+      "KITCHEN_TICKET_UPDATE_FAILED": "No se pudo actualizar la comanda de cocina.",
+      "KITCHEN_TICKET_NOT_FOUND": "La comanda de cocina ya no existe.",
+      "KITCHEN_TICKET_STATE_CONFLICT": "La comanda cambió de estado en otra pantalla.",
+      "POS_CASH_LOAD_FAILED": "No se pudo cargar la sesión de caja.",
+      "POS_CASH_OPERATION_FAILED": "No se pudo completar la operación de caja.",
+      "POS_CASH_CLOSE_FAILED": "No se pudo cerrar la sesión de caja.",
+      "OPEN_CASH_SESSION_NOT_FOUND": "No hay una sesión de caja abierta para este dispositivo.",
+      "UNKNOWN": "Se produjo un error inesperado.",
+      "ORDER_NOT_PAID": "Solo se pueden devolver pedidos pagados.",
+      "REFUND_EXCEEDS_PAID": "La devolución supera el importe reembolsable del pedido.",
+      "REFUND_EXCEEDS_PAYMENT": "La devolución supera el saldo del pago seleccionado.",
+      "PAYMENT_NOT_FOUND": "El pago seleccionado ya no existe.",
+      "CASH_REFUND_ALLOCATION_REQUIRED": "La devolución en efectivo necesita un pago y una caja abierta.",
+      "INSUFFICIENT_EXPECTED_CASH": "La operación dejaría el efectivo esperado en negativo.",
+      "VALIDATION_ERROR": "Revisa los datos introducidos.",
       "POS_OPERATION_FAILED": "No se pudo completar la operación.",
       "POS_OPERATION_RECONCILIATION_REQUIRED": "Reintenta la operación anterior o recarga el terminal antes de continuar.",
       "POS_ORDER_REFRESH_REQUIRED": "El pago se confirmó; reintenta para actualizar el pedido antes de continuar.",
@@ -259,6 +291,11 @@
         "channels": {
           "DINE_IN": "Sala",
           "TAKEAWAY": "Para llevar"
+        },
+        "documentTypes": {
+          "SIMPLIFIED": "Factura simplificada",
+          "FULL": "Factura completa",
+          "RECTIFYING": "Factura rectificativa"
         }
       },
       "errors": {
@@ -275,6 +312,225 @@
         "CASH_SESSION_CLOSED": "La sesión de caja ya está cerrada.",
         "ORDER_CLOSED": "El pedido ya está cerrado.",
         "ORDER_ALREADY_PAID": "El pedido ya está pagado."
+      }
+    },
+    "kitchen": {
+      "title": "Pantalla de cocina",
+      "description": "Prepara las comandas activas por estación y orden de llegada.",
+      "online": "En línea",
+      "offline": "Sin conexión",
+      "offlineDescription": "La pantalla está pausada hasta recuperar la conexión.",
+      "selectDevice": "Seleccionar pantalla de cocina",
+      "device": "Dispositivo",
+      "chooseDevice": "Elige una pantalla",
+      "continue": "Continuar",
+      "changeDevice": "Cambiar dispositivo",
+      "noDevices": "No hay pantallas de cocina activas configuradas.",
+      "station": "Estación",
+      "allStations": "Todas las estaciones",
+      "refreshing": "Actualizando…",
+      "emptyTitle": "Cocina al día",
+      "emptyDescription": "No hay comandas activas en este momento.",
+      "emptyStatus": "Sin comandas",
+      "orderNumber": "Pedido #{{order}}",
+      "table": "Mesa {{table}}",
+      "takeaway": "Para llevar",
+      "ageMinutes": "{{minutes}} min",
+      "round": "Ronda {{round}}",
+      "note": "Nota: {{note}}",
+      "status": {
+        "QUEUED": "Nuevas",
+        "IN_PROGRESS": "En preparación",
+        "READY": "Listas"
+      },
+      "action": {
+        "IN_PROGRESS": "Empezar",
+        "READY": "Marcar lista",
+        "SERVED": "Marcar servida"
+      }
+    },
+    "cash": {
+      "title": "Caja",
+      "description": "Abre, controla y cierra la sesión de efectivo del terminal.",
+      "device": "Caja registradora",
+      "offline": "Necesitas conexión para operar o cerrar la caja.",
+      "retry": "Reintentar",
+      "retryAction": "Reintentar operación",
+      "deviceLoadError": "No se pudieron cargar las cajas registradoras.",
+      "selectDeviceTitle": "Seleccionar caja",
+      "selectDeviceDescription": "Usa la misma caja activa que el terminal de venta.",
+      "selectDevicePlaceholder": "Elige una caja registradora",
+      "noRegisterDevices": "No hay cajas registradoras activas.",
+      "configureDevices": "Configurar dispositivos",
+      "open": {
+        "title": "Abrir sesión de caja",
+        "description": "Indica el efectivo disponible al comenzar el turno.",
+        "openingAmount": "Importe inicial",
+        "submit": "Abrir caja"
+      },
+      "openSession": {
+        "title": "Sesión abierta"
+      },
+      "openingAmount": "Importe inicial",
+      "expectedCash": "Efectivo esperado",
+      "countedCash": "Efectivo contado",
+      "difference": "Diferencia",
+      "print": "Imprimir cierre",
+      "movements": {
+        "title": "Movimientos de caja",
+        "empty": "Todavía no hay movimientos."
+      },
+      "movementForm": {
+        "title": "Nuevo movimiento",
+        "description": "Registra entradas, salidas o ajustes manuales.",
+        "type": "Tipo",
+        "amount": "Importe",
+        "reason": "Motivo",
+        "reasonHelp": "Entre 3 y 300 caracteres ({{count}}).",
+        "submit": "Registrar movimiento"
+      },
+      "movementTypes": {
+        "OPENING": "Apertura",
+        "SALE": "Venta en efectivo",
+        "REFUND": "Devolución en efectivo",
+        "PAY_IN": "Entrada",
+        "PAY_OUT": "Salida",
+        "ADJUSTMENT": "Ajuste"
+      },
+      "close": {
+        "title": "Cerrar sesión de caja",
+        "description": "Introduce el efectivo contado; después verás el esperado y la diferencia.",
+        "onlineRequired": "El cierre requiere conexión.",
+        "start": "Cerrar caja",
+        "submit": "Confirmar cierre",
+        "back": "Volver"
+      },
+      "closed": {
+        "title": "Resumen de cierre"
+      },
+      "status": {
+        "OPEN": "Abierta",
+        "CLOSED": "Cerrada"
+      },
+      "success": {
+        "opened": "La caja se abrió correctamente.",
+        "movementCreated": "El movimiento quedó registrado.",
+        "closed": "La caja se cerró correctamente."
+      },
+      "validation": {
+        "nonNegativeAmount": "Introduce un importe válido igual o mayor que cero.",
+        "nonZeroAmount": "Introduce un importe válido distinto de cero."
+      },
+      "confirm": {
+        "cancel": "Cancelar",
+        "openHeader": "Confirmar apertura",
+        "openMessage": "¿Abrir la caja con {{amount}}?",
+        "openAccept": "Abrir caja",
+        "movementHeader": "Confirmar movimiento",
+        "movementMessage": "¿Registrar {{type}} por {{amount}}?",
+        "movementAccept": "Registrar",
+        "closeHeader": "Confirmar cierre",
+        "closeMessage": "¿Cerrar la caja con {{amount}} de efectivo contado?",
+        "closeAccept": "Cerrar caja"
+      }
+    },
+    "history": {
+      "title": "Historial de ventas",
+      "description": "Consulta pedidos emitidos, reimprime documentos y gestiona devoluciones.",
+      "offline": "Puedes consultar lo cargado, pero las devoluciones requieren conexión.",
+      "empty": "No hay pedidos que coincidan con los filtros.",
+      "filters": {
+        "from": "Desde",
+        "to": "Hasta",
+        "status": "Estado",
+        "allStatuses": "Todos los estados",
+        "channel": "Canal",
+        "allChannels": "Todos los canales",
+        "table": "Mesa",
+        "allTables": "Todas las mesas",
+        "device": "Dispositivo",
+        "allDevices": "Todos los dispositivos",
+        "pageSize": "Resultados por página",
+        "apply": "Aplicar filtros",
+        "clear": "Limpiar",
+        "optionsError": "No se pudieron cargar algunas opciones de filtro."
+      },
+      "columns": {
+        "date": "Fecha",
+        "order": "Pedido",
+        "channel": "Canal",
+        "table": "Mesa",
+        "device": "Dispositivo",
+        "status": "Estado",
+        "total": "Total",
+        "actions": "Acciones"
+      },
+      "actions": {
+        "details": "Ver detalle",
+        "reprint": "Reimprimir"
+      },
+      "pagination": {
+        "label": "Paginación del historial",
+        "previous": "Anterior",
+        "page": "Página {{page}}",
+        "next": "Siguiente"
+      },
+      "detail": {
+        "title": "Detalle del pedido",
+        "lines": "Líneas",
+        "item": "Artículo",
+        "quantity": "Cantidad",
+        "stock": "Stock",
+        "cost": "Coste",
+        "total": "Total",
+        "stockTracked": "Controlado",
+        "stockNotTracked": "No controlado",
+        "orderCost": "Coste del pedido",
+        "payments": "Pagos",
+        "noPayments": "No hay pagos registrados.",
+        "refunds": "Devoluciones",
+        "fiscal": "Documentos fiscales",
+        "noFiscalDocuments": "No hay documentos fiscales.",
+        "audit": "Trazabilidad resumida",
+        "openedAt": "Apertura",
+        "openedBy": "Abierto por",
+        "closedAt": "Cierre",
+        "closedBy": "Cerrado por",
+        "version": "Versión"
+      },
+      "costStatuses": {
+        "PENDING": "Pendiente",
+        "CALCULATED": "Calculado",
+        "INCOMPLETE": "Incompleto",
+        "FAILED": "Error"
+      },
+      "paymentStatuses": {
+        "RECORDED": "Registrado",
+        "VOIDED": "Anulado"
+      },
+      "receipt": {
+        "title": "Reimprimir documento"
+      },
+      "refund": {
+        "title": "Registrar devolución",
+        "rectifyingNotice": "La devolución no modifica el ticket original: crea una rectificativa y un nuevo registro fiscal.",
+        "payment": "Pago a devolver",
+        "maximum": "Máximo disponible: {{amount}}",
+        "amount": "Importe",
+        "reason": "Motivo",
+        "reasonHint": "Entre 3 y 300 caracteres.",
+        "submit": "Continuar",
+        "open": "Crear devolución",
+        "offlineHint": "La devolución requiere conexión.",
+        "deviceHint": "Selecciona primero una caja registradora activa en el terminal.",
+        "confirmTitle": "Confirmar devolución",
+        "confirmMessage": "Esta acción generará una devolución y su rectificativa fiscal.",
+        "confirm": "Confirmar devolución",
+        "success": "La devolución se registró correctamente.",
+        "statuses": {
+          "RECORDED": "Registrada",
+          "CANCELLED": "Cancelada"
+        }
       }
     },
     "settings": {

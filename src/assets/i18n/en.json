@@ -48,7 +48,22 @@
       "pendingDescription": "This screen will be enabled in the next POS phase."
     },
     "actions": {
-      "retry": "Retry"
+      "retry": "Retry",
+      "cancel": "Cancel"
+    },
+    "order": {
+      "statuses": {
+        "DRAFT": "Draft",
+        "OPEN": "Open",
+        "SENT": "Sent",
+        "PARTIALLY_PAID": "Partially paid",
+        "PAID": "Paid",
+        "CANCELLED": "Cancelled"
+      },
+      "channels": {
+        "DINE_IN": "Dine in",
+        "TAKEAWAY": "Takeaway"
+      }
     },
     "landing": {
       "title": "Point of sale",
@@ -167,6 +182,23 @@
       "POS_DEVICE_REQUIRED": "Select a device.",
       "POS_ORDER_REQUIRED": "Select an order.",
       "POS_REGISTER_NOT_FOUND": "The register does not exist or is inactive.",
+      "POS_DEVICE_LOAD_FAILED": "POS devices could not be loaded.",
+      "KITCHEN_TICKETS_LOAD_FAILED": "Kitchen tickets could not be loaded.",
+      "KITCHEN_TICKET_UPDATE_FAILED": "The kitchen ticket could not be updated.",
+      "KITCHEN_TICKET_NOT_FOUND": "The kitchen ticket no longer exists.",
+      "KITCHEN_TICKET_STATE_CONFLICT": "The ticket changed state on another display.",
+      "POS_CASH_LOAD_FAILED": "The cash session could not be loaded.",
+      "POS_CASH_OPERATION_FAILED": "The cash operation could not be completed.",
+      "POS_CASH_CLOSE_FAILED": "The cash session could not be closed.",
+      "OPEN_CASH_SESSION_NOT_FOUND": "There is no open cash session for this device.",
+      "UNKNOWN": "An unexpected error occurred.",
+      "ORDER_NOT_PAID": "Only paid orders can be refunded.",
+      "REFUND_EXCEEDS_PAID": "The refund exceeds the order's refundable amount.",
+      "REFUND_EXCEEDS_PAYMENT": "The refund exceeds the selected payment balance.",
+      "PAYMENT_NOT_FOUND": "The selected payment no longer exists.",
+      "CASH_REFUND_ALLOCATION_REQUIRED": "A cash refund needs a payment and an open cash session.",
+      "INSUFFICIENT_EXPECTED_CASH": "The operation would make expected cash negative.",
+      "VALIDATION_ERROR": "Review the entered data.",
       "POS_OPERATION_FAILED": "The operation could not be completed.",
       "POS_OPERATION_RECONCILIATION_REQUIRED": "Retry the previous operation or reload the terminal before continuing.",
       "POS_ORDER_REFRESH_REQUIRED": "The payment was confirmed; retry to refresh the order before continuing.",
@@ -259,6 +291,11 @@
         "channels": {
           "DINE_IN": "Dine in",
           "TAKEAWAY": "Takeaway"
+        },
+        "documentTypes": {
+          "SIMPLIFIED": "Simplified invoice",
+          "FULL": "Full invoice",
+          "RECTIFYING": "Rectifying invoice"
         }
       },
       "errors": {
@@ -275,6 +312,225 @@
         "CASH_SESSION_CLOSED": "The cash session is already closed.",
         "ORDER_CLOSED": "The order is already closed.",
         "ORDER_ALREADY_PAID": "The order is already paid."
+      }
+    },
+    "kitchen": {
+      "title": "Kitchen display",
+      "description": "Prepare active tickets by station and arrival time.",
+      "online": "Online",
+      "offline": "Offline",
+      "offlineDescription": "The display is paused until the connection returns.",
+      "selectDevice": "Select kitchen display",
+      "device": "Device",
+      "chooseDevice": "Choose a display",
+      "continue": "Continue",
+      "changeDevice": "Change device",
+      "noDevices": "No active kitchen displays are configured.",
+      "station": "Station",
+      "allStations": "All stations",
+      "refreshing": "Refreshing…",
+      "emptyTitle": "Kitchen up to date",
+      "emptyDescription": "There are no active tickets right now.",
+      "emptyStatus": "No tickets",
+      "orderNumber": "Order #{{order}}",
+      "table": "Table {{table}}",
+      "takeaway": "Takeaway",
+      "ageMinutes": "{{minutes}} min",
+      "round": "Round {{round}}",
+      "note": "Note: {{note}}",
+      "status": {
+        "QUEUED": "New",
+        "IN_PROGRESS": "In progress",
+        "READY": "Ready"
+      },
+      "action": {
+        "IN_PROGRESS": "Start",
+        "READY": "Mark ready",
+        "SERVED": "Mark served"
+      }
+    },
+    "cash": {
+      "title": "Cash register",
+      "description": "Open, manage, and close the register's cash session.",
+      "device": "Register",
+      "offline": "You need a connection to operate or close the register.",
+      "retry": "Retry",
+      "retryAction": "Retry operation",
+      "deviceLoadError": "Registers could not be loaded.",
+      "selectDeviceTitle": "Select register",
+      "selectDeviceDescription": "Use the same active register as the sales terminal.",
+      "selectDevicePlaceholder": "Choose a register",
+      "noRegisterDevices": "No active registers are configured.",
+      "configureDevices": "Configure devices",
+      "open": {
+        "title": "Open cash session",
+        "description": "Enter the cash available at the start of the shift.",
+        "openingAmount": "Opening amount",
+        "submit": "Open register"
+      },
+      "openSession": {
+        "title": "Open session"
+      },
+      "openingAmount": "Opening amount",
+      "expectedCash": "Expected cash",
+      "countedCash": "Counted cash",
+      "difference": "Difference",
+      "print": "Print close summary",
+      "movements": {
+        "title": "Cash movements",
+        "empty": "There are no movements yet."
+      },
+      "movementForm": {
+        "title": "New movement",
+        "description": "Record manual pay-ins, pay-outs, or adjustments.",
+        "type": "Type",
+        "amount": "Amount",
+        "reason": "Reason",
+        "reasonHelp": "Between 3 and 300 characters ({{count}}).",
+        "submit": "Record movement"
+      },
+      "movementTypes": {
+        "OPENING": "Opening",
+        "SALE": "Cash sale",
+        "REFUND": "Cash refund",
+        "PAY_IN": "Pay in",
+        "PAY_OUT": "Pay out",
+        "ADJUSTMENT": "Adjustment"
+      },
+      "close": {
+        "title": "Close cash session",
+        "description": "Enter counted cash; expected cash and the difference appear afterwards.",
+        "onlineRequired": "Closing requires a connection.",
+        "start": "Close register",
+        "submit": "Confirm close",
+        "back": "Back"
+      },
+      "closed": {
+        "title": "Close summary"
+      },
+      "status": {
+        "OPEN": "Open",
+        "CLOSED": "Closed"
+      },
+      "success": {
+        "opened": "The register was opened successfully.",
+        "movementCreated": "The movement was recorded.",
+        "closed": "The register was closed successfully."
+      },
+      "validation": {
+        "nonNegativeAmount": "Enter a valid amount greater than or equal to zero.",
+        "nonZeroAmount": "Enter a valid non-zero amount."
+      },
+      "confirm": {
+        "cancel": "Cancel",
+        "openHeader": "Confirm opening",
+        "openMessage": "Open the register with {{amount}}?",
+        "openAccept": "Open register",
+        "movementHeader": "Confirm movement",
+        "movementMessage": "Record {{type}} for {{amount}}?",
+        "movementAccept": "Record",
+        "closeHeader": "Confirm close",
+        "closeMessage": "Close the register with {{amount}} counted cash?",
+        "closeAccept": "Close register"
+      }
+    },
+    "history": {
+      "title": "Sales history",
+      "description": "Review issued orders, reprint documents, and manage refunds.",
+      "offline": "You can review loaded data, but refunds require a connection.",
+      "empty": "No orders match the filters.",
+      "filters": {
+        "from": "From",
+        "to": "To",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "channel": "Channel",
+        "allChannels": "All channels",
+        "table": "Table",
+        "allTables": "All tables",
+        "device": "Device",
+        "allDevices": "All devices",
+        "pageSize": "Results per page",
+        "apply": "Apply filters",
+        "clear": "Clear",
+        "optionsError": "Some filter options could not be loaded."
+      },
+      "columns": {
+        "date": "Date",
+        "order": "Order",
+        "channel": "Channel",
+        "table": "Table",
+        "device": "Device",
+        "status": "Status",
+        "total": "Total",
+        "actions": "Actions"
+      },
+      "actions": {
+        "details": "View details",
+        "reprint": "Reprint"
+      },
+      "pagination": {
+        "label": "History pagination",
+        "previous": "Previous",
+        "page": "Page {{page}}",
+        "next": "Next"
+      },
+      "detail": {
+        "title": "Order details",
+        "lines": "Lines",
+        "item": "Item",
+        "quantity": "Quantity",
+        "stock": "Stock",
+        "cost": "Cost",
+        "total": "Total",
+        "stockTracked": "Tracked",
+        "stockNotTracked": "Not tracked",
+        "orderCost": "Order cost",
+        "payments": "Payments",
+        "noPayments": "No payments are recorded.",
+        "refunds": "Refunds",
+        "fiscal": "Fiscal documents",
+        "noFiscalDocuments": "There are no fiscal documents.",
+        "audit": "Summary traceability",
+        "openedAt": "Opened",
+        "openedBy": "Opened by",
+        "closedAt": "Closed",
+        "closedBy": "Closed by",
+        "version": "Version"
+      },
+      "costStatuses": {
+        "PENDING": "Pending",
+        "CALCULATED": "Calculated",
+        "INCOMPLETE": "Incomplete",
+        "FAILED": "Failed"
+      },
+      "paymentStatuses": {
+        "RECORDED": "Recorded",
+        "VOIDED": "Voided"
+      },
+      "receipt": {
+        "title": "Reprint document"
+      },
+      "refund": {
+        "title": "Record refund",
+        "rectifyingNotice": "A refund does not edit the original receipt: it creates a rectifying document and a new fiscal record.",
+        "payment": "Payment to refund",
+        "maximum": "Maximum available: {{amount}}",
+        "amount": "Amount",
+        "reason": "Reason",
+        "reasonHint": "Between 3 and 300 characters.",
+        "submit": "Continue",
+        "open": "Create refund",
+        "offlineHint": "Refunds require a connection.",
+        "deviceHint": "First select an active register in the sales terminal.",
+        "confirmTitle": "Confirm refund",
+        "confirmMessage": "This action will create a refund and its rectifying fiscal document.",
+        "confirm": "Confirm refund",
+        "success": "The refund was recorded successfully.",
+        "statuses": {
+          "RECORDED": "Recorded",
+          "CANCELLED": "Cancelled"
+        }
       }
     },
     "settings": {
