@@ -1,0 +1,127 @@
+@if (order) {
+  <article class="receipt mx-auto flex max-w-md flex-col gap-4 rounded-content border border-surface p-5 mg-surface">
+    <header class="text-center">
+      <h2 class="m-0 text-xl font-bold mg-text">{{ 'pos.payment.receipt.title' | translate }}</h2>
+      <p class="m-0 text-sm mg-text-muted">{{ 'pos.payment.receipt.order' | translate }} #{{ order.orderNumber }}</p>
+    </header>
+
+    <dl class="m-0 grid grid-cols-2 gap-2 border-y border-surface py-3 text-sm">
+      <dt class="mg-text-muted">{{ 'pos.payment.receipt.date' | translate }}</dt>
+      <dd class="m-0 text-right mg-text">{{ order.closedAt || order.updatedAt | date: 'short' }}</dd>
+      <dt class="mg-text-muted">{{ 'pos.payment.receipt.channel' | translate }}</dt>
+      <dd class="m-0 text-right mg-text">{{ 'pos.payment.receipt.channels.' + order.channel | translate }}</dd>
+    </dl>
+
+    <div class="flex flex-col gap-2">
+      @for (line of order.lines; track line.id) {
+        @if (line.status !== 'VOIDED') {
+          <div class="grid grid-cols-[auto_1fr_auto] gap-2 text-sm">
+            <span class="mg-text">{{ line.quantity }}×</span>
+            <span class="mg-text">{{ line.itemName }}</span>
+            <span class="text-right mg-text">{{ line.lineTotalGross }} {{ currency }}</span>
+          </div>
+        }
+      }
+    </div>
+
+    <dl class="m-0 grid grid-cols-2 gap-2 border-t border-surface pt-3">
+      <dt class="font-semibold mg-text">{{ 'pos.payment.receipt.total' | translate }}</dt>
+      <dd class="m-0 text-right font-semibold mg-text">{{ order.totalGross }} {{ currency }}</dd>
+      <dt class="mg-text-muted">{{ 'pos.payment.receipt.paid' | translate }}</dt>
+      <dd class="m-0 text-right mg-text">{{ order.paidGross }} {{ currency }}</dd>
+    </dl>
+
+    @if (receipt(); as document) {
+      <section class="flex flex-col gap-3 border-t border-surface pt-3 text-xs mg-text-muted">
+        <div class="text-center">
+          <p class="m-0">{{ documentLabel() || ('pos.payment.receipt.fiscalDocument' | translate) }}</p>
+          <strong class="mg-text">{{ documentNumber() }}</strong>
+        </div>
+
+        @if (fiscalStatus || stockSyncStatus) {
+          <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            @if (fiscalStatus) {
+              <dt>{{ 'pos.payment.receipt.fiscalStatus' | translate }}</dt>
+              <dd class="m-0 text-right font-semibold mg-text">
+                {{ 'pos.payment.receipt.submissionStatuses.' + fiscalStatus | translate }}
+              </dd>
+            }
+            @if (stockSyncStatus) {
+              <dt>{{ 'pos.payment.receipt.stockSyncStatus' | translate }}</dt>
+              <dd class="m-0 text-right font-semibold mg-text">
+                {{ 'pos.payment.receipt.stockSyncStatuses.' + stockSyncStatus | translate }}
+              </dd>
+            }
+          </dl>
+        }
+
+        @if (issuer(); as fiscalIssuer) {
+          <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            <dt>{{ 'pos.payment.receipt.issuer' | translate }}</dt>
+            <dd class="m-0 text-right mg-text">{{ fiscalIssuer.legalName }}</dd>
+            <dt>{{ 'pos.payment.receipt.taxId' | translate }}</dt>
+            <dd class="m-0 text-right mg-text">{{ fiscalIssuer.taxId }}</dd>
+            <dt>{{ 'pos.payment.receipt.fiscalAddress' | translate }}</dt>
+            <dd class="m-0 text-right mg-text">{{ fiscalIssuer.fiscalAddress }}</dd>
+          </dl>
+        }
+
+        @if (taxRows().length) {
+          <div>
+            <p class="mb-1 mt-0 font-semibold mg-text">{{ 'pos.payment.receipt.taxBreakdown' | translate }}</p>
+            <div class="grid grid-cols-4 gap-1 border-b border-surface pb-1 text-right">
+              <span>{{ 'pos.payment.receipt.taxRate' | translate }}</span>
+              <span>{{ 'pos.payment.receipt.taxBase' | translate }}</span>
+              <span>{{ 'pos.payment.receipt.tax' | translate }}</span>
+              <span>{{ 'pos.payment.receipt.taxTotal' | translate }}</span>
+            </div>
+            @for (row of taxRows(); track row.rate) {
+              <div class="grid grid-cols-4 gap-1 pt-1 text-right mg-text">
+                <span>{{ row.rate }}%</span>
+                <span>{{ row.base }}</span>
+                <span>{{ row.tax }}</span>
+                <span>{{ row.total }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        @if (records().length) {
+          <div class="flex flex-col gap-1">
+            <p class="m-0 font-semibold mg-text">{{ 'pos.payment.receipt.submission' | translate }}</p>
+            @for (record of records(); track record.id) {
+              <div class="flex justify-between gap-3">
+                <span>{{ 'pos.payment.receipt.recordOperations.' + record.operation | translate }}</span>
+                <strong class="text-right mg-text">
+                  {{ 'pos.payment.receipt.submissionStatuses.' + record.submissionStatus | translate }}
+                </strong>
+              </div>
+              @if (record.externalReference) {
+                <p class="m-0 break-all text-right">{{ record.externalReference }}</p>
+              }
+            }
+          </div>
+        }
+
+        <div class="text-center">
+          @if (qrDataUrl()) {
+            <img
+              class="receipt-qr mx-auto h-48 w-48"
+              [src]="qrDataUrl()"
+              [alt]="'pos.payment.receipt.qrAlt' | translate: { documentNumber: documentNumber() }" />
+          } @else {
+            <p class="m-0 break-all">{{ document.qrPayload }}</p>
+          }
+        </div>
+      </section>
+    }
+
+    @if (footer) {
+      <p class="m-0 whitespace-pre-line text-center text-xs mg-text-muted">{{ footer }}</p>
+    }
+
+    <button pButton type="button" class="receipt-print p-button-outlined" (click)="print()">
+      {{ 'pos.payment.receipt.print' | translate }}
+    </button>
+  </article>
+}

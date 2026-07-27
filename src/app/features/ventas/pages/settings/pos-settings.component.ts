@@ -13,12 +13,14 @@ import { FoodPreparation } from '@app/features/articles/interfaces/food-preparat
 import { FoodPreparationService } from '@app/features/articles/services/food-preparation.service';
 import {
   CreateKitchenStationDto,
+  CreateModifierGroupDto,
   CreatePosAreaDto,
   CreatePosDeviceDto,
   CreatePosMenuItemDto,
   CreatePosMenuCategoryDto,
   CreatePosTableDto,
   UpdateKitchenStationDto,
+  UpdateModifierGroupDto,
   UpdatePosAreaDto,
   UpdatePosDeviceDto,
   UpdatePosMenuItemDto,
@@ -32,14 +34,15 @@ import {
   KitchenStation,
   MenuCategory,
   MenuItem,
+  ModifierGroup,
   PosDevice,
   PosDeviceType,
   PosSettings
 } from '../../models/pos.models';
 import { PosService } from '../../services/pos.service';
 
-type SettingsSection = 'general' | 'devices' | 'areas' | 'tables' | 'categories' | 'items' | 'stations';
-type ConfigEntity = PosDevice | DiningArea | DiningTable | MenuCategory | MenuItem | KitchenStation;
+type SettingsSection = 'general' | 'devices' | 'areas' | 'tables' | 'categories' | 'items' | 'modifiers' | 'stations';
+type ConfigEntity = PosDevice | DiningArea | DiningTable | MenuCategory | MenuItem | ModifierGroup | KitchenStation;
 
 interface SettingsForm {
   enabled: boolean;
@@ -66,6 +69,19 @@ interface EntityForm {
   trackStock: boolean;
   foodPreparationId: string;
   kitchenStationId: string;
+  modifierGroupIds: string[];
+  minSelections: number;
+  maxSelections: number;
+  required: boolean;
+  modifierOptions: ModifierOptionForm[];
+}
+
+interface ModifierOptionForm {
+  id?: string;
+  name: string;
+  priceDeltaGross: string;
+  active: boolean;
+  sortOrder: number;
 }
 
 @Component({
@@ -81,7 +97,16 @@ export class PosSettingsComponent {
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly sections: SettingsSection[] = ['general', 'devices', 'areas', 'tables', 'categories', 'items', 'stations'];
+  readonly sections: SettingsSection[] = [
+    'general',
+    'devices',
+    'areas',
+    'tables',
+    'categories',
+    'items',
+    'modifiers',
+    'stations'
+  ];
   readonly deviceTypes: PosDeviceType[] = ['REGISTER', 'KDS', 'BACKOFFICE'];
   readonly activeSection = signal<SettingsSection>('general');
   readonly loading = signal(true);
@@ -93,6 +118,7 @@ export class PosSettingsComponent {
   readonly tables = signal<DiningTable[]>([]);
   readonly categories = signal<MenuCategory[]>([]);
   readonly menuItems = signal<MenuItem[]>([]);
+  readonly modifierGroups = signal<ModifierGroup[]>([]);
   readonly foodPreparations = signal<FoodPreparation[]>([]);
   readonly stations = signal<KitchenStation[]>([]);
   readonly items = computed<ConfigEntity[]>(() => {
@@ -107,6 +133,8 @@ export class PosSettingsComponent {
         return this.categories();
       case 'items':
         return this.menuItems();
+      case 'modifiers':
+        return this.modifierGroups();
       case 'stations':
         return this.stations();
       default:
@@ -137,6 +165,7 @@ export class PosSettingsComponent {
       tables: this.posService.listTables({}),
       categories: this.posService.listMenuCategories({}),
       menuItems: this.posService.listMenuItems({}),
+      modifierGroups: this.posService.listModifierGroups(),
       foodPreparations: this.foodPreparationService.getAll().pipe(catchError(() => of([]))),
       stations: this.posService.listKitchenStations({})
     })
@@ -145,13 +174,24 @@ export class PosSettingsComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: ({ settings, devices, areas, tables, categories, menuItems, foodPreparations, stations }) => {
+        next: ({
+          settings,
+          devices,
+          areas,
+          tables,
+          categories,
+          menuItems,
+          modifierGroups,
+          foodPreparations,
+          stations
+        }) => {
           this.settingsForm = this.settingsToForm(settings);
           this.devices.set(devices);
           this.areas.set(areas);
           this.tables.set(tables);
           this.categories.set(categories);
           this.menuItems.set(menuItems);
+          this.modifierGroups.set(modifierGroups);
           this.foodPreparations.set(foodPreparations);
           this.stations.set(stations);
         },
@@ -244,8 +284,27 @@ export class PosSettingsComponent {
           trackStock: item.trackStock,
           foodPreparationId: item.foodPreparationId ?? '',
           kitchenStationId: item.kitchenStationId ?? '',
+          modifierGroupIds: item.modifierGroups.map(({ id }) => id),
           sortOrder: item.sortOrder,
           active: item.active
+        };
+        break;
+      }
+      case 'modifiers': {
+        const group = entity as ModifierGroup;
+        this.entityForm = {
+          ...this.entityForm,
+          name: group.name,
+          minSelections: group.minSelections,
+          maxSelections: group.maxSelections,
+          required: group.required,
+          modifierOptions: group.options.map((option) => ({
+            id: option.id,
+            name: option.name,
+            priceDeltaGross: option.priceDeltaGross,
+            active: option.active,
+            sortOrder: option.sortOrder
+          }))
         };
         break;
       }
@@ -342,6 +401,7 @@ export class PosSettingsComponent {
           taxRate: this.entityForm.taxRate.trim(),
           trackStock: this.entityForm.trackStock,
           kitchenStationId: this.entityForm.kitchenStationId || null,
+          modifierGroupIds: this.entityForm.modifierGroupIds,
           sortOrder: this.entityForm.sortOrder,
           active: this.entityForm.active
         };
@@ -355,6 +415,34 @@ export class PosSettingsComponent {
                 ...dto,
                 foodPreparationId: this.entityForm.foodPreparationId.trim() || undefined
               } satisfies CreatePosMenuItemDto),
+          true
+        );
+        break;
+      }
+      case 'modifiers': {
+        const options = this.entityForm.modifierOptions.map((option) => ({
+          id: option.id,
+          name: option.name.trim(),
+          priceDeltaGross: option.priceDeltaGross.trim(),
+          active: option.active,
+          sortOrder: option.sortOrder
+        }));
+        const dto = {
+          name,
+          minSelections: this.entityForm.minSelections,
+          maxSelections: this.entityForm.maxSelections,
+          required: this.entityForm.required
+        };
+        this.runSave(
+          id
+            ? this.posService.updateModifierGroup(id, {
+                ...dto,
+                options
+              } satisfies UpdateModifierGroupDto)
+            : this.posService.createModifierGroup({
+                ...dto,
+                options
+              } satisfies CreateModifierGroupDto),
           true
         );
         break;
@@ -387,6 +475,13 @@ export class PosSettingsComponent {
           this.translate.instant(`pos.settings.deviceStatuses.${device.status}`)
         ].join(separator);
       }
+      case 'modifiers': {
+        const group = entity as ModifierGroup;
+        return [
+          `${this.translate.instant('pos.settings.fields.options')}: ${group.options.length}`,
+          `${group.minSelections}–${group.maxSelections}`
+        ].join(separator);
+      }
       case 'areas':
       case 'categories':
       case 'stations': {
@@ -417,6 +512,33 @@ export class PosSettingsComponent {
       default:
         return '';
     }
+  }
+
+  addModifierOption(): void {
+    this.entityForm.modifierOptions.push({
+      name: '',
+      priceDeltaGross: '0.00',
+      active: true,
+      sortOrder: this.entityForm.modifierOptions.length
+    });
+  }
+
+  removeModifierOption(index: number): void {
+    if (this.entityForm.modifierOptions.length > 1) {
+      this.entityForm.modifierOptions.splice(index, 1);
+    }
+  }
+
+  modifierSelectionRangeInvalid(): boolean {
+    const activeOptionCount = this.entityForm.modifierOptions.filter((option) => option.active).length;
+    return (
+      this.activeSection() === 'modifiers' &&
+      (this.entityForm.maxSelections < 1 ||
+        this.entityForm.minSelections < 0 ||
+        this.entityForm.minSelections > this.entityForm.maxSelections ||
+        this.entityForm.maxSelections > activeOptionCount ||
+        (this.entityForm.required && this.entityForm.minSelections < 1))
+    );
   }
 
   private runSave(request: Observable<unknown>, closeDialog = false): void {
@@ -473,7 +595,12 @@ export class PosSettingsComponent {
       taxRate: '10.00',
       trackStock: false,
       foodPreparationId: '',
-      kitchenStationId: ''
+      kitchenStationId: '',
+      modifierGroupIds: [],
+      minSelections: 0,
+      maxSelections: 1,
+      required: false,
+      modifierOptions: [{ name: '', priceDeltaGross: '0.00', active: true, sortOrder: 0 }]
     };
   }
 }

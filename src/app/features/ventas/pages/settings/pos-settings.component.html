@@ -288,9 +288,96 @@
           }
         </select>
       </label>
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.modifierGroups' | translate }}</span>
+        <select
+          multiple
+          name="modifierGroupIds"
+          class="min-h-28 rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="entityForm.modifierGroupIds">
+          @for (group of modifierGroups(); track group.id) {
+            <option [ngValue]="group.id">{{ group.name }}</option>
+          }
+        </select>
+        <small class="mg-text-muted">{{ 'pos.settings.modifierGroupsHelp' | translate }}</small>
+      </label>
     }
 
-    @if (activeSection() !== 'devices') {
+    @if (activeSection() === 'modifiers') {
+      <div class="grid gap-4 sm:grid-cols-2">
+        <label class="flex flex-col gap-2">
+          <span class="font-medium mg-text">{{ 'pos.settings.fields.minSelections' | translate }}</span>
+          <p-inputnumber
+            required
+            name="minSelections"
+            [min]="0"
+            [max]="100"
+            [useGrouping]="false"
+            [(ngModel)]="entityForm.minSelections"></p-inputnumber>
+        </label>
+        <label class="flex flex-col gap-2">
+          <span class="font-medium mg-text">{{ 'pos.settings.fields.maxSelections' | translate }}</span>
+          <p-inputnumber
+            required
+            name="maxSelections"
+            [min]="1"
+            [max]="100"
+            [useGrouping]="false"
+            [(ngModel)]="entityForm.maxSelections"></p-inputnumber>
+        </label>
+      </div>
+      <label class="flex items-center gap-3">
+        <input type="checkbox" name="required" [(ngModel)]="entityForm.required" />
+        <span class="font-medium mg-text">{{ 'pos.settings.fields.required' | translate }}</span>
+      </label>
+
+      <fieldset class="flex flex-col gap-3 rounded-lg border border-surface p-3">
+        <legend class="px-1 font-medium mg-text">{{ 'pos.settings.fields.options' | translate }}</legend>
+        @for (option of entityForm.modifierOptions; track $index) {
+          <div class="grid items-end gap-3 sm:grid-cols-[1fr_10rem_auto_auto]">
+            <label class="flex flex-col gap-2">
+              <span class="text-sm mg-text-muted">{{ 'pos.settings.fields.optionName' | translate }}</span>
+              <input pInputText required maxlength="120" [name]="'optionName-' + $index" [(ngModel)]="option.name" />
+            </label>
+            <label class="flex flex-col gap-2">
+              <span class="text-sm mg-text-muted">{{ 'pos.settings.fields.priceDelta' | translate }}</span>
+              <input
+                pInputText
+                required
+                inputmode="decimal"
+                pattern="-?[0-9]{1,10}([.][0-9]{1,2})?"
+                [name]="'optionPrice-' + $index"
+                [(ngModel)]="option.priceDeltaGross" />
+            </label>
+            <label class="flex min-h-11 items-center gap-2">
+              <input type="checkbox" [name]="'optionActive-' + $index" [(ngModel)]="option.active" />
+              <span class="text-sm mg-text">{{ 'pos.settings.fields.active' | translate }}</span>
+            </label>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              [disabled]="entityForm.modifierOptions.length === 1"
+              [attr.aria-label]="'pos.settings.removeOption' | translate"
+              (click)="removeModifierOption($index)"></button>
+          </div>
+        }
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          class="self-start p-button-text"
+          [label]="'pos.settings.addOption' | translate"
+          (click)="addModifierOption()"></button>
+        @if (modifierSelectionRangeInvalid()) {
+          <small class="text-red-600 dark:text-red-400">{{ 'pos.settings.invalidSelectionRange' | translate }}</small>
+        }
+      </fieldset>
+    }
+
+    @if (activeSection() !== 'devices' && activeSection() !== 'modifiers') {
       <label class="flex flex-col gap-2">
         <span class="font-medium mg-text">{{ 'pos.settings.fields.sortOrder' | translate }}</span>
         <p-inputnumber
@@ -319,7 +406,7 @@
         pButton
         type="submit"
         icon="pi pi-save"
-        [disabled]="entityNgForm.invalid"
+        [disabled]="entityNgForm.invalid || modifierSelectionRangeInvalid()"
         [loading]="saving()"
         [label]="'pos.settings.save' | translate"></button>
     </div>

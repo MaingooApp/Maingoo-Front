@@ -1,0 +1,128 @@
+<p-dialog
+  [visible]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [closable]="!busy"
+  [closeOnEscape]="!busy"
+  [style]="{ width: 'min(34rem, 94vw)' }"
+  [header]="'pos.payment.title' | translate"
+  (visibleChange)="$event ? visibleChange.emit(true) : close()">
+  @if (order) {
+    <section class="flex flex-col gap-5" [attr.aria-busy]="busy">
+      <dl class="grid grid-cols-3 gap-3 rounded-content border border-surface p-4">
+        <div>
+          <dt class="text-xs mg-text-muted">{{ 'pos.payment.total' | translate }}</dt>
+          <dd class="m-0 font-semibold mg-text">{{ order.totalGross }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs mg-text-muted">{{ 'pos.payment.paid' | translate }}</dt>
+          <dd class="m-0 font-semibold mg-text">{{ order.paidGross }}</dd>
+        </div>
+        <div>
+          <dt class="text-xs mg-text-muted">{{ 'pos.payment.balance' | translate }}</dt>
+          <dd class="m-0 font-semibold mg-text">{{ balance }}</dd>
+        </div>
+      </dl>
+
+      @if (errorCode) {
+        <p class="m-0 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400" role="alert">
+          {{ 'pos.payment.errors.' + errorCode | translate }}
+          <code class="ml-1">{{ errorCode }}</code>
+        </p>
+      }
+
+      @if (!hasOpenCashSession) {
+        @if (canOpenCash) {
+          <form #cashForm="ngForm" class="flex flex-col gap-4" (ngSubmit)="submitOpenCash(cashForm)">
+            <p class="m-0 mg-text-muted">{{ 'pos.payment.cashRequired' | translate }}</p>
+            <label class="flex flex-col gap-1.5" for="payment-opening-amount">
+              <span class="text-sm font-medium mg-text">{{ 'pos.payment.openingAmount' | translate }}</span>
+              <input
+                pInputText
+                id="payment-opening-amount"
+                name="openingAmount"
+                required
+                inputmode="decimal"
+                pattern="^\d{1,10}(?:\.\d{1,2})?$"
+                autocomplete="off"
+                [(ngModel)]="openingAmount" />
+            </label>
+            <button pButton type="submit" [disabled]="busy || cashForm.invalid">
+              {{ 'pos.payment.openCash' | translate }}
+            </button>
+          </form>
+        } @else {
+          <p class="m-0 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-200">
+            {{ 'pos.payment.openCashPermissionRequired' | translate }}
+          </p>
+        }
+      } @else {
+        @if (fullyPaid) {
+          <p class="m-0 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-300">
+            {{ 'pos.payment.fullyPaid' | translate }}
+          </p>
+        } @else {
+          <form #paymentForm="ngForm" class="flex flex-col gap-4" (ngSubmit)="submitPayment(paymentForm)">
+            <label class="flex flex-col gap-1.5" for="payment-method">
+              <span class="text-sm font-medium mg-text">{{ 'pos.payment.method' | translate }}</span>
+              <select
+                id="payment-method"
+                name="method"
+                required
+                class="min-h-11 rounded-lg border border-surface bg-transparent px-3 mg-text"
+                [(ngModel)]="method">
+                @for (paymentMethod of methods; track paymentMethod) {
+                  <option [ngValue]="paymentMethod">
+                    {{ 'pos.payment.methods.' + paymentMethod | translate }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <label class="flex flex-col gap-1.5" for="payment-amount">
+              <span class="text-sm font-medium mg-text">
+                {{ (method === 'CASH' ? 'pos.payment.receivedAmount' : 'pos.payment.amount') | translate }}
+              </span>
+              <input
+                pInputText
+                id="payment-amount"
+                name="amount"
+                required
+                inputmode="decimal"
+                pattern="^\d{1,10}(?:\.\d{1,2})?$"
+                autocomplete="off"
+                [(ngModel)]="amount" />
+            </label>
+
+            @if (method === 'CASH') {
+              <p class="m-0 flex justify-between rounded-lg mg-surface-muted p-3 text-sm" aria-live="polite">
+                <span class="mg-text-muted">{{ 'pos.payment.change' | translate }}</span>
+                <strong class="mg-text">{{ cashChange }}</strong>
+              </p>
+            }
+
+            <label class="flex flex-col gap-1.5" for="payment-reference">
+              <span class="text-sm font-medium mg-text">{{ 'pos.payment.reference' | translate }}</span>
+              <input
+                pInputText
+                id="payment-reference"
+                name="externalReference"
+                maxlength="120"
+                autocomplete="off"
+                [(ngModel)]="externalReference" />
+              <small class="mg-text-muted">{{ 'pos.payment.referenceHelp' | translate }}</small>
+            </label>
+
+            <button pButton type="submit" [disabled]="busy || paymentForm.invalid">
+              {{ 'pos.payment.addPayment' | translate }}
+            </button>
+          </form>
+        }
+
+        <button pButton type="button" [disabled]="!canFinalize" (click)="submitFinalize()">
+          {{ 'pos.payment.finalize' | translate }}
+        </button>
+      }
+    </section>
+  }
+</p-dialog>

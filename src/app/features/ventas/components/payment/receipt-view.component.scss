@@ -1,0 +1,21 @@
+@media print {
+  :host {
+    display: block;
+    width: 80mm;
+  }
+
+  .receipt {
+    max-width: none;
+    border: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .receipt-print {
+    display: none;
+  }
+
+  .receipt-qr {
+    print-color-adjust: exact;
+  }
+}

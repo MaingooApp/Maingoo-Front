@@ -19,6 +19,7 @@ import {
   SendOrderCommandData,
   UpdateKitchenTicketCommandData,
   UpdateLineCommandData,
+  VersionedDeviceCommandData,
   VoidLineCommandData,
   VoidPaymentCommandData
 } from '../models/pos-command.models';
@@ -277,6 +278,19 @@ export class PosService extends BaseHttpService {
   ): Observable<PosOrder> {
     return this.patch<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/lines/${lineId}`,
+      command,
+      this.idempotencyHeader(idempotencyKey)
+    );
+  }
+
+  removeLine(
+    orderId: string,
+    lineId: string,
+    command: VersionedDeviceCommandData,
+    idempotencyKey: string
+  ): Observable<PosOrder> {
+    return this.post<PosOrder>(
+      `${this.apiUrl}/orders/${orderId}/lines/${lineId}/remove`,
       command,
       this.idempotencyHeader(idempotencyKey)
     );

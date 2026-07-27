@@ -8,7 +8,7 @@ import { PosService } from '../../services/pos.service';
 import { PosSettingsComponent } from './pos-settings.component';
 
 describe('PosSettingsComponent', () => {
-  it('loads configuration and exposes the selected catalog', () => {
+  it('loads configuration and validates modifier selection ranges', () => {
     const timestamp = '2026-07-25T10:00:00.000Z';
     const posService = jasmine.createSpyObj<PosService>('PosService', [
       'getSettings',
@@ -17,6 +17,7 @@ describe('PosSettingsComponent', () => {
       'listTables',
       'listMenuCategories',
       'listMenuItems',
+      'listModifierGroups',
       'listKitchenStations'
     ]);
     posService.getSettings.and.returnValue(
@@ -77,6 +78,7 @@ describe('PosSettingsComponent', () => {
         }
       ])
     );
+    posService.listModifierGroups.and.returnValue(of([]));
     posService.listKitchenStations.and.returnValue(of([]));
     const foodPreparationService = jasmine.createSpyObj<FoodPreparationService>('FoodPreparationService', ['getAll']);
     foodPreparationService.getAll.and.returnValue(throwError(() => new Error('missing permission')));
@@ -95,5 +97,14 @@ describe('PosSettingsComponent', () => {
 
     expect(component.loading()).toBeFalse();
     expect(component.items().map((item) => item.id)).toEqual(['item-1']);
+
+    component.selectSection('modifiers');
+    component.entityForm.required = true;
+    component.entityForm.minSelections = 0;
+    expect(component.modifierSelectionRangeInvalid()).toBeTrue();
+
+    component.entityForm.required = false;
+    component.entityForm.maxSelections = 2;
+    expect(component.modifierSelectionRangeInvalid()).toBeTrue();
   });
 });

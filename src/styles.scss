@@ -11,3 +11,24 @@ body {
   padding: 0;
   overflow: hidden;
 }
+
+@media print {
+  body:has(app-receipt-view .receipt) {
+    overflow: visible;
+  }
+
+  body:has(app-receipt-view .receipt) * {
+    visibility: hidden;
+  }
+
+  body:has(app-receipt-view .receipt) app-receipt-view,
+  body:has(app-receipt-view .receipt) app-receipt-view * {
+    visibility: visible;
+  }
+
+  body:has(app-receipt-view .receipt) app-receipt-view {
+    position: fixed;
+    inset: 0 auto auto 0;
+    width: 80mm;
+  }
+}

@@ -40,6 +40,23 @@ describe('PosService', () => {
     request.flush({});
   });
 
+  it('removes an open line with the versioned command and caller idempotency key', () => {
+    const command = {
+      deviceId: '7b9c70e2-c246-4e30-a1ac-2e4305044cd4',
+      clientCreatedAt: '2026-07-25T10:00:00.000Z',
+      expectedVersion: 3
+    };
+    const key = 'b153911f-2043-4ddd-a1c3-653b22b96d20';
+
+    service.removeLine('order-id', 'line-id', command, key).subscribe();
+
+    const request = http.expectOne(`${apiUrl}/orders/order-id/lines/line-id/remove`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(command);
+    expect(request.request.headers.get('Idempotency-Key')).toBe(key);
+    request.flush({});
+  });
+
   it('uses the collection kitchen endpoint and keeps ticketId in the body', () => {
     const command: UpdateKitchenTicketCommandData = {
       deviceId: '7b9c70e2-c246-4e30-a1ac-2e4305044cd4',
