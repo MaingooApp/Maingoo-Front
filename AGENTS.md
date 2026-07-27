@@ -158,6 +158,7 @@ Treat these as known baseline issues. Do not hide new regressions inside broad c
 ## Documentation Rules
 
 - Keep durable project documentation in `README.md` and operational agent guidance in `AGENTS.md`.
+- Follow `docs/pos-pilot-operations.md` for TPV pilot startup, offline handling, conflicts, close, support and rollback.
 - Keep both `README.md` and `AGENTS.md` as up-to-date as possible whenever the repository structure, stack, commands, conventions or known baseline changes.
 - Keep both files concise and practical. They are current guides, not changelogs or historical logs.
 - When something changes, update the documented current state and remove outdated information instead of preserving old versions for context.

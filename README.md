@@ -25,6 +25,8 @@ La guia tecnica principal para recuperar contexto del proyecto es `docs/frontend
 
 La guia corta de patrones UI esta en `docs/ui-patterns-guide.md`. Define colores, superficies, tipografia, radios, bordes, sombras, espaciado, estados y componentes reutilizables para desktop/tablet. Mobile queda fuera de esa guia hasta definir su estrategia.
 
+La apertura, operación offline, conflictos, cierre, soporte y rollback del piloto TPV están en `docs/pos-pilot-operations.md`.
+
 ## Comandos
 
 ```bash

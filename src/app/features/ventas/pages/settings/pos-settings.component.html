@@ -1,4 +1,5 @@
-<section class="flex flex-col gap-6 p-4 md:p-6">
+<section
+  class="flex min-w-0 flex-col gap-6 overflow-x-hidden p-4 md:p-6 [&_button]:!min-h-[44px] [&_button]:!min-w-[44px]">
   <header>
     <h1 class="m-0 text-2xl font-bold mg-text">{{ 'pos.settings.title' | translate }}</h1>
     <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.settings.description' | translate }}</p>
@@ -11,6 +12,7 @@
         type="button"
         class="shrink-0"
         [outlined]="activeSection() !== section"
+        [attr.aria-pressed]="activeSection() === section"
         [label]="'pos.settings.sections.' + section | translate"
         (click)="selectSection(section)"></button>
     }
@@ -36,7 +38,7 @@
       #settingsNgForm="ngForm"
       class="grid max-w-4xl gap-5 rounded-xl border border-surface p-5 md:grid-cols-2"
       (ngSubmit)="saveSettings(settingsNgForm)">
-      <label class="flex items-center gap-3 md:col-span-2">
+      <label class="flex min-h-11 items-center gap-3 md:col-span-2">
         <input type="checkbox" name="enabled" [(ngModel)]="settingsForm.enabled" />
         <span class="font-medium mg-text">{{ 'pos.settings.fields.enabled' | translate }}</span>
       </label>
@@ -57,12 +59,12 @@
         <input pInputText required maxlength="64" name="timezone" [(ngModel)]="settingsForm.timezone" />
       </label>
 
-      <label class="flex items-center gap-3">
+      <label class="flex min-h-11 items-center gap-3">
         <input type="checkbox" name="pricesIncludeTax" [(ngModel)]="settingsForm.pricesIncludeTax" />
         <span class="font-medium mg-text">{{ 'pos.settings.fields.pricesIncludeTax' | translate }}</span>
       </label>
 
-      <label class="flex items-center gap-3">
+      <label class="flex min-h-11 items-center gap-3">
         <input type="checkbox" name="allowNegativeStock" [(ngModel)]="settingsForm.allowNegativeStock" />
         <span class="font-medium mg-text">{{ 'pos.settings.fields.allowNegativeStock' | translate }}</span>
       </label>
@@ -256,7 +258,7 @@
           name="taxRate"
           [(ngModel)]="entityForm.taxRate" />
       </label>
-      <label class="flex items-center gap-3">
+      <label class="flex min-h-11 items-center gap-3">
         <input type="checkbox" name="trackStock" [(ngModel)]="entityForm.trackStock" />
         <span class="font-medium mg-text">{{ 'pos.settings.fields.trackStock' | translate }}</span>
       </label>
@@ -326,7 +328,7 @@
             [(ngModel)]="entityForm.maxSelections"></p-inputnumber>
         </label>
       </div>
-      <label class="flex items-center gap-3">
+      <label class="flex min-h-11 items-center gap-3">
         <input type="checkbox" name="required" [(ngModel)]="entityForm.required" />
         <span class="font-medium mg-text">{{ 'pos.settings.fields.required' | translate }}</span>
       </label>
@@ -387,7 +389,7 @@
           [useGrouping]="false"
           [(ngModel)]="entityForm.sortOrder"></p-inputnumber>
       </label>
-      <label class="flex items-center gap-3">
+      <label class="flex min-h-11 items-center gap-3">
         <input type="checkbox" name="active" [(ngModel)]="entityForm.active" />
         <span class="font-medium mg-text">{{ 'pos.settings.fields.active' | translate }}</span>
       </label>

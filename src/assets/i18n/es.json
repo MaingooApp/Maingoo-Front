@@ -86,6 +86,7 @@
       "pendingCommands": "{{count}} operaciones pendientes",
       "cachedAt": "Datos guardados: {{date}}",
       "lastSyncAt": "Última sincronización: {{date}}",
+      "diagnostics": "Diagnóstico de sincronización",
       "storageError": "No se pudo guardar la operación de forma segura.",
       "noDevices": "No hay cajas activas configuradas. Solicita a un responsable que cree una.",
       "configureDevices": "Configurar dispositivos",

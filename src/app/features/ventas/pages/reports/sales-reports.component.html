@@ -1,4 +1,5 @@
-<section class="mx-auto flex w-full max-w-[1600px] flex-col gap-5 p-4 md:p-6">
+<section
+  class="mx-auto flex min-w-0 w-full max-w-[1600px] flex-col gap-5 overflow-x-hidden p-4 md:p-6 [&_button]:!min-h-[44px] [&_button]:!min-w-[44px]">
   <header class="space-y-1">
     <h1 class="m-0 text-3xl font-bold mg-text">{{ 'salesReports.title' | translate }}</h1>
     <p class="m-0 mg-text-muted">{{ 'salesReports.description' | translate }}</p>
@@ -13,7 +14,7 @@
   }
 
   <form
-    class="grid items-end gap-4 rounded-content border border-surface p-4 mg-surface md:grid-cols-[minmax(12rem,1fr)_minmax(18rem,2fr)_auto]"
+    class="grid grid-cols-[repeat(auto-fit,minmax(min(18rem,100%),1fr))] items-end gap-4 rounded-content border border-surface p-4 mg-surface"
     (ngSubmit)="loadReports()">
     <label class="flex flex-col gap-2 font-medium mg-text">
       <span>{{ 'salesReports.filters.date' | translate }}</span>

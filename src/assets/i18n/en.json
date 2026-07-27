@@ -86,6 +86,7 @@
       "pendingCommands": "{{count}} pending operations",
       "cachedAt": "Cached data: {{date}}",
       "lastSyncAt": "Last sync: {{date}}",
+      "diagnostics": "Sync diagnostics",
       "storageError": "The operation could not be stored safely.",
       "noDevices": "No active registers are configured. Ask a manager to create one.",
       "configureDevices": "Configure devices",

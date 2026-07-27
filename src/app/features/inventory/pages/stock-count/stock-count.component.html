@@ -1,4 +1,4 @@
-<section class="flex h-full min-h-0 flex-col gap-5 overflow-y-auto p-4 md:p-6">
+<section class="flex min-w-0 h-full min-h-0 flex-col gap-5 overflow-x-hidden overflow-y-auto p-4 md:p-6">
   <header>
     <h2 class="m-0 text-xl font-semibold mg-text">{{ 'inventory.count.title' | translate }}</h2>
     <p class="mb-0 mt-1 mg-text-muted">{{ 'inventory.count.description' | translate }}</p>
@@ -158,7 +158,7 @@
 
       <div class="divide-y divide-surface rounded-xl border border-surface">
         @for (line of visibleCountLines(); track line.id) {
-          <div class="grid items-center gap-3 p-4 md:grid-cols-[minmax(12rem,1fr)_10rem_12rem_10rem]">
+          <div class="grid items-center gap-3 p-4 xl:grid-cols-[minmax(12rem,1fr)_10rem_12rem_10rem]">
             <div>
               <strong class="mg-text">{{ productName(line.enterpriseProductId) }}</strong
               ><span class="block text-sm mg-text-muted">{{ 'inventory.units.' + line.baseUnit | translate }}</span>

@@ -17,8 +17,8 @@
 | F2 — Terminal online | Implementada (`e883c89`) |
 | F3 — Cocina y caja | Implementada (`f7e9def`) |
 | F4 — Inventario y margen | Implementada (`90c9b8b`) |
-| F5 — Offline | Implementada |
-| F6 — Endurecimiento | Pendiente |
+| F5 — Offline | Implementada (`803684b`) |
+| F6 — Endurecimiento | Implementada |
 
 ## 1. Objetivo del frontend
 
@@ -838,10 +838,10 @@ No declarar terminado con errores TypeScript, traducciones faltantes o warnings 
 
 ### F6 — Endurecimiento
 
-- Accesibilidad y tablet.
-- Pruebas de jornada completa.
-- Telemetría de errores/sync sin datos sensibles.
-- Documentar operación del piloto.
+- Accesibilidad, objetivos táctiles y layouts tablet sin scroll horizontal global.
+- Integración automatizada del turno de venta online/offline, reload, replay, cobro, finalización, fiscalidad, stock y conflicto. Cocina y cierre/movimientos de caja mantienen sus pruebas aisladas y la validación manual del piloto.
+- Telemetría local acotada y visible de errores/sync sin IDs, payloads ni datos sensibles; el envío central queda pendiente de un contrato backend específico.
+- Runbook de operación, soporte, cierre y rollback del piloto en `docs/pos-pilot-operations.md`.
 
 Cada fase debe poder desplegarse detrás de `PosSettings.enabled=false` para empresas no piloto. No crear un framework genérico de feature flags; usar el setting de POS devuelto por backend.
 

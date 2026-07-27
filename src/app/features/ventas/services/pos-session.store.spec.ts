@@ -137,6 +137,23 @@ describe('PosSessionStore offline', () => {
     expect(store.pendingCommandCount()).toBe(2);
   });
 
+  it('ignores an invalid persisted command timestamp when creating the next command', async () => {
+    const corrupted = createCommand('local:corrupt');
+    storedCommands = [
+      {
+        ...corrupted,
+        clientCreatedAt: 'invalid',
+        data: { ...corrupted.data, clientCreatedAt: 'invalid' }
+      }
+    ];
+    await store.initialize('enterprise-1');
+
+    await store.createOrder('TAKEAWAY');
+
+    const input = queue.enqueueWithOrder.calls.mostRecent().args[1];
+    expect(Number.isFinite(Date.parse(input.data.clientCreatedAt))).toBeTrue();
+  });
+
   it('does not mutate memory when atomic storage fails', async () => {
     await store.initialize('enterprise-1');
     queue.enqueueWithOrder.and.rejectWith(new PosOfflineStorageError('POS_OFFLINE_STORAGE_QUOTA_EXCEEDED'));
@@ -233,6 +250,24 @@ describe('PosSessionStore offline', () => {
 
     store.reset();
     expect(store.syncErrorCode()).toBeNull();
+  });
+
+  it('keeps only the selected closed order in memory for the receipt', async () => {
+    const openOrder = order();
+    storedOrders = [openOrder];
+    await store.initialize('enterprise-1');
+    store.selectOrder(openOrder.id);
+    storedOrders = [];
+
+    await callbacks.applyAuthoritativeOrder({
+      ...openOrder,
+      status: 'PAID',
+      closedAt: '2026-07-27T11:00:00.000Z'
+    });
+
+    expect(store.selectedAuthoritativeOrder()?.status).toBe('PAID');
+    store.selectOrder(null);
+    expect(store.authoritativeOrder(openOrder.id)).toBeNull();
   });
 
   it('never pays or finalizes offline or while the server order still has pending commands', async () => {
@@ -409,7 +444,7 @@ function order(): PosOrder {
   };
 }
 
-function createCommand(aggregateId: string): QueuedPosCommand {
+function createCommand(aggregateId: string): Extract<QueuedPosCommand, { type: 'CREATE_ORDER' }> {
   return {
     type: 'CREATE_ORDER',
     aggregateId,

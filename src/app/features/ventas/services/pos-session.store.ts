@@ -59,6 +59,7 @@ export class PosSessionStore implements OnDestroy {
   private readonly commands = signal<QueuedPosCommand[]>([]);
   private enterpriseId: string | null = null;
   private loadVersion = 0;
+  private lastQueuedAt = 0;
   private readonly directIntents = new Map<string, string>();
   private ambiguousDirectIntentId: string | null = null;
 
@@ -249,6 +250,9 @@ export class PosSessionStore implements OnDestroy {
 
   selectOrder(orderId: string | null): void {
     this.selectedOrderId.set(orderId);
+    this.authoritativeOrders.update((orders) =>
+      orders.filter(({ id, status }) => (status !== 'PAID' && status !== 'CANCELLED') || id === orderId)
+    );
   }
 
   authoritativeOrder(orderId: string | null): AuthoritativeOrder | null {
@@ -273,7 +277,7 @@ export class PosSessionStore implements OnDestroy {
     const device = this.requireDevice();
     if (!device) return;
     const identity = createLocalOrderIdentity();
-    const clientCreatedAt = new Date().toISOString();
+    const clientCreatedAt = this.queuedTimestamp();
     const data = {
       deviceId: device.id,
       clientCreatedAt,
@@ -673,7 +677,12 @@ export class PosSessionStore implements OnDestroy {
   }
 
   private versionedCommand(deviceId: string, expectedVersion: number): VersionedDeviceCommandData {
-    return { deviceId, clientCreatedAt: new Date().toISOString(), expectedVersion };
+    return { deviceId, clientCreatedAt: this.queuedTimestamp(), expectedVersion };
+  }
+
+  private queuedTimestamp(): string {
+    this.lastQueuedAt = Math.max(Date.now(), this.lastQueuedAt + 1);
+    return new Date(this.lastQueuedAt).toISOString();
   }
 
   private async refreshOfflineState(): Promise<void> {
@@ -682,9 +691,21 @@ export class PosSessionStore implements OnDestroy {
   }
 
   private setOfflineState(orders: OfflineStoredOrder[], commands: QueuedPosCommand[]): void {
-    this.authoritativeOrders.set(orders.filter(isAuthoritativeOrder));
+    const cachedOrders = orders.filter(isAuthoritativeOrder);
+    const selectedOrderId = this.selectedOrderId();
+    const closedInMemory = this.authoritativeOrders().filter(
+      ({ id, status }) =>
+        id === selectedOrderId &&
+        (status === 'PAID' || status === 'CANCELLED') &&
+        !cachedOrders.some((order) => order.id === id)
+    );
+    this.authoritativeOrders.set([...cachedOrders, ...closedInMemory]);
     this.localOrders.set(orders.filter(isLocalOrder));
     this.commands.set(commands);
+    this.lastQueuedAt = Math.max(
+      this.lastQueuedAt,
+      ...commands.map(({ clientCreatedAt }) => Date.parse(clientCreatedAt)).filter(Number.isFinite)
+    );
     const conflict = commands.find(({ status }) => status === 'CONFLICT');
     const authoritative = conflict ? this.authoritativeOrder(conflict.aggregateId) : null;
     this.conflictOrder.set(authoritative ? orderSummary(authoritative) : null);
@@ -807,6 +828,7 @@ export class PosSessionStore implements OnDestroy {
     this.storageErrorCode.set(null);
     this.syncErrorCode.set(null);
     this.conflictOrder.set(null);
+    this.lastQueuedAt = 0;
     this.directIntents.clear();
     this.ambiguousDirectIntentId = null;
     this.syncState.set('OFFLINE');

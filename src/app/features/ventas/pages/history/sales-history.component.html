@@ -1,4 +1,5 @@
-<section class="mx-auto flex w-full max-w-[1600px] flex-col gap-5 p-4 md:p-6">
+<section
+  class="mx-auto flex min-w-0 w-full max-w-[1600px] flex-col gap-5 overflow-x-hidden p-4 md:p-6 [&_button]:!min-h-[44px] [&_button]:!min-w-[44px]">
   <header class="space-y-1">
     <h1 class="m-0 text-3xl font-bold mg-text">{{ 'pos.history.title' | translate }}</h1>
     <p class="m-0 mg-text-muted">{{ 'pos.history.description' | translate }}</p>
@@ -150,7 +151,7 @@
         (click)="loadOrders()"></button>
     </section>
   } @else {
-    <div class="overflow-hidden rounded-content border border-surface mg-surface">
+    <div class="overflow-x-auto rounded-content border border-surface mg-surface">
       <p-table [value]="orders()" [loading]="loading()" [rowHover]="true" styleClass="p-datatable-sm">
         <ng-template pTemplate="header">
           <tr>

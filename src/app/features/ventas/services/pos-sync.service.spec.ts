@@ -4,14 +4,16 @@ import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { QueuedPosCommand } from '../models/pos-command.models';
 import { OperationalPosOrder, PosOperationalChange, PosOperationalSyncResponse, PosOrder } from '../models/pos.models';
-import { OfflineOrderSnapshot, PosOfflineQueueService } from './pos-offline-queue.service';
+import { OfflineOrderSnapshot, PosOfflineQueueService, PosOfflineStorageError } from './pos-offline-queue.service';
 import { PosSyncCallbacks, PosSyncService } from './pos-sync.service';
 import { PosService } from './pos.service';
+import { PosTelemetryService } from './pos-telemetry.service';
 
 describe('PosSyncService', () => {
   let queue: FakeQueue;
   let posService: jasmine.SpyObj<PosService>;
   let service: PosSyncService;
+  let telemetry: PosTelemetryService;
   let callbacks: PosSyncCallbacks;
 
   beforeEach(() => {
@@ -37,6 +39,7 @@ describe('PosSyncService', () => {
       ]
     });
     service = TestBed.inject(PosSyncService);
+    telemetry = TestBed.inject(PosTelemetryService);
     service.start(callbacks);
   });
 
@@ -73,6 +76,14 @@ describe('PosSyncService', () => {
     expect(retry?.nextAttemptAt).toBeDefined();
     expect(queue.confirmed).toEqual(['other']);
     expect(posService.getSync).not.toHaveBeenCalled();
+    expect(telemetry.snapshot()).toContain(
+      jasmine.objectContaining({
+        type: 'SYNC_ERROR',
+        phase: 'COMMAND',
+        errorCode: 'UPSTREAM_FAILED',
+        transient: true
+      })
+    );
   });
 
   it('stops only the conflicted aggregate, refreshes it, and continues another order', async () => {
@@ -115,6 +126,20 @@ describe('PosSyncService', () => {
       ['device-1', undefined]
     ]);
     expect(queue.cursor).toBe('rebuilt-cursor');
+    expect(telemetry.snapshot()).toContain(jasmine.objectContaining({ type: 'SYNC_CYCLE', outcome: 'COMPLETED' }));
+  });
+
+  it('marks the sync cycle as failed when operational changes cannot be read', async () => {
+    posService.getSync.and.returnValue(
+      throwError(() => new HttpErrorResponse({ status: 503, error: { code: 'UPSTREAM_FAILED' } }))
+    );
+
+    await service.requestSync();
+
+    expect(telemetry.snapshot()).toContain(
+      jasmine.objectContaining({ type: 'SYNC_ERROR', phase: 'OPERATIONAL', errorCode: 'UPSTREAM_FAILED' })
+    );
+    expect(telemetry.snapshot()).toContain(jasmine.objectContaining({ type: 'SYNC_CYCLE', outcome: 'FAILED' }));
   });
 
   it('does not apply an in-flight response after stop invalidates the session', async () => {
@@ -132,6 +157,23 @@ describe('PosSyncService', () => {
     expect(queue.confirmed).toEqual([]);
     expect(callbacks.applyAuthoritativeOrder).not.toHaveBeenCalled();
     expect(queue.commands[0].status).toBe('SENDING');
+    expect(telemetry.snapshot()).toContain(jasmine.objectContaining({ type: 'SYNC_CYCLE', outcome: 'CANCELLED' }));
+  });
+
+  it('records storage failures as non-transient without serializing the error', async () => {
+    spyOn(queue, 'listCommands').and.rejectWith(new PosOfflineStorageError('POS_OFFLINE_STORAGE_QUOTA_EXCEEDED'));
+
+    await expectAsync(service.requestSync()).toBeRejected();
+
+    expect(telemetry.snapshot()).toContain(
+      jasmine.objectContaining({
+        type: 'SYNC_ERROR',
+        phase: 'STORAGE',
+        errorCode: 'POS_OFFLINE_STORAGE_QUOTA_EXCEEDED',
+        transient: false
+      })
+    );
+    expect(telemetry.snapshot()).toContain(jasmine.objectContaining({ type: 'SYNC_CYCLE', outcome: 'FAILED' }));
   });
 
   it('persists the opaque cursor and coalesces concurrent sync requests', async () => {

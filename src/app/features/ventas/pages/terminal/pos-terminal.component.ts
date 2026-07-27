@@ -27,6 +27,7 @@ import {
 import { PosOrderLineViewModel, PosOrderViewModel } from '../../models/pos-local.models';
 import { PosSessionStore } from '../../services/pos-session.store';
 import { PosService } from '../../services/pos.service';
+import { PosTelemetryService } from '../../services/pos-telemetry.service';
 import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
@@ -59,6 +60,7 @@ export class PosTerminalComponent implements OnInit {
   private legacyMigrationAttempted = false;
 
   readonly store = inject(PosSessionStore);
+  readonly telemetry = inject(PosTelemetryService);
   readonly online = signal(typeof navigator === 'undefined' || navigator.onLine);
   readonly devices = signal<PosDevice[]>([]);
   readonly loadingDevices = signal(false);

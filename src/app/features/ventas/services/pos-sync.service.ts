@@ -4,8 +4,9 @@ import { firstValueFrom } from 'rxjs';
 
 import { QueuedPosCommand } from '../models/pos-command.models';
 import { PosOperationalChange, PosOrder } from '../models/pos.models';
-import { PosOfflineQueueService } from './pos-offline-queue.service';
+import { PosOfflineQueueService, PosOfflineStorageError } from './pos-offline-queue.service';
 import { PosService } from './pos.service';
+import { PosTelemetryPhase, PosTelemetryService } from './pos-telemetry.service';
 
 export interface PosSyncCallbacks {
   applyAuthoritativeOrder(order: PosOrder): void | Promise<void>;
@@ -20,6 +21,7 @@ export interface PosSyncCallbacks {
 export class PosSyncService {
   private readonly posService = inject(PosService);
   private readonly queue = inject(PosOfflineQueueService);
+  private readonly telemetry = inject(PosTelemetryService);
   private activeDrain: Promise<void> | null = null;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
   private callbacks: PosSyncCallbacks | null = null;
@@ -28,6 +30,7 @@ export class PosSyncService {
   start(callbacks: PosSyncCallbacks): void {
     this.generation++;
     this.callbacks = callbacks;
+    this.telemetry.clear();
   }
 
   requestSync(): Promise<void> {
@@ -52,13 +55,26 @@ export class PosSyncService {
   }
 
   private async drain(callbacks: PosSyncCallbacks, generation: number): Promise<void> {
+    const startedAt = Date.now();
+    let queuedCommands = 0;
+    let outcome: 'COMPLETED' | 'FAILED' | 'CANCELLED' = 'COMPLETED';
     await this.notify(callbacks.syncing, true);
     try {
+      queuedCommands = (await this.queue.listCommands()).length;
       const canSync = await this.replayPending(callbacks, generation);
+      if (!canSync || !this.isActive(callbacks, generation)) outcome = 'CANCELLED';
       if (canSync && this.isActive(callbacks, generation) && !(await this.hasExecutableCommands())) {
-        await this.drainOperationalChanges(callbacks, generation);
+        const operationalSucceeded = await this.drainOperationalChanges(callbacks, generation);
+        outcome = !this.isActive(callbacks, generation) ? 'CANCELLED' : operationalSucceeded ? outcome : 'FAILED';
       }
+    } catch (error: unknown) {
+      outcome = error instanceof PosSyncCancelledError ? 'CANCELLED' : 'FAILED';
+      if (outcome === 'FAILED') this.recordError('STORAGE', error, 'POS_SYNC_FAILED');
+      throw error;
     } finally {
+      if (!this.callbacks || this.callbacks === callbacks) {
+        this.telemetry.recordSyncCycle(outcome, Date.now() - startedAt, queuedCommands);
+      }
       if (this.isActive(callbacks, generation)) await this.notify(callbacks.syncing, false);
     }
   }
@@ -130,6 +146,7 @@ export class PosSyncService {
         const previousIds = new Set(previous.lines.map((line) => line.id));
         const addedIds = order.lines.map((line) => line.id).filter((lineId) => !previousIds.has(lineId));
         if (addedIds.length !== 1) {
+          this.telemetry.recordSyncError('COMMAND', 'POS_OFFLINE_LINE_RETARGET_AMBIGUOUS', false);
           const conflicted = await this.queue.markConflict(key, order, 'POS_OFFLINE_LINE_RETARGET_AMBIGUOUS');
           await this.notify(callbacks.commandChanged, conflicted);
           await this.notify(callbacks.applyAuthoritativeOrder, order);
@@ -177,6 +194,7 @@ export class PosSyncService {
     generation: number
   ): Promise<'BLOCK_AGGREGATE' | 'STOP_QUEUE'> {
     const code = errorCode(error);
+    this.recordError('COMMAND', error);
     if (code === 'DEVICE_REVOKED') {
       await this.failEntireQueue('DEVICE_REVOKED', callbacks);
       await this.notify(callbacks.error, 'DEVICE_REVOKED');
@@ -221,11 +239,12 @@ export class PosSyncService {
     callbacks: PosSyncCallbacks,
     generation: number,
     allowCursorReset = true
-  ): Promise<void> {
+  ): Promise<boolean> {
     const device = await this.queue.getDevice();
     if (!device) {
+      this.telemetry.recordSyncError('OPERATIONAL', 'POS_OFFLINE_DEVICE_NOT_FOUND', false);
       await this.notify(callbacks.error, 'POS_OFFLINE_DEVICE_NOT_FOUND');
-      return;
+      return false;
     }
 
     let cursor = await this.queue.getSyncCursor();
@@ -236,28 +255,30 @@ export class PosSyncService {
         this.assertActive(callbacks, generation);
         if (page.changes.length > 0) await callbacks.applyOperationalChanges(page.changes);
         await this.queue.setSyncCursor(page.serverCursor);
-        if (page.changes.length < 200) return;
+        if (page.changes.length < 200) return true;
         if (page.serverCursor === cursor) {
+          this.telemetry.recordSyncError('OPERATIONAL', 'POS_SYNC_CURSOR_STALLED', false);
           await this.notify(callbacks.error, 'POS_SYNC_CURSOR_STALLED');
-          return;
+          return false;
         }
         cursor = page.serverCursor;
       }
     } catch (error: unknown) {
-      if (!this.isActive(callbacks, generation)) return;
+      if (!this.isActive(callbacks, generation)) return false;
       const code = errorCode(error);
+      this.recordError('OPERATIONAL', error);
       if (code === 'INVALID_SYNC_CURSOR' && allowCursorReset) {
         await this.queue.setSyncCursor(null);
-        await this.drainOperationalChanges(callbacks, generation, false);
-        return;
+        return this.drainOperationalChanges(callbacks, generation, false);
       }
       if (code === 'DEVICE_REVOKED') {
         await this.failEntireQueue(code, callbacks);
         await this.notify(callbacks.error, code);
-        return;
+        return false;
       }
       await this.notify(callbacks.error, code || 'POS_SYNC_FAILED');
       if (isTransient(error)) this.scheduleRetry(1_000);
+      return false;
     }
   }
 
@@ -282,6 +303,10 @@ export class PosSyncService {
 
   private isActive(callbacks: PosSyncCallbacks, generation: number): boolean {
     return this.callbacks === callbacks && this.generation === generation;
+  }
+
+  private recordError(phase: PosTelemetryPhase, error: unknown, fallback = 'POS_SYNC_FAILED'): void {
+    this.telemetry.recordSyncError(phase, errorCode(error) ?? fallback, isTransient(error));
   }
 
   private assertActive(callbacks: PosSyncCallbacks, generation: number): void {
@@ -313,6 +338,7 @@ class PosSyncCommandError extends Error {
 
 function errorCode(error: unknown): string | undefined {
   if (error instanceof PosSyncCommandError) return error.code;
+  if (error instanceof PosOfflineStorageError) return error.code;
   if (!(error instanceof HttpErrorResponse) || error.error === null || typeof error.error !== 'object')
     return undefined;
   const code = (error.error as Record<string, unknown>)['code'];
@@ -320,6 +346,7 @@ function errorCode(error: unknown): string | undefined {
 }
 
 function isTransient(error: unknown): boolean {
+  if (error instanceof PosOfflineStorageError) return false;
   if (!(error instanceof HttpErrorResponse)) return !(error instanceof PosSyncCommandError);
   return error.status === 0 || error.status === 408 || error.status === 429 || error.status >= 500;
 }
