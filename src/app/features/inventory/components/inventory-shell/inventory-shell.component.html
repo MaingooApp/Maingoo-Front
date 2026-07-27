@@ -1,45 +1,47 @@
-<section
-  class="flex min-w-0 h-full min-h-0 flex-col overflow-x-hidden [&_button]:!min-h-[44px] [&_button]:!min-w-[44px] [&_a.p-button]:!min-h-[44px]">
-  <header class="flex flex-wrap items-center justify-between gap-4 border-b border-surface p-4 md:px-6">
-    <div>
-      <h1 class="m-0 text-2xl font-bold mg-text">{{ 'inventory.title' | translate }}</h1>
-      <p class="mb-0 mt-1 text-sm mg-text-muted">{{ 'inventory.description' | translate }}</p>
-    </div>
-    <nav class="flex gap-2 overflow-x-auto" [attr.aria-label]="'inventory.navigation.label' | translate">
-      <a
-        routerLink="/inventario"
-        [routerLinkActiveOptions]="{ exact: true }"
-        routerLinkActive="bg-primary text-primary-contrast"
-        ariaCurrentWhenActive="page"
-        class="min-h-11 rounded-lg px-4 py-3 no-underline mg-text">
-        {{ 'inventory.navigation.summary' | translate }}
-      </a>
-      <a
-        routerLink="/inventario/movimientos"
-        routerLinkActive="bg-primary text-primary-contrast"
-        ariaCurrentWhenActive="page"
-        class="min-h-11 rounded-lg px-4 py-3 no-underline mg-text">
-        {{ 'inventory.navigation.movements' | translate }}
-      </a>
-      @if (canWrite) {
+<div class="h-full min-h-0 p-4 md:p-6">
+  <section
+    class="flex min-w-0 h-full min-h-0 flex-col overflow-x-hidden rounded-content shadow-sm mg-surface [&_button]:!min-h-[44px] [&_button]:!min-w-[44px] [&_a.p-button]:!min-h-[44px]">
+    <header class="flex flex-wrap items-center justify-between gap-4 border-b border-surface p-4 md:px-6">
+      <div>
+        <h1 class="m-0 text-2xl font-bold mg-text">{{ 'inventory.title' | translate }}</h1>
+        <p class="mb-0 mt-1 text-sm mg-text-muted">{{ 'inventory.description' | translate }}</p>
+      </div>
+      <nav class="flex gap-2 overflow-x-auto" [attr.aria-label]="'inventory.navigation.label' | translate">
         <a
-          routerLink="/inventario/recuento"
+          routerLink="/inventario"
+          [routerLinkActiveOptions]="{ exact: true }"
           routerLinkActive="bg-primary text-primary-contrast"
           ariaCurrentWhenActive="page"
           class="min-h-11 rounded-lg px-4 py-3 no-underline mg-text">
-          {{ 'inventory.navigation.count' | translate }}
+          {{ 'inventory.navigation.summary' | translate }}
         </a>
-      }
-    </nav>
-  </header>
+        <a
+          routerLink="/inventario/movimientos"
+          routerLinkActive="bg-primary text-primary-contrast"
+          ariaCurrentWhenActive="page"
+          class="min-h-11 rounded-lg px-4 py-3 no-underline mg-text">
+          {{ 'inventory.navigation.movements' | translate }}
+        </a>
+        @if (canWrite) {
+          <a
+            routerLink="/inventario/recuento"
+            routerLinkActive="bg-primary text-primary-contrast"
+            ariaCurrentWhenActive="page"
+            class="min-h-11 rounded-lg px-4 py-3 no-underline mg-text">
+            {{ 'inventory.navigation.count' | translate }}
+          </a>
+        }
+      </nav>
+    </header>
 
-  @if (!connectivity.online()) {
-    <div
-      class="mx-4 mt-4 rounded-xl border border-orange-400 bg-orange-50 p-4 text-orange-900 dark:bg-orange-950/40 dark:text-orange-200 md:mx-6"
-      role="status">
-      <i class="pi pi-wifi mr-2" aria-hidden="true"></i>{{ 'inventory.offline' | translate }}
-    </div>
-  }
+    @if (!connectivity.online()) {
+      <div
+        class="mx-4 mt-4 rounded-xl border border-orange-400 bg-orange-50 p-4 text-orange-900 dark:bg-orange-950/40 dark:text-orange-200 md:mx-6"
+        role="status">
+        <i class="pi pi-wifi mr-2" aria-hidden="true"></i>{{ 'inventory.offline' | translate }}
+      </div>
+    }
 
-  <main class="min-h-0 flex-1 overflow-hidden"><router-outlet></router-outlet></main>
-</section>
+    <main class="min-h-0 flex-1 overflow-hidden"><router-outlet></router-outlet></main>
+  </section>
+</div>

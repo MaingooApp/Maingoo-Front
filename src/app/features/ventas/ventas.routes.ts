@@ -8,6 +8,7 @@ import { PosSyncService } from './services/pos-sync.service';
 const ventasRoutes: Routes = [
   {
     path: '',
+    loadComponent: () => import('./components/pos-shell/pos-shell.component').then((m) => m.PosShellComponent),
     providers: [PosOfflineQueueService, PosSyncService, PosSessionStore],
     children: [
       {
