@@ -1,14 +1,21 @@
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { FoodPreparationService } from '@app/features/articles/services/food-preparation.service';
+import { DevicePairingService } from '@app/features/device/services/device-pairing.service';
+import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
 import { PosService } from '../../services/pos.service';
 import { PosSettingsComponent } from './pos-settings.component';
 
 describe('PosSettingsComponent', () => {
-  it('loads configuration and validates modifier selection ranges', () => {
+  let component: PosSettingsComponent;
+  let pairingService: jasmine.SpyObj<DevicePairingService>;
+  let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
+
+  beforeEach(() => {
     const timestamp = '2026-07-25T10:00:00.000Z';
     const posService = jasmine.createSpyObj<PosService>('PosService', [
       'getSettings',
@@ -82,17 +89,29 @@ describe('PosSettingsComponent', () => {
     posService.listKitchenStations.and.returnValue(of([]));
     const foodPreparationService = jasmine.createSpyObj<FoodPreparationService>('FoodPreparationService', ['getAll']);
     foodPreparationService.getAll.and.returnValue(throwError(() => new Error('missing permission')));
+    pairingService = jasmine.createSpyObj<DevicePairingService>('DevicePairingService', ['lookup', 'approve', 'deny']);
+    confirmDialog = jasmine.createSpyObj<ConfirmDialogService>('ConfirmDialogService', ['confirm']);
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: PosService, useValue: posService },
         { provide: FoodPreparationService, useValue: foodPreparationService },
+        { provide: DevicePairingService, useValue: pairingService },
+        { provide: ConfirmDialogService, useValue: confirmDialog },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}), routeConfig: { path: 'configuracion' } } }
+        },
+        { provide: Router, useValue: jasmine.createSpyObj<Router>('Router', ['navigate']) },
         provideNoopAnimations()
       ]
     });
 
-    const component = TestBed.createComponent(PosSettingsComponent).componentInstance;
+    component = TestBed.createComponent(PosSettingsComponent).componentInstance;
+  });
+
+  it('loads configuration and validates modifier selection ranges', () => {
     component.selectSection('items');
 
     expect(component.loading()).toBeFalse();
@@ -106,5 +125,56 @@ describe('PosSettingsComponent', () => {
     component.entityForm.required = false;
     component.entityForm.maxSelections = 2;
     expect(component.modifierSelectionRangeInvalid()).toBeTrue();
+  });
+
+  it('normalizes a QR code and approves a KDS for all stations after confirmation', async () => {
+    pairingService.lookup.and.returnValue(
+      of({
+        id: 'pairing-1',
+        requestedType: 'KDS',
+        requestedLabel: 'Pantalla pase',
+        appVersion: null,
+        status: 'PENDING',
+        expiresAt: '2099-01-01T00:00:00.000Z',
+        createdAt: '2026-07-29T10:00:00.000Z'
+      })
+    );
+    pairingService.approve.and.returnValue(of({}));
+    confirmDialog.confirm.and.resolveTo(true);
+
+    component.openPairing('abcd efgh');
+    expect(pairingService.lookup).toHaveBeenCalledOnceWith('ABCD-EFGH');
+    expect(component.pairingName).toBe('Pantalla pase');
+
+    component.pairingKitchenStationId = '';
+    await component.approvePairing();
+
+    expect(confirmDialog.confirm).toHaveBeenCalled();
+    expect(pairingService.approve).toHaveBeenCalledOnceWith('pairing-1', {
+      userCode: 'ABCD-EFGH',
+      name: 'Pantalla pase',
+      kitchenStationId: null
+    });
+  });
+
+  it('requires confirmation before rejecting and never includes a device credential', async () => {
+    pairingService.lookup.and.returnValue(
+      of({
+        id: 'pairing-2',
+        requestedType: 'REGISTER',
+        requestedLabel: null,
+        appVersion: null,
+        status: 'PENDING',
+        expiresAt: '2099-01-01T00:00:00.000Z',
+        createdAt: '2026-07-29T10:00:00.000Z'
+      })
+    );
+    pairingService.deny.and.returnValue(of({ id: 'pairing-2', status: 'DENIED' }));
+    confirmDialog.confirm.and.resolveTo(true);
+
+    component.openPairing('ABCD-EFGH');
+    await component.denyPairing();
+
+    expect(pairingService.deny).toHaveBeenCalledOnceWith('pairing-2', { userCode: 'ABCD-EFGH' });
   });
 });

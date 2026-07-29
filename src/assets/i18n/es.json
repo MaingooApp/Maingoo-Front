@@ -648,6 +648,44 @@
       "activeStates": {
         "active": "Activo",
         "inactive": "Inactivo"
+      },
+      "devicePairing": {
+        "open": "Emparejar dispositivo",
+        "title": "Emparejar dispositivo",
+        "description": "Introduce el código que aparece en la pantalla y comprueba que coincide antes de aprobar.",
+        "code": "Código de emparejamiento",
+        "codePlaceholder": "ABCD-EFGH",
+        "lookup": "Buscar",
+        "compareCode": "Código que debes comparar",
+        "requestedLabel": "Nombre sugerido",
+        "notProvided": "No indicado",
+        "expiresAt": "Caduca",
+        "status": "Estado",
+        "allStations": "Todas las estaciones",
+        "confirmHint": "Al aprobar se creará y vinculará este dispositivo al negocio.",
+        "approve": "Aprobar",
+        "deny": "Rechazar",
+        "approveConfirmTitle": "Confirmar emparejamiento",
+        "approveConfirmMessage": "¿Aprobar {{code}} con el nombre «{{name}}»?",
+        "denyConfirmTitle": "Rechazar emparejamiento",
+        "denyConfirmMessage": "¿Rechazar la solicitud {{code}}? El dispositivo tendrá que generar otro código.",
+        "approved": "El dispositivo se ha emparejado correctamente.",
+        "denied": "La solicitud de emparejamiento se ha rechazado.",
+        "statuses": {
+          "PENDING": "Pendiente",
+          "APPROVED": "Aprobado",
+          "DENIED": "Rechazado",
+          "EXPIRED": "Caducado",
+          "CONSUMED": "Completado"
+        },
+        "errors": {
+          "PAIRING_CODE_INVALID": "El código no es válido o ya no está disponible.",
+          "PAIRING_EXPIRED": "El código ha caducado. Genera uno nuevo en el dispositivo.",
+          "PAIRING_DENIED": "La solicitud ya fue rechazada.",
+          "PAIRING_ALREADY_CONSUMED": "Este código ya se utilizó.",
+          "DEVICE_STATION_NOT_ALLOWED": "La estación seleccionada no está disponible para este dispositivo.",
+          "PAIRING_REQUEST_FAILED": "No se pudo completar la solicitud de emparejamiento. Inténtalo de nuevo."
+        }
       }
     }
   },

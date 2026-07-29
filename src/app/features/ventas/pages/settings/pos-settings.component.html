@@ -97,16 +97,32 @@
         </h2>
         <p class="mb-0 mt-1 text-sm mg-text-muted">{{ 'pos.settings.catalogDescription' | translate }}</p>
       </div>
-      <button
-        pButton
-        type="button"
-        icon="pi pi-plus"
-        [disabled]="
-          (activeSection() === 'tables' && !areas().length) || (activeSection() === 'items' && !categories().length)
-        "
-        [label]="'pos.settings.add' | translate"
-        (click)="openCreate()"></button>
+      @if (activeSection() === 'devices') {
+        <a
+          pButton
+          icon="pi pi-link"
+          routerLink="/ventas/configuracion/dispositivos/emparejar"
+          [label]="'pos.settings.devicePairing.open' | translate"></a>
+      } @else {
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          [disabled]="
+            (activeSection() === 'tables' && !areas().length) || (activeSection() === 'items' && !categories().length)
+          "
+          [label]="'pos.settings.add' | translate"
+          (click)="openCreate()"></button>
+      }
     </div>
+
+    @if (activeSection() === 'devices' && pairingSuccessKey(); as successKey) {
+      <p
+        class="m-0 rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-700 dark:text-green-300"
+        role="status">
+        {{ successKey | translate }}
+      </p>
+    }
 
     @if (!items().length) {
       <div
@@ -413,4 +429,139 @@
         [label]="'pos.settings.save' | translate"></button>
     </div>
   </form>
+</p-dialog>
+
+<p-dialog
+  [visible]="pairingDialogVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [closable]="!pairingSubmitting()"
+  [style]="{ width: 'min(36rem, 94vw)' }"
+  [header]="'pos.settings.devicePairing.title' | translate"
+  (visibleChange)="$event ? pairingDialogVisible.set(true) : closePairing()">
+  <div class="flex flex-col gap-5 pt-2">
+    <p class="m-0 mg-text-muted">{{ 'pos.settings.devicePairing.description' | translate }}</p>
+
+    <form class="flex flex-col gap-3 sm:flex-row sm:items-end" (ngSubmit)="lookupPairing()">
+      <label class="flex flex-1 flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.devicePairing.code' | translate }}</span>
+        <input
+          pInputText
+          required
+          autocomplete="off"
+          autocapitalize="characters"
+          inputmode="text"
+          maxlength="9"
+          name="pairingCode"
+          [disabled]="!!pairingLookup() || pairingSubmitting()"
+          [placeholder]="'pos.settings.devicePairing.codePlaceholder' | translate"
+          [(ngModel)]="pairingCode" />
+      </label>
+      <button
+        pButton
+        type="submit"
+        icon="pi pi-search"
+        [loading]="pairingLoading()"
+        [disabled]="!pairingCodeValid() || pairingSubmitting()"
+        [label]="'pos.settings.devicePairing.lookup' | translate"></button>
+    </form>
+
+    @if (pairingErrorCode(); as errorCode) {
+      <p
+        class="m-0 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300"
+        role="alert">
+        {{ 'pos.settings.devicePairing.errors.' + errorCode | translate }}
+      </p>
+    }
+
+    @if (pairingLookup(); as pairing) {
+      <section class="flex flex-col gap-4 rounded-xl border border-surface p-4" aria-live="polite">
+        <div class="grid gap-3 text-sm sm:grid-cols-2">
+          <div>
+            <span class="block mg-text-muted">{{ 'pos.settings.devicePairing.compareCode' | translate }}</span>
+            <strong class="text-xl tracking-widest mg-text">{{ pairingCode }}</strong>
+          </div>
+          <div>
+            <span class="block mg-text-muted">{{ 'pos.settings.fields.type' | translate }}</span>
+            <strong class="mg-text">{{ 'pos.settings.deviceTypes.' + pairing.requestedType | translate }}</strong>
+          </div>
+          <div>
+            <span class="block mg-text-muted">{{ 'pos.settings.devicePairing.requestedLabel' | translate }}</span>
+            <strong class="mg-text">{{
+              pairing.requestedLabel || ('pos.settings.devicePairing.notProvided' | translate)
+            }}</strong>
+          </div>
+          <div>
+            <span class="block mg-text-muted">{{ 'pos.settings.fields.appVersion' | translate }}</span>
+            <strong class="mg-text">{{
+              pairing.appVersion || ('pos.settings.devicePairing.notProvided' | translate)
+            }}</strong>
+          </div>
+          <div>
+            <span class="block mg-text-muted">{{ 'pos.settings.devicePairing.expiresAt' | translate }}</span>
+            <strong class="mg-text">{{ pairing.expiresAt | date: 'short' }}</strong>
+          </div>
+          <div>
+            <span class="block mg-text-muted">{{ 'pos.settings.devicePairing.status' | translate }}</span>
+            <strong class="mg-text">{{ 'pos.settings.devicePairing.statuses.' + pairing.status | translate }}</strong>
+          </div>
+        </div>
+
+        @if (pairing.status === 'PENDING') {
+          <label class="flex flex-col gap-2">
+            <span class="font-medium mg-text">{{ 'pos.settings.fields.name' | translate }}</span>
+            <input pInputText required maxlength="120" name="pairingName" [(ngModel)]="pairingName" />
+          </label>
+
+          @if (pairing.requestedType === 'KDS') {
+            <label class="flex flex-col gap-2">
+              <span class="font-medium mg-text">{{ 'pos.settings.fields.kitchenStation' | translate }}</span>
+              <select
+                name="pairingKitchenStationId"
+                class="rounded-md border border-surface bg-transparent p-3 mg-text"
+                [(ngModel)]="pairingKitchenStationId">
+                <option [ngValue]="''">{{ 'pos.settings.devicePairing.allStations' | translate }}</option>
+                @for (station of stations(); track station.id) {
+                  @if (station.active) {
+                    <option [ngValue]="station.id">{{ station.name }}</option>
+                  }
+                }
+              </select>
+            </label>
+          }
+
+          <p class="m-0 text-sm mg-text-muted">{{ 'pos.settings.devicePairing.confirmHint' | translate }}</p>
+        }
+      </section>
+    }
+
+    <div class="flex flex-wrap justify-end gap-2">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        [outlined]="true"
+        [disabled]="pairingSubmitting()"
+        [label]="'pos.settings.cancel' | translate"
+        (click)="closePairing()"></button>
+      @if (pairingLookup()?.status === 'PENDING') {
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          [outlined]="true"
+          [disabled]="pairingSubmitting()"
+          [label]="'pos.settings.devicePairing.deny' | translate"
+          (click)="denyPairing()"></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-check"
+          [loading]="pairingSubmitting()"
+          [disabled]="!pairingName.trim()"
+          [label]="'pos.settings.devicePairing.approve' | translate"
+          (click)="approvePairing()"></button>
+      }
+    </div>
+  </div>
 </p-dialog>

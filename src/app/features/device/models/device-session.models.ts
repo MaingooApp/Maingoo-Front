@@ -12,6 +12,44 @@ export interface DevicePairingChallenge {
   pollIntervalSeconds: number;
 }
 
+export interface CreateDevicePairingRequest {
+  requestedType: DeviceMode;
+  requestedLabel?: string;
+  appVersion?: string;
+}
+
+export interface DevicePairingLookup {
+  id: string;
+  requestedType: DeviceMode;
+  requestedLabel: string | null;
+  appVersion: string | null;
+  status: PairingStatus | 'CONSUMED';
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface ApproveDevicePairingRequest {
+  userCode: string;
+  name: string;
+  kitchenStationId?: string | null;
+}
+
+export interface DenyDevicePairingRequest {
+  userCode: string;
+}
+
+export interface DeniedDevicePairing {
+  id: string;
+  status: 'DENIED';
+}
+
+export interface DevicePairingPending {
+  code: 'PAIRING_PENDING';
+  message: string;
+  expiresAt: string;
+  pollIntervalSeconds: number;
+}
+
 export interface PairedDeviceIdentity {
   device: {
     id: string;
@@ -25,6 +63,12 @@ export interface PairedDeviceIdentity {
   expiresAt: string;
 }
 
+export interface DevicePairingExchangeSuccess extends PairedDeviceIdentity {
+  mode: DeviceMode;
+}
+
+export type DevicePairingExchange = DevicePairingPending | DevicePairingExchangeSuccess;
+
 export interface PosEmployeeSession {
   user: {
     id: string;
@@ -35,7 +79,7 @@ export interface PosEmployeeSession {
   expiresAt: string;
 }
 
-export type PendingDevicePairing = Pick<DevicePairingChallenge, 'pairingId' | 'deviceCode' | 'userCode' | 'expiresAt'>;
+export type PendingDevicePairing = DevicePairingChallenge;
 
 export interface DeviceSessionValues {
   pairedIdentity: PairedDeviceIdentity;

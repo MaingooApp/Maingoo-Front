@@ -4,6 +4,7 @@ import { Observable, throwError, BehaviorSubject, filter, take, switchMap, catch
 import { AuthService } from '../../features/auth/services/auth-service.service';
 import { Router } from '@angular/router';
 import { SubscriptionStateService } from '@features/billing/services/subscription-state.service';
+import { safeInternalReturnUrl } from '../guard/safe-return-url';
 import { POS_AUTH_MODE } from '../../features/device/interceptors/pos-auth.context';
 
 let isRefreshing = false;
@@ -32,7 +33,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
         if (req.url.includes('/auth/refresh')) {
           isRefreshing = false;
           authService.logout().subscribe(() => {
-            router.navigate(['/auth/login']);
+            navigateToLogin(router);
           });
           return throwError(() => error);
         }
@@ -60,7 +61,7 @@ function handle401Error(
     if (!refreshToken) {
       isRefreshing = false;
       authService.logout().subscribe(() => {
-        router.navigate(['/auth/login']);
+        navigateToLogin(router);
       });
       return throwError(() => new Error('No refresh token available'));
     }
@@ -76,7 +77,7 @@ function handle401Error(
       catchError((err) => {
         isRefreshing = false;
         authService.logout().subscribe(() => {
-          router.navigate(['/auth/login']);
+          navigateToLogin(router);
         });
         return throwError(() => err);
       })
@@ -92,6 +93,13 @@ function handle401Error(
       })
     );
   }
+}
+
+function navigateToLogin(router: Router): void {
+  const returnUrl = safeInternalReturnUrl(router.url);
+  const path = returnUrl?.split(/[?#]/, 1)[0];
+  const queryParams = returnUrl && path !== '/auth' && !path?.startsWith('/auth/') ? { returnUrl } : undefined;
+  void router.navigate(['/auth/login'], { queryParams });
 }
 
 function addTokenToRequest(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {

@@ -648,6 +648,44 @@
       "activeStates": {
         "active": "Active",
         "inactive": "Inactive"
+      },
+      "devicePairing": {
+        "open": "Pair device",
+        "title": "Pair device",
+        "description": "Enter the code shown on the screen and verify that it matches before approving.",
+        "code": "Pairing code",
+        "codePlaceholder": "ABCD-EFGH",
+        "lookup": "Search",
+        "compareCode": "Code to compare",
+        "requestedLabel": "Suggested name",
+        "notProvided": "Not provided",
+        "expiresAt": "Expires",
+        "status": "Status",
+        "allStations": "All stations",
+        "confirmHint": "Approving will create and link this device to the business.",
+        "approve": "Approve",
+        "deny": "Reject",
+        "approveConfirmTitle": "Confirm pairing",
+        "approveConfirmMessage": "Approve {{code}} with the name “{{name}}”?",
+        "denyConfirmTitle": "Reject pairing",
+        "denyConfirmMessage": "Reject request {{code}}? The device will need to generate another code.",
+        "approved": "The device was paired successfully.",
+        "denied": "The pairing request was rejected.",
+        "statuses": {
+          "PENDING": "Pending",
+          "APPROVED": "Approved",
+          "DENIED": "Rejected",
+          "EXPIRED": "Expired",
+          "CONSUMED": "Completed"
+        },
+        "errors": {
+          "PAIRING_CODE_INVALID": "The code is invalid or no longer available.",
+          "PAIRING_EXPIRED": "The code has expired. Generate a new one on the device.",
+          "PAIRING_DENIED": "The request has already been rejected.",
+          "PAIRING_ALREADY_CONSUMED": "This code has already been used.",
+          "DEVICE_STATION_NOT_ALLOWED": "The selected station is not available for this device.",
+          "PAIRING_REQUEST_FAILED": "The pairing request could not be completed. Try again."
+        }
       }
     }
   },

@@ -47,7 +47,10 @@ describe('DeviceSessionStorageService', () => {
       pairingId: 'pairing-1',
       deviceCode: 'device-code',
       userCode: 'ABCD-EFGH',
-      expiresAt: 'not-a-date'
+      expiresAt: 'not-a-date',
+      verificationUri: 'https://app.maingoo.tech/dispositivo',
+      verificationUriComplete: 'https://app.maingoo.tech/dispositivo?userCode=ABCD-EFGH',
+      pollIntervalSeconds: 5
     });
 
     expect(await service.get('operatorSession')).toBeNull();
@@ -62,7 +65,10 @@ describe('DeviceSessionStorageService', () => {
       pairingId: 'pairing-1',
       deviceCode: 'device-code',
       userCode: 'ABCD-EFGH',
-      expiresAt: '2099-01-01T00:00:00.000Z'
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      verificationUri: 'https://app.maingoo.tech/dispositivo',
+      verificationUriComplete: 'https://app.maingoo.tech/dispositivo?userCode=ABCD-EFGH',
+      pollIntervalSeconds: 5
     });
 
     await service.clear();

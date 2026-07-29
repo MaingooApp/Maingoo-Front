@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,6 +9,7 @@ import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../../../layout/component/floating-configurator/app.floatingconfigurator';
 import { AuthService } from '../../services/auth-service.service';
+import { safeInternalReturnUrl } from '../../../../core/guard/safe-return-url';
 
 import { CommonModule } from '@angular/common';
 
@@ -39,7 +40,8 @@ export class Login {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +63,8 @@ export class Login {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          this.router.navigate(['/']);
+          const returnUrl = safeInternalReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl')) ?? '/';
+          void this.router.navigateByUrl(returnUrl);
           this.cargando = false;
         },
         error: () => {

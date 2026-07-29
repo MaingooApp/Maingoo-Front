@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -11,6 +13,9 @@ import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { FoodPreparation } from '@app/features/articles/interfaces/food-preparation.interfaces';
 import { FoodPreparationService } from '@app/features/articles/services/food-preparation.service';
+import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
+import { DevicePairingLookup } from '../../../device/models/device-session.models';
+import { DevicePairingService } from '../../../device/services/device-pairing.service';
 import {
   CreateKitchenStationDto,
   CreateModifierGroupDto,
@@ -87,7 +92,16 @@ interface ModifierOptionForm {
 @Component({
   selector: 'app-pos-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ButtonModule, DialogModule, InputNumberModule, InputTextModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    TranslateModule,
+    ButtonModule,
+    DialogModule,
+    InputNumberModule,
+    InputTextModule
+  ],
   templateUrl: './pos-settings.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -96,6 +110,10 @@ export class PosSettingsComponent {
   private readonly foodPreparationService = inject(FoodPreparationService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly pairingService = inject(DevicePairingService);
+  private readonly confirmDialog = inject(ConfirmDialogService);
 
   readonly sections: SettingsSection[] = [
     'general',
@@ -113,6 +131,12 @@ export class PosSettingsComponent {
   readonly saving = signal(false);
   readonly loadError = signal(false);
   readonly dialogVisible = signal(false);
+  readonly pairingDialogVisible = signal(false);
+  readonly pairingLoading = signal(false);
+  readonly pairingSubmitting = signal(false);
+  readonly pairingLookup = signal<DevicePairingLookup | null>(null);
+  readonly pairingErrorCode = signal<string | null>(null);
+  readonly pairingSuccessKey = signal<string | null>(null);
   readonly devices = signal<PosDevice[]>([]);
   readonly areas = signal<DiningArea[]>([]);
   readonly tables = signal<DiningTable[]>([]);
@@ -145,9 +169,17 @@ export class PosSettingsComponent {
   settingsForm: SettingsForm = this.emptySettingsForm();
   entityForm: EntityForm = this.emptyEntityForm();
   editingEntityId: string | null = null;
+  pairingCode = '';
+  pairingName = '';
+  pairingKitchenStationId = '';
 
   constructor() {
     this.loadAll();
+    const code = this.route.snapshot.queryParamMap.get('userCode') ?? this.route.snapshot.queryParamMap.get('code');
+    if (this.route.snapshot.routeConfig?.path === 'configuracion/dispositivos/emparejar' || code) {
+      this.activeSection.set('devices');
+      this.openPairing(code ?? '');
+    }
   }
 
   selectSection(section: SettingsSection): void {
@@ -325,6 +357,101 @@ export class PosSettingsComponent {
 
   closeDialog(): void {
     this.dialogVisible.set(false);
+  }
+
+  openPairing(code = ''): void {
+    this.pairingCode = normalizePairingCode(code);
+    this.pairingName = '';
+    this.pairingKitchenStationId = '';
+    this.pairingLookup.set(null);
+    this.pairingErrorCode.set(null);
+    this.pairingDialogVisible.set(true);
+    if (isPairingCode(this.pairingCode)) this.lookupPairing();
+  }
+
+  closePairing(): void {
+    if (this.pairingSubmitting()) return;
+    this.pairingDialogVisible.set(false);
+    void this.router.navigate(['/ventas/configuracion']);
+  }
+
+  pairingCodeValid(): boolean {
+    return isPairingCode(normalizePairingCode(this.pairingCode));
+  }
+
+  lookupPairing(): void {
+    const userCode = normalizePairingCode(this.pairingCode);
+    this.pairingCode = userCode;
+    this.pairingLookup.set(null);
+    this.pairingErrorCode.set(null);
+    if (!isPairingCode(userCode)) {
+      this.pairingErrorCode.set('PAIRING_CODE_INVALID');
+      return;
+    }
+
+    this.pairingLoading.set(true);
+    this.pairingService
+      .lookup(userCode)
+      .pipe(
+        finalize(() => this.pairingLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (pairing) => {
+          this.pairingLookup.set(pairing);
+          this.pairingName = pairing.requestedLabel?.trim() ?? '';
+        },
+        error: (error: unknown) => this.pairingErrorCode.set(pairingErrorCode(error))
+      });
+  }
+
+  async approvePairing(): Promise<void> {
+    const pairing = this.pairingLookup();
+    const name = this.pairingName.trim();
+    if (!pairing || pairing.status !== 'PENDING' || !name || this.pairingSubmitting()) return;
+    if (
+      !(await this.confirmDialog.confirm({
+        header: this.translate.instant('pos.settings.devicePairing.approveConfirmTitle'),
+        message: this.translate.instant('pos.settings.devicePairing.approveConfirmMessage', {
+          code: this.pairingCode,
+          name
+        }),
+        acceptLabel: this.translate.instant('pos.settings.devicePairing.approve'),
+        rejectLabel: this.translate.instant('pos.settings.cancel'),
+        icon: 'help'
+      }))
+    )
+      return;
+
+    this.submitPairing(
+      this.pairingService.approve(pairing.id, {
+        userCode: this.pairingCode,
+        name,
+        ...(pairing.requestedType === 'KDS' ? { kitchenStationId: this.pairingKitchenStationId || null } : {})
+      }),
+      'pos.settings.devicePairing.approved'
+    );
+  }
+
+  async denyPairing(): Promise<void> {
+    const pairing = this.pairingLookup();
+    if (!pairing || pairing.status !== 'PENDING' || this.pairingSubmitting()) return;
+    if (
+      !(await this.confirmDialog.confirm({
+        header: this.translate.instant('pos.settings.devicePairing.denyConfirmTitle'),
+        message: this.translate.instant('pos.settings.devicePairing.denyConfirmMessage', { code: this.pairingCode }),
+        acceptLabel: this.translate.instant('pos.settings.devicePairing.deny'),
+        rejectLabel: this.translate.instant('pos.settings.cancel'),
+        acceptButtonStyleClass: 'p-button-danger',
+        icon: 'warning'
+      }))
+    )
+      return;
+
+    this.submitPairing(
+      this.pairingService.deny(pairing.id, { userCode: this.pairingCode }),
+      'pos.settings.devicePairing.denied'
+    );
   }
 
   saveEntity(form: NgForm): void {
@@ -557,6 +684,25 @@ export class PosSettingsComponent {
       });
   }
 
+  private submitPairing(request: Observable<unknown>, successKey: string): void {
+    this.pairingSubmitting.set(true);
+    this.pairingErrorCode.set(null);
+    request
+      .pipe(
+        finalize(() => this.pairingSubmitting.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {
+          this.pairingDialogVisible.set(false);
+          this.pairingSuccessKey.set(successKey);
+          this.loadAll();
+          void this.router.navigate(['/ventas/configuracion']);
+        },
+        error: (error: unknown) => this.pairingErrorCode.set(pairingErrorCode(error))
+      });
+  }
+
   private settingsToForm(settings: PosSettings): SettingsForm {
     return {
       enabled: settings.enabled,
@@ -603,4 +749,21 @@ export class PosSettingsComponent {
       modifierOptions: [{ name: '', priceDeltaGross: '0.00', active: true, sortOrder: 0 }]
     };
   }
+}
+
+function normalizePairingCode(value: string): string {
+  const compact = value.trim().toUpperCase().replace(/[\s-]/g, '');
+  return compact.length === 8 ? `${compact.slice(0, 4)}-${compact.slice(4)}` : value.trim().toUpperCase();
+}
+
+function isPairingCode(value: string): boolean {
+  return /^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/.test(value);
+}
+
+function pairingErrorCode(error: unknown): string {
+  if (!(error instanceof HttpErrorResponse) || error.error === null || typeof error.error !== 'object') {
+    return 'PAIRING_REQUEST_FAILED';
+  }
+  const code = (error.error as Record<string, unknown>)['code'];
+  return typeof code === 'string' ? code : 'PAIRING_REQUEST_FAILED';
 }

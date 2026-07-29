@@ -46,6 +46,12 @@ const ventasRoutes: Routes = [
         data: { permissions: { only: [AppPermission.PosRead] } }
       },
       {
+        path: 'configuracion/dispositivos/emparejar',
+        loadComponent: () => import('./pages/settings/pos-settings.component').then((m) => m.PosSettingsComponent),
+        canActivate: [ngxPermissionsGuard],
+        data: { permissions: { only: [AppPermission.PosManage] } }
+      },
+      {
         path: 'configuracion',
         loadComponent: () => import('./pages/settings/pos-settings.component').then((m) => m.PosSettingsComponent),
         canActivate: [ngxPermissionsGuard],
