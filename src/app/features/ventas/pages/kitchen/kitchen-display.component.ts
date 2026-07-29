@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import {
@@ -14,6 +15,7 @@ import {
   expand,
   filter,
   finalize,
+  firstValueFrom,
   forkJoin,
   fromEvent,
   map,
@@ -25,6 +27,9 @@ import {
 } from 'rxjs';
 
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
+import { PosAuthMode } from '../../../device/interceptors/pos-auth.context';
+import { DevicePairingService } from '../../../device/services/device-pairing.service';
+import { DeviceSessionService } from '../../../device/services/device-session.service';
 
 import { UpdateKitchenTicketCommandData } from '../../models/pos-command.models';
 import {
@@ -66,7 +71,14 @@ interface KitchenStationGroup {
 export class KitchenDisplayComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly posService = inject(PosService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly devicePairing = inject(DevicePairingService);
+  private readonly deviceSession = inject(DeviceSessionService);
   private readonly refreshRequested = new Subject<void>();
+
+  readonly deviceMode = this.route.snapshot.data['deviceMode'] === 'KDS';
+  readonly authMode: PosAuthMode = this.deviceMode ? 'DEVICE' : 'HUMAN';
 
   readonly devices = signal<PosDevice[]>([]);
   readonly selectedDeviceId = signal('');
@@ -81,11 +93,25 @@ export class KitchenDisplayComponent implements OnInit {
   readonly updatingTicketIds = signal<ReadonlySet<string>>(new Set());
   readonly now = signal(Date.now());
   readonly activeStatuses = ACTIVE_STATUSES;
+  readonly deviceName = computed(() =>
+    this.deviceMode
+      ? (this.deviceSession.device()?.name ?? '')
+      : (this.devices().find(({ id }) => id === this.selectedDeviceId())?.name ?? '')
+  );
+  readonly deviceEnterpriseId = computed(() =>
+    this.deviceMode ? (this.deviceSession.device()?.enterpriseId ?? '') : ''
+  );
+  readonly fixedStationId = computed(() =>
+    this.deviceMode ? (this.deviceSession.device()?.kitchenStationId ?? '') : ''
+  );
+  readonly fixedStationName = computed(
+    () => this.stations().find(({ id }) => id === this.fixedStationId())?.name ?? this.fixedStationId()
+  );
 
   private cursor: string | null = null;
 
   readonly stationGroups = computed<KitchenStationGroup[]>(() => {
-    const selectedStationId = this.selectedStationId();
+    const selectedStationId = this.fixedStationId() || this.selectedStationId();
     const groups = new Map<string, KitchenStationGroup>();
 
     for (const ticket of this.tickets()) {
@@ -121,12 +147,14 @@ export class KitchenDisplayComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.loadDevices();
+    if (this.deviceMode) void this.initializePairedDevice();
+    else this.loadDevices();
     this.setupConnectivity();
     this.setupPolling();
   }
 
   loadDevices(): void {
+    if (this.deviceMode) return;
     this.loadingDevices.set(true);
     this.deviceErrorCode.set(null);
     this.posService
@@ -151,6 +179,7 @@ export class KitchenDisplayComponent implements OnInit {
   }
 
   activateDevice(): void {
+    if (this.deviceMode) return;
     const deviceId = this.selectedDeviceId();
     if (!deviceId) return;
 
@@ -163,6 +192,7 @@ export class KitchenDisplayComponent implements OnInit {
   }
 
   changeDevice(): void {
+    if (this.deviceMode) return;
     localStorage.removeItem(DEVICE_STORAGE_KEY);
     this.selectedDeviceId.set('');
     this.cursor = null;
@@ -191,7 +221,7 @@ export class KitchenDisplayComponent implements OnInit {
     };
 
     this.posService
-      .updateKitchenTicket(command, crypto.randomUUID())
+      .updateKitchenTicket(command, crypto.randomUUID(), this.authMode)
       .pipe(
         finalize(() => this.setUpdating(ticket.id, false)),
         takeUntilDestroyed(this.destroyRef)
@@ -276,10 +306,14 @@ export class KitchenDisplayComponent implements OnInit {
   }
 
   private listAllPages(filters: KitchenTicketFilters): Observable<KitchenTicketListItem[]> {
-    return this.posService.listKitchenTickets({ ...filters, page: 1, limit: PAGE_SIZE }).pipe(
+    const scopedFilters = this.scopedFilters(filters);
+    return this.posService.listKitchenTickets({ ...scopedFilters, page: 1, limit: PAGE_SIZE }, this.authMode).pipe(
       expand((page) =>
         page.nextPage
-          ? this.posService.listKitchenTickets({ ...filters, page: page.nextPage, limit: PAGE_SIZE })
+          ? this.posService.listKitchenTickets(
+              { ...scopedFilters, page: page.nextPage, limit: PAGE_SIZE },
+              this.authMode
+            )
           : EMPTY
       ),
       reduce<PagedResponse<KitchenTicketListItem>, KitchenTicketListItem[]>(
@@ -287,6 +321,50 @@ export class KitchenDisplayComponent implements OnInit {
         []
       )
     );
+  }
+
+  private activatePairedDevice(): void {
+    const device = this.deviceSession.device();
+    if (!device || device.type !== 'KDS') {
+      this.deviceErrorCode.set('DEVICE_TYPE_NOT_ALLOWED');
+      return;
+    }
+
+    this.selectedDeviceId.set(device.id);
+    this.selectedStationId.set(device.kitchenStationId ?? '');
+    this.cursor = null;
+    this.tickets.set([]);
+    this.errorCode.set(null);
+    this.loading.set(true);
+    this.refreshRequested.next();
+  }
+
+  private async initializePairedDevice(): Promise<void> {
+    this.loadingDevices.set(true);
+    this.deviceErrorCode.set(null);
+    try {
+      const context = await firstValueFrom(this.devicePairing.getContext());
+      await this.deviceSession.applyDeviceContext(context);
+      if (context.device.type !== 'KDS') {
+        await this.router.navigate(['/dispositivo/terminal'], { replaceUrl: true });
+        return;
+      }
+      this.activatePairedDevice();
+    } catch (error: unknown) {
+      this.loading.set(false);
+      this.deviceErrorCode.set(this.extractErrorCode(error, 'POS_DEVICE_LOAD_FAILED'));
+    } finally {
+      this.loadingDevices.set(false);
+    }
+  }
+
+  private scopedFilters(filters: KitchenTicketFilters): KitchenTicketFilters {
+    if (!this.deviceMode) return filters;
+    return {
+      ...filters,
+      enterpriseId: this.deviceEnterpriseId(),
+      ...(this.fixedStationId() ? { stationId: this.fixedStationId() } : {})
+    };
   }
 
   private mergeUpdatedTicket(updated: KitchenTicketUpdateResponse): void {

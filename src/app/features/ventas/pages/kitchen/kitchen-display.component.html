@@ -8,6 +8,9 @@
 
     @if (selectedDeviceId()) {
       <div class="flex flex-wrap items-center gap-3">
+        @if (deviceMode) {
+          <span class="font-semibold mg-text" data-testid="kds-device-name">{{ deviceName() }}</span>
+        }
         <span
           class="rounded-full border px-3 py-1 text-sm font-medium dark:border-surface-500 dark:text-surface-100"
           [class.border-green-300]="online()"
@@ -17,9 +20,11 @@
           role="status">
           {{ (online() ? 'pos.kitchen.online' : 'pos.kitchen.offline') | translate }}
         </span>
-        <button pButton type="button" class="p-button-outlined p-button-secondary" (click)="changeDevice()">
-          {{ 'pos.kitchen.changeDevice' | translate }}
-        </button>
+        @if (!deviceMode) {
+          <button pButton type="button" class="p-button-outlined p-button-secondary" (click)="changeDevice()">
+            {{ 'pos.kitchen.changeDevice' | translate }}
+          </button>
+        }
       </div>
     }
   </header>
@@ -32,7 +37,15 @@
     </div>
   }
 
-  @if (!selectedDeviceId()) {
+  @if (deviceMode && deviceErrorCode()) {
+    <div
+      class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300"
+      role="alert">
+      {{ 'pos.errors.' + deviceErrorCode() | translate }} <code>{{ deviceErrorCode() }}</code>
+    </div>
+  }
+
+  @if (!selectedDeviceId() && !deviceMode) {
     <section
       class="rounded-2xl border border-surface-200 bg-surface-0 p-5 dark:border-surface-700 dark:bg-surface-800"
       [attr.aria-busy]="loadingDevices()">
@@ -70,7 +83,7 @@
         </div>
       }
     </section>
-  } @else if (loading()) {
+  } @else if (loadingDevices() || loading()) {
     <app-skeleton mode="grid" [count]="6"></app-skeleton>
   } @else {
     @if (errorCode()) {
@@ -92,18 +105,27 @@
     }
 
     <div class="flex flex-wrap items-center gap-3">
-      <label for="kds-station" class="font-medium mg-text">{{ 'pos.kitchen.station' | translate }}</label>
-      <select
-        id="kds-station"
-        name="kds-station"
-        class="min-h-12 min-w-52 rounded-lg border border-surface-300 bg-surface-0 px-3 mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:border-surface-600 dark:bg-surface-900"
-        [ngModel]="selectedStationId()"
-        (ngModelChange)="selectedStationId.set($event)">
-        <option value="">{{ 'pos.kitchen.allStations' | translate }}</option>
-        @for (station of stations(); track station.id) {
-          <option [value]="station.id">{{ station.name }}</option>
-        }
-      </select>
+      @if (fixedStationId()) {
+        <span class="font-medium mg-text">{{ 'pos.kitchen.station' | translate }}</span>
+        <span
+          data-testid="kds-fixed-station"
+          class="inline-flex min-h-12 items-center rounded-lg border border-surface-300 px-3 font-medium mg-text dark:border-surface-600">
+          {{ fixedStationName() || fixedStationId() }}
+        </span>
+      } @else {
+        <label for="kds-station" class="font-medium mg-text">{{ 'pos.kitchen.station' | translate }}</label>
+        <select
+          id="kds-station"
+          name="kds-station"
+          class="min-h-12 min-w-52 rounded-lg border border-surface-300 bg-surface-0 px-3 mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:border-surface-600 dark:bg-surface-900"
+          [ngModel]="selectedStationId()"
+          (ngModelChange)="selectedStationId.set($event)">
+          <option value="">{{ 'pos.kitchen.allStations' | translate }}</option>
+          @for (station of stations(); track station.id) {
+            <option [value]="station.id">{{ station.name }}</option>
+          }
+        </select>
+      }
       @if (refreshing()) {
         <span class="text-sm mg-text-muted" role="status" aria-live="polite">
           {{ 'pos.kitchen.refreshing' | translate }}

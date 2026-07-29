@@ -5,15 +5,18 @@ import { of, throwError } from 'rxjs';
 import { SubscriptionStateService } from '@features/billing/services/subscription-state.service';
 import { AuthService } from '../../features/auth/services/auth-service.service';
 import { POS_AUTH_MODE } from '../../features/device/interceptors/pos-auth.context';
+import { DeviceSessionService } from '../../features/device/services/device-session.service';
 import { httpErrorInterceptor } from './http-error.interceptor';
 
 describe('httpErrorInterceptor', () => {
   it('does not refresh the human session after a device 401', () => {
     const authService = jasmine.createSpyObj<AuthService>('AuthService', ['refreshAccessToken', 'logout']);
+    const deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['clear']);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: authService },
+        { provide: DeviceSessionService, useValue: deviceSession },
         { provide: Router, useValue: jasmine.createSpyObj<Router>('Router', ['navigate']) },
         {
           provide: SubscriptionStateService,
@@ -41,6 +44,7 @@ describe('httpErrorInterceptor', () => {
 
   it('preserves the protected route when an expired human session returns 401', () => {
     const authService = jasmine.createSpyObj<AuthService>('AuthService', ['getRefreshToken', 'logout']);
+    const deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['clear']);
     const router = jasmine.createSpyObj<Router>('Router', ['navigate'], {
       url: '/ventas/configuracion/dispositivos/emparejar?userCode=ABCD-EFGH'
     });
@@ -50,6 +54,7 @@ describe('httpErrorInterceptor', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: AuthService, useValue: authService },
+        { provide: DeviceSessionService, useValue: deviceSession },
         { provide: Router, useValue: router },
         {
           provide: SubscriptionStateService,
@@ -68,5 +73,65 @@ describe('httpErrorInterceptor', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/auth/login'], {
       queryParams: { returnUrl: router.url }
     });
+  });
+
+  it('clears an invalid device credential and opens the revoked page', (done) => {
+    const authService = jasmine.createSpyObj<AuthService>('AuthService', ['logout']);
+    const deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['clear']);
+    const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    deviceSession.clear.and.resolveTo();
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: authService },
+        { provide: DeviceSessionService, useValue: deviceSession },
+        { provide: Router, useValue: router },
+        {
+          provide: SubscriptionStateService,
+          useValue: jasmine.createSpyObj<SubscriptionStateService>('SubscriptionStateService', ['markPaymentRequired'])
+        }
+      ]
+    });
+
+    const error = new HttpErrorResponse({ status: 401, error: { code: 'DEVICE_REVOKED' } });
+    const request = new HttpRequest('GET', '/api/pos/device-context', {
+      context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE')
+    });
+
+    TestBed.runInInjectionContext(() =>
+      httpErrorInterceptor(request, () => throwError(() => error)).subscribe({
+        error: (received) => {
+          expect(received).toBe(error);
+          expect(deviceSession.clear).toHaveBeenCalledTimes(1);
+          expect(router.navigate).toHaveBeenCalledOnceWith(['/dispositivo/revocado']);
+          done();
+        }
+      })
+    );
+  });
+
+  it('keeps the device pairing after a station authorization error', () => {
+    const deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['clear']);
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: jasmine.createSpyObj<AuthService>('AuthService', ['logout']) },
+        { provide: DeviceSessionService, useValue: deviceSession },
+        { provide: Router, useValue: jasmine.createSpyObj<Router>('Router', ['navigate']) },
+        {
+          provide: SubscriptionStateService,
+          useValue: jasmine.createSpyObj<SubscriptionStateService>('SubscriptionStateService', ['markPaymentRequired'])
+        }
+      ]
+    });
+    const error = new HttpErrorResponse({ status: 403, error: { code: 'DEVICE_STATION_NOT_ALLOWED' } });
+    const request = new HttpRequest('GET', '/api/pos/kitchen/tickets', {
+      context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE')
+    });
+
+    TestBed.runInInjectionContext(() =>
+      httpErrorInterceptor(request, () => throwError(() => error)).subscribe({ error: () => undefined })
+    );
+
+    expect(deviceSession.clear).not.toHaveBeenCalled();
   });
 });

@@ -35,6 +35,11 @@ const deviceRoutes: Routes = [
         loadComponent: () =>
           import('../ventas/pages/terminal/pos-terminal.component').then((component) => component.PosTerminalComponent)
       },
+      {
+        path: 'revocado',
+        loadComponent: () =>
+          import('./pages/revoked/device-revoked.component').then((component) => component.DeviceRevokedComponent)
+      },
       { path: '**', redirectTo: '' }
     ]
   }

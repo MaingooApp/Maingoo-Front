@@ -1,6 +1,11 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 
-import { PairedDeviceIdentity, PendingDevicePairing, PosEmployeeSession } from '../models/device-session.models';
+import {
+  DeviceContext,
+  PairedDeviceIdentity,
+  PendingDevicePairing,
+  PosEmployeeSession
+} from '../models/device-session.models';
 import { DeviceSessionStorageError, DeviceSessionStorageService } from './device-session-storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -38,6 +43,28 @@ export class DeviceSessionService {
     this.pendingPairingState.set(null);
     await this.storage.save('pairedIdentity', identity);
     this.pairedIdentityState.set(identity);
+  }
+
+  async applyDeviceContext(context: DeviceContext): Promise<void> {
+    const identity = this.pairedIdentity();
+    if (!identity) throw new Error('DEVICE_SESSION_REQUIRED');
+
+    const refreshed: PairedDeviceIdentity = {
+      device: {
+        id: context.device.id,
+        enterpriseId: context.device.enterpriseId,
+        name: context.device.name,
+        type: context.device.type,
+        kitchenStationId: context.device.kitchenStationId,
+        status: context.device.status
+      },
+      deviceToken: identity.deviceToken,
+      expiresAt: context.credentialExpiresAt
+    };
+    assertFutureExpiry(refreshed.expiresAt);
+    await this.storage.save('pairedIdentity', refreshed);
+    this.pairedIdentityState.set(refreshed);
+    if (refreshed.device.type !== 'REGISTER' && this.operatorSession()) await this.clearOperatorSession();
   }
 
   async setOperatorSession(session: PosEmployeeSession): Promise<void> {

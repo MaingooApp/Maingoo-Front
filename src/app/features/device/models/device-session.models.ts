@@ -63,6 +63,28 @@ export interface PairedDeviceIdentity {
   expiresAt: string;
 }
 
+export interface DeviceContext {
+  deviceId: string;
+  enterpriseId: string;
+  deviceType: DeviceMode;
+  kitchenStationId: string | null;
+  credentialExpiresAt: string;
+  credentialExpiresSoon: boolean;
+  mode: DeviceMode;
+  device: {
+    id: string;
+    enterpriseId: string;
+    name: string;
+    code: string;
+    type: DeviceMode;
+    status: 'ACTIVE';
+    kitchenStationId: string | null;
+    pairedAt: string | null;
+    lastSeenAt: string | null;
+    appVersion: string | null;
+  };
+}
+
 export interface DevicePairingExchangeSuccess extends PairedDeviceIdentity {
   mode: DeviceMode;
 }

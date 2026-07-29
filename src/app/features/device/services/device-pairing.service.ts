@@ -10,6 +10,7 @@ import {
   DeniedDevicePairing,
   DenyDevicePairingRequest,
   DevicePairingChallenge,
+  DeviceContext,
   DevicePairingExchange,
   DevicePairingLookup
 } from '../models/device-session.models';
@@ -31,6 +32,12 @@ export class DevicePairingService {
       { deviceCode },
       { context: this.publicContext }
     );
+  }
+
+  getContext(): Observable<DeviceContext> {
+    return this.http.get<DeviceContext>(`${environment.urlBackend}api/pos/device-context`, {
+      context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE')
+    });
   }
 
   lookup(userCode: string): Observable<DevicePairingLookup> {

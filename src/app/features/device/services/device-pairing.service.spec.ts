@@ -37,6 +37,15 @@ describe('DevicePairingService', () => {
     exchange.flush({ code: 'PAIRING_PENDING' });
   });
 
+  it('requests the current context with device authentication', () => {
+    service.getContext().subscribe();
+
+    const request = http.expectOne(`${environment.urlBackend}api/pos/device-context`);
+    expect(request.request.method).toBe('GET');
+    expect(request.request.context.get(POS_AUTH_MODE)).toBe('DEVICE');
+    request.flush({});
+  });
+
   it('looks up the visible code with explicit human authentication', () => {
     service.lookup('ABCD-EFGH').subscribe();
 

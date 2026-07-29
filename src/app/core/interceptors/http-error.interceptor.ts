@@ -1,11 +1,14 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Observable, throwError, BehaviorSubject, filter, take, switchMap, catchError } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, filter, take, switchMap, catchError, from, of } from 'rxjs';
 import { AuthService } from '../../features/auth/services/auth-service.service';
 import { Router } from '@angular/router';
 import { SubscriptionStateService } from '@features/billing/services/subscription-state.service';
 import { safeInternalReturnUrl } from '../guard/safe-return-url';
 import { POS_AUTH_MODE } from '../../features/device/interceptors/pos-auth.context';
+import { DeviceSessionService } from '../../features/device/services/device-session.service';
+
+const INVALID_DEVICE_CREDENTIAL_CODES = new Set(['DEVICE_REVOKED', 'DEVICE_TOKEN_EXPIRED', 'DEVICE_TOKEN_INVALID']);
 
 let isRefreshing = false;
 let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -17,9 +20,24 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
   const authService = inject(AuthService);
   const router = inject(Router);
   const subscriptionState = inject(SubscriptionStateService);
+  const deviceSession = inject(DeviceSessionService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      const authMode = req.context.get(POS_AUTH_MODE);
+      if (
+        (authMode === 'DEVICE' || authMode === 'DEVICE_EMPLOYEE') &&
+        INVALID_DEVICE_CREDENTIAL_CODES.has(errorCode(error) ?? '')
+      ) {
+        return from(deviceSession.clear()).pipe(
+          catchError(() => of(undefined)),
+          switchMap(() => {
+            void router.navigate(['/dispositivo/revocado']);
+            return throwError(() => error);
+          })
+        );
+      }
+
       if (error.status === 402) {
         subscriptionState.markPaymentRequired();
       }
@@ -108,4 +126,9 @@ function addTokenToRequest(req: HttpRequest<unknown>, token: string): HttpReques
       Authorization: `Bearer ${token}`
     }
   });
+}
+
+function errorCode(error: HttpErrorResponse): string | null {
+  if (!error.error || typeof error.error !== 'object' || !('code' in error.error)) return null;
+  return typeof error.error.code === 'string' ? error.error.code : null;
 }

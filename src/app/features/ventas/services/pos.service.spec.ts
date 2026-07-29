@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '@env/environment';
+import { POS_AUTH_MODE } from '../../device/interceptors/pos-auth.context';
 
 import { CreateOrderCommandData, UpdateKitchenTicketCommandData } from '../models/pos-command.models';
 import { CreateModifierGroupDto, UpdatePosSettingsDto } from '../models/pos-configuration.models';
@@ -70,7 +71,31 @@ describe('PosService', () => {
     const request = http.expectOne(`${apiUrl}/kitchen/tickets`);
     expect(request.request.method).toBe('PATCH');
     expect(request.request.body).toEqual(command);
+    expect(request.request.context.get(POS_AUTH_MODE)).toBe('HUMAN');
     request.flush({});
+  });
+
+  it('sends kitchen reads and updates with explicit device authentication', () => {
+    service.listKitchenTickets({ stationId: 'station-1' }, 'DEVICE').subscribe();
+
+    const list = http.expectOne(
+      (candidate) => candidate.url === `${apiUrl}/kitchen/tickets` && candidate.params.get('stationId') === 'station-1'
+    );
+    expect(list.request.context.get(POS_AUTH_MODE)).toBe('DEVICE');
+    list.flush({ items: [] });
+
+    const command: UpdateKitchenTicketCommandData = {
+      deviceId: '7b9c70e2-c246-4e30-a1ac-2e4305044cd4',
+      clientCreatedAt: '2026-07-25T10:00:00.000Z',
+      ticketId: 'c3fe1a86-cf64-4b65-abcd-a6dd5b58702c',
+      status: 'READY'
+    };
+    service.updateKitchenTicket(command, '5d5a5b24-e06d-4a47-adf8-b3c3025d2d09', 'DEVICE').subscribe();
+
+    const update = http.expectOne(`${apiUrl}/kitchen/tickets`);
+    expect(update.request.context.get(POS_AUTH_MODE)).toBe('DEVICE');
+    expect(update.request.headers.get('Idempotency-Key')).toBe('5d5a5b24-e06d-4a47-adf8-b3c3025d2d09');
+    update.flush({});
   });
 
   it('encodes sync filters without sending absent values', () => {

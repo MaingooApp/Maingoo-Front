@@ -1,9 +1,10 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { BaseHttpService } from '@app/core/services/base-http.service';
 import { environment } from '@env/environment';
+import { POS_AUTH_MODE, PosAuthMode } from '../../device/interceptors/pos-auth.context';
 
 import {
   AddLineCommandData,
@@ -375,22 +376,28 @@ export class PosService extends BaseHttpService {
     );
   }
 
-  listKitchenTickets(filters: KitchenTicketFilters = {}): Observable<PagedResponse<KitchenTicketListItem>> {
+  listKitchenTickets(
+    filters: KitchenTicketFilters = {},
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PagedResponse<KitchenTicketListItem>> {
     return this.get<PagedResponse<KitchenTicketListItem>>(
       `${this.apiUrl}/kitchen/tickets`,
       undefined,
-      this.params(filters)
+      this.params(filters),
+      new HttpContext().set(POS_AUTH_MODE, authMode)
     );
   }
 
   updateKitchenTicket(
     command: UpdateKitchenTicketCommandData,
-    idempotencyKey: string
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
   ): Observable<KitchenTicketUpdateResponse> {
     return this.patch<KitchenTicketUpdateResponse>(
       `${this.apiUrl}/kitchen/tickets`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      new HttpContext().set(POS_AUTH_MODE, authMode)
     );
   }
 
