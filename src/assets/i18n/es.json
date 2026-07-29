@@ -190,7 +190,19 @@
       "POS_SYNC_CURSOR_STALLED": "La sincronización no pudo avanzar.",
       "POS_DISABLED": "El TPV está deshabilitado.",
       "DEVICE_NOT_REGISTERED": "El dispositivo no está registrado.",
+      "DEVICE_TOKEN_INVALID": "La credencial del dispositivo no es válida. Vuelve a emparejarlo.",
+      "DEVICE_TOKEN_EXPIRED": "La credencial del dispositivo ha caducado. Vuelve a emparejarlo.",
       "DEVICE_REVOKED": "El dispositivo ha sido revocado.",
+      "DEVICE_CONTEXT_MISMATCH": "La identidad del dispositivo no coincide con esta operación.",
+      "DEVICE_TYPE_NOT_ALLOWED": "Este tipo de dispositivo no puede realizar esta operación.",
+      "DEVICE_STATION_NOT_ALLOWED": "La estación seleccionada no está asignada a este dispositivo.",
+      "DEVICE_EMPLOYEE_SESSION_REQUIRED": "Introduce el PIN de un empleado para continuar.",
+      "EMPLOYEE_PERMISSION_REQUIRED": "El empleado no tiene permiso para operar este terminal.",
+      "EMPLOYEE_SESSION_EXPIRED": "La sesión del empleado ha caducado. Introduce de nuevo el PIN.",
+      "EMPLOYEE_SESSION_REVOKED": "La sesión del empleado ya no está activa. Introduce de nuevo el PIN.",
+      "EMPLOYEE_SESSION_EXPIRED_OFFLINE": "La sesión del empleado ha caducado. Conéctate para volver a introducir el PIN.",
+      "POS_OFFLINE_EMPLOYEE_MISMATCH": "Las operaciones pendientes pertenecen a otro empleado. Sincronízalas antes de cambiar.",
+      "ACTOR_TYPE_NOT_ALLOWED": "Este tipo de sesión no puede realizar esta operación.",
       "POS_DEVICE_NOT_FOUND": "El dispositivo no existe o no está activo.",
       "INVALID_SYNC_CURSOR": "El cursor de sincronización no es válido.",
       "POS_DEVICE_REQUIRED": "Selecciona un dispositivo.",
@@ -882,6 +894,113 @@
       "STOCK_COUNT_NOT_DRAFT": "Solo se puede completar un recuento en curso.",
       "STOCK_COUNT_LINES_MISMATCH": "Debes enviar exactamente todos los productos del recuento.",
       "STOCK_CHANGED_DURING_COUNT": "Las existencias cambiaron durante el recuento. Inicia uno nuevo."
+    }
+  },
+  "users": {
+    "posPin": {
+      "title": "PIN del terminal TPV",
+      "description": "El PIN identifica al empleado en terminales emparejados. Nunca se puede consultar después de guardarlo.",
+      "configured": "PIN configurado",
+      "notConfigured": "Sin configurar",
+      "assign": "Asignar PIN",
+      "change": "Cambiar PIN",
+      "disable": "Desactivar PIN",
+      "newPin": "Nuevo PIN",
+      "confirmPin": "Confirmar PIN",
+      "pinPlaceholder": "4 a 6 dígitos",
+      "confirmPlaceholder": "Repite el PIN",
+      "invalid": "Debe contener entre 4 y 6 dígitos y coincidir.",
+      "cancel": "Cancelar",
+      "confirmAssignTitle": "Asignar PIN TPV",
+      "confirmChangeTitle": "Cambiar PIN TPV",
+      "confirmSetMessage": "El cambio cerrará cualquier sesión TPV activa de {{name}}. ¿Deseas continuar?",
+      "confirmDisableTitle": "Desactivar PIN TPV",
+      "confirmDisableMessage": "{{name}} dejará de poder acceder a los terminales TPV y su sesión activa se cerrará.",
+      "updatedTitle": "PIN TPV actualizado",
+      "updatedMessage": "El PIN de {{name}} se ha guardado correctamente.",
+      "saveErrorTitle": "No se pudo guardar el PIN",
+      "disabledTitle": "PIN TPV desactivado",
+      "disabledMessage": "{{name}} ya no puede acceder con PIN.",
+      "disableErrorTitle": "Error",
+      "disableErrorMessage": "No se pudo desactivar el PIN TPV.",
+      "errors": {
+        "duplicated": "Este PIN ya está asignado a otro usuario.",
+        "invalid": "Elige un PIN menos predecible de 4 a 6 dígitos.",
+        "saveFailed": "No se pudo guardar el PIN TPV."
+      }
+    }
+  },
+  "device": {
+    "shell": {
+      "ariaLabel": "Terminal TPV de Maingoo",
+      "kds": "Pantalla de cocina",
+      "register": "Terminal",
+      "online": "Con conexión",
+      "offline": "Sin conexión",
+      "syncing": "Sincronizando…",
+      "changeEmployee": "Bloquear o cambiar camarero",
+      "errors": {
+        "offline": "Conéctate para bloquear o cambiar de camarero.",
+        "syncRequired": "No se puede cambiar de camarero hasta sincronizar todas las operaciones pendientes.",
+        "failed": "No se pudo cerrar la sesión del camarero. Inténtalo de nuevo."
+      }
+    },
+    "pairing": {
+      "title": "Configurar dispositivo",
+      "description": "Elige cómo se utilizará este equipo en el TPV.",
+      "kds": {
+        "title": "Pantalla de cocina",
+        "description": "Muestra comandas automáticamente sin iniciar sesión."
+      },
+      "register": {
+        "title": "Terminal de camarero",
+        "description": "Permite tomar pedidos después de introducir el PIN personal."
+      },
+      "label": "Nombre sugerido (opcional)",
+      "labelPlaceholder": "Ej. Tablet barra",
+      "generate": "Generar código",
+      "generating": "Generando…",
+      "waiting": "Esperando aprobación",
+      "linkTitle": "Vincula este dispositivo",
+      "instructions": "Escanea el QR con una cuenta responsable o introduce el código en Configuración TPV > Dispositivos.",
+      "qrAlt": "Código QR para aprobar este dispositivo",
+      "qrLoading": "Generando código QR",
+      "codeLabel": "Código de vinculación",
+      "expiresIn": "Caduca en {{time}}",
+      "retrying": "Seguiremos intentando automáticamente.",
+      "cancel": "Cancelar y generar otro código",
+      "errors": {
+        "denied": "La solicitud fue rechazada. Genera un código nuevo para intentarlo otra vez.",
+        "expired": "El código ya no es válido. Genera uno nuevo para continuar.",
+        "storage": "No se pudo guardar la vinculación en este dispositivo.",
+        "connection": "No se pudo conectar con Maingoo. Comprueba la conexión e inténtalo de nuevo."
+      }
+    },
+    "terminalPin": {
+      "title": "Acceso al terminal",
+      "description": "Introduce tu PIN personal. No es necesario seleccionar un empleado.",
+      "label": "PIN de empleado",
+      "keypad": "Teclado PIN",
+      "digit": "Dígito {{digit}}",
+      "delete": "Borrar último dígito",
+      "submit": "Entrar",
+      "retryIn": "Vuelve a intentarlo en {{seconds}} s",
+      "errors": {
+        "invalid": "No se ha podido acceder con ese PIN.",
+        "locked": "Demasiados intentos. Espera antes de volver a probar."
+      }
+    },
+    "terminal": {
+      "validating": "Validando terminal",
+      "validationError": "No se ha podido validar este terminal.",
+      "retry": "Reintentar",
+      "operatorExpiredOffline": "La sesión del camarero ha caducado. Conéctate e introduce de nuevo el PIN para continuar."
+    },
+    "revoked": {
+      "title": "Dispositivo desvinculado",
+      "description": "La credencial de este equipo ya no es válida. Un responsable debe volver a emparejarlo para continuar.",
+      "preparing": "Preparando…",
+      "repair": "Volver a emparejar"
     }
   },
   "salesReports": {

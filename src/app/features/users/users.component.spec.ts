@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Confirmation, ConfirmationService } from 'primeng/api';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { TranslateModule } from '@ngx-translate/core';
 import { EMPTY, Subject, of } from 'rxjs';
 
 import { SectionHeaderService } from '../../layout/service/section-header.service';
@@ -39,7 +40,7 @@ describe('UsersComponent POS PIN', () => {
       }
     });
     TestBed.configureTestingModule({
-      imports: [UsersComponent, NgxPermissionsModule.forRoot()],
+      imports: [UsersComponent, NgxPermissionsModule.forRoot(), TranslateModule.forRoot()],
       providers: [
         { provide: UserService, useValue: userService },
         {

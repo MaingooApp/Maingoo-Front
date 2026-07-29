@@ -1,8 +1,19 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  HostListener,
+  OnInit,
+  effect,
+  inject,
+  signal
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import { PosTerminalComponent } from '../../../ventas/pages/terminal/pos-terminal.component';
+import { PosSessionStore } from '../../../ventas/services/pos-session.store';
 import { DevicePairingService } from '../../services/device-pairing.service';
 import { DeviceSessionService } from '../../services/device-session.service';
 import { TerminalPinComponent } from '../terminal-login/terminal-pin.component';
@@ -10,38 +21,35 @@ import { TerminalPinComponent } from '../terminal-login/terminal-pin.component';
 @Component({
   selector: 'app-device-terminal',
   standalone: true,
-  imports: [PosTerminalComponent, TerminalPinComponent],
-  template: `
-    @if (validating()) {
-      <div class="flex min-h-[calc(100vh-10rem)] items-center justify-center" role="status">
-        <span class="pi pi-spin pi-spinner text-3xl text-primary" aria-label="Validando terminal"></span>
-      </div>
-    } @else if (contextError()) {
-      <div class="flex min-h-[calc(100vh-10rem)] items-center justify-center p-6 text-center">
-        <div>
-          <p class="mg-text">No se ha podido validar este terminal.</p>
-          <button type="button" class="min-h-11 rounded-lg bg-primary px-5 text-primary-contrast" (click)="validate()">
-            Reintentar
-          </button>
-        </div>
-      </div>
-    } @else if (session.hasActiveOperator()) {
-      <app-pos-terminal />
-    } @else {
-      <app-terminal-pin />
-    }
-  `,
+  imports: [PosTerminalComponent, TerminalPinComponent, TranslateModule],
+  templateUrl: './device-terminal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DeviceTerminalComponent implements OnInit {
   private readonly pairing = inject(DevicePairingService);
+  private readonly posStore = inject(PosSessionStore);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly clock = signal(Date.now());
+  private clearingExpiredOperator = false;
   readonly session = inject(DeviceSessionService);
   readonly validating = signal(true);
   readonly contextError = signal(false);
+  readonly online = signal(typeof navigator === 'undefined' || navigator.onLine);
+  readonly sessionNoticeCode = signal<string | null>(null);
+
+  private readonly operatorLifecycle = effect(() => {
+    this.clock();
+    this.online();
+    this.session.operatorSession();
+    void this.reconcileOperatorSession();
+  });
 
   async ngOnInit(): Promise<void> {
     await this.session.initialize();
+    await this.reconcileOperatorSession();
+    const expiryMonitor = setInterval(() => this.clock.set(Date.now()), 1_000);
+    this.destroyRef.onDestroy(() => clearInterval(expiryMonitor));
     await this.validate();
   }
 
@@ -53,6 +61,10 @@ export class DeviceTerminalComponent implements OnInit {
 
     this.validating.set(true);
     this.contextError.set(false);
+    if (!this.online()) {
+      this.validating.set(false);
+      return;
+    }
     try {
       const context = await firstValueFrom(this.pairing.getContext());
       if (context.device.type !== 'REGISTER') {
@@ -64,6 +76,60 @@ export class DeviceTerminalComponent implements OnInit {
       this.contextError.set(true);
     } finally {
       this.validating.set(false);
+    }
+  }
+
+  @HostListener('window:online')
+  handleOnline(): void {
+    this.online.set(true);
+    void this.reconcileOperatorSession();
+  }
+
+  @HostListener('window:offline')
+  handleOffline(): void {
+    this.online.set(false);
+    void this.reconcileOperatorSession();
+  }
+
+  async reconcileOperatorSession(): Promise<void> {
+    const operator = this.session.operatorSession();
+    this.posStore.bindEmployee(operator?.user.id ?? null);
+    if (!operator) {
+      this.sessionNoticeCode.set(null);
+      this.clearExpiryBlock();
+      return;
+    }
+
+    const expiry = Date.parse(operator.expiresAt);
+    if (Number.isFinite(expiry) && expiry > this.clock()) {
+      this.sessionNoticeCode.set(null);
+      this.clearExpiryBlock();
+      return;
+    }
+
+    if (!this.online()) {
+      this.sessionNoticeCode.set('EMPLOYEE_SESSION_EXPIRED_OFFLINE');
+      this.posStore.setMutationBlock('EMPLOYEE_SESSION_EXPIRED_OFFLINE');
+      return;
+    }
+
+    this.sessionNoticeCode.set('EMPLOYEE_SESSION_EXPIRED');
+    this.posStore.setMutationBlock('EMPLOYEE_SESSION_EXPIRED');
+    if (this.clearingExpiredOperator) return;
+    this.clearingExpiredOperator = true;
+    try {
+      await this.session.clearOperatorSession();
+    } finally {
+      this.clearingExpiredOperator = false;
+    }
+  }
+
+  private clearExpiryBlock(): void {
+    if (
+      this.posStore.mutationBlockCode() === 'EMPLOYEE_SESSION_EXPIRED' ||
+      this.posStore.mutationBlockCode() === 'EMPLOYEE_SESSION_EXPIRED_OFFLINE'
+    ) {
+      this.posStore.setMutationBlock(null);
     }
   }
 }

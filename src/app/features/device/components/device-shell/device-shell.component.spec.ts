@@ -1,6 +1,7 @@
 import { WritableSignal, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { PosSessionStore } from '../../../ventas/services/pos-session.store';
@@ -11,6 +12,7 @@ import { DeviceShellComponent } from './device-shell.component';
 
 describe('DeviceShellComponent employee logout policy', () => {
   let pendingCount: WritableSignal<number>;
+  let mutationBlockCode: WritableSignal<string | null>;
   let operator: WritableSignal<PosEmployeeSession | null>;
   let session: jasmine.SpyObj<DeviceSessionService>;
   let pairing: jasmine.SpyObj<DevicePairingService>;
@@ -18,6 +20,7 @@ describe('DeviceShellComponent employee logout policy', () => {
 
   beforeEach(() => {
     pendingCount = signal(0);
+    mutationBlockCode = signal<string | null>(null);
     operator = signal<PosEmployeeSession | null>(employeeSession());
     session = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['clearOperatorSession'], {
       device: signal<PairedDeviceIdentity['device'] | null>(registerDevice()).asReadonly(),
@@ -27,12 +30,13 @@ describe('DeviceShellComponent employee logout policy', () => {
     pairing = jasmine.createSpyObj<DevicePairingService>('DevicePairingService', ['logoutEmployeeSession']);
     pairing.logoutEmployeeSession.and.returnValue(of({ loggedOut: true }));
     store = jasmine.createSpyObj<PosSessionStore>('PosSessionStore', ['syncNow'], {
-      pendingCommandCount: pendingCount.asReadonly()
+      pendingCommandCount: pendingCount.asReadonly(),
+      mutationBlockCode: mutationBlockCode.asReadonly()
     });
     store.syncNow.and.resolveTo();
 
     TestBed.configureTestingModule({
-      imports: [DeviceShellComponent],
+      imports: [DeviceShellComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DeviceSessionService, useValue: session },
         { provide: DevicePairingService, useValue: pairing },
@@ -93,6 +97,20 @@ describe('DeviceShellComponent employee logout policy', () => {
     expect(pairing.logoutEmployeeSession).not.toHaveBeenCalled();
     expect(session.clearOperatorSession).not.toHaveBeenCalled();
     expect(component.employeeLogoutErrorCode()).toBe('EMPLOYEE_LOGOUT_SYNC_REQUIRED');
+  });
+
+  it('lets the wrong employee log out without replaying another employee commands', async () => {
+    pendingCount.set(1);
+    mutationBlockCode.set('POS_OFFLINE_EMPLOYEE_MISMATCH');
+    const component = TestBed.createComponent(DeviceShellComponent).componentInstance;
+    component.online.set(true);
+
+    await component.changeEmployee();
+
+    expect(store.syncNow).not.toHaveBeenCalled();
+    expect(pairing.logoutEmployeeSession).toHaveBeenCalledTimes(1);
+    expect(session.clearOperatorSession).toHaveBeenCalledTimes(1);
+    expect(pendingCount()).toBe(1);
   });
 });
 

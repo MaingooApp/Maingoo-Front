@@ -60,10 +60,12 @@ export class PosSessionStore implements OnDestroy {
   private readonly commands = signal<QueuedPosCommand[]>([]);
   private enterpriseId: string | null = null;
   private authMode: PosAuthMode = 'HUMAN';
+  private operatorUserId: string | null = null;
   private loadVersion = 0;
   private lastQueuedAt = 0;
   private readonly directIntents = new Map<string, string>();
   private ambiguousDirectIntentId: string | null = null;
+  private readonly mutationBlockCodeState = signal<string | null>(null);
 
   readonly loading = signal(false);
   readonly errorCode = signal<string | null>(null);
@@ -71,6 +73,7 @@ export class PosSessionStore implements OnDestroy {
   readonly operationErrorCode = signal<string | null>(null);
   readonly storageErrorCode = signal<string | null>(null);
   readonly syncErrorCode = signal<string | null>(null);
+  readonly mutationBlockCode = this.mutationBlockCodeState.asReadonly();
   readonly conflictOrder = signal<ConflictOrderSummary | null>(null);
   readonly syncState = signal<SyncState>('OFFLINE');
   readonly syncCursor = signal<string | null>(null);
@@ -150,6 +153,10 @@ export class PosSessionStore implements OnDestroy {
     },
     error: (code) => {
       this.syncErrorCode.set(code);
+      if (code === 'POS_OFFLINE_EMPLOYEE_MISMATCH') {
+        this.mutationBlockCodeState.set(code);
+        this.operationErrorCode.set(code);
+      }
       if (code === 'DEVICE_REVOKED' || code === 'POS_DISABLED') this.errorCode.set(code);
       this.syncState.set('ERROR');
     },
@@ -178,7 +185,7 @@ export class PosSessionStore implements OnDestroy {
     this.loading.set(true);
     try {
       await this.queue.useEnterprise(enterpriseId);
-      this.sync.start(this.syncCallbacks, this.authMode);
+      this.sync.start(this.syncCallbacks, this.authMode, this.operatorUserId ?? undefined);
       const [bootstrap, cachedDevice, orders, commands] = await Promise.all([
         this.queue.getCachedBootstrap(),
         this.queue.getDevice(),
@@ -191,6 +198,7 @@ export class PosSessionStore implements OnDestroy {
       this.syncCursor.set(cachedDevice?.syncCursor ?? null);
       this.lastSyncAt.set(cachedDevice?.lastSyncAt ?? null);
       this.setOfflineState(orders, commands);
+      this.enforceCommandAuthorship(commands);
       this.syncState.set(this.online() ? 'ONLINE' : 'OFFLINE');
     } catch (error: unknown) {
       if (version === this.loadVersion) this.setStorageError(error);
@@ -237,7 +245,7 @@ export class PosSessionStore implements OnDestroy {
         return;
       }
       await this.queue.saveDevice(bootstrap.device);
-      this.sync.start(this.syncCallbacks, this.authMode);
+      this.sync.start(this.syncCallbacks, this.authMode, this.operatorUserId ?? undefined);
       await this.sync.requestSync();
       if (version === this.loadVersion && !this.conflictOrder() && this.syncState() !== 'ERROR') {
         this.syncState.set('ONLINE');
@@ -260,6 +268,22 @@ export class PosSessionStore implements OnDestroy {
     this.authoritativeOrders.update((orders) =>
       orders.filter(({ id, status }) => (status !== 'PAID' && status !== 'CANCELLED') || id === orderId)
     );
+  }
+
+  bindEmployee(userId: string | null): void {
+    this.operatorUserId = userId;
+  }
+
+  setMutationBlock(code: string | null): void {
+    this.mutationBlockCodeState.set(code);
+    if (code) this.operationErrorCode.set(code);
+    else if (
+      this.operationErrorCode() === 'EMPLOYEE_SESSION_EXPIRED' ||
+      this.operationErrorCode() === 'EMPLOYEE_SESSION_EXPIRED_OFFLINE' ||
+      this.operationErrorCode() === 'POS_OFFLINE_EMPLOYEE_MISMATCH'
+    ) {
+      this.operationErrorCode.set(null);
+    }
   }
 
   authoritativeOrder(orderId: string | null): AuthoritativeOrder | null {
@@ -480,13 +504,17 @@ export class PosSessionStore implements OnDestroy {
   }
 
   async syncNow(): Promise<void> {
-    if (!this.requireOnline() || !this.device() || this.operationPending()) return;
+    if (this.mutationBlockCode() || !this.requireOnline() || !this.device() || this.operationPending()) return;
     await this.sync.requestSync();
   }
 
   connectivityChanged(online: boolean): void {
     if (!online) {
       this.syncState.set('OFFLINE');
+      return;
+    }
+    if (this.mutationBlockCode()) {
+      this.syncState.set('ERROR');
       return;
     }
     if (!this.device()) {
@@ -521,6 +549,8 @@ export class PosSessionStore implements OnDestroy {
     this.queue.close();
     this.enterpriseId = null;
     this.authMode = 'HUMAN';
+    this.operatorUserId = null;
+    this.mutationBlockCodeState.set(null);
     this.clearMemory();
   }
 
@@ -539,7 +569,10 @@ export class PosSessionStore implements OnDestroy {
     this.storageErrorCode.set(null);
     this.syncErrorCode.set(null);
     try {
-      await this.queue.enqueueWithOrder(snapshot, input);
+      await this.queue.enqueueWithOrder(snapshot, {
+        ...input,
+        ...(this.authMode === 'DEVICE_EMPLOYEE' && this.operatorUserId ? { employeeId: this.operatorUserId } : {})
+      });
       await this.refreshOfflineState();
       this.selectedOrderId.set(selectId);
       if (this.online()) void this.sync.requestSync().catch((error: unknown) => this.setStorageError(error));
@@ -674,6 +707,15 @@ export class PosSessionStore implements OnDestroy {
   }
 
   private requireDevice(): PosDevice | null {
+    const blockCode = this.mutationBlockCode();
+    if (blockCode) {
+      this.operationErrorCode.set(blockCode);
+      return null;
+    }
+    if (this.authMode === 'DEVICE_EMPLOYEE' && !this.operatorUserId) {
+      this.operationErrorCode.set('DEVICE_EMPLOYEE_SESSION_REQUIRED');
+      return null;
+    }
     const device = this.device();
     if (!device) this.operationErrorCode.set('POS_DEVICE_REQUIRED');
     return device;
@@ -729,6 +771,18 @@ export class PosSessionStore implements OnDestroy {
     const conflict = commands.find(({ status }) => status === 'CONFLICT');
     const authoritative = conflict ? this.authoritativeOrder(conflict.aggregateId) : null;
     this.conflictOrder.set(authoritative ? orderSummary(authoritative) : null);
+  }
+
+  private enforceCommandAuthorship(commands: readonly QueuedPosCommand[]): void {
+    if (this.authMode !== 'DEVICE_EMPLOYEE') return;
+    const hasOtherAuthor = commands.some(
+      ({ employeeId }) => !this.operatorUserId || employeeId !== this.operatorUserId
+    );
+    if (hasOtherAuthor) {
+      this.setMutationBlock('POS_OFFLINE_EMPLOYEE_MISMATCH');
+      return;
+    }
+    if (this.mutationBlockCode() === 'POS_OFFLINE_EMPLOYEE_MISMATCH') this.setMutationBlock(null);
   }
 
   private applyCachedBootstrap(bootstrap: Awaited<ReturnType<PosOfflineQueueService['getCachedBootstrap']>>): void {

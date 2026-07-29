@@ -4,22 +4,27 @@
       <span
         class="pi pi-lock mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full text-2xl text-primary mg-surface-muted"
         aria-hidden="true"></span>
-      <h1 class="m-0 text-2xl font-bold mg-text">Acceso al terminal</h1>
-      <p class="mb-0 mt-2 text-sm mg-text-muted">Introduce tu PIN personal. No es necesario seleccionar un empleado.</p>
+      <h1 class="m-0 text-2xl font-bold mg-text">{{ 'device.terminalPin.title' | translate }}</h1>
+      <p class="mb-0 mt-2 text-sm mg-text-muted">{{ 'device.terminalPin.description' | translate }}</p>
     </div>
 
-    <label for="terminal-pin" class="mb-2 block text-sm font-medium mg-text">PIN de empleado</label>
+    <label for="terminal-pin" class="mb-2 block text-sm font-medium mg-text">{{
+      'device.terminalPin.label' | translate
+    }}</label>
     <input
       id="terminal-pin"
       type="password"
       inputmode="numeric"
       autocomplete="off"
+      autofocus
       pattern="[0-9]*"
       minlength="4"
       maxlength="6"
       class="mb-4 h-14 w-full rounded-lg border border-surface bg-surface-50 px-4 text-center text-2xl tracking-[0.5em] mg-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-surface-800"
       [value]="pin()"
       [disabled]="submitting() || lockRemainingSeconds() > 0"
+      [attr.aria-invalid]="!!errorCode()"
+      [attr.aria-describedby]="errorCode() ? 'terminal-pin-error' : null"
       (input)="onInput($event)"
       (paste)="$event.preventDefault()"
       (keydown.enter)="submit()" />
@@ -27,23 +32,32 @@
     @if (errorCode() === 'EMPLOYEE_PIN_LOCKED') {
       <div
         class="mb-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
-        role="alert">
-        Demasiados intentos. Espera antes de volver a probar.
+        id="terminal-pin-error"
+        role="alert"
+        aria-live="assertive">
+        {{ 'device.terminalPin.errors.locked' | translate }}
         @if (lockRemainingSeconds()) {
-          <span class="block font-semibold">{{ lockRemainingSeconds() }} s</span>
+          <span class="block font-semibold">{{
+            'device.terminalPin.retryIn' | translate: { seconds: lockRemainingSeconds() }
+          }}</span>
         }
       </div>
     } @else if (errorCode()) {
-      <p class="mb-4 text-center text-sm text-red-600 dark:text-red-400" role="alert">
-        No se ha podido acceder con ese PIN.
+      <p
+        id="terminal-pin-error"
+        class="mb-4 text-center text-sm text-red-600 dark:text-red-400"
+        role="alert"
+        aria-live="assertive">
+        {{ 'device.terminalPin.errors.invalid' | translate }}
       </p>
     }
 
-    <div class="grid grid-cols-3 gap-3" aria-label="Teclado PIN">
+    <div class="grid grid-cols-3 gap-3" role="group" [attr.aria-label]="'device.terminalPin.keypad' | translate">
       @for (digit of ['1', '2', '3', '4', '5', '6', '7', '8', '9']; track digit) {
         <button
           type="button"
-          class="min-h-14 rounded-lg border border-surface text-xl font-semibold mg-text hover:border-primary hover:text-primary disabled:opacity-50"
+          class="min-h-14 rounded-lg border border-surface text-xl font-semibold mg-text hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50"
+          [attr.aria-label]="'device.terminalPin.digit' | translate: { digit: digit }"
           [disabled]="submitting() || lockRemainingSeconds() > 0"
           (click)="append(digit)">
           {{ digit }}
@@ -51,23 +65,24 @@
       }
       <button
         type="button"
-        class="min-h-14 rounded-lg border border-surface mg-text-muted hover:border-primary disabled:opacity-50"
-        aria-label="Borrar último dígito"
+        class="min-h-14 rounded-lg border border-surface mg-text-muted hover:border-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50"
+        [attr.aria-label]="'device.terminalPin.delete' | translate"
         [disabled]="!pin().length || submitting() || lockRemainingSeconds() > 0"
         (click)="removeLast()">
         <span class="pi pi-delete-left" aria-hidden="true"></span>
       </button>
       <button
         type="button"
-        class="min-h-14 rounded-lg border border-surface text-xl font-semibold mg-text hover:border-primary hover:text-primary disabled:opacity-50"
+        class="min-h-14 rounded-lg border border-surface text-xl font-semibold mg-text hover:border-primary hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50"
+        [attr.aria-label]="'device.terminalPin.digit' | translate: { digit: 0 }"
         [disabled]="submitting() || lockRemainingSeconds() > 0"
         (click)="append('0')">
         0
       </button>
       <button
         type="button"
-        class="min-h-14 rounded-lg bg-primary text-primary-contrast hover:bg-primary-emphasis disabled:opacity-50"
-        aria-label="Entrar"
+        class="min-h-14 rounded-lg bg-primary text-primary-contrast hover:bg-primary-emphasis focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50"
+        [attr.aria-label]="'device.terminalPin.submit' | translate"
         [disabled]="pin().length < 4 || submitting() || lockRemainingSeconds() > 0"
         (click)="submit()">
         <span

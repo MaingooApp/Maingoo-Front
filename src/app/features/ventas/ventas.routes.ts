@@ -20,17 +20,13 @@ const ventasRoutes: Routes = [
       },
       {
         path: 'terminal',
-        loadComponent: () =>
-          import('./pages/terminal/pos-terminal.component').then((component) => component.PosTerminalComponent),
-        canActivate: [ngxPermissionsGuard],
-        data: { permissions: { only: [AppPermission.PosSell] } }
+        pathMatch: 'full',
+        redirectTo: '/dispositivo'
       },
       {
         path: 'cocina',
-        loadComponent: () =>
-          import('./pages/kitchen/kitchen-display.component').then((component) => component.KitchenDisplayComponent),
-        canActivate: [ngxPermissionsGuard],
-        data: { permissions: { only: [AppPermission.PosKitchen] } }
+        pathMatch: 'full',
+        redirectTo: '/dispositivo'
       },
       {
         path: 'caja',

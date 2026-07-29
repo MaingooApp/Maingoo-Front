@@ -190,7 +190,19 @@
       "POS_SYNC_CURSOR_STALLED": "Synchronization could not advance.",
       "POS_DISABLED": "The POS is disabled.",
       "DEVICE_NOT_REGISTERED": "The device is not registered.",
+      "DEVICE_TOKEN_INVALID": "The device credential is invalid. Pair the device again.",
+      "DEVICE_TOKEN_EXPIRED": "The device credential has expired. Pair the device again.",
       "DEVICE_REVOKED": "The device has been revoked.",
+      "DEVICE_CONTEXT_MISMATCH": "The device identity does not match this operation.",
+      "DEVICE_TYPE_NOT_ALLOWED": "This device type cannot perform this operation.",
+      "DEVICE_STATION_NOT_ALLOWED": "The selected station is not assigned to this device.",
+      "DEVICE_EMPLOYEE_SESSION_REQUIRED": "Enter an employee PIN to continue.",
+      "EMPLOYEE_PERMISSION_REQUIRED": "The employee does not have permission to use this terminal.",
+      "EMPLOYEE_SESSION_EXPIRED": "The employee session has expired. Enter the PIN again.",
+      "EMPLOYEE_SESSION_REVOKED": "The employee session is no longer active. Enter the PIN again.",
+      "EMPLOYEE_SESSION_EXPIRED_OFFLINE": "The employee session has expired. Connect to enter the PIN again.",
+      "POS_OFFLINE_EMPLOYEE_MISMATCH": "Pending operations belong to another employee. Sync them before switching.",
+      "ACTOR_TYPE_NOT_ALLOWED": "This session type cannot perform this operation.",
       "POS_DEVICE_NOT_FOUND": "The device does not exist or is not active.",
       "INVALID_SYNC_CURSOR": "The synchronization cursor is invalid.",
       "POS_DEVICE_REQUIRED": "Select a device.",
@@ -882,6 +894,113 @@
       "STOCK_COUNT_NOT_DRAFT": "Only an in-progress count can be completed.",
       "STOCK_COUNT_LINES_MISMATCH": "You must submit exactly every product in the count.",
       "STOCK_CHANGED_DURING_COUNT": "Stock changed during the count. Start a new one."
+    }
+  },
+  "users": {
+    "posPin": {
+      "title": "POS terminal PIN",
+      "description": "The PIN identifies the employee on paired terminals. It cannot be viewed after it is saved.",
+      "configured": "PIN configured",
+      "notConfigured": "Not configured",
+      "assign": "Assign PIN",
+      "change": "Change PIN",
+      "disable": "Disable PIN",
+      "newPin": "New PIN",
+      "confirmPin": "Confirm PIN",
+      "pinPlaceholder": "4 to 6 digits",
+      "confirmPlaceholder": "Repeat the PIN",
+      "invalid": "It must contain 4 to 6 matching digits.",
+      "cancel": "Cancel",
+      "confirmAssignTitle": "Assign POS PIN",
+      "confirmChangeTitle": "Change POS PIN",
+      "confirmSetMessage": "This change will close any active POS session for {{name}}. Continue?",
+      "confirmDisableTitle": "Disable POS PIN",
+      "confirmDisableMessage": "{{name}} will no longer be able to access POS terminals and their active session will close.",
+      "updatedTitle": "POS PIN updated",
+      "updatedMessage": "The PIN for {{name}} was saved successfully.",
+      "saveErrorTitle": "The PIN could not be saved",
+      "disabledTitle": "POS PIN disabled",
+      "disabledMessage": "{{name}} can no longer sign in with a PIN.",
+      "disableErrorTitle": "Error",
+      "disableErrorMessage": "The POS PIN could not be disabled.",
+      "errors": {
+        "duplicated": "This PIN is already assigned to another user.",
+        "invalid": "Choose a less predictable PIN with 4 to 6 digits.",
+        "saveFailed": "The POS PIN could not be saved."
+      }
+    }
+  },
+  "device": {
+    "shell": {
+      "ariaLabel": "Maingoo POS terminal",
+      "kds": "Kitchen display",
+      "register": "Terminal",
+      "online": "Online",
+      "offline": "Offline",
+      "syncing": "Syncing…",
+      "changeEmployee": "Lock or change employee",
+      "errors": {
+        "offline": "Connect to the network before locking or changing the employee.",
+        "syncRequired": "You cannot change employee until every pending operation is synced.",
+        "failed": "The employee session could not be closed. Try again."
+      }
+    },
+    "pairing": {
+      "title": "Set up device",
+      "description": "Choose how this device will be used in the POS.",
+      "kds": {
+        "title": "Kitchen display",
+        "description": "Displays orders automatically without signing in."
+      },
+      "register": {
+        "title": "Employee terminal",
+        "description": "Allows employees to take orders after entering their personal PIN."
+      },
+      "label": "Suggested name (optional)",
+      "labelPlaceholder": "E.g. Bar tablet",
+      "generate": "Generate code",
+      "generating": "Generating…",
+      "waiting": "Waiting for approval",
+      "linkTitle": "Link this device",
+      "instructions": "Scan the QR with a manager account or enter the code in POS Settings > Devices.",
+      "qrAlt": "QR code to approve this device",
+      "qrLoading": "Generating QR code",
+      "codeLabel": "Pairing code",
+      "expiresIn": "Expires in {{time}}",
+      "retrying": "We will keep trying automatically.",
+      "cancel": "Cancel and generate another code",
+      "errors": {
+        "denied": "The request was denied. Generate a new code to try again.",
+        "expired": "The code is no longer valid. Generate a new one to continue.",
+        "storage": "The pairing could not be saved on this device.",
+        "connection": "Maingoo could not be reached. Check the connection and try again."
+      }
+    },
+    "terminalPin": {
+      "title": "Terminal access",
+      "description": "Enter your personal PIN. You do not need to select an employee.",
+      "label": "Employee PIN",
+      "keypad": "PIN keypad",
+      "digit": "Digit {{digit}}",
+      "delete": "Delete last digit",
+      "submit": "Enter",
+      "retryIn": "Try again in {{seconds}} s",
+      "errors": {
+        "invalid": "Access with that PIN was unsuccessful.",
+        "locked": "Too many attempts. Wait before trying again."
+      }
+    },
+    "terminal": {
+      "validating": "Validating terminal",
+      "validationError": "This terminal could not be validated.",
+      "retry": "Try again",
+      "operatorExpiredOffline": "The employee session has expired. Connect and enter the PIN again to continue."
+    },
+    "revoked": {
+      "title": "Device unlinked",
+      "description": "This device credential is no longer valid. A manager must pair it again to continue.",
+      "preparing": "Preparing…",
+      "repair": "Pair again"
     }
   },
   "salesReports": {

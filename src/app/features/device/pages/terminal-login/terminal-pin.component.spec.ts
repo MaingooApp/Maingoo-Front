@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import { PosEmployeeSession } from '../../models/device-session.models';
@@ -17,12 +18,26 @@ describe('TerminalPinComponent', () => {
     session = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['setOperatorSession']);
     session.setOperatorSession.and.resolveTo();
     TestBed.configureTestingModule({
+      imports: [TerminalPinComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DevicePairingService, useValue: pairing },
         { provide: DeviceSessionService, useValue: session }
       ]
     });
     component = TestBed.runInInjectionContext(() => new TerminalPinComponent());
+  });
+
+  it('exposes a labeled keyboard flow without revealing the PIN', () => {
+    const fixture = TestBed.createComponent(TerminalPinComponent);
+    fixture.detectChanges();
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('#terminal-pin');
+    const keypad: HTMLElement = fixture.nativeElement.querySelector('[role="group"]');
+
+    expect(input.type).toBe('password');
+    expect(input.autofocus).toBeTrue();
+    expect(input.getAttribute('aria-invalid')).toBe('false');
+    expect(keypad.getAttribute('aria-label')).toBeTruthy();
+    expect(keypad.querySelectorAll('button[aria-label]').length).toBe(12);
   });
 
   it('clears the PIN and stores the employee session after access succeeds', async () => {

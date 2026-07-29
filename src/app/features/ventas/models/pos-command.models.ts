@@ -123,6 +123,7 @@ interface QueueMetadata<TType extends PosCommandType, TData> {
   clientMutationId: string;
   deviceId: string;
   enterpriseId: string;
+  employeeId?: string;
   clientCreatedAt: string;
   expectedVersion?: number;
   type: TType;

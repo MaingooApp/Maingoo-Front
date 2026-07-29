@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import QRCode from 'qrcode';
@@ -19,7 +20,7 @@ import { DeviceSessionService } from '../../services/device-session.service';
 @Component({
   selector: 'app-device-pairing',
   standalone: true,
-  imports: [FormsModule, ButtonModule, InputTextModule],
+  imports: [FormsModule, ButtonModule, InputTextModule, TranslateModule],
   templateUrl: './device-pairing.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -102,16 +103,16 @@ export class DevicePairingComponent implements OnInit, OnDestroy {
   errorMessage(): string {
     switch (this.errorCode()) {
       case 'PAIRING_DENIED':
-        return 'La solicitud fue rechazada. Genera un código nuevo para intentarlo otra vez.';
+        return 'device.pairing.errors.denied';
       case 'PAIRING_EXPIRED':
       case 'PAIRING_ALREADY_CONSUMED':
       case 'PAIRING_CODE_INVALID':
-        return 'El código ya no es válido. Genera uno nuevo para continuar.';
+        return 'device.pairing.errors.expired';
       case 'DEVICE_SESSION_STORAGE_FAILED':
       case 'DEVICE_SESSION_STORAGE_UNAVAILABLE':
-        return 'No se pudo guardar la vinculación en este dispositivo.';
+        return 'device.pairing.errors.storage';
       default:
-        return 'No se pudo conectar con Maingoo. Comprueba la conexión e inténtalo de nuevo.';
+        return 'device.pairing.errors.connection';
     }
   }
 

@@ -125,6 +125,10 @@ export class DeviceSessionService {
 }
 
 function assertFutureExpiry(expiresAt: string): void {
+  if (!hasFutureExpiry(expiresAt)) throw new Error('DEVICE_SESSION_EXPIRED');
+}
+
+function hasFutureExpiry(expiresAt: string): boolean {
   const expiry = Date.parse(expiresAt);
-  if (!Number.isFinite(expiry) || expiry <= Date.now()) throw new Error('DEVICE_SESSION_EXPIRED');
+  return Number.isFinite(expiry) && expiry > Date.now();
 }

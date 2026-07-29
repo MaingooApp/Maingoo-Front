@@ -21,6 +21,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { NgxPermissionsModule } from 'ngx-permissions';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppPermission } from '../../core/constants/permissions.enum';
 import { UserService } from './services/user.service';
 import { ManagedUser, Permission, PermissionGroup } from './interfaces/user-management.interface';
@@ -49,7 +50,8 @@ import { forkJoin } from 'rxjs';
     DetailCardShellComponent,
     EmptyStateComponent,
     SkeletonComponent,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TranslateModule
   ],
   providers: [ConfirmationService],
   templateUrl: './users.component.html',
@@ -66,6 +68,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   private headerService = inject(SectionHeaderService);
   private sectionNavigationService = inject(SectionNavigationService);
   private confirmationService = inject(ConfirmationService);
+  private translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
 
   // State
@@ -326,11 +329,13 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     const pin = this.posPin();
 
     this.confirmationService.confirm({
-      header: user.posPinConfigured ? 'Cambiar PIN TPV' : 'Asignar PIN TPV',
-      message: `El cambio cerrará cualquier sesión TPV activa de ${user.name}. ¿Deseas continuar?`,
+      header: this.translate.instant(
+        user.posPinConfigured ? 'users.posPin.confirmChangeTitle' : 'users.posPin.confirmAssignTitle'
+      ),
+      message: this.translate.instant('users.posPin.confirmSetMessage', { name: user.name }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: user.posPinConfigured ? 'Cambiar PIN' : 'Asignar PIN',
-      rejectLabel: 'Cancelar',
+      acceptLabel: this.translate.instant(user.posPinConfigured ? 'users.posPin.change' : 'users.posPin.assign'),
+      rejectLabel: this.translate.instant('users.posPin.cancel'),
       accept: () => this.setPosPin(user, pin)
     });
   }
@@ -340,11 +345,11 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!user?.posPinConfigured || this.savingPosPin()) return;
 
     this.confirmationService.confirm({
-      header: 'Desactivar PIN TPV',
-      message: `${user.name} dejará de poder acceder a los terminales TPV y su sesión activa se cerrará.`,
+      header: this.translate.instant('users.posPin.confirmDisableTitle'),
+      message: this.translate.instant('users.posPin.confirmDisableMessage', { name: user.name }),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Desactivar PIN',
-      rejectLabel: 'Cancelar',
+      acceptLabel: this.translate.instant('users.posPin.disable'),
+      rejectLabel: this.translate.instant('users.posPin.cancel'),
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.disablePosPin(user)
     });
@@ -445,11 +450,17 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
           this.updatePosPinStatus(status.userId, status.posPinConfigured);
           this.savingPosPin.set(false);
           this.showPosPinForm.set(false);
-          this.toastService.success('PIN TPV actualizado', `El PIN de ${user.name} se ha guardado correctamente.`);
+          this.toastService.success(
+            this.translate.instant('users.posPin.updatedTitle'),
+            this.translate.instant('users.posPin.updatedMessage', { name: user.name })
+          );
         },
         error: (error: unknown) => {
           this.savingPosPin.set(false);
-          this.toastService.error('No se pudo guardar el PIN', this.getPosPinErrorMessage(error));
+          this.toastService.error(
+            this.translate.instant('users.posPin.saveErrorTitle'),
+            this.getPosPinErrorMessage(error)
+          );
         }
       });
   }
@@ -465,11 +476,17 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
           this.updatePosPinStatus(status.userId, status.posPinConfigured);
           this.savingPosPin.set(false);
           this.showPosPinForm.set(false);
-          this.toastService.success('PIN TPV desactivado', `${user.name} ya no puede acceder con PIN.`);
+          this.toastService.success(
+            this.translate.instant('users.posPin.disabledTitle'),
+            this.translate.instant('users.posPin.disabledMessage', { name: user.name })
+          );
         },
         error: () => {
           this.savingPosPin.set(false);
-          this.toastService.error('Error', 'No se pudo desactivar el PIN TPV.');
+          this.toastService.error(
+            this.translate.instant('users.posPin.disableErrorTitle'),
+            this.translate.instant('users.posPin.disableErrorMessage')
+          );
         }
       });
   }
@@ -489,9 +506,9 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
       typeof error === 'object' && error !== null && 'error' in error
         ? (error as { error?: { code?: unknown } }).error?.code
         : null;
-    if (code === 'EMPLOYEE_PIN_DUPLICATED') return 'Este PIN ya está asignado a otro usuario.';
-    if (code === 'EMPLOYEE_PIN_INVALID') return 'Elige un PIN menos predecible de 4 a 6 dígitos.';
-    return 'No se pudo guardar el PIN TPV.';
+    if (code === 'EMPLOYEE_PIN_DUPLICATED') return this.translate.instant('users.posPin.errors.duplicated');
+    if (code === 'EMPLOYEE_PIN_INVALID') return this.translate.instant('users.posPin.errors.invalid');
+    return this.translate.instant('users.posPin.errors.saveFailed');
   }
 
   private getCreateUserErrorMessage(error: unknown): string {

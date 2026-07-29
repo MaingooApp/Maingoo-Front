@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import { PosSessionStore } from '../../../ventas/services/pos-session.store';
@@ -10,10 +11,12 @@ import { DeviceSessionService } from '../../services/device-session.service';
 @Component({
   selector: 'app-device-shell',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, TranslateModule],
   template: `
     <div class="min-h-screen bg-surface-50 p-4 dark:bg-surface-950 md:p-6">
-      <header class="mx-auto mb-4 flex max-w-screen-2xl items-center justify-between gap-4" aria-label="Maingoo TPV">
+      <header
+        class="mx-auto mb-4 flex max-w-screen-2xl items-center justify-between gap-4"
+        [attr.aria-label]="'device.shell.ariaLabel' | translate">
         <div class="flex items-center gap-3">
           <img src="assets/images/maingoo_logo.svg" alt="Maingoo" class="h-10 w-10 object-contain" />
           <span class="text-lg font-semibold mg-text">Maingoo TPV</span>
@@ -22,7 +25,9 @@ import { DeviceSessionService } from '../../services/device-session.service';
           <div class="flex min-w-0 items-center gap-3 text-right">
             <div class="min-w-0">
               <p class="m-0 truncate text-sm font-semibold mg-text" [title]="device.name">{{ device.name }}</p>
-              <p class="m-0 text-xs mg-text-muted">{{ device.type === 'KDS' ? 'Pantalla de cocina' : 'Terminal' }}</p>
+              <p class="m-0 text-xs mg-text-muted">
+                {{ (device.type === 'KDS' ? 'device.shell.kds' : 'device.shell.register') | translate }}
+              </p>
               @if (session.operatorSession(); as operator) {
                 <p class="m-0 truncate text-xs font-medium mg-text" data-testid="active-employee">
                   {{ operator.user.name }}
@@ -35,7 +40,7 @@ import { DeviceSessionService } from '../../services/device-session.service';
                 [class.bg-green-500]="online()"
                 [class.bg-red-500]="!online()"
                 aria-hidden="true"></span>
-              {{ online() ? 'Online' : 'Sin conexión' }}
+              {{ (online() ? 'device.shell.online' : 'device.shell.offline') | translate }}
             </span>
             @if (device.type === 'REGISTER' && session.operatorSession()) {
               <button
@@ -43,7 +48,7 @@ import { DeviceSessionService } from '../../services/device-session.service';
                 class="min-h-11 rounded-lg border border-surface px-3 text-sm font-medium mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                 [disabled]="employeeLogoutPending()"
                 (click)="changeEmployee()">
-                {{ employeeLogoutPending() ? 'Sincronizando…' : 'Bloquear / cambiar camarero' }}
+                {{ (employeeLogoutPending() ? 'device.shell.syncing' : 'device.shell.changeEmployee') | translate }}
               </button>
             }
           </div>
@@ -52,8 +57,9 @@ import { DeviceSessionService } from '../../services/device-session.service';
       @if (employeeLogoutErrorText(); as error) {
         <p
           class="mx-auto mb-4 max-w-screen-2xl rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
-          role="alert">
-          {{ error }}
+          role="alert"
+          aria-live="assertive">
+          {{ error | translate }}
         </p>
       }
       <main class="mx-auto min-h-[calc(100vh-6.5rem)] max-w-screen-2xl rounded-content shadow-sm mg-surface">
@@ -74,13 +80,11 @@ export class DeviceShellComponent {
   readonly employeeLogoutErrorText = () => {
     switch (this.employeeLogoutErrorCode()) {
       case 'EMPLOYEE_LOGOUT_OFFLINE':
-        return 'Conéctate para bloquear o cambiar de camarero.';
+        return 'device.shell.errors.offline';
       case 'EMPLOYEE_LOGOUT_SYNC_REQUIRED':
-        return 'No se puede cambiar de camarero hasta sincronizar todas las operaciones pendientes.';
-      case 'EMPLOYEE_LOGOUT_FAILED':
-        return 'No se pudo cerrar la sesión del camarero. Inténtalo de nuevo.';
+        return 'device.shell.errors.syncRequired';
       default:
-        return this.employeeLogoutErrorCode();
+        return this.employeeLogoutErrorCode() ? 'device.shell.errors.failed' : null;
     }
   };
 
@@ -94,7 +98,9 @@ export class DeviceShellComponent {
 
     this.employeeLogoutPending.set(true);
     try {
-      if (this.posStore.pendingCommandCount() > 0) {
+      const pendingCommandsBelongToAnotherEmployee =
+        this.posStore.mutationBlockCode() === 'POS_OFFLINE_EMPLOYEE_MISMATCH';
+      if (this.posStore.pendingCommandCount() > 0 && !pendingCommandsBelongToAnotherEmployee) {
         await this.posStore.syncNow();
         if (this.posStore.pendingCommandCount() > 0) {
           this.employeeLogoutErrorCode.set('EMPLOYEE_LOGOUT_SYNC_REQUIRED');

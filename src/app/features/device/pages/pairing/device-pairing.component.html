@@ -5,15 +5,16 @@
         <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full mg-surface-muted">
           <span class="pi pi-desktop text-3xl text-primary" aria-hidden="true"></span>
         </div>
-        <h1 class="m-0 text-2xl font-bold mg-text">Configurar dispositivo</h1>
-        <p class="mb-0 mt-3 mg-text-muted">Elige cómo se utilizará este equipo en el TPV.</p>
+        <h1 class="m-0 text-2xl font-bold mg-text">{{ 'device.pairing.title' | translate }}</h1>
+        <p class="mb-0 mt-3 mg-text-muted">{{ 'device.pairing.description' | translate }}</p>
       </header>
 
       @if (errorCode()) {
         <div
           class="mx-auto mt-6 max-w-xl rounded-content bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300"
-          role="alert">
-          {{ errorMessage() }}
+          role="alert"
+          aria-live="assertive">
+          {{ errorMessage() | translate }}
         </div>
       }
 
@@ -25,10 +26,11 @@
           [class.ring-2]="selectedMode() === 'KDS'"
           [class.ring-primary]="selectedMode() === 'KDS'"
           [class.border-surface]="selectedMode() !== 'KDS'"
+          [attr.aria-pressed]="selectedMode() === 'KDS'"
           (click)="selectMode('KDS')">
           <span class="pi pi-tablet mb-4 block text-3xl text-primary" aria-hidden="true"></span>
-          <strong class="block text-lg mg-text">Pantalla de cocina</strong>
-          <span class="mt-2 block text-sm mg-text-muted">Muestra comandas automáticamente sin iniciar sesión.</span>
+          <strong class="block text-lg mg-text">{{ 'device.pairing.kds.title' | translate }}</strong>
+          <span class="mt-2 block text-sm mg-text-muted">{{ 'device.pairing.kds.description' | translate }}</span>
         </button>
 
         <button
@@ -38,24 +40,23 @@
           [class.ring-2]="selectedMode() === 'REGISTER'"
           [class.ring-primary]="selectedMode() === 'REGISTER'"
           [class.border-surface]="selectedMode() !== 'REGISTER'"
+          [attr.aria-pressed]="selectedMode() === 'REGISTER'"
           (click)="selectMode('REGISTER')">
           <span class="pi pi-shopping-cart mb-4 block text-3xl text-primary" aria-hidden="true"></span>
-          <strong class="block text-lg mg-text">Terminal de camarero</strong>
-          <span class="mt-2 block text-sm mg-text-muted"
-            >Permite tomar pedidos después de introducir el PIN personal.</span
-          >
+          <strong class="block text-lg mg-text">{{ 'device.pairing.register.title' | translate }}</strong>
+          <span class="mt-2 block text-sm mg-text-muted">{{ 'device.pairing.register.description' | translate }}</span>
         </button>
       </div>
 
       <div class="mx-auto mt-6 flex max-w-xl flex-col gap-2">
-        <label for="device-label" class="text-sm font-medium mg-text">Nombre sugerido (opcional)</label>
+        <label for="device-label" class="text-sm font-medium mg-text">{{ 'device.pairing.label' | translate }}</label>
         <input
           id="device-label"
           pInputText
           type="text"
           maxlength="120"
           class="w-full"
-          placeholder="Ej. Tablet barra"
+          [placeholder]="'device.pairing.labelPlaceholder' | translate"
           [(ngModel)]="requestedLabel" />
       </div>
 
@@ -63,45 +64,53 @@
         <button pButton type="button" [disabled]="!selectedMode() || busy()" (click)="createPairing()">
           @if (busy()) {
             <span class="pi pi-spin pi-spinner" aria-hidden="true"></span>
-            <span>Generando…</span>
+            <span>{{ 'device.pairing.generating' | translate }}</span>
           } @else {
-            <span>Generar código</span>
+            <span>{{ 'device.pairing.generate' | translate }}</span>
           }
         </button>
       </div>
     } @else {
       <div class="mx-auto max-w-xl text-center">
-        <span class="mg-feature-pill">Esperando aprobación</span>
-        <h1 class="mb-0 mt-4 text-2xl font-bold mg-text">Vincula este dispositivo</h1>
+        <span class="mg-feature-pill" role="status" aria-live="polite">{{ 'device.pairing.waiting' | translate }}</span>
+        <h1 class="mb-0 mt-4 text-2xl font-bold mg-text">{{ 'device.pairing.linkTitle' | translate }}</h1>
         <p class="mb-0 mt-3 mg-text-muted">
-          Escanea el QR con una cuenta responsable o introduce el código en Configuración TPV &gt; Dispositivos.
+          {{ 'device.pairing.instructions' | translate }}
         </p>
 
         <div
           class="mx-auto mt-6 flex min-h-64 w-64 items-center justify-center rounded-content border border-surface p-3 mg-surface">
           @if (qrDataUrl()) {
-            <img [src]="qrDataUrl()" alt="Código QR para aprobar este dispositivo" class="h-60 w-60" />
+            <img [src]="qrDataUrl()" [alt]="'device.pairing.qrAlt' | translate" class="h-60 w-60" />
           } @else {
-            <span class="pi pi-spin pi-spinner text-3xl text-primary" aria-label="Generando código QR"></span>
+            <span
+              class="pi pi-spin pi-spinner text-3xl text-primary"
+              role="status"
+              [attr.aria-label]="'device.pairing.qrLoading' | translate"></span>
           }
         </div>
 
-        <p class="mb-0 mt-6 text-sm mg-text-muted">Código de vinculación</p>
-        <p class="m-0 mt-2 font-mono text-3xl font-bold mg-text" aria-label="Código de vinculación">
+        <p class="mb-0 mt-6 text-sm mg-text-muted">{{ 'device.pairing.codeLabel' | translate }}</p>
+        <p
+          class="m-0 mt-2 font-mono text-3xl font-bold mg-text"
+          [attr.aria-label]="'device.pairing.codeLabel' | translate">
           {{ challenge()?.userCode }}
         </p>
-        <p class="mb-0 mt-3 text-sm mg-text-muted">Caduca en {{ countdown() }}</p>
+        <p class="mb-0 mt-3 text-sm mg-text-muted" role="timer">
+          {{ 'device.pairing.expiresIn' | translate: { time: countdown() } }}
+        </p>
 
         @if (errorCode()) {
           <div
             class="mt-5 rounded-content bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-300"
-            role="status">
-            {{ errorMessage() }} Seguiremos intentando automáticamente.
+            role="status"
+            aria-live="polite">
+            {{ errorMessage() | translate }} {{ 'device.pairing.retrying' | translate }}
           </div>
         }
 
         <button pButton type="button" class="p-button-text p-button-secondary mt-6" (click)="cancelPairing()">
-          Cancelar y generar otro código
+          {{ 'device.pairing.cancel' | translate }}
         </button>
       </div>
     }

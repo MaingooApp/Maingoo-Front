@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
 import {
@@ -38,7 +39,7 @@ describe('DevicePairingComponent', () => {
     router.navigate.and.resolveTo(true);
 
     TestBed.configureTestingModule({
-      imports: [DevicePairingComponent],
+      imports: [DevicePairingComponent, TranslateModule.forRoot()],
       providers: [
         { provide: DevicePairingService, useValue: pairing },
         { provide: DeviceSessionService, useValue: session },

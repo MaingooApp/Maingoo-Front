@@ -1,5 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
 import { DevicePairingService } from '../../services/device-pairing.service';
@@ -8,6 +9,7 @@ import { DeviceSessionService } from '../../services/device-session.service';
 @Component({
   selector: 'app-terminal-pin',
   standalone: true,
+  imports: [TranslateModule],
   templateUrl: './terminal-pin.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

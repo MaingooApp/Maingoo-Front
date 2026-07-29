@@ -44,12 +44,16 @@ export class DeviceSessionStorageService {
   }
 
   async load(): Promise<DeviceSessionSnapshot> {
-    const [pairedIdentity, operatorSession, pendingPairing] = await Promise.all([
-      this.get('pairedIdentity'),
+    const pairedIdentity = await this.run(() => this.database.get('pairedIdentity'));
+    if (pairedIdentity && isExpired(pairedIdentity.expiresAt)) {
+      await this.clear();
+      return { pairedIdentity: null, operatorSession: null, pendingPairing: null };
+    }
+    const [operatorSession, pendingPairing] = await Promise.all([
       this.get('operatorSession'),
       this.get('pendingPairing')
     ]);
-    return { pairedIdentity, operatorSession, pendingPairing };
+    return { pairedIdentity: pairedIdentity ?? null, operatorSession, pendingPairing };
   }
 
   async get<TKey extends DeviceSessionKey>(key: TKey): Promise<DeviceSessionValues[TKey] | null> {

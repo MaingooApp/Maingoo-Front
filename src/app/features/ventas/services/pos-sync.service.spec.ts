@@ -61,8 +61,8 @@ describe('PosSyncService', () => {
   });
 
   it('uses the employee credential for paired terminal replay and sync', async () => {
-    service.start(callbacks, 'DEVICE_EMPLOYEE');
-    queue.commands = [sendCommand('employee-command', 'order-1')];
+    service.start(callbacks, 'DEVICE_EMPLOYEE', 'user-1');
+    queue.commands = [sendCommand('employee-command', 'order-1', undefined, 'user-1')];
     posService.sendOrder.and.returnValue(of(order('order-1')));
     posService.getSync.and.returnValue(of({ changes: [], serverCursor: 'cursor-1' }));
 
@@ -70,6 +70,19 @@ describe('PosSyncService', () => {
 
     expect(posService.sendOrder.calls.mostRecent().args[3]).toBe('DEVICE_EMPLOYEE');
     expect(posService.getSync.calls.mostRecent().args[3]).toBe('DEVICE_EMPLOYEE');
+  });
+
+  it('keeps a pending command untouched when a different employee tries to replay it', async () => {
+    callbacks.error = jasmine.createSpy('error');
+    service.start(callbacks, 'DEVICE_EMPLOYEE', 'user-2');
+    queue.commands = [sendCommand('employee-command', 'order-1', undefined, 'user-1')];
+
+    await service.requestSync();
+
+    expect(posService.sendOrder).not.toHaveBeenCalled();
+    expect(queue.commands[0].status).toBe('PENDING');
+    expect(queue.commands[0].attempts).toBe(0);
+    expect(callbacks.error).toHaveBeenCalledOnceWith('POS_OFFLINE_EMPLOYEE_MISMATCH');
   });
 
   it('returns transient failures to PENDING with backoff and continues another aggregate', async () => {
@@ -274,13 +287,15 @@ class FakeQueue {
 function sendCommand(
   clientMutationId: string,
   aggregateId: string,
-  clientCreatedAt = '2026-07-27T10:00:01.000Z'
+  clientCreatedAt = '2026-07-27T10:00:01.000Z',
+  employeeId?: string
 ): QueuedPosCommand {
   return {
     clientMutationId,
     aggregateId,
     enterpriseId: 'enterprise-1',
     deviceId: 'device-1',
+    ...(employeeId ? { employeeId } : {}),
     clientCreatedAt,
     expectedVersion: 1,
     type: 'SEND_ORDER',

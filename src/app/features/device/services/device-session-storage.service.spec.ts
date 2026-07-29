@@ -58,6 +58,27 @@ describe('DeviceSessionStorageService', () => {
     expect(database.records.size).toBe(0);
   });
 
+  it('clears dependent sessions when the paired device identity has expired', async () => {
+    await service.save('pairedIdentity', { ...pairedIdentity(), expiresAt: '2000-01-01T00:00:00.000Z' });
+    await service.save('operatorSession', operatorSession());
+    await service.save('pendingPairing', {
+      pairingId: 'pairing-1',
+      deviceCode: 'device-code',
+      userCode: 'ABCD-EFGH',
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      verificationUri: 'https://app.maingoo.tech/dispositivo',
+      verificationUriComplete: 'https://app.maingoo.tech/dispositivo?userCode=ABCD-EFGH',
+      pollIntervalSeconds: 5
+    });
+
+    expect(await service.load()).toEqual({
+      pairedIdentity: null,
+      operatorSession: null,
+      pendingPairing: null
+    });
+    expect(database.records.size).toBe(0);
+  });
+
   it('clears every device record after revocation', async () => {
     await service.save('pairedIdentity', pairedIdentity());
     await service.save('operatorSession', operatorSession());

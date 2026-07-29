@@ -120,6 +120,7 @@ describe('PosSessionStore offline', () => {
   });
 
   it('blocks cash, payment and finalization for a paired employee session', async () => {
+    store.bindEmployee('user-1');
     await store.initialize('enterprise-1', 'DEVICE_EMPLOYEE');
 
     await store.openCashSession('10.00');
@@ -130,6 +131,51 @@ describe('PosSessionStore offline', () => {
     expect(posService.openCashSession).not.toHaveBeenCalled();
     expect(posService.addPayment).not.toHaveBeenCalled();
     expect(posService.finalizeOrder).not.toHaveBeenCalled();
+  });
+
+  it('persists the employee author on every paired-terminal command', async () => {
+    store.bindEmployee('user-1');
+    await store.initialize('enterprise-1', 'DEVICE_EMPLOYEE');
+
+    await store.createOrder('TAKEAWAY');
+
+    expect(queue.enqueueWithOrder.calls.mostRecent().args[1]).toEqual(
+      jasmine.objectContaining({ employeeId: 'user-1' })
+    );
+    expect(storedCommands[0].employeeId).toBe('user-1');
+    expect(sync.start).toHaveBeenCalledWith(jasmine.any(Object), 'DEVICE_EMPLOYEE', 'user-1');
+  });
+
+  it('blocks new commands when the paired employee session has expired offline', async () => {
+    store.bindEmployee('user-1');
+    store.setMutationBlock('EMPLOYEE_SESSION_EXPIRED_OFFLINE');
+    await store.initialize('enterprise-1', 'DEVICE_EMPLOYEE');
+
+    await store.createOrder('TAKEAWAY');
+
+    expect(queue.enqueueWithOrder).not.toHaveBeenCalled();
+    expect(store.operationErrorCode()).toBe('EMPLOYEE_SESSION_EXPIRED_OFFLINE');
+  });
+
+  it('clears employee-expiry feedback when a valid PIN session replaces it', () => {
+    store.setMutationBlock('EMPLOYEE_SESSION_EXPIRED');
+
+    store.setMutationBlock(null);
+
+    expect(store.mutationBlockCode()).toBeNull();
+    expect(store.operationErrorCode()).toBeNull();
+  });
+
+  it('does not reassign commands queued by another employee', async () => {
+    storedCommands = [{ ...createCommand('local:employee-1'), employeeId: 'user-1' }];
+    store.bindEmployee('user-2');
+
+    await store.initialize('enterprise-1', 'DEVICE_EMPLOYEE');
+    await store.createOrder('TAKEAWAY');
+
+    expect(store.mutationBlockCode()).toBe('POS_OFFLINE_EMPLOYEE_MISMATCH');
+    expect(queue.enqueueWithOrder).not.toHaveBeenCalled();
+    expect(storedCommands[0].employeeId).toBe('user-1');
   });
 
   it('persists an offline order before exposing it and never starts network sync offline', async () => {

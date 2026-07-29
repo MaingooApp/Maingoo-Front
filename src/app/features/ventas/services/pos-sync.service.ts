@@ -28,11 +28,13 @@ export class PosSyncService {
   private callbacks: PosSyncCallbacks | null = null;
   private generation = 0;
   private authMode: PosAuthMode = 'HUMAN';
+  private employeeId: string | null = null;
 
-  start(callbacks: PosSyncCallbacks, authMode: PosAuthMode = 'HUMAN'): void {
+  start(callbacks: PosSyncCallbacks, authMode: PosAuthMode = 'HUMAN', employeeId?: string): void {
     this.generation++;
     this.callbacks = callbacks;
     this.authMode = authMode;
+    this.employeeId = employeeId ?? null;
     this.telemetry.clear();
   }
 
@@ -53,6 +55,8 @@ export class PosSyncService {
     this.generation++;
     this.callbacks = null;
     this.activeDrain = null;
+    this.authMode = 'HUMAN';
+    this.employeeId = null;
     if (this.retryTimer) clearTimeout(this.retryTimer);
     this.retryTimer = null;
   }
@@ -104,6 +108,11 @@ export class PosSyncService {
       const commands = await this.queue.listCommands(['PENDING']);
       const command = commands.find((candidate) => !blockedAggregates.has(candidate.aggregateId));
       if (!command) return true;
+
+      if (this.authMode === 'DEVICE_EMPLOYEE' && (!this.employeeId || command.employeeId !== this.employeeId)) {
+        await this.notify(callbacks.error, 'POS_OFFLINE_EMPLOYEE_MISMATCH');
+        return false;
+      }
 
       if (command.nextAttemptAt && Date.parse(command.nextAttemptAt) > Date.now()) {
         blockedAggregates.add(command.aggregateId);
