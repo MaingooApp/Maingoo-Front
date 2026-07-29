@@ -14,6 +14,7 @@ import { primengEs } from '../assets/i18n/primeng-es';
 import { appRoutes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
+import { deviceAuthInterceptor } from './features/device/interceptors/device-auth.interceptor';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import { LOCALE_ID } from '@angular/core';
@@ -45,7 +46,7 @@ export const appConfig: ApplicationConfig = {
       NgxPermissionsModule.forRoot()
     ),
     providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } }, translation: primengEs }),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, httpErrorInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([deviceAuthInterceptor, authInterceptor, httpErrorInterceptor])),
     ConfirmationService,
     MessageService,
     DialogService,

@@ -11,6 +11,10 @@ import { AppPermission } from './core/constants/permissions.enum';
 
 export const appRoutes: Routes = [
   {
+    path: 'dispositivo',
+    loadChildren: () => import('./features/device/device.routes')
+  },
+  {
     path: '',
     component: AppLayout,
     canActivate: [authGuard],

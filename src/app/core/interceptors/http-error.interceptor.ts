@@ -4,6 +4,7 @@ import { Observable, throwError, BehaviorSubject, filter, take, switchMap, catch
 import { AuthService } from '../../features/auth/services/auth-service.service';
 import { Router } from '@angular/router';
 import { SubscriptionStateService } from '@features/billing/services/subscription-state.service';
+import { POS_AUTH_MODE } from '../../features/device/interceptors/pos-auth.context';
 
 let isRefreshing = false;
 let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -23,6 +24,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
       }
 
       if (error.status === 401) {
+        if (req.context.get(POS_AUTH_MODE) !== 'HUMAN') {
+          return throwError(() => error);
+        }
+
         // Si la petición es al endpoint de refresh, no intentar refrescar
         if (req.url.includes('/auth/refresh')) {
           isRefreshing = false;
