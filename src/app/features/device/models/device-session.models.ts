@@ -101,6 +101,20 @@ export interface PosEmployeeSession {
   expiresAt: string;
 }
 
+export interface CreatePosEmployeeSessionResponse {
+  operatorToken: string;
+  expiresAt: string;
+  employee: {
+    userId: string;
+    name: string;
+    permissions: string[];
+  };
+}
+
+export interface LogoutPosEmployeeSessionResponse {
+  loggedOut: true;
+}
+
 export type PendingDevicePairing = DevicePairingChallenge;
 
 export interface DeviceSessionValues {

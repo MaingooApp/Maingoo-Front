@@ -85,6 +85,6 @@ describe('deviceAuthInterceptor', () => {
 
     expect(status).toBe(401);
     expect(next).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/dispositivo']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/dispositivo/terminal']);
   });
 });

@@ -1,18 +1,21 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import { POS_AUTH_MODE } from '../interceptors/pos-auth.context';
 import {
   ApproveDevicePairingRequest,
+  CreatePosEmployeeSessionResponse,
   CreateDevicePairingRequest,
   DeniedDevicePairing,
   DenyDevicePairingRequest,
   DevicePairingChallenge,
   DeviceContext,
   DevicePairingExchange,
-  DevicePairingLookup
+  DevicePairingLookup,
+  LogoutPosEmployeeSessionResponse,
+  PosEmployeeSession
 } from '../models/device-session.models';
 
 @Injectable({ providedIn: 'root' })
@@ -38,6 +41,31 @@ export class DevicePairingService {
     return this.http.get<DeviceContext>(`${environment.urlBackend}api/pos/device-context`, {
       context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE')
     });
+  }
+
+  createEmployeeSession(pin: string): Observable<PosEmployeeSession> {
+    return this.http
+      .post<CreatePosEmployeeSessionResponse>(
+        `${environment.urlBackend}api/pos/device-session/employee`,
+        { pin },
+        { context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE') }
+      )
+      .pipe(
+        map((response) => ({
+          user: { id: response.employee.userId, name: response.employee.name },
+          permissions: response.employee.permissions,
+          operatorToken: response.operatorToken,
+          expiresAt: response.expiresAt
+        }))
+      );
+  }
+
+  logoutEmployeeSession(): Observable<LogoutPosEmployeeSessionResponse> {
+    return this.http.post<LogoutPosEmployeeSessionResponse>(
+      `${environment.urlBackend}api/pos/device-session/logout`,
+      {},
+      { context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE_EMPLOYEE') }
+    );
   }
 
   lookup(userCode: string): Observable<DevicePairingLookup> {

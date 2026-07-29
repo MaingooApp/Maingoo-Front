@@ -110,6 +110,39 @@ describe('httpErrorInterceptor', () => {
     );
   });
 
+  it('returns an expired employee session to the PIN without unpairing the device', (done) => {
+    const deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', [
+      'clear',
+      'clearOperatorSession'
+    ]);
+    deviceSession.clearOperatorSession.and.resolveTo();
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: AuthService, useValue: jasmine.createSpyObj<AuthService>('AuthService', ['logout']) },
+        { provide: DeviceSessionService, useValue: deviceSession },
+        { provide: Router, useValue: jasmine.createSpyObj<Router>('Router', ['navigate']) },
+        {
+          provide: SubscriptionStateService,
+          useValue: jasmine.createSpyObj<SubscriptionStateService>('SubscriptionStateService', ['markPaymentRequired'])
+        }
+      ]
+    });
+    const error = new HttpErrorResponse({ status: 401, error: { code: 'EMPLOYEE_SESSION_EXPIRED' } });
+    const request = new HttpRequest('GET', '/api/pos/sync', {
+      context: new HttpContext().set(POS_AUTH_MODE, 'DEVICE_EMPLOYEE')
+    });
+
+    TestBed.runInInjectionContext(() =>
+      httpErrorInterceptor(request, () => throwError(() => error)).subscribe({
+        error: () => {
+          expect(deviceSession.clearOperatorSession).toHaveBeenCalledTimes(1);
+          expect(deviceSession.clear).not.toHaveBeenCalled();
+          done();
+        }
+      })
+    );
+  });
+
   it('keeps the device pairing after a station authorization error', () => {
     const deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['clear']);
     TestBed.configureTestingModule({

@@ -60,6 +60,18 @@ describe('PosSyncService', () => {
     expect(queue.confirmed).toEqual(['first', 'second']);
   });
 
+  it('uses the employee credential for paired terminal replay and sync', async () => {
+    service.start(callbacks, 'DEVICE_EMPLOYEE');
+    queue.commands = [sendCommand('employee-command', 'order-1')];
+    posService.sendOrder.and.returnValue(of(order('order-1')));
+    posService.getSync.and.returnValue(of({ changes: [], serverCursor: 'cursor-1' }));
+
+    await service.requestSync();
+
+    expect(posService.sendOrder.calls.mostRecent().args[3]).toBe('DEVICE_EMPLOYEE');
+    expect(posService.getSync.calls.mostRecent().args[3]).toBe('DEVICE_EMPLOYEE');
+  });
+
   it('returns transient failures to PENDING with backoff and continues another aggregate', async () => {
     queue.commands = [sendCommand('retry', 'order-1'), sendCommand('other', 'order-2', '2026-07-27T10:00:02.000Z')];
     posService.sendOrder.and.callFake((orderId) =>
@@ -102,7 +114,7 @@ describe('PosSyncService', () => {
 
     await service.requestSync();
 
-    expect(posService.getOrder).toHaveBeenCalledOnceWith('order-1');
+    expect(posService.getOrder).toHaveBeenCalledOnceWith('order-1', undefined, 'HUMAN');
     expect(queue.commands.find(({ clientMutationId }) => clientMutationId === 'conflict')?.status).toBe('CONFLICT');
     expect(queue.commands.find(({ clientMutationId }) => clientMutationId === 'blocked')?.status).toBe('PENDING');
     expect(queue.confirmed).toEqual(['other']);
@@ -122,8 +134,8 @@ describe('PosSyncService', () => {
     await service.requestSync();
 
     expect(posService.getSync.calls.allArgs()).toEqual([
-      ['device-1', 'cursor-0'],
-      ['device-1', undefined]
+      ['device-1', 'cursor-0', undefined, 'HUMAN'],
+      ['device-1', undefined, undefined, 'HUMAN']
     ]);
     expect(queue.cursor).toBe('rebuilt-cursor');
     expect(telemetry.snapshot()).toContain(jasmine.objectContaining({ type: 'SYNC_CYCLE', outcome: 'COMPLETED' }));
@@ -183,7 +195,7 @@ describe('PosSyncService', () => {
     const first = service.requestSync();
     const coalesced = service.requestSync();
     await new Promise<void>((resolve) => setTimeout(resolve));
-    expect(posService.getSync).toHaveBeenCalledOnceWith('device-1', 'cursor-0');
+    expect(posService.getSync).toHaveBeenCalledOnceWith('device-1', 'cursor-0', undefined, 'HUMAN');
 
     response.next({ changes: [change()], serverCursor: 'opaque-cursor-1' });
     response.complete();

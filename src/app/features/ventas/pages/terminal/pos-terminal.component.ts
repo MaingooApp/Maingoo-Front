@@ -1,8 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { finalize } from 'rxjs';
@@ -31,6 +40,7 @@ import { PosTelemetryService } from '../../services/pos-telemetry.service';
 import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
+import { DeviceSessionService } from '../../../device/services/device-session.service';
 
 const DEVICE_STORAGE_KEY = 'maingoo-pos-device-id';
 
@@ -52,13 +62,16 @@ const DEVICE_STORAGE_KEY = 'maingoo-pos-device-id';
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pos-terminal.component.html'
 })
-export class PosTerminalComponent implements OnInit {
+export class PosTerminalComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly posService = inject(PosService);
   private readonly permissions = inject(NgxPermissionsService);
   private readonly authService = inject(AuthService);
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  private readonly deviceSession = inject(DeviceSessionService, { optional: true });
   private legacyMigrationAttempted = false;
 
+  readonly pairedTerminal = this.route?.snapshot.data['deviceMode'] === 'REGISTER';
   readonly store = inject(PosSessionStore);
   readonly telemetry = inject(PosTelemetryService);
   readonly online = signal(typeof navigator === 'undefined' || navigator.onLine);
@@ -81,9 +94,11 @@ export class PosTerminalComponent implements OnInit {
   readonly guestCount = signal<number | null>(null);
   readonly paymentVisible = signal(false);
   readonly receiptOrder = signal<OperationalPosOrder | PosOrder | null>(null);
-  readonly canOpenCash = !!this.permissions.getPermission(AppPermission.PosCash);
-  readonly canReadFiscal = !!this.permissions.getPermission(AppPermission.FiscalRead);
-  readonly canVoidLines = !!this.permissions.getPermission(AppPermission.PosVoid);
+  readonly canOpenCash = !this.pairedTerminal && !!this.permissions.getPermission(AppPermission.PosCash);
+  readonly canReadFiscal = !this.pairedTerminal && !!this.permissions.getPermission(AppPermission.FiscalRead);
+  readonly canVoidLines = this.pairedTerminal
+    ? (this.deviceSession?.operatorSession()?.permissions.includes(AppPermission.PosVoid) ?? false)
+    : !!this.permissions.getPermission(AppPermission.PosVoid);
 
   readonly activeAreas = computed(() =>
     this.store
@@ -186,6 +201,11 @@ export class PosTerminalComponent implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
+    if (this.pairedTerminal) {
+      await this.initializePairedTerminal();
+      return;
+    }
+
     const enterpriseId = this.authService.getEnterpriseId();
     if (!enterpriseId) {
       this.store.errorCode.set('POS_ENTERPRISE_REQUIRED');
@@ -199,7 +219,12 @@ export class PosTerminalComponent implements OnInit {
     this.loadDevices();
   }
 
+  ngOnDestroy(): void {
+    if (this.pairedTerminal) this.store.reset();
+  }
+
   loadDevices(): void {
+    if (this.pairedTerminal) return;
     this.loadingDevices.set(true);
     this.deviceListError.set(false);
     this.posService
@@ -232,7 +257,7 @@ export class PosTerminalComponent implements OnInit {
   }
 
   async activateDevice(): Promise<void> {
-    const deviceId = this.selectedDeviceId();
+    const deviceId = this.pairedTerminal ? this.deviceSession?.device()?.id : this.selectedDeviceId();
     if (!deviceId) return;
 
     await this.store.activateDevice(deviceId);
@@ -240,6 +265,7 @@ export class PosTerminalComponent implements OnInit {
   }
 
   changeDevice(): void {
+    if (this.pairedTerminal) return;
     if (this.store.pendingCommandCount() > 0) return;
     this.selectedDeviceId.set('');
     this.selectingDevice.set(true);
@@ -445,6 +471,21 @@ export class PosTerminalComponent implements OnInit {
       window.removeEventListener('focus', sync);
       document.removeEventListener('visibilitychange', syncIfVisible);
     });
+  }
+
+  private async initializePairedTerminal(): Promise<void> {
+    await this.deviceSession?.initialize();
+    const device = this.deviceSession?.device();
+    const operator = this.deviceSession?.operatorSession();
+    if (!device || device.type !== 'REGISTER' || !operator) {
+      this.store.errorCode.set('DEVICE_EMPLOYEE_SESSION_REQUIRED');
+      return;
+    }
+
+    this.bindConnectivity();
+    this.selectedDeviceId.set(device.id);
+    await this.store.initialize(device.enterpriseId, 'DEVICE_EMPLOYEE');
+    await this.store.activateDevice(device.id);
   }
 
   private async migrateLegacyDevice(devices: readonly PosDevice[]): Promise<void> {

@@ -20,19 +20,25 @@
         </span>
       }
       @if (store.device(); as device) {
-        <button
-          pButton
-          type="button"
-          class="p-button-outlined p-button-secondary"
-          [disabled]="store.pendingCommandCount() > 0"
-          (click)="changeDevice()"
-          [attr.aria-label]="
-            (store.pendingCommandCount() > 0 ? 'pos.terminal.changeDeviceBlocked' : 'pos.terminal.changeDevice')
-              | translate
-          ">
-          <span class="pi pi-desktop" aria-hidden="true"></span>
-          <span>{{ device.name }}</span>
-        </button>
+        @if (!pairedTerminal) {
+          <button
+            pButton
+            type="button"
+            class="p-button-outlined p-button-secondary"
+            [disabled]="store.pendingCommandCount() > 0"
+            (click)="changeDevice()"
+            [attr.aria-label]="
+              (store.pendingCommandCount() > 0 ? 'pos.terminal.changeDeviceBlocked' : 'pos.terminal.changeDevice')
+                | translate
+            ">
+            <span class="pi pi-desktop" aria-hidden="true"></span>
+            <span>{{ device.name }}</span>
+          </button>
+        } @else {
+          <span class="rounded-lg border border-surface-300 px-3 py-2 text-sm font-medium mg-text">
+            <span class="pi pi-desktop mr-2" aria-hidden="true"></span>{{ device.name }}
+          </span>
+        }
       }
     </div>
   </header>
@@ -90,9 +96,11 @@
         <button pButton type="button" class="p-button-outlined p-button-danger" (click)="activateDevice()">
           {{ 'pos.actions.retry' | translate }}
         </button>
-        <button pButton type="button" class="p-button-text p-button-secondary" (click)="changeDevice()">
-          {{ 'pos.terminal.changeDevice' | translate }}
-        </button>
+        @if (!pairedTerminal) {
+          <button pButton type="button" class="p-button-text p-button-secondary" (click)="changeDevice()">
+            {{ 'pos.terminal.changeDevice' | translate }}
+          </button>
+        }
       </div>
     </section>
   } @else if (!store.device() || selectingDevice()) {
@@ -113,7 +121,7 @@
       } @else if (devices().length === 0) {
         <div class="space-y-3">
           <p class="m-0 mg-text-muted">{{ 'pos.terminal.noDevices' | translate }}</p>
-          @if (canManageDevices) {
+          @if (canManageDevices && !pairedTerminal) {
             <a pButton routerLink="/ventas/configuracion" class="no-underline">
               {{ 'pos.terminal.configureDevices' | translate }}
             </a>
@@ -507,15 +515,17 @@
                   [label]="'pos.terminal.sendOrder' | translate"
                   (click)="sendOrder()"></button>
 
-                <button
-                  pButton
-                  type="button"
-                  class="w-full"
-                  icon="pi pi-credit-card"
-                  severity="success"
-                  [disabled]="!canOpenPayment() || store.operationPending()"
-                  [label]="'pos.terminal.takePayment' | translate"
-                  (click)="openPayment()"></button>
+                @if (!pairedTerminal) {
+                  <button
+                    pButton
+                    type="button"
+                    class="w-full"
+                    icon="pi pi-credit-card"
+                    severity="success"
+                    [disabled]="!canOpenPayment() || store.operationPending()"
+                    [label]="'pos.terminal.takePayment' | translate"
+                    (click)="openPayment()"></button>
+                }
               </div>
             } @else {
               <div class="m-auto text-center">
@@ -612,35 +622,37 @@
   }
 </p-dialog>
 
-<app-payment-dialog
-  [visible]="paymentVisible()"
-  [order]="store.selectedAuthoritativeOrder()"
-  [balance]="store.selectedOrderBalance()"
-  [cashSession]="store.cashSession()"
-  [canOpenCash]="canOpenCash"
-  [loading]="store.operationPending()"
-  [errorCode]="store.operationErrorCode()"
-  [blockedReason]="paymentBlockedReason()"
-  (visibleChange)="paymentVisible.set($event)"
-  (openCash)="openCash($event)"
-  (addPayment)="addPayment($event)"
-  (finalize)="finalizeOrder()"></app-payment-dialog>
+@if (!pairedTerminal) {
+  <app-payment-dialog
+    [visible]="paymentVisible()"
+    [order]="store.selectedAuthoritativeOrder()"
+    [balance]="store.selectedOrderBalance()"
+    [cashSession]="store.cashSession()"
+    [canOpenCash]="canOpenCash"
+    [loading]="store.operationPending()"
+    [errorCode]="store.operationErrorCode()"
+    [blockedReason]="paymentBlockedReason()"
+    (visibleChange)="paymentVisible.set($event)"
+    (openCash)="openCash($event)"
+    (addPayment)="addPayment($event)"
+    (finalize)="finalizeOrder()"></app-payment-dialog>
 
-<p-dialog
-  [visible]="receiptOrder() !== null"
-  [modal]="true"
-  [draggable]="false"
-  [style]="{ width: 'min(38rem, 96vw)' }"
-  [header]="'pos.payment.receipt.title' | translate"
-  (visibleChange)="!$event && closeReceipt()">
-  <app-receipt-view
-    [order]="receiptOrder()"
-    [fiscalDocument]="receiptFiscalDocument()"
-    [canReadFiscal]="canReadFiscal"
-    [stockSyncStatus]="receiptStockSyncStatus()"
-    [currency]="store.settings()?.currency ?? 'EUR'"
-    [footer]="store.settings()?.receiptFooter ?? null"></app-receipt-view>
-</p-dialog>
+  <p-dialog
+    [visible]="receiptOrder() !== null"
+    [modal]="true"
+    [draggable]="false"
+    [style]="{ width: 'min(38rem, 96vw)' }"
+    [header]="'pos.payment.receipt.title' | translate"
+    (visibleChange)="!$event && closeReceipt()">
+    <app-receipt-view
+      [order]="receiptOrder()"
+      [fiscalDocument]="receiptFiscalDocument()"
+      [canReadFiscal]="canReadFiscal"
+      [stockSyncStatus]="receiptStockSyncStatus()"
+      [currency]="store.settings()?.currency ?? 'EUR'"
+      [footer]="store.settings()?.receiptFooter ?? null"></app-receipt-view>
+  </p-dialog>
+}
 
 <p-dialog
   [visible]="newOrderTable() !== null"

@@ -46,6 +46,42 @@ describe('DevicePairingService', () => {
     request.flush({});
   });
 
+  it('creates a mapped employee session with device authentication', () => {
+    let session: unknown;
+    service.createEmployeeSession('2468').subscribe((response) => (session = response));
+
+    const request = http.expectOne(`${environment.urlBackend}api/pos/device-session/employee`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({ pin: '2468' });
+    expect(request.request.context.get(POS_AUTH_MODE)).toBe('DEVICE');
+    request.flush({
+      operatorToken: 'operator-token',
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      employee: {
+        userId: 'user-1',
+        name: 'Camarero',
+        permissions: ['pos.sell']
+      }
+    });
+
+    expect(session).toEqual({
+      user: { id: 'user-1', name: 'Camarero' },
+      permissions: ['pos.sell'],
+      operatorToken: 'operator-token',
+      expiresAt: '2099-01-01T00:00:00.000Z'
+    });
+  });
+
+  it('logs out with employee authentication', () => {
+    service.logoutEmployeeSession().subscribe();
+
+    const request = http.expectOne(`${environment.urlBackend}api/pos/device-session/logout`);
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({});
+    expect(request.request.context.get(POS_AUTH_MODE)).toBe('DEVICE_EMPLOYEE');
+    request.flush({ loggedOut: true });
+  });
+
   it('looks up the visible code with explicit human authentication', () => {
     service.lookup('ABCD-EFGH').subscribe();
 

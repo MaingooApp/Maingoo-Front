@@ -9,6 +9,11 @@ import { POS_AUTH_MODE } from '../../features/device/interceptors/pos-auth.conte
 import { DeviceSessionService } from '../../features/device/services/device-session.service';
 
 const INVALID_DEVICE_CREDENTIAL_CODES = new Set(['DEVICE_REVOKED', 'DEVICE_TOKEN_EXPIRED', 'DEVICE_TOKEN_INVALID']);
+const INVALID_EMPLOYEE_SESSION_CODES = new Set([
+  'EMPLOYEE_SESSION_INVALID',
+  'EMPLOYEE_SESSION_EXPIRED',
+  'EMPLOYEE_SESSION_REVOKED'
+]);
 
 let isRefreshing = false;
 let refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
@@ -25,6 +30,12 @@ export const httpErrorInterceptor: HttpInterceptorFn = (
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       const authMode = req.context.get(POS_AUTH_MODE);
+      if (authMode === 'DEVICE_EMPLOYEE' && INVALID_EMPLOYEE_SESSION_CODES.has(errorCode(error) ?? '')) {
+        return from(deviceSession.clearOperatorSession()).pipe(
+          catchError(() => of(undefined)),
+          switchMap(() => throwError(() => error))
+        );
+      }
       if (
         (authMode === 'DEVICE' || authMode === 'DEVICE_EMPLOYEE') &&
         INVALID_DEVICE_CREDENTIAL_CODES.has(errorCode(error) ?? '')

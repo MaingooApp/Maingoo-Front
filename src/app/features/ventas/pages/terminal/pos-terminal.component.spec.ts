@@ -1,9 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { of } from 'rxjs';
 
 import { AuthService } from '@features/auth/services/auth-service.service';
+import { DeviceSessionService } from '../../../device/services/device-session.service';
 import { MenuItem, MenuItemModifierGroup } from '../../models/pos.models';
 import { PosSessionStore } from '../../services/pos-session.store';
 import { PosService } from '../../services/pos.service';
@@ -72,6 +74,61 @@ describe('PosTerminalComponent', () => {
     expect(invalidateCachedDevice).toHaveBeenCalledTimes(1);
     expect(component.selectedDeviceId()).toBe('');
     expect(component.selectingDevice()).toBeTrue();
+  });
+
+  it('activates only the paired register with employee authentication', async () => {
+    const initialize = jasmine.createSpy().and.resolveTo();
+    const activateDevice = jasmine.createSpy().and.resolveTo();
+    const reset = jasmine.createSpy();
+    const store = {
+      device: signal(null),
+      errorCode: signal<string | null>(null),
+      initialize,
+      activateDevice,
+      reset,
+      connectivityChanged: () => undefined
+    };
+    const pairedDevice = {
+      id: 'device-1',
+      enterpriseId: 'enterprise-1',
+      name: 'Terminal barra',
+      type: 'REGISTER' as const,
+      kitchenStationId: null,
+      status: 'ACTIVE' as const
+    };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PosSessionStore, useValue: store },
+        { provide: PosService, useValue: { listDevices: jasmine.createSpy() } },
+        { provide: AuthService, useValue: { getEnterpriseId: () => null } },
+        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } },
+        { provide: ActivatedRoute, useValue: { snapshot: { data: { deviceMode: 'REGISTER' } } } },
+        {
+          provide: DeviceSessionService,
+          useValue: {
+            initialize: jasmine.createSpy().and.resolveTo(),
+            device: signal(pairedDevice),
+            operatorSession: signal({
+              user: { id: 'user-1', name: 'Camarero' },
+              permissions: ['pos.sell'],
+              operatorToken: 'token',
+              expiresAt: '2099-01-01T00:00:00.000Z'
+            })
+          }
+        }
+      ]
+    });
+    const component = TestBed.runInInjectionContext(() => new PosTerminalComponent());
+
+    await component.ngOnInit();
+
+    expect(initialize).toHaveBeenCalledOnceWith('enterprise-1', 'DEVICE_EMPLOYEE');
+    expect(activateDevice).toHaveBeenCalledOnceWith('device-1');
+    expect(component.pairedTerminal).toBeTrue();
+    expect(component.canOpenCash).toBeFalse();
+
+    component.ngOnDestroy();
+    expect(reset).toHaveBeenCalledTimes(1);
   });
 
   it('enforces modifier and guest-count constraints', () => {

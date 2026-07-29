@@ -7,6 +7,7 @@ import { PosOperationalChange, PosOrder } from '../models/pos.models';
 import { PosOfflineQueueService, PosOfflineStorageError } from './pos-offline-queue.service';
 import { PosService } from './pos.service';
 import { PosTelemetryPhase, PosTelemetryService } from './pos-telemetry.service';
+import { PosAuthMode } from '../../device/interceptors/pos-auth.context';
 
 export interface PosSyncCallbacks {
   applyAuthoritativeOrder(order: PosOrder): void | Promise<void>;
@@ -26,10 +27,12 @@ export class PosSyncService {
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
   private callbacks: PosSyncCallbacks | null = null;
   private generation = 0;
+  private authMode: PosAuthMode = 'HUMAN';
 
-  start(callbacks: PosSyncCallbacks): void {
+  start(callbacks: PosSyncCallbacks, authMode: PosAuthMode = 'HUMAN'): void {
     this.generation++;
     this.callbacks = callbacks;
+    this.authMode = authMode;
     this.telemetry.clear();
   }
 
@@ -132,7 +135,7 @@ export class PosSyncService {
 
     switch (command.type) {
       case 'CREATE_ORDER':
-        order = await firstValueFrom(this.posService.createOrder(command.data, key));
+        order = await firstValueFrom(this.posService.createOrder(command.data, key, this.authMode));
         this.assertActive(callbacks, generation);
         await this.queue.confirmCommand(key, order);
         break;
@@ -141,7 +144,7 @@ export class PosSyncService {
         if (!previous || 'kind' in previous) {
           throw new PosSyncCommandError('POS_OFFLINE_ORDER_SNAPSHOT_MISSING', 422);
         }
-        order = await firstValueFrom(this.posService.addLine(command.aggregateId, command.data, key));
+        order = await firstValueFrom(this.posService.addLine(command.aggregateId, command.data, key, this.authMode));
         this.assertActive(callbacks, generation);
         const previousIds = new Set(previous.lines.map((line) => line.id));
         const addedIds = order.lines.map((line) => line.id).filter((lineId) => !previousIds.has(lineId));
@@ -158,20 +161,20 @@ export class PosSyncService {
       }
       case 'UPDATE_LINE':
         order = await firstValueFrom(
-          this.posService.updateLine(command.aggregateId, command.targetId, command.data, key)
+          this.posService.updateLine(command.aggregateId, command.targetId, command.data, key, this.authMode)
         );
         this.assertActive(callbacks, generation);
         await this.queue.confirmCommand(key, order);
         break;
       case 'REMOVE_LINE':
         order = await firstValueFrom(
-          this.posService.removeLine(command.aggregateId, command.targetId, command.data, key)
+          this.posService.removeLine(command.aggregateId, command.targetId, command.data, key, this.authMode)
         );
         this.assertActive(callbacks, generation);
         await this.queue.confirmCommand(key, order);
         break;
       case 'SEND_ORDER':
-        order = await firstValueFrom(this.posService.sendOrder(command.aggregateId, command.data, key));
+        order = await firstValueFrom(this.posService.sendOrder(command.aggregateId, command.data, key, this.authMode));
         this.assertActive(callbacks, generation);
         await this.queue.confirmCommand(key, order);
         break;
@@ -203,7 +206,7 @@ export class PosSyncService {
 
     if (code === 'ORDER_VERSION_CONFLICT') {
       try {
-        const order = await firstValueFrom(this.posService.getOrder(command.aggregateId));
+        const order = await firstValueFrom(this.posService.getOrder(command.aggregateId, undefined, this.authMode));
         this.assertActive(callbacks, generation);
         const conflicted = await this.queue.markConflict(command.clientMutationId, order, code);
         await this.notify(callbacks.commandChanged, conflicted);
@@ -251,7 +254,9 @@ export class PosSyncService {
     try {
       while (true) {
         this.assertActive(callbacks, generation);
-        const page = await firstValueFrom(this.posService.getSync(device.deviceId, cursor ?? undefined));
+        const page = await firstValueFrom(
+          this.posService.getSync(device.deviceId, cursor ?? undefined, undefined, this.authMode)
+        );
         this.assertActive(callbacks, generation);
         if (page.changes.length > 0) await callbacks.applyOperationalChanges(page.changes);
         await this.queue.setSyncCursor(page.serverCursor);

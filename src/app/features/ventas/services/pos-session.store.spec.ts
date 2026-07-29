@@ -119,6 +119,19 @@ describe('PosSessionStore offline', () => {
     expect(store.syncState()).toBe('OFFLINE');
   });
 
+  it('blocks cash, payment and finalization for a paired employee session', async () => {
+    await store.initialize('enterprise-1', 'DEVICE_EMPLOYEE');
+
+    await store.openCashSession('10.00');
+    await store.addPayment('CASH', '10.00');
+    await store.finalizeSelectedOrder();
+
+    expect(store.operationErrorCode()).toBe('POS_ACTION_NOT_ALLOWED');
+    expect(posService.openCashSession).not.toHaveBeenCalled();
+    expect(posService.addPayment).not.toHaveBeenCalled();
+    expect(posService.finalizeOrder).not.toHaveBeenCalled();
+  });
+
   it('persists an offline order before exposing it and never starts network sync offline', async () => {
     await store.initialize('enterprise-1');
 
@@ -177,8 +190,8 @@ describe('PosSessionStore offline', () => {
     await store.activateDevice('device-1');
 
     expect(posService.getBootstrap.calls.allArgs()).toEqual([
-      ['device-1', '2026-07-27T09:00:00.000Z', 'enterprise-1'],
-      ['device-1', undefined, 'enterprise-1']
+      ['device-1', '2026-07-27T09:00:00.000Z', 'enterprise-1', 'HUMAN'],
+      ['device-1', undefined, 'enterprise-1', 'HUMAN']
     ]);
     expect(queue.cacheBootstrap).toHaveBeenCalledOnceWith(jasmine.objectContaining({ cursor: 'bootstrap-2' }));
     expect(queue.saveDevice).toHaveBeenCalledOnceWith(jasmine.objectContaining({ id: 'device-1' }));

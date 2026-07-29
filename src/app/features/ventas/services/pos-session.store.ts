@@ -45,6 +45,7 @@ import {
 } from './pos-offline-queue.service';
 import { PosService } from './pos.service';
 import { PosSyncCallbacks, PosSyncService } from './pos-sync.service';
+import { PosAuthMode } from '../../device/interceptors/pos-auth.context';
 
 type AuthoritativeOrder = OperationalPosOrder | PosOrder;
 type ConflictOrderSummary = Pick<PosOrder, 'id' | 'orderNumber' | 'version'>;
@@ -58,6 +59,7 @@ export class PosSessionStore implements OnDestroy {
   private readonly localOrders = signal<LocalPosOrder[]>([]);
   private readonly commands = signal<QueuedPosCommand[]>([]);
   private enterpriseId: string | null = null;
+  private authMode: PosAuthMode = 'HUMAN';
   private loadVersion = 0;
   private lastQueuedAt = 0;
   private readonly directIntents = new Map<string, string>();
@@ -167,15 +169,16 @@ export class PosSessionStore implements OnDestroy {
     }
   };
 
-  async initialize(enterpriseId: string): Promise<void> {
+  async initialize(enterpriseId: string, authMode: PosAuthMode = 'HUMAN'): Promise<void> {
     const version = ++this.loadVersion;
     this.sync.stop();
     this.clearMemory();
     this.enterpriseId = enterpriseId;
+    this.authMode = authMode;
     this.loading.set(true);
     try {
       await this.queue.useEnterprise(enterpriseId);
-      this.sync.start(this.syncCallbacks);
+      this.sync.start(this.syncCallbacks, this.authMode);
       const [bootstrap, cachedDevice, orders, commands] = await Promise.all([
         this.queue.getCachedBootstrap(),
         this.queue.getDevice(),
@@ -215,10 +218,14 @@ export class PosSessionStore implements OnDestroy {
       const cached = await this.queue.getCachedBootstrap();
       let bootstrap: PosBootstrapResponse;
       try {
-        bootstrap = await firstValueFrom(this.posService.getBootstrap(deviceId, cached?.cursor, this.enterpriseId));
+        bootstrap = await firstValueFrom(
+          this.posService.getBootstrap(deviceId, cached?.cursor, this.enterpriseId, this.authMode)
+        );
       } catch (error: unknown) {
         if (errorCode(error) !== 'INVALID_SYNC_CURSOR') throw error;
-        bootstrap = await firstValueFrom(this.posService.getBootstrap(deviceId, undefined, this.enterpriseId));
+        bootstrap = await firstValueFrom(
+          this.posService.getBootstrap(deviceId, undefined, this.enterpriseId, this.authMode)
+        );
       }
       if (version !== this.loadVersion) return;
       this.applyBootstrap(bootstrap);
@@ -230,7 +237,7 @@ export class PosSessionStore implements OnDestroy {
         return;
       }
       await this.queue.saveDevice(bootstrap.device);
-      this.sync.start(this.syncCallbacks);
+      this.sync.start(this.syncCallbacks, this.authMode);
       await this.sync.requestSync();
       if (version === this.loadVersion && !this.conflictOrder() && this.syncState() !== 'ERROR') {
         this.syncState.set('ONLINE');
@@ -382,7 +389,8 @@ export class PosSessionStore implements OnDestroy {
         this.posService.voidLine(
           context.order.id,
           { ...this.versionedCommand(context.device.id, context.order.version), lineId, reason },
-          key
+          key,
+          this.authMode
         )
       );
       await this.applyDirectOrder(order);
@@ -390,6 +398,7 @@ export class PosSessionStore implements OnDestroy {
   }
 
   async openCashSession(openingAmount: DecimalString): Promise<void> {
+    if (!this.requireHumanAction()) return;
     const device = this.requireDevice();
     if (!device || !this.requireOnline()) return;
     if (this.cashSession()?.status === 'OPEN') {
@@ -409,6 +418,7 @@ export class PosSessionStore implements OnDestroy {
   }
 
   async addPayment(method: PaymentMethod, amount: DecimalString, externalReference?: string): Promise<void> {
+    if (!this.requireHumanAction()) return;
     const context = this.requireDirectOrder(true);
     if (!context) return;
     await this.runDirect(
@@ -440,6 +450,7 @@ export class PosSessionStore implements OnDestroy {
   }
 
   async finalizeSelectedOrder(fiscalCustomer?: FiscalCustomer): Promise<void> {
+    if (!this.requireHumanAction()) return;
     const context = this.requireDirectOrder(true);
     if (!context) return;
     await this.runDirect(
@@ -509,6 +520,7 @@ export class PosSessionStore implements OnDestroy {
     this.sync.stop();
     this.queue.close();
     this.enterpriseId = null;
+    this.authMode = 'HUMAN';
     this.clearMemory();
   }
 
@@ -570,7 +582,9 @@ export class PosSessionStore implements OnDestroy {
         this.ambiguousDirectIntentId = id;
       }
       if (errorCode(error) === 'ORDER_VERSION_CONFLICT') {
-        const order = await firstValueFrom(this.posService.getOrder(identity[0] as string)).catch(() => null);
+        const order = await firstValueFrom(
+          this.posService.getOrder(identity[0] as string, undefined, this.authMode)
+        ).catch(() => null);
         if (order) {
           this.upsertAuthoritativeOrder(order);
           this.conflictOrder.set(orderSummary(order));
@@ -669,6 +683,12 @@ export class PosSessionStore implements OnDestroy {
     if (this.online()) return true;
     this.operationErrorCode.set('POS_ONLINE_REQUIRED');
     this.syncState.set('OFFLINE');
+    return false;
+  }
+
+  private requireHumanAction(): boolean {
+    if (this.authMode === 'HUMAN') return true;
+    this.operationErrorCode.set('POS_ACTION_NOT_ALLOWED');
     return false;
   }
 

@@ -41,6 +41,30 @@ describe('PosService', () => {
     request.flush({});
   });
 
+  it('sends terminal bootstrap and orders with employee authentication', () => {
+    service.getBootstrap('device-1', undefined, 'enterprise-1', 'DEVICE_EMPLOYEE').subscribe();
+    const bootstrap = http.expectOne(
+      (candidate) => candidate.url === `${apiUrl}/bootstrap` && candidate.params.get('deviceId') === 'device-1'
+    );
+    expect(bootstrap.request.context.get(POS_AUTH_MODE)).toBe('DEVICE_EMPLOYEE');
+    bootstrap.flush({});
+
+    service
+      .createOrder(
+        {
+          deviceId: 'device-1',
+          clientCreatedAt: '2026-07-25T10:00:00.000Z',
+          channel: 'TAKEAWAY'
+        },
+        'employee-command',
+        'DEVICE_EMPLOYEE'
+      )
+      .subscribe();
+    const order = http.expectOne(`${apiUrl}/orders`);
+    expect(order.request.context.get(POS_AUTH_MODE)).toBe('DEVICE_EMPLOYEE');
+    order.flush({});
+  });
+
   it('removes an open line with the versioned command and caller idempotency key', () => {
     const command = {
       deviceId: '7b9c70e2-c246-4e30-a1ac-2e4305044cd4',

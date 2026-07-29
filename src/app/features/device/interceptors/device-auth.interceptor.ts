@@ -20,7 +20,7 @@ export const deviceAuthInterceptor: HttpInterceptorFn = (req, next) => {
   const token = mode === 'DEVICE' ? session.deviceToken() : session.operatorToken();
 
   if (!token) {
-    void inject(Router).navigate(['/dispositivo']);
+    void inject(Router).navigate([mode === 'DEVICE' ? '/dispositivo' : '/dispositivo/terminal']);
     return throwError(
       () =>
         new HttpErrorResponse({

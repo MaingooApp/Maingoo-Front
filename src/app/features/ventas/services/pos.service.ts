@@ -148,19 +148,31 @@ export class PosService extends BaseHttpService {
     super(http);
   }
 
-  getBootstrap(deviceId?: string, cursor?: string, enterpriseId?: string): Observable<PosBootstrapResponse> {
+  getBootstrap(
+    deviceId?: string,
+    cursor?: string,
+    enterpriseId?: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosBootstrapResponse> {
     return this.get<PosBootstrapResponse>(
       `${this.apiUrl}/bootstrap`,
       undefined,
-      this.params({ deviceId, cursor, enterpriseId })
+      this.params({ deviceId, cursor, enterpriseId }),
+      this.authContext(authMode)
     );
   }
 
-  getSync(deviceId: string, cursor?: string, enterpriseId?: string): Observable<PosOperationalSyncResponse> {
+  getSync(
+    deviceId: string,
+    cursor?: string,
+    enterpriseId?: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosOperationalSyncResponse> {
     return this.get<PosOperationalSyncResponse>(
       `${this.apiUrl}/sync`,
       undefined,
-      this.params({ deviceId, cursor, enterpriseId })
+      this.params({ deviceId, cursor, enterpriseId }),
+      this.authContext(authMode)
     );
   }
 
@@ -256,23 +268,48 @@ export class PosService extends BaseHttpService {
     return this.patch<ModifierGroup>(`${this.apiUrl}/menu/modifier-groups/${groupId}`, dto);
   }
 
-  createOrder(command: CreateOrderCommandData, idempotencyKey: string): Observable<PosOrder> {
-    return this.post<PosOrder>(`${this.apiUrl}/orders`, command, this.idempotencyHeader(idempotencyKey));
+  createOrder(
+    command: CreateOrderCommandData,
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosOrder> {
+    return this.post<PosOrder>(
+      `${this.apiUrl}/orders`,
+      command,
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
+    );
   }
 
-  listOrders(filters: PosOrderFilters = {}): Observable<PagedResponse<PosOrder>> {
-    return this.get<PagedResponse<PosOrder>>(`${this.apiUrl}/orders`, undefined, this.params(filters));
+  listOrders(filters: PosOrderFilters = {}, authMode: PosAuthMode = 'HUMAN'): Observable<PagedResponse<PosOrder>> {
+    return this.get<PagedResponse<PosOrder>>(
+      `${this.apiUrl}/orders`,
+      undefined,
+      this.params(filters),
+      this.authContext(authMode)
+    );
   }
 
-  getOrder(orderId: string, enterpriseId?: string): Observable<PosOrder> {
-    return this.get<PosOrder>(`${this.apiUrl}/orders/${orderId}`, undefined, this.params({ enterpriseId }));
+  getOrder(orderId: string, enterpriseId?: string, authMode: PosAuthMode = 'HUMAN'): Observable<PosOrder> {
+    return this.get<PosOrder>(
+      `${this.apiUrl}/orders/${orderId}`,
+      undefined,
+      this.params({ enterpriseId }),
+      this.authContext(authMode)
+    );
   }
 
-  addLine(orderId: string, command: AddLineCommandData, idempotencyKey: string): Observable<PosOrder> {
+  addLine(
+    orderId: string,
+    command: AddLineCommandData,
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosOrder> {
     return this.post<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/lines`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
     );
   }
 
@@ -280,12 +317,14 @@ export class PosService extends BaseHttpService {
     orderId: string,
     lineId: string,
     command: UpdateLineCommandData,
-    idempotencyKey: string
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
   ): Observable<PosOrder> {
     return this.patch<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/lines/${lineId}`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
     );
   }
 
@@ -293,36 +332,56 @@ export class PosService extends BaseHttpService {
     orderId: string,
     lineId: string,
     command: VersionedDeviceCommandData,
-    idempotencyKey: string
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
   ): Observable<PosOrder> {
     return this.post<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/lines/${lineId}/remove`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
     );
   }
 
-  sendOrder(orderId: string, command: SendOrderCommandData, idempotencyKey: string): Observable<PosOrder> {
+  sendOrder(
+    orderId: string,
+    command: SendOrderCommandData,
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosOrder> {
     return this.post<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/send`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
     );
   }
 
-  cancelOrder(orderId: string, command: CancelOrderCommandData, idempotencyKey: string): Observable<PosOrder> {
+  cancelOrder(
+    orderId: string,
+    command: CancelOrderCommandData,
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosOrder> {
     return this.post<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/cancel`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
     );
   }
 
-  voidLine(orderId: string, command: VoidLineCommandData, idempotencyKey: string): Observable<PosOrder> {
+  voidLine(
+    orderId: string,
+    command: VoidLineCommandData,
+    idempotencyKey: string,
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<PosOrder> {
     return this.post<PosOrder>(
       `${this.apiUrl}/orders/${orderId}/void-line`,
       command,
-      this.idempotencyHeader(idempotencyKey)
+      this.idempotencyHeader(idempotencyKey),
+      this.authContext(authMode)
     );
   }
 
@@ -384,7 +443,7 @@ export class PosService extends BaseHttpService {
       `${this.apiUrl}/kitchen/tickets`,
       undefined,
       this.params(filters),
-      new HttpContext().set(POS_AUTH_MODE, authMode)
+      this.authContext(authMode)
     );
   }
 
@@ -397,7 +456,7 @@ export class PosService extends BaseHttpService {
       `${this.apiUrl}/kitchen/tickets`,
       command,
       this.idempotencyHeader(idempotencyKey),
-      new HttpContext().set(POS_AUTH_MODE, authMode)
+      this.authContext(authMode)
     );
   }
 
@@ -487,6 +546,10 @@ export class PosService extends BaseHttpService {
 
   private idempotencyHeader(idempotencyKey: string): Record<string, string> {
     return { 'Idempotency-Key': idempotencyKey };
+  }
+
+  private authContext(authMode: PosAuthMode): HttpContext {
+    return new HttpContext().set(POS_AUTH_MODE, authMode);
   }
 
   private params(values: object): HttpParams {

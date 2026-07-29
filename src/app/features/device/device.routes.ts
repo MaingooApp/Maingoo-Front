@@ -33,7 +33,7 @@ const deviceRoutes: Routes = [
         canActivate: [pairedDeviceGuard, deviceModeGuard],
         data: { deviceMode: 'REGISTER' },
         loadComponent: () =>
-          import('../ventas/pages/terminal/pos-terminal.component').then((component) => component.PosTerminalComponent)
+          import('./pages/terminal/device-terminal.component').then((component) => component.DeviceTerminalComponent)
       },
       {
         path: 'revocado',
