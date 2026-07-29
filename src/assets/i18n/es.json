@@ -412,6 +412,17 @@
       "openSession": {
         "title": "Sesión abierta"
       },
+      "orderPayment": {
+        "title": "Pedidos pendientes de cobro",
+        "description": "Selecciona un pedido enviado para cobrarlo y emitir su ticket.",
+        "search": "Buscar por pedido o mesa",
+        "refresh": "Actualizar",
+        "order": "Pedido #{{order}}",
+        "takeaway": "Para llevar",
+        "charge": "Cobrar",
+        "empty": "No hay pedidos enviados pendientes de cobro.",
+        "closeReceipt": "Cerrar ticket"
+      },
       "openingAmount": "Importe inicial",
       "expectedCash": "Efectivo esperado",
       "countedCash": "Efectivo contado",

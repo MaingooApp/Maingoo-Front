@@ -4,6 +4,7 @@ import { AppPermission } from '@core/constants/permissions.enum';
 import { PosOfflineQueueService } from './services/pos-offline-queue.service';
 import { PosSessionStore } from './services/pos-session.store';
 import { PosSyncService } from './services/pos-sync.service';
+import { cashierPermissionsGuard } from './guards/cashier-permissions.guard';
 
 const ventasRoutes: Routes = [
   {
@@ -35,8 +36,7 @@ const ventasRoutes: Routes = [
         path: 'caja',
         loadComponent: () =>
           import('./pages/cash/cash-management.component').then((component) => component.CashManagementComponent),
-        canActivate: [ngxPermissionsGuard],
-        data: { permissions: { only: [AppPermission.PosCash] } }
+        canActivate: [cashierPermissionsGuard]
       },
       {
         path: 'historial',

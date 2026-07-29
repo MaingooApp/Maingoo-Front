@@ -412,6 +412,17 @@
       "openSession": {
         "title": "Open session"
       },
+      "orderPayment": {
+        "title": "Orders awaiting payment",
+        "description": "Select a sent order to take payment and issue its receipt.",
+        "search": "Search by order or table",
+        "refresh": "Refresh",
+        "order": "Order #{{order}}",
+        "takeaway": "Takeaway",
+        "charge": "Charge",
+        "empty": "There are no sent orders awaiting payment.",
+        "closeReceipt": "Close receipt"
+      },
       "openingAmount": "Opening amount",
       "expectedCash": "Expected cash",
       "countedCash": "Counted cash",

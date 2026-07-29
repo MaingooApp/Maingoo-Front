@@ -1,4 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
@@ -7,8 +8,10 @@ import { Subject, of, throwError } from 'rxjs';
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
 
-import { CashSessionWithMovements, PosDevice } from '../../models/pos.models';
+import { PosOrderViewModel } from '../../models/pos-local.models';
+import { CashSessionWithMovements, PosDevice, PosOrder } from '../../models/pos.models';
 import { PosOfflineQueueService, PosOfflineStorageError } from '../../services/pos-offline-queue.service';
+import { PosSessionStore } from '../../services/pos-session.store';
 import { PosService } from '../../services/pos.service';
 import { CashManagementComponent } from './cash-management.component';
 
@@ -18,10 +21,15 @@ describe('CashManagementComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let offlineQueue: jasmine.SpyObj<PosOfflineQueueService>;
   let posService: jasmine.SpyObj<PosService>;
+  let store: jasmine.SpyObj<PosSessionStore>;
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
+  const activeOrders = signal<PosOrderViewModel[]>([]);
+  const selectedAuthoritativeOrder = signal<PosOrder | null>(null);
 
   beforeEach(async () => {
-    authService = jasmine.createSpyObj<AuthService>('AuthService', ['getEnterpriseId']);
+    activeOrders.set([]);
+    selectedAuthoritativeOrder.set(null);
+    authService = jasmine.createSpyObj<AuthService>('AuthService', ['getEnterpriseId', 'hasPermission']);
     offlineQueue = jasmine.createSpyObj<PosOfflineQueueService>('PosOfflineQueueService', [
       'useEnterprise',
       'currentEnterpriseId',
@@ -36,7 +44,33 @@ describe('CashManagementComponent', () => {
       'closeCashSession'
     ]);
     confirmDialog = jasmine.createSpyObj<ConfirmDialogService>('ConfirmDialogService', ['confirm']);
+    store = jasmine.createSpyObj<PosSessionStore>(
+      'PosSessionStore',
+      [
+        'initialize',
+        'activateDevice',
+        'selectOrder',
+        'addPayment',
+        'finalizeSelectedOrder',
+        'syncNow',
+        'authoritativeOrder'
+      ],
+      {
+        activeOrders,
+        selectedOrder: signal<PosOrderViewModel | null>(null),
+        selectedAuthoritativeOrder,
+        selectedOrderBalance: signal('0.00'),
+        tables: signal([]),
+        operationPending: signal(false),
+        operationErrorCode: signal<string | null>(null),
+        stockSyncJobs: signal([]),
+        settings: signal(null),
+        cashSession: signal<CashSessionWithMovements | null>(null),
+        loading: signal(false)
+      }
+    );
     authService.getEnterpriseId.and.returnValue(register.enterpriseId);
+    authService.hasPermission.and.returnValue(true);
     offlineQueue.useEnterprise.and.resolveTo();
     offlineQueue.currentEnterpriseId.and.returnValue(register.enterpriseId);
     offlineQueue.getDevice.and.resolveTo({
@@ -48,6 +82,12 @@ describe('CashManagementComponent', () => {
     offlineQueue.saveDevice.and.resolveTo();
     posService.listDevices.and.returnValue(of([register]));
     posService.getCurrentCashSession.and.returnValue(of(openSession));
+    store.initialize.and.resolveTo();
+    store.activateDevice.and.resolveTo();
+    store.addPayment.and.resolveTo();
+    store.finalizeSelectedOrder.and.resolveTo();
+    store.syncNow.and.resolveTo();
+    store.authoritativeOrder.and.returnValue(null);
     confirmDialog.confirm.and.resolveTo(true);
 
     TestBed.configureTestingModule({
@@ -56,6 +96,7 @@ describe('CashManagementComponent', () => {
         { provide: AuthService, useValue: authService },
         { provide: PosOfflineQueueService, useValue: offlineQueue },
         { provide: PosService, useValue: posService },
+        { provide: PosSessionStore, useValue: store },
         { provide: ConfirmDialogService, useValue: confirmDialog },
         provideNoopAnimations()
       ]
@@ -68,6 +109,7 @@ describe('CashManagementComponent', () => {
   });
 
   it('reuses the terminal register and rejects invalid or offline cash operations', async () => {
+    expect(store.initialize).toHaveBeenCalledOnceWith(register.enterpriseId, 'HUMAN');
     expect(offlineQueue.useEnterprise).toHaveBeenCalledOnceWith(register.enterpriseId);
     expect(offlineQueue.getDevice).toHaveBeenCalledTimes(1);
     expect(component.selectedDevice()).toEqual(register);
@@ -181,10 +223,86 @@ describe('CashManagementComponent', () => {
     expect(posService.openCashSession).not.toHaveBeenCalled();
   });
 
+  it('lists only synchronized payable orders and delegates payment to the shared human store', async () => {
+    const sent = orderView({
+      id: 'order-sent',
+      orderNumber: 42,
+      displayNumber: '42',
+      serverStatus: 'SENT',
+      tableId: 'table-1'
+    });
+    const partial = orderView({
+      id: 'order-partial',
+      orderNumber: 43,
+      displayNumber: '43',
+      serverStatus: 'PARTIALLY_PAID',
+      tableId: null
+    });
+    const open = orderView({ id: 'order-open', orderNumber: 44, displayNumber: '44', serverStatus: 'OPEN' });
+    const otherRegister = orderView({
+      id: 'order-other-register',
+      deviceId: 'other-register',
+      orderNumber: 45,
+      displayNumber: '45',
+      serverStatus: 'SENT'
+    });
+    activeOrders.set([sent, partial, open, otherRegister]);
+
+    expect(component.payableOrders().map(({ id }) => id)).toEqual(['order-partial', 'order-sent']);
+
+    component.orderSearch.set('42');
+    expect(component.payableOrders().map(({ id }) => id)).toEqual(['order-sent']);
+    component.openPayment(sent);
+    await component.addPayment({ method: 'CARD', amount: '12.50' });
+
+    expect(store.selectOrder).toHaveBeenCalledWith(sent.id);
+    expect(component.paymentVisible()).toBeTrue();
+    expect(store.addPayment).toHaveBeenCalledOnceWith('CARD', '12.50', undefined);
+  });
+
+  it('shows the existing receipt after the shared store finalizes an order', async () => {
+    const paid = { id: 'order-paid', status: 'PAID' } as PosOrder;
+    selectedAuthoritativeOrder.set(paid);
+
+    await component.finalizeOrder();
+
+    expect(store.finalizeSelectedOrder).toHaveBeenCalledTimes(1);
+    expect(component.receiptOrder()).toBe(paid);
+    expect(component.paymentVisible()).toBeFalse();
+    expect(store.selectOrder).toHaveBeenCalledWith(null);
+  });
+
   async function settleAsyncDeviceLoad(): Promise<void> {
     await new Promise<void>((resolve) => setTimeout(resolve));
   }
 });
+
+function orderView(overrides: Partial<PosOrderViewModel> = {}): PosOrderViewModel {
+  return {
+    id: 'order-1',
+    source: 'SERVER',
+    enterpriseId: register.enterpriseId,
+    deviceId: register.id,
+    tableId: null,
+    channel: 'DINE_IN',
+    guestCount: 2,
+    note: null,
+    orderNumber: 1,
+    temporaryNumber: null,
+    displayNumber: '1',
+    serverVersion: 1,
+    serverStatus: 'SENT',
+    localStatus: null,
+    authoritativeTotalGross: '12.50',
+    estimatedTotalGross: '12.50',
+    paidGross: '0.00',
+    totalIsEstimated: false,
+    syncStatus: null,
+    pendingCommandCount: 0,
+    lines: [],
+    ...overrides
+  };
+}
 
 const register: PosDevice = {
   id: '7b9c70e2-c246-4e30-a1ac-2e4305044cd4',

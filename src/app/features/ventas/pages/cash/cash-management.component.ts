@@ -9,22 +9,31 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { Observable, finalize, from, fromEvent, map, merge, of, switchMap, throwError } from 'rxjs';
 
+import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
 
 import {
+  AddPaymentRequest,
+  PaymentBlockedReason,
+  PaymentDialogComponent
+} from '../../components/payment/payment-dialog.component';
+import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
+import {
   CloseCashSessionCommandData,
   CreateCashMovementCommandData,
   OpenCashSessionCommandData
 } from '../../models/pos-command.models';
-import { CashSessionWithMovements, PosDevice } from '../../models/pos.models';
+import { PosOrderViewModel } from '../../models/pos-local.models';
+import { CashSessionWithMovements, OperationalPosOrder, PosDevice, PosOrder } from '../../models/pos.models';
 import {
   CachedPosDevice,
   PosOfflineQueueService,
   PosOfflineStorageError
 } from '../../services/pos-offline-queue.service';
 import { PosService } from '../../services/pos.service';
+import { PosSessionStore } from '../../services/pos-session.store';
 
 const NON_NEGATIVE_MONEY = /^\d{1,10}(?:\.\d{1,2})?$/;
 const POSITIVE_MONEY = /^(?!0(?:\.0+)?$)\d{1,10}(?:\.\d{1,2})?$/;
@@ -39,7 +48,17 @@ type CashIntent =
 @Component({
   selector: 'app-cash-management',
   standalone: true,
-  imports: [ButtonModule, CommonModule, FormsModule, InputTextModule, RouterLink, SkeletonComponent, TranslateModule],
+  imports: [
+    ButtonModule,
+    CommonModule,
+    FormsModule,
+    InputTextModule,
+    PaymentDialogComponent,
+    ReceiptViewComponent,
+    RouterLink,
+    SkeletonComponent,
+    TranslateModule
+  ],
   templateUrl: './cash-management.component.html',
   styleUrl: './cash-management.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -49,6 +68,7 @@ export class CashManagementComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly offlineQueue = inject(PosOfflineQueueService);
   private readonly posService = inject(PosService);
+  readonly store = inject(PosSessionStore);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly translate = inject(TranslateService);
   private deviceLoadVersion = 0;
@@ -68,6 +88,41 @@ export class CashManagementComponent implements OnInit {
   readonly successKey = signal<string | null>(null);
   readonly closing = signal(false);
   readonly lastIntent = signal<CashIntent | null>(null);
+  readonly paymentVisible = signal(false);
+  readonly receiptOrder = signal<OperationalPosOrder | PosOrder | null>(null);
+  readonly orderSearch = signal('');
+  readonly canReadFiscal = this.authService.hasPermission(AppPermission.FiscalRead);
+  readonly payableOrders = computed(() => {
+    const search = this.orderSearch().trim().toLocaleLowerCase();
+    const tables = new Map(this.store.tables().map((table) => [table.id, table.name]));
+    return this.store
+      .activeOrders()
+      .filter(
+        (order) =>
+          order.source === 'SERVER' &&
+          order.deviceId === this.selectedDeviceId() &&
+          (order.serverStatus === 'SENT' || order.serverStatus === 'PARTIALLY_PAID') &&
+          order.pendingCommandCount === 0
+      )
+      .filter((order) => {
+        if (!search) return true;
+        const table = order.tableId ? tables.get(order.tableId) : null;
+        return [order.displayNumber, table, order.channel].some((value) => value?.toLocaleLowerCase().includes(search));
+      })
+      .sort((left, right) => (right.orderNumber ?? 0) - (left.orderNumber ?? 0));
+  });
+  readonly paymentBlockedReason = computed<PaymentBlockedReason | null>(() => {
+    if (!this.online()) return 'OFFLINE';
+    return this.store.selectedOrder()?.pendingCommandCount ? 'PENDING_SYNC' : null;
+  });
+  readonly receiptFiscalDocument = computed(() => this.receiptOrder()?.fiscalDocuments.at(-1) ?? null);
+  readonly receiptStockSyncStatus = computed(() => {
+    const orderId = this.receiptOrder()?.id;
+    if (!orderId) return null;
+    const stored = this.store.authoritativeOrder(orderId);
+    if (stored && 'stockSyncJob' in stored) return stored.stockSyncJob?.status ?? null;
+    return this.store.stockSyncJobs().find((job) => job.orderId === orderId)?.status ?? null;
+  });
 
   selectedDevice(): PosDevice | null {
     const enterpriseId = this.authService.getEnterpriseId();
@@ -87,13 +142,15 @@ export class CashManagementComponent implements OnInit {
   movementReason = '';
   countedCash = '';
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (typeof window !== 'undefined') {
       merge(fromEvent(window, 'online').pipe(map(() => true)), fromEvent(window, 'offline').pipe(map(() => false)))
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((online) => this.online.set(online));
     }
 
+    const enterpriseId = this.authService.getEnterpriseId();
+    if (enterpriseId) await this.store.initialize(enterpriseId, 'HUMAN');
     this.loadDevices();
   }
 
@@ -166,9 +223,14 @@ export class CashManagementComponent implements OnInit {
     this.session.set(null);
     this.closing.set(false);
     this.lastIntent.set(null);
+    this.paymentVisible.set(false);
+    this.receiptOrder.set(null);
+    this.store.selectOrder(null);
     this.clearFeedback();
 
     if (!device) return;
+
+    void this.store.activateDevice(device.id);
 
     if (!persist) {
       this.loadCurrentSession();
@@ -219,6 +281,7 @@ export class CashManagementComponent implements OnInit {
             return;
           }
           this.session.set(session);
+          this.store.cashSession.set(session);
         },
         error: (error: unknown) => {
           if (version === this.sessionLoadVersion) this.setError(error, 'POS_CASH_LOAD_FAILED');
@@ -336,6 +399,54 @@ export class CashManagementComponent implements OnInit {
     window.print();
   }
 
+  openPayment(order: PosOrderViewModel): void {
+    if (
+      !this.online() ||
+      this.session()?.status !== 'OPEN' ||
+      !this.payableOrders().some(({ id }) => id === order.id)
+    ) {
+      return;
+    }
+    this.store.selectOrder(order.id);
+    this.receiptOrder.set(null);
+    this.paymentVisible.set(true);
+  }
+
+  closePayment(): void {
+    if (this.store.operationPending()) return;
+    this.paymentVisible.set(false);
+    this.store.selectOrder(null);
+  }
+
+  async addPayment(request: AddPaymentRequest): Promise<void> {
+    await this.store.addPayment(request.method, request.amount, request.externalReference);
+    const cashSession = this.store.cashSession();
+    if (cashSession) this.session.set(cashSession);
+  }
+
+  async finalizeOrder(): Promise<void> {
+    await this.store.finalizeSelectedOrder();
+    const order = this.store.selectedAuthoritativeOrder();
+    if (!this.store.operationErrorCode() && order?.status === 'PAID') {
+      this.paymentVisible.set(false);
+      this.receiptOrder.set(order);
+      this.store.selectOrder(null);
+    }
+  }
+
+  refreshPayableOrders(): void {
+    void this.store.syncNow();
+  }
+
+  closeReceipt(): void {
+    this.receiptOrder.set(null);
+  }
+
+  orderLocation(order: PosOrderViewModel): string {
+    if (!order.tableId) return this.translate.instant('pos.cash.orderPayment.takeaway');
+    return this.store.tables().find(({ id }) => id === order.tableId)?.name ?? order.tableId;
+  }
+
   errorText(): string {
     const code = this.errorCode();
     if (!code) return '';
@@ -376,6 +487,7 @@ export class CashManagementComponent implements OnInit {
     if (intent.kind === 'OPEN') {
       this.runIntent(intent, this.posService.openCashSession(intent.command, intent.key), (session) => {
         this.session.set(session);
+        this.store.cashSession.set(session);
         this.openingAmount = '';
         this.successKey.set('pos.cash.success.opened');
       });
@@ -389,6 +501,7 @@ export class CashManagementComponent implements OnInit {
       );
       this.runIntent(intent, operation, (session) => {
         this.session.set(session);
+        this.store.cashSession.set(session);
         this.movementAmount = '';
         this.movementReason = '';
         this.successKey.set('pos.cash.success.movementCreated');
@@ -401,6 +514,7 @@ export class CashManagementComponent implements OnInit {
       this.posService.closeCashSession(intent.sessionId, intent.command, intent.key),
       (session) => {
         this.session.set(session);
+        this.store.cashSession.set(session);
         this.closing.set(false);
         this.successKey.set('pos.cash.success.closed');
       }

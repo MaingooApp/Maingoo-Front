@@ -3,6 +3,13 @@ export interface ManagedUser {
   name: string;
   email: string;
   permissions: string[];
+  posPinConfigured: boolean;
+}
+
+export interface PosPinStatus {
+  userId: string;
+  posPinConfigured: boolean;
+  updatedAt: string;
 }
 
 export interface Permission {

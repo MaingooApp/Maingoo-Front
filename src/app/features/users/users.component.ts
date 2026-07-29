@@ -81,6 +81,11 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   newUserName = signal('');
   newUserEmail = signal('');
   newUserPassword = signal('');
+  showPosPinForm = signal(false);
+  savingPosPin = signal(false);
+  posPin = signal('');
+  posPinConfirmation = signal('');
+  posPinValid = computed(() => /^\d{4,6}$/.test(this.posPin()) && this.posPin() === this.posPinConfirmation());
 
   // Permission selection state (set of permission IDs)
   selectedPermissionIds = signal<Set<string>>(new Set());
@@ -184,6 +189,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   selectUser(user: ManagedUser): void {
+    this.closePosPinForm();
     if (this.selectedUser()?.id === user.id) {
       this.selectedUser.set(null);
       return;
@@ -199,6 +205,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   closeDetail(): void {
+    this.closePosPinForm();
     this.selectedUser.set(null);
   }
 
@@ -228,8 +235,9 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updatedUser) => {
-          this.users.update((users) => users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
-          this.selectedUser.set(updatedUser);
+          const userWithPinStatus = { ...updatedUser, posPinConfigured: user.posPinConfigured };
+          this.users.update((users) => users.map((u) => (u.id === updatedUser.id ? userWithPinStatus : u)));
+          this.selectedUser.set(userWithPinStatus);
           const perms = this.allPermissions();
           const ids = new Set(
             updatedUser.permissions
@@ -292,6 +300,54 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
 
   filterUsers(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
+  }
+
+  openPosPinForm(): void {
+    this.clearPosPin();
+    this.showPosPinForm.set(true);
+  }
+
+  closePosPinForm(): void {
+    this.showPosPinForm.set(false);
+    this.clearPosPin();
+  }
+
+  updatePosPin(value: string): void {
+    this.posPin.set(numericPin(value));
+  }
+
+  updatePosPinConfirmation(value: string): void {
+    this.posPinConfirmation.set(numericPin(value));
+  }
+
+  confirmSetPosPin(): void {
+    const user = this.selectedUser();
+    if (!user || !this.posPinValid() || this.savingPosPin()) return;
+    const pin = this.posPin();
+
+    this.confirmationService.confirm({
+      header: user.posPinConfigured ? 'Cambiar PIN TPV' : 'Asignar PIN TPV',
+      message: `El cambio cerrará cualquier sesión TPV activa de ${user.name}. ¿Deseas continuar?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: user.posPinConfigured ? 'Cambiar PIN' : 'Asignar PIN',
+      rejectLabel: 'Cancelar',
+      accept: () => this.setPosPin(user, pin)
+    });
+  }
+
+  confirmDisablePosPin(): void {
+    const user = this.selectedUser();
+    if (!user?.posPinConfigured || this.savingPosPin()) return;
+
+    this.confirmationService.confirm({
+      header: 'Desactivar PIN TPV',
+      message: `${user.name} dejará de poder acceder a los terminales TPV y su sesión activa se cerrará.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Desactivar PIN',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.disablePosPin(user)
+    });
   }
 
   // ─── CREATE USER ───
@@ -378,6 +434,66 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  private setPosPin(user: ManagedUser, pin: string): void {
+    this.savingPosPin.set(true);
+    this.clearPosPin();
+    this.userService
+      .setPosPin(user.id, pin)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (status) => {
+          this.updatePosPinStatus(status.userId, status.posPinConfigured);
+          this.savingPosPin.set(false);
+          this.showPosPinForm.set(false);
+          this.toastService.success('PIN TPV actualizado', `El PIN de ${user.name} se ha guardado correctamente.`);
+        },
+        error: (error: unknown) => {
+          this.savingPosPin.set(false);
+          this.toastService.error('No se pudo guardar el PIN', this.getPosPinErrorMessage(error));
+        }
+      });
+  }
+
+  private disablePosPin(user: ManagedUser): void {
+    this.savingPosPin.set(true);
+    this.clearPosPin();
+    this.userService
+      .disablePosPin(user.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (status) => {
+          this.updatePosPinStatus(status.userId, status.posPinConfigured);
+          this.savingPosPin.set(false);
+          this.showPosPinForm.set(false);
+          this.toastService.success('PIN TPV desactivado', `${user.name} ya no puede acceder con PIN.`);
+        },
+        error: () => {
+          this.savingPosPin.set(false);
+          this.toastService.error('Error', 'No se pudo desactivar el PIN TPV.');
+        }
+      });
+  }
+
+  private updatePosPinStatus(userId: string, posPinConfigured: boolean): void {
+    this.users.update((users) => users.map((user) => (user.id === userId ? { ...user, posPinConfigured } : user)));
+    this.selectedUser.update((user) => (user?.id === userId ? { ...user, posPinConfigured } : user));
+  }
+
+  private clearPosPin(): void {
+    this.posPin.set('');
+    this.posPinConfirmation.set('');
+  }
+
+  private getPosPinErrorMessage(error: unknown): string {
+    const code =
+      typeof error === 'object' && error !== null && 'error' in error
+        ? (error as { error?: { code?: unknown } }).error?.code
+        : null;
+    if (code === 'EMPLOYEE_PIN_DUPLICATED') return 'Este PIN ya está asignado a otro usuario.';
+    if (code === 'EMPLOYEE_PIN_INVALID') return 'Elige un PIN menos predecible de 4 a 6 dígitos.';
+    return 'No se pudo guardar el PIN TPV.';
+  }
+
   private getCreateUserErrorMessage(error: unknown): string {
     if (typeof error === 'object' && error !== null && 'error' in error) {
       const nestedError = (error as { error?: { message?: unknown } }).error;
@@ -388,4 +504,8 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
 
     return 'No se pudo crear el usuario.';
   }
+}
+
+function numericPin(value: string): string {
+  return value.replace(/\D/g, '').slice(0, 6);
 }
