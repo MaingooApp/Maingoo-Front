@@ -660,7 +660,7 @@
         "active": "Activo"
       },
       "deviceTypes": {
-        "REGISTER": "Caja",
+        "REGISTER": "Terminal de camarero",
         "KDS": "Pantalla de cocina",
         "BACKOFFICE": "Administración"
       },
