@@ -61,6 +61,13 @@ describe('DeviceShellComponent employee logout policy', () => {
     expect(fixture.componentInstance.employeeLogoutErrorCode()).toBe('EMPLOYEE_LOGOUT_OFFLINE');
   });
 
+  it('does not expose administration from a paired device', () => {
+    const fixture = TestBed.createComponent(DeviceShellComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('a[href="/usuarios"]')).toBeNull();
+  });
+
   it('syncs pending commands before remote and local logout', async () => {
     const order: string[] = [];
     pendingCount.set(2);

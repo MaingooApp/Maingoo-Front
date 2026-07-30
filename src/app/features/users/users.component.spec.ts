@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { Confirmation, ConfirmationService } from 'primeng/api';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,15 +35,11 @@ describe('UsersComponent POS PIN', () => {
     userService.getAllPermissions.and.returnValue(of([]));
     confirmation = jasmine.createSpyObj<ConfirmationService>('ConfirmationService', ['confirm']);
 
-    TestBed.overrideComponent(UsersComponent, {
-      set: {
-        providers: [{ provide: ConfirmationService, useValue: confirmation }]
-      }
-    });
     TestBed.configureTestingModule({
       imports: [UsersComponent, NgxPermissionsModule.forRoot(), TranslateModule.forRoot()],
       providers: [
         { provide: UserService, useValue: userService },
+        { provide: ConfirmationService, useValue: confirmation },
         {
           provide: ToastService,
           useValue: jasmine.createSpyObj<ToastService>('ToastService', ['success', 'error'])
@@ -50,6 +47,10 @@ describe('UsersComponent POS PIN', () => {
         {
           provide: SectionHeaderService,
           useValue: jasmine.createSpyObj<SectionHeaderService>('SectionHeaderService', ['setContent', 'reset'])
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) } }
         },
         { provide: SectionNavigationService, useValue: { homeRequest$: EMPTY } }
       ]

@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
@@ -53,7 +54,6 @@ import { forkJoin } from 'rxjs';
     ConfirmDialogModule,
     TranslateModule
   ],
-  providers: [ConfirmationService],
   templateUrl: './users.component.html',
   host: {
     class: 'block h-full min-h-0'
@@ -69,6 +69,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   private sectionNavigationService = inject(SectionNavigationService);
   private confirmationService = inject(ConfirmationService);
   private translate = inject(TranslateService);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   // State
@@ -88,6 +89,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   savingPosPin = signal(false);
   posPin = signal('');
   posPinConfirmation = signal('');
+  setupPosPinMode = signal(false);
   posPinValid = computed(() => /^\d{4,6}$/.test(this.posPin()) && this.posPin() === this.posPinConfirmation());
 
   // Permission selection state (set of permission IDs)
@@ -152,6 +154,7 @@ export class UsersComponent implements OnInit, OnDestroy, AfterViewInit {
   });
 
   ngOnInit(): void {
+    this.setupPosPinMode.set(this.route.snapshot.queryParamMap.get('setupPosPin') === '1');
     this.sectionNavigationService.homeRequest$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((route) => {
       if (route === '/usuarios') {
         this.resetToMainView();

@@ -702,6 +702,7 @@
         "status": "Status",
         "allStations": "All stations",
         "confirmHint": "Approving will create and link this device to the business.",
+        "registerConfirmHint": "Approving will link the terminal and continue to Users so you can assign employee PINs.",
         "approve": "Approve",
         "deny": "Reject",
         "approveConfirmTitle": "Confirm pairing",
@@ -916,6 +917,8 @@
     "posPin": {
       "title": "POS terminal PIN",
       "description": "The PIN identifies the employee on paired terminals. It cannot be viewed after it is saved.",
+      "setupTitle": "Terminal paired: configure employee access",
+      "setupDescription": "Select an employee, ensure they have the Sell in POS permission, and assign their PIN in the detail panel.",
       "configured": "PIN configured",
       "notConfigured": "Not configured",
       "assign": "Assign PIN",
@@ -953,6 +956,7 @@
       "register": "Terminal",
       "online": "Online",
       "offline": "Offline",
+      "menu": "Terminal menu",
       "syncing": "Syncing…",
       "changeEmployee": "Lock or change employee",
       "errors": {
@@ -995,6 +999,7 @@
     "terminalPin": {
       "title": "Terminal access",
       "description": "Enter your personal PIN. You do not need to select an employee.",
+      "setupHint": "The manager assigns this PIN from their account when approving the terminal; it is never configured on this device.",
       "label": "Employee PIN",
       "keypad": "PIN keypad",
       "digit": "Digit {{digit}}",

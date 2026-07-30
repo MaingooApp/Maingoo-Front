@@ -702,6 +702,7 @@
         "status": "Estado",
         "allStations": "Todas las estaciones",
         "confirmHint": "Al aprobar se creará y vinculará este dispositivo al negocio.",
+        "registerConfirmHint": "Al aprobar se vinculará el terminal y continuarás a Usuarios para asignar el PIN de los camareros.",
         "approve": "Aprobar",
         "deny": "Rechazar",
         "approveConfirmTitle": "Confirmar emparejamiento",
@@ -916,6 +917,8 @@
     "posPin": {
       "title": "PIN del terminal TPV",
       "description": "El PIN identifica al empleado en terminales emparejados. Nunca se puede consultar después de guardarlo.",
+      "setupTitle": "Terminal emparejado: configura el acceso de los camareros",
+      "setupDescription": "Selecciona un camarero, comprueba que tenga el permiso Vender en TPV y asígnale su PIN en el panel de detalle.",
       "configured": "PIN configurado",
       "notConfigured": "Sin configurar",
       "assign": "Asignar PIN",
@@ -953,6 +956,7 @@
       "register": "Terminal",
       "online": "Con conexión",
       "offline": "Sin conexión",
+      "menu": "Menú del terminal",
       "syncing": "Sincronizando…",
       "changeEmployee": "Bloquear o cambiar camarero",
       "errors": {
@@ -995,6 +999,7 @@
     "terminalPin": {
       "title": "Acceso al terminal",
       "description": "Introduce tu PIN personal. No es necesario seleccionar un empleado.",
+      "setupHint": "El responsable asigna este PIN desde su cuenta al aprobar el terminal; nunca se configura desde este dispositivo.",
       "label": "PIN de empleado",
       "keypad": "Teclado PIN",
       "digit": "Dígito {{digit}}",

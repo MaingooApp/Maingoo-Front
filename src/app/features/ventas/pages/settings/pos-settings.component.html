@@ -591,7 +591,14 @@
             </label>
           }
 
-          <p class="m-0 text-sm mg-text-muted">{{ 'pos.settings.devicePairing.confirmHint' | translate }}</p>
+          <p class="m-0 text-sm mg-text-muted">
+            {{
+              (pairing.requestedType === 'REGISTER'
+                ? 'pos.settings.devicePairing.registerConfirmHint'
+                : 'pos.settings.devicePairing.confirmHint'
+              ) | translate
+            }}
+          </p>
         }
       </section>
     }

@@ -19,7 +19,7 @@ import { DeviceSessionService } from '../../services/device-session.service';
         [attr.aria-label]="'device.shell.ariaLabel' | translate">
         <div class="flex items-center gap-3">
           <img src="assets/images/maingoo_logo.svg" alt="Maingoo" class="h-10 w-10 object-contain" />
-          <span class="text-lg font-semibold mg-text">Maingoo TPV</span>
+          <span class="hidden text-lg font-semibold mg-text sm:inline">Maingoo TPV</span>
         </div>
         @if (session.device(); as device) {
           <div class="flex min-w-0 items-center gap-3 text-right">
@@ -43,13 +43,23 @@ import { DeviceSessionService } from '../../services/device-session.service';
               {{ (online() ? 'device.shell.online' : 'device.shell.offline') | translate }}
             </span>
             @if (device.type === 'REGISTER' && session.operatorSession()) {
-              <button
-                type="button"
-                class="min-h-11 rounded-lg border border-surface px-3 text-sm font-medium mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
-                [disabled]="employeeLogoutPending()"
-                (click)="changeEmployee()">
-                {{ (employeeLogoutPending() ? 'device.shell.syncing' : 'device.shell.changeEmployee') | translate }}
-              </button>
+              <details #deviceMenu class="relative">
+                <summary
+                  class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-lg border border-surface mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden"
+                  [attr.aria-label]="'device.shell.menu' | translate">
+                  <span class="pi pi-bars text-xl" aria-hidden="true"></span>
+                </summary>
+                <div
+                  class="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-xl border border-surface bg-surface-0 p-2 text-left shadow-lg dark:bg-surface-900">
+                  <button
+                    type="button"
+                    class="min-h-11 w-full rounded-lg px-3 text-left text-sm font-medium mg-text hover:bg-surface-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:hover:bg-surface-800"
+                    [disabled]="employeeLogoutPending()"
+                    (click)="deviceMenu.open = false; changeEmployee()">
+                    {{ (employeeLogoutPending() ? 'device.shell.syncing' : 'device.shell.changeEmployee') | translate }}
+                  </button>
+                </div>
+              </details>
             }
           </div>
         }

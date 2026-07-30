@@ -476,7 +476,8 @@ export class PosSettingsComponent {
         name,
         ...(pairing.requestedType === 'KDS' ? { kitchenStationId: this.pairingKitchenStationId || null } : {})
       }),
-      'pos.settings.devicePairing.approved'
+      'pos.settings.devicePairing.approved',
+      pairing.requestedType === 'REGISTER'
     );
   }
 
@@ -731,7 +732,7 @@ export class PosSettingsComponent {
       });
   }
 
-  private submitPairing(request: Observable<unknown>, successKey: string): void {
+  private submitPairing(request: Observable<unknown>, successKey: string, configureOperatorPins = false): void {
     this.pairingSubmitting.set(true);
     this.pairingErrorCode.set(null);
     request
@@ -744,7 +745,9 @@ export class PosSettingsComponent {
           this.pairingDialogVisible.set(false);
           this.pairingSuccessKey.set(successKey);
           this.loadAll();
-          void this.router.navigate(['/ventas/configuracion']);
+          void this.router.navigate(configureOperatorPins ? ['/usuarios'] : ['/ventas/configuracion'], {
+            queryParams: configureOperatorPins ? { setupPosPin: '1' } : undefined
+          });
         },
         error: (error: unknown) => this.pairingErrorCode.set(pairingErrorCode(error))
       });

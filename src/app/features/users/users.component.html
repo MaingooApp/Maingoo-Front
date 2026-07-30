@@ -1,5 +1,13 @@
 <div class="flex flex-col gap-6 relative items-start h-full min-h-0 overflow-hidden p-6 -m-6">
   <div class="flex flex-col flex-1 h-full min-h-0 w-full min-w-0">
+    <div
+      *ngIf="setupPosPinMode()"
+      class="mb-4 w-full rounded-xl border border-primary/30 bg-primary/10 p-4"
+      role="status">
+      <p class="m-0 font-semibold mg-text">{{ 'users.posPin.setupTitle' | translate }}</p>
+      <p class="mb-0 mt-1 text-sm mg-text-muted">{{ 'users.posPin.setupDescription' | translate }}</p>
+    </div>
+
     <!-- GLOBAL HEADER TEMPLATE -->
     <ng-template #headerTpl>
       <div class="flex items-center justify-between w-full h-full gap-4 overflow-x-auto no-scrollbar">

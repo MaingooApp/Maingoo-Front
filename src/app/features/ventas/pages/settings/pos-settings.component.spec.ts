@@ -14,6 +14,7 @@ describe('PosSettingsComponent', () => {
   let component: PosSettingsComponent;
   let pairingService: jasmine.SpyObj<DevicePairingService>;
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
     const timestamp = '2026-07-25T10:00:00.000Z';
@@ -91,6 +92,7 @@ describe('PosSettingsComponent', () => {
     foodPreparationService.getAll.and.returnValue(throwError(() => new Error('missing permission')));
     pairingService = jasmine.createSpyObj<DevicePairingService>('DevicePairingService', ['lookup', 'approve', 'deny']);
     confirmDialog = jasmine.createSpyObj<ConfirmDialogService>('ConfirmDialogService', ['confirm']);
+    router = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -103,7 +105,7 @@ describe('PosSettingsComponent', () => {
           provide: ActivatedRoute,
           useValue: { snapshot: { queryParamMap: convertToParamMap({}), routeConfig: { path: 'configuracion' } } }
         },
-        { provide: Router, useValue: jasmine.createSpyObj<Router>('Router', ['navigate']) },
+        { provide: Router, useValue: router },
         provideNoopAnimations()
       ]
     });
@@ -176,5 +178,26 @@ describe('PosSettingsComponent', () => {
     await component.denyPairing();
 
     expect(pairingService.deny).toHaveBeenCalledOnceWith('pairing-2', { userCode: 'ABCD-EFGH' });
+  });
+
+  it('continues to employee PIN setup after approving a waiter terminal', async () => {
+    pairingService.lookup.and.returnValue(
+      of({
+        id: 'pairing-3',
+        requestedType: 'REGISTER',
+        requestedLabel: 'Tablet terraza',
+        appVersion: null,
+        status: 'PENDING',
+        expiresAt: '2099-01-01T00:00:00.000Z',
+        createdAt: '2026-07-29T10:00:00.000Z'
+      })
+    );
+    pairingService.approve.and.returnValue(of({}));
+    confirmDialog.confirm.and.resolveTo(true);
+
+    component.openPairing('ABCD-EFGH');
+    await component.approvePairing();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/usuarios'], { queryParams: { setupPosPin: '1' } });
   });
 });
