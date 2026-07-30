@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  urlBackend: 'https://ms-gateway.salmonriver-6a199de3.westeurope.azurecontainerapps.io/'
+  urlBackend: `${window.location.protocol}//${window.location.hostname}:3000/`
 };
