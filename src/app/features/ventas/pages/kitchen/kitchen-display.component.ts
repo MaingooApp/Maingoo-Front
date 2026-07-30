@@ -36,6 +36,7 @@ import {
   KitchenTicketListItem,
   KitchenTicketStatus,
   KitchenTicketUpdateResponse,
+  KitchenStation,
   PagedResponse,
   PosDevice
 } from '../../models/pos.models';
@@ -83,6 +84,7 @@ export class KitchenDisplayComponent implements OnInit {
   readonly devices = signal<PosDevice[]>([]);
   readonly selectedDeviceId = signal('');
   readonly tickets = signal<KitchenTicketListItem[]>([]);
+  readonly stations = signal<KitchenStation[]>([]);
   readonly selectedStationId = signal('');
   readonly loadingDevices = signal(false);
   readonly loading = signal(false);
@@ -140,15 +142,14 @@ export class KitchenDisplayComponent implements OnInit {
       .sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name));
   });
 
-  readonly stations = computed(() =>
-    [...new Map(this.tickets().map((ticket) => [ticket.stationId, ticket.station])).values()].sort(
-      (left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name)
-    )
-  );
-
   ngOnInit(): void {
     if (this.deviceMode) void this.initializePairedDevice();
-    else this.loadDevices();
+    else {
+      this.loadDevices();
+      void this.loadStations().catch((error: unknown) =>
+        this.errorCode.set(this.extractErrorCode(error, 'KITCHEN_STATIONS_LOAD_FAILED'))
+      );
+    }
     this.setupConnectivity();
     this.setupPolling();
   }
@@ -349,6 +350,7 @@ export class KitchenDisplayComponent implements OnInit {
         await this.router.navigate(['/dispositivo/terminal'], { replaceUrl: true });
         return;
       }
+      await this.loadStations('DEVICE', context.enterpriseId);
       this.activatePairedDevice();
     } catch (error: unknown) {
       this.loading.set(false);
@@ -356,6 +358,15 @@ export class KitchenDisplayComponent implements OnInit {
     } finally {
       this.loadingDevices.set(false);
     }
+  }
+
+  private async loadStations(authMode: PosAuthMode = 'HUMAN', enterpriseId?: string): Promise<void> {
+    const stations = await firstValueFrom(
+      this.posService.listKitchenStations({ active: true, enterpriseId }, authMode)
+    );
+    this.stations.set(
+      [...stations].sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name))
+    );
   }
 
   private scopedFilters(filters: KitchenTicketFilters): KitchenTicketFilters {

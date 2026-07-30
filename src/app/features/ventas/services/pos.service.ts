@@ -249,8 +249,16 @@ export class PosService extends BaseHttpService {
     return this.patch<MenuItem>(`${this.apiUrl}/menu/items/${itemId}`, dto);
   }
 
-  listKitchenStations(filters: ActiveListFilters = {}): Observable<KitchenStation[]> {
-    return this.get<KitchenStation[]>(`${this.apiUrl}/kitchen/stations`, undefined, this.params(filters));
+  listKitchenStations(
+    filters: ActiveListFilters = {},
+    authMode: PosAuthMode = 'HUMAN'
+  ): Observable<KitchenStation[]> {
+    return this.get<KitchenStation[]>(
+      `${this.apiUrl}/kitchen/stations`,
+      undefined,
+      this.params(filters),
+      this.authContext(authMode)
+    );
   }
 
   createKitchenStation(dto: CreateKitchenStationDto): Observable<KitchenStation> {

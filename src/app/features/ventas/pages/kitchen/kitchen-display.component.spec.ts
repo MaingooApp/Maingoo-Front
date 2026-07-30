@@ -24,10 +24,12 @@ describe('KitchenDisplayComponent', () => {
     deviceState = signal<PairedDeviceIdentity['device'] | null>(null);
     posService = jasmine.createSpyObj<PosService>('PosService', [
       'listDevices',
+      'listKitchenStations',
       'listKitchenTickets',
       'updateKitchenTicket'
     ]);
     posService.listDevices.and.returnValue(of([]));
+    posService.listKitchenStations.and.returnValue(of([ticket().station]));
     posService.listKitchenTickets.and.returnValue(of(emptyPage()));
     pairingService = jasmine.createSpyObj<DevicePairingService>('DevicePairingService', ['getContext']);
     deviceSession = jasmine.createSpyObj<DeviceSessionService>('DeviceSessionService', ['applyDeviceContext'], {
@@ -117,6 +119,10 @@ describe('KitchenDisplayComponent', () => {
     expect(pairingService.getContext).toHaveBeenCalledTimes(1);
     expect(deviceSession.applyDeviceContext).toHaveBeenCalledOnceWith(context);
     expect(posService.listDevices).not.toHaveBeenCalled();
+    expect(posService.listKitchenStations).toHaveBeenCalledOnceWith(
+      { active: true, enterpriseId: 'enterprise-1' },
+      'DEVICE'
+    );
     expect(callOrder[0]).toBe('context');
     expect(callOrder.indexOf('poll')).toBeGreaterThan(0);
     expect(posService.listKitchenTickets).toHaveBeenCalledWith(
@@ -155,6 +161,7 @@ describe('KitchenDisplayComponent', () => {
 
     expect(fixture.nativeElement.querySelector('#kds-device')).toBeNull();
     expect(fixture.nativeElement.querySelector('#kds-station')).not.toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('#kds-station option').length).toBe(2);
     expect(posService.listKitchenTickets).toHaveBeenCalledWith(
       jasmine.objectContaining({ enterpriseId: 'enterprise-1' }),
       'DEVICE'

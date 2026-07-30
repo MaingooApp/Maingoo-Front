@@ -100,6 +100,17 @@ describe('PosService', () => {
   });
 
   it('sends kitchen reads and updates with explicit device authentication', () => {
+    service.listKitchenStations({ active: true, enterpriseId: 'enterprise-1' }, 'DEVICE').subscribe();
+
+    const stations = http.expectOne(
+      (candidate) =>
+        candidate.url === `${apiUrl}/kitchen/stations` &&
+        candidate.params.get('active') === 'true' &&
+        candidate.params.get('enterpriseId') === 'enterprise-1'
+    );
+    expect(stations.request.context.get(POS_AUTH_MODE)).toBe('DEVICE');
+    stations.flush([]);
+
     service.listKitchenTickets({ stationId: 'station-1' }, 'DEVICE').subscribe();
 
     const list = http.expectOne(
