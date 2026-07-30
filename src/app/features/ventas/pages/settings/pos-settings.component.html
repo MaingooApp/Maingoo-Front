@@ -11,7 +11,7 @@
         pButton
         type="button"
         class="shrink-0"
-        [outlined]="activeSection() !== section"
+        [class.p-button-outlined]="activeSection() !== section"
         [attr.aria-pressed]="activeSection() === section"
         [label]="'pos.settings.sections.' + section | translate"
         (click)="selectSection(section)"></button>

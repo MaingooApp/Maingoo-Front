@@ -129,6 +129,17 @@ describe('PosSettingsComponent', () => {
     expect(component.modifierSelectionRangeInvalid()).toBeTrue();
   });
 
+  it('updates the highlighted settings tab when the section changes', () => {
+    const fixture = TestBed.createComponent(PosSettingsComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.selectSection('stations');
+    fixture.detectChanges();
+
+    const buttons = fixture.nativeElement.querySelectorAll('nav button');
+    expect(buttons[0].classList).toContain('p-button-outlined');
+    expect(buttons[7].classList).not.toContain('p-button-outlined');
+  });
+
   it('normalizes a QR code and approves a KDS for all stations after confirmation', async () => {
     pairingService.lookup.and.returnValue(
       of({
