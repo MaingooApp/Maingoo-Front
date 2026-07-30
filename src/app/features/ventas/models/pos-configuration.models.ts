@@ -36,6 +36,12 @@ export interface CreatePosDeviceDto extends EnterpriseScopedFilters {
 
 export type UpdatePosDeviceDto = Partial<Omit<CreatePosDeviceDto, 'code'>>;
 
+export interface RevokePosDeviceDto {
+  reason: string;
+  confirm: 'REVOKE';
+  expectedStatus: 'ACTIVE';
+}
+
 export interface CreatePosAreaDto extends EnterpriseScopedFilters {
   name: string;
   sortOrder?: number;

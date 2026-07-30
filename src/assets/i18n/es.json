@@ -668,6 +668,22 @@
         "ACTIVE": "Activo",
         "REVOKED": "Revocado"
       },
+      "deviceRevoke": {
+        "open": "Revocar dispositivo",
+        "title": "Revocar dispositivo",
+        "description": "El dispositivo «{{name}}» perderá el acceso inmediatamente y tendrá que emparejarse de nuevo.",
+        "reason": "Motivo",
+        "reasonHint": "Entre 10 y 500 caracteres.",
+        "confirm": "Revocar dispositivo",
+        "errors": {
+          "OPEN_ORDERS_EXIST": "Cierra los pedidos abiertos de este dispositivo antes de revocarlo.",
+          "OPEN_CASH_SESSION_EXISTS": "Cierra la sesión de caja abierta antes de revocar este dispositivo.",
+          "DEVICE_ALREADY_REVOKED": "El dispositivo ya está revocado.",
+          "POS_DEVICE_NOT_FOUND": "El dispositivo ya no existe o no pertenece a esta empresa.",
+          "DEVICE_REVOKED": "El dispositivo ya no está activo.",
+          "UNKNOWN": "No se pudo revocar el dispositivo. Inténtalo de nuevo."
+        }
+      },
       "activeStates": {
         "active": "Activo",
         "inactive": "Inactivo"

@@ -668,6 +668,22 @@
         "ACTIVE": "Active",
         "REVOKED": "Revoked"
       },
+      "deviceRevoke": {
+        "open": "Revoke device",
+        "title": "Revoke device",
+        "description": "Device “{{name}}” will lose access immediately and must be paired again.",
+        "reason": "Reason",
+        "reasonHint": "Between 10 and 500 characters.",
+        "confirm": "Revoke device",
+        "errors": {
+          "OPEN_ORDERS_EXIST": "Close this device’s open orders before revoking it.",
+          "OPEN_CASH_SESSION_EXISTS": "Close the open cash session before revoking this device.",
+          "DEVICE_ALREADY_REVOKED": "The device is already revoked.",
+          "POS_DEVICE_NOT_FOUND": "The device no longer exists or does not belong to this business.",
+          "DEVICE_REVOKED": "The device is no longer active.",
+          "UNKNOWN": "The device could not be revoked. Try again."
+        }
+      },
       "activeStates": {
         "active": "Active",
         "inactive": "Inactive"

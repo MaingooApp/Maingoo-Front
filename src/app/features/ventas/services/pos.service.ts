@@ -37,6 +37,7 @@ import {
   ListPosDevicesFilters,
   ListPosMenuItemsFilters,
   ListPosTablesFilters,
+  RevokePosDeviceDto,
   UpdateKitchenStationDto,
   UpdateModifierGroupDto,
   UpdatePosAreaDto,
@@ -194,6 +195,10 @@ export class PosService extends BaseHttpService {
 
   updateDevice(deviceId: string, dto: UpdatePosDeviceDto): Observable<PosDevice> {
     return this.patch<PosDevice>(`${this.apiUrl}/devices/${deviceId}`, dto);
+  }
+
+  revokeDevice(deviceId: string, dto: RevokePosDeviceDto): Observable<unknown> {
+    return this.post(`${this.apiUrl}/devices/${deviceId}/revoke`, dto);
   }
 
   listAreas(filters: ActiveListFilters = {}): Observable<DiningArea[]> {

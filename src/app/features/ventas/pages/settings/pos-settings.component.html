@@ -145,6 +145,16 @@
               [text]="true"
               [attr.aria-label]="'pos.settings.edit' | translate"
               (click)="openEdit(item)"></button>
+            @if (activeSection() === 'devices' && isActiveDevice(item)) {
+              <button
+                pButton
+                type="button"
+                icon="pi pi-ban"
+                severity="danger"
+                [text]="true"
+                [attr.aria-label]="'pos.settings.deviceRevoke.open' | translate"
+                (click)="openRevoke(item)"></button>
+            }
           </article>
         }
       </div>
@@ -430,6 +440,57 @@
     </div>
   </form>
 </p-dialog>
+
+@if (revokeDeviceTarget(); as device) {
+  <p-dialog
+    [visible]="revokeDialogVisible()"
+    [modal]="true"
+    [draggable]="false"
+    [closable]="!revoking()"
+    [style]="{ width: 'min(34rem, 94vw)' }"
+    [header]="'pos.settings.deviceRevoke.title' | translate"
+    (visibleChange)="$event ? revokeDialogVisible.set(true) : closeRevoke()">
+    <form #revokeForm="ngForm" class="flex flex-col gap-4 pt-2" (ngSubmit)="revokeDevice(revokeForm)">
+      <p class="m-0 mg-text-muted">
+        {{ 'pos.settings.deviceRevoke.description' | translate: { name: device.name } }}
+      </p>
+      @if (revokeErrorCode(); as errorCode) {
+        <p class="m-0 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300" role="alert">
+          {{ 'pos.settings.deviceRevoke.errors.' + errorCode | translate }}
+        </p>
+      }
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.settings.deviceRevoke.reason' | translate }}</span>
+        <textarea
+          required
+          minlength="10"
+          maxlength="500"
+          name="revokeReason"
+          rows="4"
+          class="w-full rounded-md border border-surface bg-transparent p-3 mg-text"
+          [(ngModel)]="revokeReason"></textarea>
+        <small class="mg-text-muted">{{ 'pos.settings.deviceRevoke.reasonHint' | translate }}</small>
+      </label>
+      <div class="flex justify-end gap-2">
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          [outlined]="true"
+          [disabled]="revoking()"
+          [label]="'pos.settings.cancel' | translate"
+          (click)="closeRevoke()"></button>
+        <button
+          pButton
+          type="submit"
+          severity="danger"
+          icon="pi pi-ban"
+          [loading]="revoking()"
+          [label]="'pos.settings.deviceRevoke.confirm' | translate"></button>
+      </div>
+    </form>
+  </p-dialog>
+}
 
 <p-dialog
   [visible]="pairingDialogVisible()"

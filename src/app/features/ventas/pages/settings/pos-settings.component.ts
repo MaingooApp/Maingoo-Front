@@ -137,6 +137,10 @@ export class PosSettingsComponent {
   readonly pairingLookup = signal<DevicePairingLookup | null>(null);
   readonly pairingErrorCode = signal<string | null>(null);
   readonly pairingSuccessKey = signal<string | null>(null);
+  readonly revokeDialogVisible = signal(false);
+  readonly revoking = signal(false);
+  readonly revokeDeviceTarget = signal<PosDevice | null>(null);
+  readonly revokeErrorCode = signal<string | null>(null);
   readonly devices = signal<PosDevice[]>([]);
   readonly areas = signal<DiningArea[]>([]);
   readonly tables = signal<DiningTable[]>([]);
@@ -172,6 +176,7 @@ export class PosSettingsComponent {
   pairingCode = '';
   pairingName = '';
   pairingKitchenStationId = '';
+  revokeReason = '';
 
   constructor() {
     this.loadAll();
@@ -357,6 +362,48 @@ export class PosSettingsComponent {
 
   closeDialog(): void {
     this.dialogVisible.set(false);
+  }
+
+  isActiveDevice(entity: ConfigEntity): entity is PosDevice {
+    return 'status' in entity && entity.status === 'ACTIVE';
+  }
+
+  openRevoke(device: PosDevice): void {
+    this.revokeDeviceTarget.set(device);
+    this.revokeReason = '';
+    this.revokeErrorCode.set(null);
+    this.revokeDialogVisible.set(true);
+  }
+
+  closeRevoke(): void {
+    this.revokeDialogVisible.set(false);
+    this.revokeDeviceTarget.set(null);
+  }
+
+  revokeDevice(form: NgForm): void {
+    const device = this.revokeDeviceTarget();
+    const reason = this.revokeReason.trim();
+    if (!device || form.invalid || reason.length < 10 || this.revoking()) {
+      form.control.markAllAsTouched();
+      return;
+    }
+
+    this.revoking.set(true);
+    this.posService
+      .revokeDevice(device.id, { reason, confirm: 'REVOKE', expectedStatus: 'ACTIVE' })
+      .pipe(
+        finalize(() => this.revoking.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: () => {
+          this.revokeErrorCode.set(null);
+          this.closeRevoke();
+          this.loadAll();
+        },
+        error: (error: HttpErrorResponse) =>
+          this.revokeErrorCode.set(error.error?.code ?? 'UNKNOWN')
+      });
   }
 
   openPairing(code = ''): void {
