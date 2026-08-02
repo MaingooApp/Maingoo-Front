@@ -8,11 +8,10 @@ import {
   inject,
   signal
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 
-import { PosTerminalComponent } from '../../../ventas/pages/terminal/pos-terminal.component';
 import { PosSessionStore } from '../../../ventas/services/pos-session.store';
 import { DevicePairingService } from '../../services/device-pairing.service';
 import { DeviceSessionService } from '../../services/device-session.service';
@@ -21,7 +20,7 @@ import { TerminalPinComponent } from '../terminal-login/terminal-pin.component';
 @Component({
   selector: 'app-device-terminal',
   standalone: true,
-  imports: [PosTerminalComponent, TerminalPinComponent, TranslateModule],
+  imports: [RouterOutlet, TerminalPinComponent, TranslateModule],
   templateUrl: './device-terminal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

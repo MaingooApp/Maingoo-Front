@@ -10,17 +10,13 @@ import {
   signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { finalize } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
 
-import { AddPaymentRequest, PaymentDialogComponent } from '../../components/payment/payment-dialog.component';
-import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
+import { AddPaymentRequest } from '../../components/payment/payment-dialog.component';
 import {
   DiningTable,
   MenuItem,
@@ -43,18 +39,7 @@ const DEVICE_STORAGE_KEY = 'maingoo-pos-device-id';
 @Component({
   selector: 'app-pos-terminal',
   standalone: true,
-  imports: [
-    ButtonModule,
-    CommonModule,
-    DialogModule,
-    FormsModule,
-    InputTextModule,
-    PaymentDialogComponent,
-    ReceiptViewComponent,
-    RouterLink,
-    SkeletonComponent,
-    TranslateModule
-  ],
+  imports: [ButtonModule, CommonModule, RouterOutlet, SkeletonComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pos-terminal.component.html'
 })
@@ -64,10 +49,13 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   private readonly permissions = inject(NgxPermissionsService);
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute, { optional: true });
+  private readonly router = inject(Router);
   private readonly deviceSession = inject(DeviceSessionService, { optional: true });
   private legacyMigrationAttempted = false;
 
-  readonly pairedTerminal = this.route?.snapshot.data['deviceMode'] === 'REGISTER';
+  readonly pairedTerminal =
+    this.route?.snapshot.data['deviceMode'] === 'REGISTER' ||
+    this.route?.snapshot.parent?.data['deviceMode'] === 'REGISTER';
   readonly store = inject(PosSessionStore);
   readonly telemetry = inject(PosTelemetryService);
   readonly online = signal(typeof navigator === 'undefined' || navigator.onLine);
@@ -79,7 +67,6 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   readonly canManageDevices = !!this.permissions.getPermission(AppPermission.PosManage);
   readonly selectedAreaId = signal<string | null>(null);
   readonly selectedCategoryId = signal<string | null>(null);
-  readonly mobileView = signal<'ROOM' | 'MENU' | 'ORDER'>('ROOM');
   readonly search = signal('');
   readonly modifierItem = signal<MenuItem | null>(null);
   readonly selectedModifierOptionIds = signal<string[]>([]);
@@ -324,15 +311,17 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   }
 
   showRoom(): void {
-    this.mobileView.set('ROOM');
+    void this.router.navigate(['/dispositivo/terminal/sala']);
   }
 
   showMenu(): void {
-    this.mobileView.set('MENU');
+    const orderId = this.store.selectedOrderId();
+    if (orderId) void this.router.navigate(['/dispositivo/terminal/pedido', orderId, 'carta']);
   }
 
   showOrder(): void {
-    if (this.store.selectedOrder()) this.mobileView.set('ORDER');
+    const orderId = this.store.selectedOrderId();
+    if (orderId) void this.router.navigate(['/dispositivo/terminal/pedido', orderId, 'resumen']);
   }
 
   chooseMenuItem(item: MenuItem): void {

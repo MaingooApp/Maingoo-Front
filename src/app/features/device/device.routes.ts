@@ -33,7 +33,41 @@ const deviceRoutes: Routes = [
         canActivate: [pairedDeviceGuard, deviceModeGuard],
         data: { deviceMode: 'REGISTER' },
         loadComponent: () =>
-          import('./pages/terminal/device-terminal.component').then((component) => component.DeviceTerminalComponent)
+          import('./pages/terminal/device-terminal.component').then((component) => component.DeviceTerminalComponent),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('../ventas/pages/terminal/pos-terminal.component').then(
+                (component) => component.PosTerminalComponent
+              ),
+            children: [
+              { path: '', pathMatch: 'full', redirectTo: 'sala' },
+              {
+                path: 'sala',
+                loadComponent: () =>
+                  import('../ventas/pages/terminal/room/pos-terminal-room.component').then(
+                    (component) => component.PosTerminalRoomComponent
+                  )
+              },
+              {
+                path: 'pedido/:orderId/carta',
+                loadComponent: () =>
+                  import('../ventas/pages/terminal/menu/pos-terminal-menu.component').then(
+                    (component) => component.PosTerminalMenuComponent
+                  )
+              },
+              {
+                path: 'pedido/:orderId/resumen',
+                loadComponent: () =>
+                  import('../ventas/pages/terminal/order/pos-terminal-order.component').then(
+                    (component) => component.PosTerminalOrderComponent
+                  )
+              },
+              { path: '**', redirectTo: 'sala' }
+            ]
+          }
+        ]
       },
       {
         path: 'revocado',

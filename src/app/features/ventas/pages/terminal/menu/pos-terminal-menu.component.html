@@ -1,0 +1,196 @@
+@let store = terminal.store;
+@let settings = store.settings();
+
+<section
+  class="flex min-h-[34rem] flex-col gap-4 rounded-2xl border border-surface-200 bg-surface-0 p-4 pb-24 dark:border-surface-700 dark:bg-surface-800 lg:pb-4"
+  [attr.aria-busy]="store.operationPending()"
+  [attr.aria-label]="'pos.terminal.menu' | translate">
+  <div class="flex flex-col gap-3">
+    <div class="flex items-center gap-2">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-arrow-left"
+        [text]="true"
+        [rounded]="true"
+        [attr.aria-label]="'pos.terminal.room' | translate"
+        (click)="terminal.showRoom()"></button>
+      <div>
+        <h2 class="m-0 text-xl mg-text">{{ 'pos.terminal.menu' | translate }}</h2>
+        @if (store.selectedOrder()) {
+          <small class="mg-text-muted">
+            {{
+              terminal.selectedOrderTable()
+                ? terminal.selectedOrderTable()!.name
+                : ('pos.terminal.takeaway' | translate)
+            }}
+          </small>
+        }
+      </div>
+    </div>
+    <label class="relative w-full">
+      <span class="sr-only">{{ 'pos.terminal.searchMenu' | translate }}</span>
+      <span
+        class="pi pi-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 mg-text-muted"
+        aria-hidden="true"></span>
+      <input
+        pInputText
+        type="search"
+        class="min-h-12 w-full !pl-10"
+        [placeholder]="'pos.terminal.searchMenu' | translate"
+        [ngModel]="terminal.search()"
+        (ngModelChange)="terminal.search.set($event)" />
+    </label>
+  </div>
+
+  <nav class="flex gap-2 overflow-x-auto pb-1" [attr.aria-label]="'pos.terminal.categories' | translate">
+    <button
+      type="button"
+      class="min-h-11 shrink-0 rounded-full border px-4 font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      [class.border-primary]="terminal.selectedCategoryId() === null"
+      [class.bg-primary]="terminal.selectedCategoryId() === null"
+      [class.text-primary-contrast]="terminal.selectedCategoryId() === null"
+      [attr.aria-pressed]="terminal.selectedCategoryId() === null"
+      (click)="terminal.selectedCategoryId.set(null)">
+      {{ 'pos.terminal.allCategories' | translate }}
+    </button>
+    @for (category of terminal.activeCategories(); track category.id) {
+      <button
+        type="button"
+        class="min-h-11 shrink-0 rounded-full border px-4 font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        [style.border-color]="category.color"
+        [class.border-primary]="terminal.selectedCategoryId() === category.id"
+        [class.bg-primary]="terminal.selectedCategoryId() === category.id"
+        [class.text-primary-contrast]="terminal.selectedCategoryId() === category.id"
+        [attr.aria-pressed]="terminal.selectedCategoryId() === category.id"
+        (click)="terminal.selectedCategoryId.set(category.id)">
+        {{ category.name }}
+      </button>
+    }
+  </nav>
+
+  @if (!store.selectedOrder()) {
+    <div class="m-auto max-w-md text-center">
+      <span class="pi pi-arrow-left mb-3 text-3xl mg-text-muted" aria-hidden="true"></span>
+      <p class="m-0 mg-text-muted">{{ 'pos.terminal.selectTableFirst' | translate }}</p>
+    </div>
+  } @else if (terminal.visibleMenuItems().length === 0) {
+    <p class="m-auto text-center mg-text-muted">{{ 'pos.terminal.noMenuItems' | translate }}</p>
+  } @else {
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 2xl:grid-cols-4">
+      @for (item of terminal.visibleMenuItems(); track item.id) {
+        <button
+          type="button"
+          class="flex min-h-28 flex-col justify-between rounded-2xl border border-surface-200 bg-surface-50 p-3 text-left transition-colors hover:border-primary hover:bg-primary-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-surface-700 dark:bg-surface-900 dark:hover:border-primary"
+          [disabled]="store.operationPending()"
+          (click)="terminal.chooseMenuItem(item)">
+          <span class="line-clamp-2 font-semibold mg-text">{{ item.name }}</span>
+          @if (settings) {
+            <span class="font-bold text-primary">
+              {{ item.priceGross | currency: settings.currency : 'symbol' : '1.2-2' }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+  }
+
+  @if (store.selectedOrder(); as order) {
+    <button
+      type="button"
+      class="fixed bottom-4 left-4 right-4 z-20 flex min-h-14 items-center justify-between rounded-2xl bg-primary px-5 font-semibold text-primary-contrast shadow-lg lg:static lg:mt-auto"
+      (click)="terminal.showOrder()">
+      <span>
+        <span class="pi pi-receipt mr-2" aria-hidden="true"></span>{{ 'pos.terminal.order' | translate }} ·
+        {{ terminal.selectedOrderItemCount() }}
+      </span>
+      @if (settings) {
+        <span>{{ terminal.orderTotal(order) | currency: settings.currency : 'symbol' : '1.2-2' }}</span>
+      }
+    </button>
+  }
+</section>
+
+<p-dialog
+  [visible]="terminal.modifierItem() !== null"
+  (visibleChange)="!$event && terminal.closeModifierDialog()"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: 'min(42rem, 95vw)' }"
+  [header]="'pos.terminal.modifiersTitle' | translate: { item: terminal.modifierItem()?.name }">
+  @if (terminal.modifierItem()) {
+    <form class="flex flex-col gap-5" (ngSubmit)="terminal.addConfiguredItem()">
+      @for (group of terminal.modifierGroups(); track group.id) {
+        <fieldset class="rounded-xl border border-surface-200 p-4 dark:border-surface-700">
+          <legend class="px-2 font-semibold mg-text">{{ group.name }}</legend>
+          <p class="mt-0 text-sm mg-text-muted">
+            {{
+              'pos.terminal.modifierRule'
+                | translate: { min: terminal.minimumSelections(group), max: group.maxSelections }
+            }}
+          </p>
+          <div class="grid gap-2 sm:grid-cols-2">
+            @for (option of group.options; track option.id) {
+              @if (option.active) {
+                <label
+                  class="flex min-h-12 cursor-pointer items-center justify-between gap-3 rounded-lg border border-surface-200 px-3 py-2 dark:border-surface-700"
+                  [class.opacity-50]="terminal.isModifierDisabled(group, option.id)">
+                  <span class="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      [checked]="terminal.isModifierSelected(option.id)"
+                      [disabled]="terminal.isModifierDisabled(group, option.id)"
+                      (change)="terminal.toggleModifierOption(group, option.id)" />
+                    <span class="mg-text">{{ option.name }}</span>
+                  </span>
+                  @if (+option.priceDeltaGross !== 0) {
+                    <span class="shrink-0 text-sm mg-text-muted">
+                      {{ option.priceDeltaGross | currency: settings?.currency ?? 'EUR' : 'symbol' : '1.2-2' }}
+                    </span>
+                  }
+                </label>
+              }
+            }
+          </div>
+          @if (terminal.selectionCount(group) < terminal.minimumSelections(group)) {
+            <small class="mt-2 block text-red-600 dark:text-red-400" role="alert">
+              {{ 'pos.terminal.modifierMinimum' | translate: { count: terminal.minimumSelections(group) } }}
+            </small>
+          }
+        </fieldset>
+      }
+
+      @if (terminal.selectedModifierOptionIds().length >= 20) {
+        <small class="text-red-600 dark:text-red-400" role="alert">
+          {{ 'pos.terminal.modifierTotalLimit' | translate: { count: 20 } }}
+        </small>
+      }
+
+      <label class="flex flex-col gap-2">
+        <span class="font-medium mg-text">{{ 'pos.terminal.itemNote' | translate }}</span>
+        <textarea
+          rows="3"
+          maxlength="500"
+          class="w-full rounded-lg border border-surface-300 bg-surface-0 p-3 mg-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary dark:border-surface-600 dark:bg-surface-900"
+          [ngModel]="terminal.modifierNote()"
+          (ngModelChange)="terminal.modifierNote.set($event)"
+          name="modifierNote"></textarea>
+      </label>
+
+      <div class="flex justify-end gap-2">
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          [outlined]="true"
+          [label]="'pos.terminal.cancel' | translate"
+          (click)="terminal.closeModifierDialog()"></button>
+        <button
+          pButton
+          type="submit"
+          [disabled]="!terminal.modifiersValid() || store.operationPending()"
+          [label]="'pos.terminal.addItem' | translate"></button>
+      </div>
+    </form>
+  }
+</p-dialog>

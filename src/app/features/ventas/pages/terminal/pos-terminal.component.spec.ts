@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgxPermissionsService } from 'ngx-permissions';
 import { of } from 'rxjs';
 
@@ -36,7 +36,8 @@ describe('PosTerminalComponent', () => {
         { provide: PosSessionStore, useValue: store },
         { provide: PosService, useValue: posService },
         { provide: AuthService, useValue: { getEnterpriseId: () => 'enterprise-1' } },
-        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } }
+        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } },
+        { provide: Router, useValue: { navigate: jasmine.createSpy() } }
       ]
     });
     const component = TestBed.runInInjectionContext(() => new PosTerminalComponent());
@@ -65,7 +66,8 @@ describe('PosTerminalComponent', () => {
         { provide: PosSessionStore, useValue: store },
         { provide: PosService, useValue: { listDevices: () => of([]) } },
         { provide: AuthService, useValue: { getEnterpriseId: () => 'enterprise-1' } },
-        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } }
+        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } },
+        { provide: Router, useValue: { navigate: jasmine.createSpy() } }
       ]
     });
     const component = TestBed.runInInjectionContext(() => new PosTerminalComponent());
@@ -103,6 +105,7 @@ describe('PosTerminalComponent', () => {
         { provide: PosService, useValue: { listDevices: jasmine.createSpy() } },
         { provide: AuthService, useValue: { getEnterpriseId: () => null } },
         { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } },
+        { provide: Router, useValue: { navigate: jasmine.createSpy() } },
         { provide: ActivatedRoute, useValue: { snapshot: { data: { deviceMode: 'REGISTER' } } } },
         {
           provide: DeviceSessionService,
@@ -126,13 +129,13 @@ describe('PosTerminalComponent', () => {
     expect(initialize).toHaveBeenCalledOnceWith('enterprise-1', 'DEVICE_EMPLOYEE');
     expect(activateDevice).toHaveBeenCalledOnceWith('device-1');
     expect(component.pairedTerminal).toBeTrue();
-    expect(component.canOpenCash).toBeFalse();
 
     component.ngOnDestroy();
     expect(reset).toHaveBeenCalledTimes(1);
   });
 
   it('enforces modifier and guest-count constraints', () => {
+    const navigate = jasmine.createSpy();
     TestBed.configureTestingModule({
       providers: [
         {
@@ -144,12 +147,14 @@ describe('PosTerminalComponent', () => {
             menuCategories: signal([]),
             menuItems: signal([]),
             selectedOrder: signal(null),
+            selectedOrderId: signal('order-1'),
             operationPending: signal(false)
           }
         },
         { provide: PosService, useValue: {} },
         { provide: AuthService, useValue: { getEnterpriseId: () => 'enterprise-1' } },
-        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } }
+        { provide: NgxPermissionsService, useValue: { getPermission: () => undefined } },
+        { provide: Router, useValue: { navigate } }
       ]
     });
 
@@ -186,9 +191,11 @@ describe('PosTerminalComponent', () => {
     expect(component.guestCountValid()).toBeTrue();
 
     component.showMenu();
-    expect(component.mobileView()).toBe('MENU');
+    expect(navigate).toHaveBeenCalledWith(['/dispositivo/terminal/pedido', 'order-1', 'carta']);
+    component.showOrder();
+    expect(navigate).toHaveBeenCalledWith(['/dispositivo/terminal/pedido', 'order-1', 'resumen']);
     component.showRoom();
-    expect(component.mobileView()).toBe('ROOM');
+    expect(navigate).toHaveBeenCalledWith(['/dispositivo/terminal/sala']);
 
     expect(
       component.orderTotal({
