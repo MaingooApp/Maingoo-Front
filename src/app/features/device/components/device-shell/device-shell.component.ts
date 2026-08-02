@@ -13,7 +13,7 @@ import { DeviceSessionService } from '../../services/device-session.service';
   standalone: true,
   imports: [RouterOutlet, TranslateModule],
   template: `
-    <div class="min-h-screen bg-surface-50 p-4 dark:bg-surface-950 md:p-6">
+    <div class="h-[100dvh] overflow-y-auto bg-surface-50 p-4 dark:bg-surface-950 md:p-6">
       <header
         class="mx-auto mb-4 flex max-w-screen-2xl items-center justify-between gap-4"
         [attr.aria-label]="'device.shell.ariaLabel' | translate">

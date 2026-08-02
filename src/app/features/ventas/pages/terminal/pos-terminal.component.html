@@ -560,7 +560,11 @@
                   </span>
                   <span>{{ orderTotal(order) | currency: settings.currency : 'symbol' : '1.2-2' }}</span>
                 </div>
-                @if (order.pendingCommandCount > 0 && online() && store.syncState() !== 'SYNCING') {
+                @if (
+                  order.pendingCommandCount > 0 &&
+                  online() &&
+                  (order.syncStatus === 'FAILED' || store.syncState() === 'ERROR')
+                ) {
                   <button
                     pButton
                     type="button"
