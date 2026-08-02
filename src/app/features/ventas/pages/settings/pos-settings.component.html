@@ -79,6 +79,75 @@
           [(ngModel)]="settingsForm.receiptFooter"></textarea>
       </label>
 
+      @if (canConfigureFiscal) {
+        <fieldset
+          id="fiscal-settings"
+          class="grid gap-5 border-0 border-t border-surface p-0 pt-5 md:col-span-2 md:grid-cols-2">
+          <legend class="mb-2 px-0 text-lg font-semibold mg-text">{{ 'pos.settings.fiscal.title' | translate }}</legend>
+
+          <label class="flex flex-col gap-2 md:col-span-2">
+            <span class="font-medium mg-text">{{ 'pos.settings.fields.fiscalMode' | translate }}</span>
+            <select
+              class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
+              name="fiscalMode"
+              [(ngModel)]="settingsForm.fiscalMode">
+              @for (mode of fiscalModes; track mode) {
+                <option [value]="mode">{{ 'pos.settings.fiscal.modes.' + mode | translate }}</option>
+              }
+            </select>
+          </label>
+
+          @if (settingsForm.fiscalMode !== 'DISABLED') {
+            <p
+              class="m-0 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 md:col-span-2 dark:bg-amber-950/30 dark:text-amber-200">
+              {{ 'pos.settings.fiscal.help' | translate }}
+            </p>
+
+            <label class="flex flex-col gap-2">
+              <span class="font-medium mg-text">{{ 'pos.settings.fields.issuerLegalName' | translate }}</span>
+              <input
+                pInputText
+                required
+                maxlength="120"
+                name="issuerLegalName"
+                [(ngModel)]="settingsForm.issuerLegalName" />
+            </label>
+
+            <label class="flex flex-col gap-2">
+              <span class="font-medium mg-text">{{ 'pos.settings.fields.issuerTaxId' | translate }}</span>
+              <input
+                pInputText
+                required
+                maxlength="9"
+                pattern="[A-Za-z0-9]{9}"
+                name="issuerTaxId"
+                [(ngModel)]="settingsForm.issuerTaxId" />
+            </label>
+
+            <label class="flex flex-col gap-2 md:col-span-2">
+              <span class="font-medium mg-text">{{ 'pos.settings.fields.issuerAddress' | translate }}</span>
+              <input
+                pInputText
+                required
+                maxlength="250"
+                name="issuerAddress"
+                [(ngModel)]="settingsForm.issuerAddress" />
+            </label>
+
+            <label class="flex flex-col gap-2 md:col-span-2">
+              <span class="font-medium mg-text">{{ 'pos.settings.fields.fiscalSeriesPrefix' | translate }}</span>
+              <input
+                pInputText
+                required
+                maxlength="15"
+                pattern="[A-Za-z0-9][A-Za-z0-9-]{0,14}"
+                name="fiscalSeriesPrefix"
+                [(ngModel)]="settingsForm.fiscalSeriesPrefix" />
+            </label>
+          }
+        </fieldset>
+      }
+
       <div class="md:col-span-2">
         <button
           pButton

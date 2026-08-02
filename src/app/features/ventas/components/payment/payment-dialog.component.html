@@ -25,10 +25,20 @@
       </dl>
 
       @if (errorCode) {
-        <p class="m-0 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400" role="alert">
-          {{ 'pos.payment.errors.' + errorCode | translate }}
-          <code class="ml-1">{{ errorCode }}</code>
-        </p>
+        <div
+          class="flex flex-col gap-3 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400"
+          role="alert">
+          <span>{{ 'pos.payment.errors.' + errorCode | translate }}</span>
+          @if (errorCode === 'FISCAL_CONFIGURATION_INCOMPLETE' && canConfigureFiscal) {
+            <a
+              pButton
+              routerLink="/ventas/configuracion"
+              fragment="fiscal-settings"
+              icon="pi pi-cog"
+              [label]="'pos.payment.configureFiscal' | translate"
+              (click)="close()"></a>
+          }
+        </div>
       }
 
       @if (blockedReason) {

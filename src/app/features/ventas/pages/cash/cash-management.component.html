@@ -8,7 +8,9 @@
 
     @if (selectedCashRegister(); as cashRegister) {
       <div class="rounded-xl border border-surface px-4 py-3 text-right">
-        <span class="block text-xs uppercase tracking-wide mg-text-muted">{{ 'pos.cash.cashRegister' | translate }}</span>
+        <span class="block text-xs uppercase tracking-wide mg-text-muted">{{
+          'pos.cash.cashRegister' | translate
+        }}</span>
         <strong class="mg-text">{{ cashRegister.name }}</strong>
         <span class="ml-2 text-sm mg-text-muted">{{ cashRegister.code }}</span>
       </div>
@@ -293,7 +295,12 @@
                     </strong>
                     <span class="mt-1 block truncate text-sm mg-text-muted">{{ orderLocation(order) }}</span>
                     <span class="mt-1 block text-xs mg-text-muted">
-                      {{ 'pos.order.statuses.' + order.serverStatus | translate }}
+                      {{
+                        (orderReadyToFinalize(order)
+                          ? 'pos.cash.orderPayment.paidPendingFinalization'
+                          : 'pos.order.statuses.' + order.serverStatus
+                        ) | translate
+                      }}
                     </span>
                   </span>
                   <span class="shrink-0 text-right">
@@ -301,7 +308,12 @@
                       {{ order.authoritativeTotalGross || order.estimatedTotalGross }}
                     </strong>
                     <span class="mt-1 block text-sm font-semibold text-primary">
-                      {{ 'pos.cash.orderPayment.charge' | translate }}
+                      {{
+                        (orderReadyToFinalize(order)
+                          ? 'pos.cash.orderPayment.finalize'
+                          : 'pos.cash.orderPayment.charge'
+                        ) | translate
+                      }}
                     </span>
                   </span>
                 </button>
@@ -341,6 +353,7 @@
           [balance]="store.selectedOrderBalance()"
           [cashSession]="session()"
           [canOpenCash]="false"
+          [canConfigureFiscal]="canConfigureFiscal"
           [loading]="store.operationPending()"
           [errorCode]="store.operationErrorCode()"
           [blockedReason]="paymentBlockedReason()"

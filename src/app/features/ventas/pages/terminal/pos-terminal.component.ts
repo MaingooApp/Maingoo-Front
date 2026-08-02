@@ -19,10 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 
-import {
-  AddPaymentRequest,
-  PaymentDialogComponent
-} from '../../components/payment/payment-dialog.component';
+import { AddPaymentRequest, PaymentDialogComponent } from '../../components/payment/payment-dialog.component';
 import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
 import {
   DiningTable,
@@ -94,6 +91,11 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   readonly paymentVisible = signal(false);
   readonly receiptOrder = signal<OperationalPosOrder | PosOrder | null>(null);
   readonly canReadFiscal = !this.pairedTerminal && !!this.permissions.getPermission(AppPermission.FiscalRead);
+  readonly canConfigureFiscal =
+    !this.pairedTerminal &&
+    ((!!this.permissions.getPermission(AppPermission.PosManage) &&
+      !!this.permissions.getPermission(AppPermission.FiscalWrite)) ||
+      !!this.permissions.getPermission(AppPermission.AdminSuper));
   readonly canVoidLines = this.pairedTerminal
     ? (this.deviceSession?.operatorSession()?.permissions.includes(AppPermission.PosVoid) ?? false)
     : !!this.permissions.getPermission(AppPermission.PosVoid);

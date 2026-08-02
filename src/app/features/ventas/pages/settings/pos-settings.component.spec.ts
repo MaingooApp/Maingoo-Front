@@ -7,6 +7,7 @@ import { of, throwError } from 'rxjs';
 import { FoodPreparationService } from '@app/features/articles/services/food-preparation.service';
 import { DevicePairingService } from '@app/features/device/services/device-pairing.service';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
+import { AuthService } from '@features/auth/services/auth-service.service';
 import { PosService } from '../../services/pos.service';
 import { PosSettingsComponent } from './pos-settings.component';
 
@@ -94,6 +95,8 @@ describe('PosSettingsComponent', () => {
     pairingService = jasmine.createSpyObj<DevicePairingService>('DevicePairingService', ['lookup', 'approve', 'deny']);
     confirmDialog = jasmine.createSpyObj<ConfirmDialogService>('ConfirmDialogService', ['confirm']);
     router = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    const authService = jasmine.createSpyObj<AuthService>('AuthService', ['hasPermission']);
+    authService.hasPermission.and.returnValue(true);
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -102,6 +105,7 @@ describe('PosSettingsComponent', () => {
         { provide: FoodPreparationService, useValue: foodPreparationService },
         { provide: DevicePairingService, useValue: pairingService },
         { provide: ConfirmDialogService, useValue: confirmDialog },
+        { provide: AuthService, useValue: authService },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { queryParamMap: convertToParamMap({}), routeConfig: { path: 'configuracion' } } }

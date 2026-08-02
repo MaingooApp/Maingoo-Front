@@ -14,6 +14,8 @@ import { Observable, catchError, finalize, forkJoin, of } from 'rxjs';
 import { FoodPreparation } from '@app/features/articles/interfaces/food-preparation.interfaces';
 import { FoodPreparationService } from '@app/features/articles/services/food-preparation.service';
 import { ConfirmDialogService } from '@app/shared/services/confirm-dialog.service';
+import { AppPermission } from '@core/constants/permissions.enum';
+import { AuthService } from '@features/auth/services/auth-service.service';
 import { DevicePairingLookup } from '../../../device/models/device-session.models';
 import { DevicePairingService } from '../../../device/services/device-pairing.service';
 import {
@@ -39,6 +41,7 @@ import {
   CashRegister,
   DiningArea,
   DiningTable,
+  FiscalMode,
   KitchenStation,
   MenuCategory,
   MenuItem,
@@ -76,6 +79,11 @@ interface SettingsForm {
   pricesIncludeTax: boolean;
   allowNegativeStock: boolean;
   receiptFooter: string;
+  fiscalMode: FiscalMode;
+  issuerLegalName: string;
+  issuerTaxId: string;
+  issuerAddress: string;
+  fiscalSeriesPrefix: string;
 }
 
 interface EntityForm {
@@ -134,6 +142,7 @@ export class PosSettingsComponent {
   private readonly router = inject(Router);
   private readonly pairingService = inject(DevicePairingService);
   private readonly confirmDialog = inject(ConfirmDialogService);
+  private readonly authService = inject(AuthService);
 
   readonly sections: SettingsSection[] = [
     'general',
@@ -147,6 +156,11 @@ export class PosSettingsComponent {
     'stations'
   ];
   readonly deviceTypes: PosDeviceType[] = ['REGISTER', 'KDS', 'BACKOFFICE'];
+  readonly fiscalModes: FiscalMode[] = ['DISABLED', 'SANDBOX', 'VERIFACTU_TEST', 'VERIFACTU'];
+  readonly canConfigureFiscal =
+    (this.authService.hasPermission(AppPermission.PosManage) &&
+      this.authService.hasPermission(AppPermission.FiscalWrite)) ||
+    this.authService.hasPermission(AppPermission.AdminSuper);
   readonly activeSection = signal<SettingsSection>('general');
   readonly loading = signal(true);
   readonly saving = signal(false);
@@ -284,6 +298,18 @@ export class PosSettingsComponent {
       allowNegativeStock: this.settingsForm.allowNegativeStock,
       receiptFooter: this.settingsForm.receiptFooter.trim()
     };
+
+    if (this.canConfigureFiscal) {
+      dto.fiscalMode = this.settingsForm.fiscalMode;
+      const issuerLegalName = this.settingsForm.issuerLegalName.trim();
+      const issuerTaxId = this.settingsForm.issuerTaxId.trim().toUpperCase();
+      const issuerAddress = this.settingsForm.issuerAddress.trim();
+      const fiscalSeriesPrefix = this.settingsForm.fiscalSeriesPrefix.trim().toUpperCase();
+      if (issuerLegalName) dto.issuerLegalName = issuerLegalName;
+      if (issuerTaxId) dto.issuerTaxId = issuerTaxId;
+      if (issuerAddress) dto.issuerAddress = issuerAddress;
+      if (fiscalSeriesPrefix) dto.fiscalSeriesPrefix = fiscalSeriesPrefix;
+    }
 
     this.runSave(this.posService.updateSettings(dto));
   }
@@ -831,7 +857,12 @@ export class PosSettingsComponent {
       timezone: settings.timezone,
       pricesIncludeTax: settings.pricesIncludeTax,
       allowNegativeStock: settings.allowNegativeStock,
-      receiptFooter: settings.receiptFooter ?? ''
+      receiptFooter: settings.receiptFooter ?? '',
+      fiscalMode: settings.fiscalMode,
+      issuerLegalName: settings.issuerLegalName ?? '',
+      issuerTaxId: settings.issuerTaxId ?? '',
+      issuerAddress: settings.issuerAddress ?? '',
+      fiscalSeriesPrefix: settings.fiscalSeriesPrefix ?? ''
     };
   }
 
@@ -842,7 +873,12 @@ export class PosSettingsComponent {
       timezone: 'Europe/Madrid',
       pricesIncludeTax: true,
       allowNegativeStock: false,
-      receiptFooter: ''
+      receiptFooter: '',
+      fiscalMode: 'DISABLED',
+      issuerLegalName: '',
+      issuerTaxId: '',
+      issuerAddress: '',
+      fiscalSeriesPrefix: ''
     };
   }
 

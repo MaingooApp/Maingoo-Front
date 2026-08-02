@@ -291,9 +291,11 @@
       "referenceHelp": "Referencia externa opcional; nunca introduzcas datos de la tarjeta.",
       "addPayment": "Registrar pago",
       "finalize": "Finalizar pedido",
+      "configureFiscal": "Configurar datos fiscales",
       "errors": {
         "CASH_REGISTER_NOT_FOUND": "La caja seleccionada ya no está activa.",
-        "DEVICE_REVOKED": "El dispositivo que originó el pedido fue revocado."
+        "DEVICE_REVOKED": "El dispositivo que originó el pedido fue revocado.",
+        "FISCAL_CONFIGURATION_INCOMPLETE": "Completa la configuración fiscal antes de finalizar el pedido."
       },
       "blockedReasons": {
         "OFFLINE": "Sin conexión no se puede abrir caja, cobrar ni finalizar. El pedido no se marcará como completado.",
@@ -442,6 +444,8 @@
         "order": "Pedido #{{order}}",
         "takeaway": "Para llevar",
         "charge": "Cobrar",
+        "finalize": "Finalizar",
+        "paidPendingFinalization": "Pagado · pendiente de finalización",
         "empty": "No hay pedidos enviados pendientes de cobro.",
         "closeReceipt": "Cerrar ticket"
       },
@@ -643,6 +647,16 @@
       "addOption": "Añadir opción",
       "removeOption": "Eliminar opción",
       "invalidSelectionRange": "El rango debe ser válido, cubrir solo opciones activas y tener un mínimo de 1 si es obligatorio.",
+      "fiscal": {
+        "title": "Configuración fiscal",
+        "help": "Estos datos se incluirán en los documentos fiscales. En desarrollo utiliza el modo Sandbox.",
+        "modes": {
+          "DISABLED": "Desactivado",
+          "SANDBOX": "Sandbox",
+          "VERIFACTU_TEST": "VERI*FACTU de pruebas",
+          "VERIFACTU": "VERI*FACTU de producción"
+        }
+      },
       "fields": {
         "enabled": "TPV habilitado",
         "currency": "Moneda",
@@ -650,6 +664,11 @@
         "pricesIncludeTax": "Los precios incluyen impuestos",
         "allowNegativeStock": "Permitir existencias negativas",
         "receiptFooter": "Pie del recibo",
+        "fiscalMode": "Modo fiscal",
+        "issuerLegalName": "Razón social del emisor",
+        "issuerTaxId": "NIF del emisor",
+        "issuerAddress": "Domicilio fiscal del emisor",
+        "fiscalSeriesPrefix": "Serie fiscal",
         "name": "Nombre",
         "code": "Código",
         "type": "Tipo",

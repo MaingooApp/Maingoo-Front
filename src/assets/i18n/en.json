@@ -291,9 +291,11 @@
       "referenceHelp": "Optional external reference; never enter card data.",
       "addPayment": "Record payment",
       "finalize": "Finalize order",
+      "configureFiscal": "Configure fiscal details",
       "errors": {
         "CASH_REGISTER_NOT_FOUND": "The selected cash register is no longer active.",
-        "DEVICE_REVOKED": "The device that originated the order was revoked."
+        "DEVICE_REVOKED": "The device that originated the order was revoked.",
+        "FISCAL_CONFIGURATION_INCOMPLETE": "Complete the fiscal settings before finalizing the order."
       },
       "blockedReasons": {
         "OFFLINE": "The cash register, payments, and finalization are unavailable offline. The order will not be shown as completed.",
@@ -442,6 +444,8 @@
         "order": "Order #{{order}}",
         "takeaway": "Takeaway",
         "charge": "Charge",
+        "finalize": "Finalize",
+        "paidPendingFinalization": "Paid · pending finalization",
         "empty": "There are no sent orders awaiting payment.",
         "closeReceipt": "Close receipt"
       },
@@ -643,6 +647,16 @@
       "addOption": "Add option",
       "removeOption": "Remove option",
       "invalidSelectionRange": "The range must be valid, cover active options only, and have a minimum of 1 when required.",
+      "fiscal": {
+        "title": "Fiscal settings",
+        "help": "These details will be included in fiscal documents. Use Sandbox mode during development.",
+        "modes": {
+          "DISABLED": "Disabled",
+          "SANDBOX": "Sandbox",
+          "VERIFACTU_TEST": "VERI*FACTU test",
+          "VERIFACTU": "VERI*FACTU production"
+        }
+      },
       "fields": {
         "enabled": "POS enabled",
         "currency": "Currency",
@@ -650,6 +664,11 @@
         "pricesIncludeTax": "Prices include tax",
         "allowNegativeStock": "Allow negative stock",
         "receiptFooter": "Receipt footer",
+        "fiscalMode": "Fiscal mode",
+        "issuerLegalName": "Issuer legal name",
+        "issuerTaxId": "Issuer tax ID",
+        "issuerAddress": "Issuer fiscal address",
+        "fiscalSeriesPrefix": "Fiscal series",
         "name": "Name",
         "code": "Code",
         "type": "Type",

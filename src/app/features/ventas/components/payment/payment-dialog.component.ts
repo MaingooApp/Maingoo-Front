@@ -9,6 +9,7 @@ import {
   inject
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
@@ -34,7 +35,7 @@ const ZERO_PATTERN = /^0(?:\.0+)?$/;
 @Component({
   selector: 'app-payment-dialog',
   standalone: true,
-  imports: [ButtonModule, DialogModule, FormsModule, InputTextModule, TranslateModule],
+  imports: [ButtonModule, DialogModule, FormsModule, InputTextModule, RouterLink, TranslateModule],
   templateUrl: './payment-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -45,6 +46,7 @@ export class PaymentDialogComponent implements OnChanges {
   @Input({ required: true }) balance = '0.00';
   @Input() cashSession: CashSession | null = null;
   @Input() canOpenCash = false;
+  @Input() canConfigureFiscal = false;
   @Input() loading = false;
   @Input() errorCode: string | null = null;
   @Input() blockedReason: PaymentBlockedReason | null = null;

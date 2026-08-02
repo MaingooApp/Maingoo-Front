@@ -629,6 +629,7 @@
     [balance]="store.selectedOrderBalance()"
     [cashSession]="store.cashSession()"
     [canOpenCash]="false"
+    [canConfigureFiscal]="canConfigureFiscal"
     [loading]="store.operationPending()"
     [errorCode]="store.operationErrorCode()"
     [blockedReason]="paymentBlockedReason()"

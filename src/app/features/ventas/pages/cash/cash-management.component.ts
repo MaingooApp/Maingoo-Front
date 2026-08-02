@@ -88,6 +88,10 @@ export class CashManagementComponent implements OnInit {
   readonly receiptOrder = signal<OperationalPosOrder | PosOrder | null>(null);
   readonly orderSearch = signal('');
   readonly canReadFiscal = this.authService.hasPermission(AppPermission.FiscalRead);
+  readonly canConfigureFiscal =
+    (this.authService.hasPermission(AppPermission.PosManage) &&
+      this.authService.hasPermission(AppPermission.FiscalWrite)) ||
+    this.authService.hasPermission(AppPermission.AdminSuper);
   readonly canManageCashRegisters = this.authService.hasPermission(AppPermission.CashRegistersWrite);
   readonly payableOrders = computed(() => {
     const search = this.orderSearch().trim().toLocaleLowerCase();
@@ -180,7 +184,9 @@ export class CashManagementComponent implements OnInit {
         next: (registers) => {
           if (version !== this.registerLoadVersion || this.authService.getEnterpriseId() !== enterpriseId) return;
           this.cashRegisters.set(
-            registers.filter(({ enterpriseId: registerEnterpriseId, active }) => registerEnterpriseId === enterpriseId && active)
+            registers.filter(
+              ({ enterpriseId: registerEnterpriseId, active }) => registerEnterpriseId === enterpriseId && active
+            )
           );
           if (this.cashRegisters().length === 1) this.activateCashRegister(this.cashRegisters()[0].id);
         },
@@ -414,6 +420,11 @@ export class CashManagementComponent implements OnInit {
     return this.store.tables().find(({ id }) => id === order.tableId)?.name ?? order.tableId;
   }
 
+  orderReadyToFinalize(order: PosOrderViewModel): boolean {
+    const total = order.authoritativeTotalGross ?? order.estimatedTotalGross;
+    return total !== null && order.paidGross === total;
+  }
+
   errorText(): string {
     const code = this.errorCode();
     if (!code) return '';
@@ -544,5 +555,4 @@ export class CashManagementComponent implements OnInit {
     this.successKey.set(null);
     if (clearIntent) this.lastIntent.set(null);
   }
-
 }
