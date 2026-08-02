@@ -279,6 +279,7 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
     const order = this.tableOrder(table.id);
     if (order) {
       this.store.selectOrder(order.id);
+      this.showMenuOnSmallScreen();
       return;
     }
 
@@ -301,11 +302,19 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
     if (!table || !this.guestCountValid()) return;
 
     await this.store.createOrder('DINE_IN', table.id, this.guestCount() ?? undefined);
-    if (!this.store.operationErrorCode()) this.closeNewTableOrder();
+    if (!this.store.operationErrorCode()) {
+      this.closeNewTableOrder();
+      this.showMenuOnSmallScreen();
+    }
   }
 
   createTakeaway(): void {
     void this.store.createOrder('TAKEAWAY');
+  }
+
+  private showMenuOnSmallScreen(): void {
+    if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023px)').matches) return;
+    requestAnimationFrame(() => document.getElementById('pos-terminal-menu')?.scrollIntoView({ behavior: 'smooth' }));
   }
 
   chooseMenuItem(item: MenuItem): void {
