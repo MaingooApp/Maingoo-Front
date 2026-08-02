@@ -309,7 +309,7 @@
             [class.flex]="mobileView() === 'MENU'"
             [class.hidden]="mobileView() !== 'MENU'"
             [attr.aria-label]="'pos.terminal.menu' | translate">
-            <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-col gap-3">
               <div class="flex items-center gap-2">
                 <button
                   pButton
@@ -329,7 +329,7 @@
                   }
                 </div>
               </div>
-              <label class="relative min-w-52 flex-1 sm:max-w-sm">
+              <label class="relative w-full">
                 <span class="sr-only">{{ 'pos.terminal.searchMenu' | translate }}</span>
                 <span
                   class="pi pi-search pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 mg-text-muted"
@@ -337,7 +337,7 @@
                 <input
                   pInputText
                   type="search"
-                  class="min-h-12 w-full pl-10"
+                  class="min-h-12 w-full !pl-10"
                   [placeholder]="'pos.terminal.searchMenu' | translate"
                   [ngModel]="search()"
                   (ngModelChange)="search.set($event)" />
