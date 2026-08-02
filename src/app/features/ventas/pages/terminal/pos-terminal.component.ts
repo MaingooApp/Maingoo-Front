@@ -79,6 +79,7 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   readonly canManageDevices = !!this.permissions.getPermission(AppPermission.PosManage);
   readonly selectedAreaId = signal<string | null>(null);
   readonly selectedCategoryId = signal<string | null>(null);
+  readonly mobileView = signal<'ROOM' | 'MENU' | 'ORDER'>('ROOM');
   readonly search = signal('');
   readonly modifierItem = signal<MenuItem | null>(null);
   readonly selectedModifierOptionIds = signal<string[]>([]);
@@ -162,6 +163,11 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
     const tableId = this.store.selectedOrder()?.tableId;
     return tableId ? (this.store.tables().find(({ id }) => id === tableId) ?? null) : null;
   });
+  readonly selectedOrderItemCount = computed(() =>
+    (this.store.selectedOrder()?.lines ?? [])
+      .filter(({ serverStatus }) => serverStatus !== 'VOIDED')
+      .reduce((total, { quantity }) => total + Number(quantity), 0)
+  );
   readonly canSendOrder = computed(() => {
     const order = this.store.selectedOrder();
     return (
@@ -278,8 +284,7 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   openTable(table: DiningTable): void {
     const order = this.tableOrder(table.id);
     if (order) {
-      this.store.selectOrder(order.id);
-      this.showMenuOnSmallScreen();
+      this.openOrder(order.id);
       return;
     }
 
@@ -304,17 +309,30 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
     await this.store.createOrder('DINE_IN', table.id, this.guestCount() ?? undefined);
     if (!this.store.operationErrorCode()) {
       this.closeNewTableOrder();
-      this.showMenuOnSmallScreen();
+      this.showMenu();
     }
   }
 
-  createTakeaway(): void {
-    void this.store.createOrder('TAKEAWAY');
+  async createTakeaway(): Promise<void> {
+    await this.store.createOrder('TAKEAWAY');
+    if (!this.store.operationErrorCode()) this.showMenu();
   }
 
-  private showMenuOnSmallScreen(): void {
-    if (typeof window === 'undefined' || !window.matchMedia('(max-width: 1023px)').matches) return;
-    requestAnimationFrame(() => document.getElementById('pos-terminal-menu')?.scrollIntoView({ behavior: 'smooth' }));
+  openOrder(orderId: string): void {
+    this.store.selectOrder(orderId);
+    this.showMenu();
+  }
+
+  showRoom(): void {
+    this.mobileView.set('ROOM');
+  }
+
+  showMenu(): void {
+    this.mobileView.set('MENU');
+  }
+
+  showOrder(): void {
+    if (this.store.selectedOrder()) this.mobileView.set('ORDER');
   }
 
   chooseMenuItem(item: MenuItem): void {
@@ -417,6 +435,7 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
       this.paymentVisible.set(false);
       this.receiptOrder.set(order);
       this.store.selectOrder(null);
+      this.showRoom();
     }
   }
 

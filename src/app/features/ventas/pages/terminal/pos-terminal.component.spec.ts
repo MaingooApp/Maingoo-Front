@@ -183,6 +183,11 @@ describe('PosTerminalComponent', () => {
     expect(component.guestCountValid()).toBeFalse();
     component.guestCount.set(null);
     expect(component.guestCountValid()).toBeTrue();
+
+    component.showMenu();
+    expect(component.mobileView()).toBe('MENU');
+    component.showRoom();
+    expect(component.mobileView()).toBe('ROOM');
   });
 });
 
