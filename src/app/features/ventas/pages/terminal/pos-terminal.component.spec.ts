@@ -6,6 +6,7 @@ import { of } from 'rxjs';
 
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { DeviceSessionService } from '../../../device/services/device-session.service';
+import { PosOrderViewModel } from '../../models/pos-local.models';
 import { MenuItem, MenuItemModifierGroup } from '../../models/pos.models';
 import { PosSessionStore } from '../../services/pos-session.store';
 import { PosService } from '../../services/pos.service';
@@ -188,6 +189,14 @@ describe('PosTerminalComponent', () => {
     expect(component.mobileView()).toBe('MENU');
     component.showRoom();
     expect(component.mobileView()).toBe('ROOM');
+
+    expect(
+      component.orderTotal({
+        totalIsEstimated: true,
+        authoritativeTotalGross: '10.00',
+        estimatedTotalGross: '21.00'
+      } as PosOrderViewModel)
+    ).toBe('21.00');
   });
 });
 

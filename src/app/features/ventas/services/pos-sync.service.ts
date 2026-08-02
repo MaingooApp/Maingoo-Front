@@ -24,6 +24,7 @@ export class PosSyncService {
   private readonly queue = inject(PosOfflineQueueService);
   private readonly telemetry = inject(PosTelemetryService);
   private activeDrain: Promise<void> | null = null;
+  private rerunRequested = false;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
   private callbacks: PosSyncCallbacks | null = null;
   private generation = 0;
@@ -32,6 +33,7 @@ export class PosSyncService {
 
   start(callbacks: PosSyncCallbacks, authMode: PosAuthMode = 'HUMAN', employeeId?: string): void {
     this.generation++;
+    this.rerunRequested = false;
     this.callbacks = callbacks;
     this.authMode = authMode;
     this.employeeId = employeeId ?? null;
@@ -41,11 +43,15 @@ export class PosSyncService {
   requestSync(): Promise<void> {
     const callbacks = this.callbacks;
     if (!callbacks) return Promise.resolve();
-    if (this.activeDrain) return this.activeDrain;
+    if (this.activeDrain) {
+      this.rerunRequested = true;
+      return this.activeDrain;
+    }
     const generation = this.generation;
 
-    const drain = this.drain(callbacks, generation).finally(() => {
+    const drain = this.drainRequested(callbacks, generation).finally(() => {
       if (this.activeDrain === drain) this.activeDrain = null;
+      if (this.rerunRequested && this.callbacks) void this.requestSync();
     });
     this.activeDrain = drain;
     return drain;
@@ -55,10 +61,18 @@ export class PosSyncService {
     this.generation++;
     this.callbacks = null;
     this.activeDrain = null;
+    this.rerunRequested = false;
     this.authMode = 'HUMAN';
     this.employeeId = null;
     if (this.retryTimer) clearTimeout(this.retryTimer);
     this.retryTimer = null;
+  }
+
+  private async drainRequested(callbacks: PosSyncCallbacks, generation: number): Promise<void> {
+    do {
+      this.rerunRequested = false;
+      await this.drain(callbacks, generation);
+    } while (this.rerunRequested && this.isActive(callbacks, generation));
   }
 
   private async drain(callbacks: PosSyncCallbacks, generation: number): Promise<void> {

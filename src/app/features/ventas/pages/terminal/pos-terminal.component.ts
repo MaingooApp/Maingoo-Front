@@ -473,7 +473,9 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   }
 
   orderTotal(order: PosOrderViewModel): string {
-    return order.authoritativeTotalGross ?? order.estimatedTotalGross ?? '0.00';
+    return order.totalIsEstimated
+      ? (order.estimatedTotalGross ?? order.authoritativeTotalGross ?? '0.00')
+      : (order.authoritativeTotalGross ?? order.estimatedTotalGross ?? '0.00');
   }
 
   private bindConnectivity(): void {

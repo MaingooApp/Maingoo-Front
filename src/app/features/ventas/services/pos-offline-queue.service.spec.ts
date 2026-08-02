@@ -42,6 +42,22 @@ describe('PosOfflineQueueService', () => {
     expect('clientMutationId' in commands[0].data).toBeFalse();
   });
 
+  it('makes blocked aggregate commands immediately retryable', async () => {
+    const command = await service.enqueue(createOrderInput('local-order-1'));
+    await service.markFailed(command.clientMutationId, 'UPSTREAM_FAILED');
+
+    await service.retryAggregateCommands('local-order-1');
+
+    expect(await service.listCommands()).toContain(
+      jasmine.objectContaining({
+        clientMutationId: command.clientMutationId,
+        status: 'PENDING',
+        lastErrorCode: undefined,
+        nextAttemptAt: undefined
+      })
+    );
+  });
+
   it('rolls back order plus command atomically and exposes quota failure', async () => {
     database.failOnPutNumber = 2;
     let failure: unknown;

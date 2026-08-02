@@ -201,9 +201,9 @@ describe('PosSyncService', () => {
     expect(telemetry.snapshot()).toContain(jasmine.objectContaining({ type: 'SYNC_CYCLE', outcome: 'FAILED' }));
   });
 
-  it('persists the opaque cursor and coalesces concurrent sync requests', async () => {
+  it('persists the opaque cursor and runs a follow-up cycle requested while syncing', async () => {
     const response = new Subject<PosOperationalSyncResponse>();
-    posService.getSync.and.returnValue(response);
+    posService.getSync.and.returnValues(response, of({ changes: [], serverCursor: 'opaque-cursor-2' }));
 
     const first = service.requestSync();
     const coalesced = service.requestSync();
@@ -214,9 +214,26 @@ describe('PosSyncService', () => {
     response.complete();
     await Promise.all([first, coalesced]);
 
-    expect(queue.cursor).toBe('opaque-cursor-1');
+    expect(queue.cursor).toBe('opaque-cursor-2');
     expect(callbacks.applyOperationalChanges).toHaveBeenCalledTimes(1);
-    expect(posService.getSync).toHaveBeenCalledTimes(1);
+    expect(posService.getSync).toHaveBeenCalledTimes(2);
+  });
+
+  it('replays a command queued while operational sync is in flight', async () => {
+    const response = new Subject<PosOperationalSyncResponse>();
+    posService.getSync.and.returnValues(response, of({ changes: [], serverCursor: 'cursor-2' }));
+    posService.sendOrder.and.returnValue(of(order('order-1')));
+
+    const sync = service.requestSync();
+    await new Promise<void>((resolve) => setTimeout(resolve));
+    queue.commands = [sendCommand('late-command', 'order-1')];
+    void service.requestSync();
+    response.next({ changes: [], serverCursor: 'cursor-1' });
+    response.complete();
+    await sync;
+
+    expect(queue.confirmed).toEqual(['late-command']);
+    expect(posService.getSync).toHaveBeenCalledTimes(2);
   });
 });
 

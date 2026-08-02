@@ -538,7 +538,7 @@
               </div>
 
               <div class="space-y-3 border-t border-surface-200 pt-4 dark:border-surface-700">
-                @if (authoritative) {
+                @if (authoritative && !order.totalIsEstimated) {
                   <dl class="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                     <dt class="mg-text-muted">{{ 'pos.terminal.subtotal' | translate }}</dt>
                     <dd class="m-0 text-right mg-text">
@@ -560,6 +560,18 @@
                   </span>
                   <span>{{ orderTotal(order) | currency: settings.currency : 'symbol' : '1.2-2' }}</span>
                 </div>
+                @if (order.pendingCommandCount > 0 && online() && store.syncState() !== 'SYNCING') {
+                  <button
+                    pButton
+                    type="button"
+                    class="w-full"
+                    severity="secondary"
+                    [outlined]="true"
+                    icon="pi pi-refresh"
+                    [loading]="store.operationPending()"
+                    [label]="'pos.actions.retry' | translate"
+                    (click)="store.retrySelectedOrderSync()"></button>
+                }
                 <button
                   pButton
                   type="button"

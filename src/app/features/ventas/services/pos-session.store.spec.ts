@@ -50,6 +50,7 @@ describe('PosSessionStore offline', () => {
       'clearDevice',
       'cacheBootstrap',
       'enqueueWithOrder',
+      'retryAggregateCommands',
       'discardAggregateCommands',
       'saveOrder',
       'close'
@@ -80,6 +81,7 @@ describe('PosSessionStore offline', () => {
       storedCommands.push(command);
       return command;
     });
+    queue.retryAggregateCommands.and.resolveTo();
     queue.discardAggregateCommands.and.callFake(async (aggregateId, authoritative) => {
       storedCommands = storedCommands.filter((command) => command.aggregateId !== aggregateId);
       storedOrders = storedOrders.filter(({ id }) => id !== aggregateId);

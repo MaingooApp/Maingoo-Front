@@ -274,6 +274,27 @@ export class PosOfflineQueueService {
     return this.updateCommand(clientMutationId, 'FAILED', errorCode);
   }
 
+  async retryAggregateCommands(aggregateId: string): Promise<void> {
+    const enterpriseId = this.requireEnterprise();
+    await this.run(['commands'], 'readwrite', async (transaction) => {
+      const commands = await transaction.getAll<QueuedPosCommand>('commands');
+      for (const command of commands) {
+        if (
+          command.enterpriseId === enterpriseId &&
+          command.aggregateId === aggregateId &&
+          (command.status === 'PENDING' || command.status === 'FAILED')
+        ) {
+          await transaction.put('commands', {
+            ...command,
+            status: 'PENDING',
+            lastErrorCode: undefined,
+            nextAttemptAt: undefined
+          });
+        }
+      }
+    });
+  }
+
   async markConflict(
     clientMutationId: string,
     serverOrder: OfflineOrderSnapshot,

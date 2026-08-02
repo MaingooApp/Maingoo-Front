@@ -545,6 +545,24 @@ export class PosSessionStore implements OnDestroy {
     await this.sync.requestSync();
   }
 
+  async retrySelectedOrderSync(): Promise<void> {
+    const order = this.selectedOrder();
+    if (!order || this.mutationBlockCode() || !this.requireOnline() || this.operationPending()) return;
+    this.operationPending.set(true);
+    this.operationErrorCode.set(null);
+    this.syncErrorCode.set(null);
+    try {
+      await this.queue.retryAggregateCommands(order.id);
+      await this.refreshOfflineState();
+    } catch (error: unknown) {
+      this.setStorageError(error);
+      return;
+    } finally {
+      this.operationPending.set(false);
+    }
+    await this.sync.requestSync();
+  }
+
   connectivityChanged(online: boolean): void {
     if (!online) {
       this.syncState.set('OFFLINE');
