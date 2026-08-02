@@ -1,6 +1,9 @@
 <section
   class="mx-auto flex min-w-0 w-full max-w-[1800px] flex-col gap-4 overflow-x-hidden p-3 md:p-5 [&_button]:!min-h-[44px] [&_button]:!min-w-[44px] [&_a.p-button]:!min-h-[44px]">
-  <header class="flex flex-wrap items-start justify-between gap-4">
+  <header
+    class="flex-wrap items-start justify-between gap-4 lg:flex"
+    [class.flex]="mobileView() === 'ROOM'"
+    [class.hidden]="mobileView() !== 'ROOM'">
     <div class="space-y-1">
       <h1 class="m-0 text-3xl font-bold mg-text">{{ 'pos.terminal.title' | translate }}</h1>
       <p class="m-0 mg-text-muted">{{ 'pos.terminal.description' | translate }}</p>
@@ -44,7 +47,11 @@
   </header>
 
   @if (store.device()) {
-    <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs mg-text-muted" role="status">
+    <div
+      class="flex-wrap gap-x-5 gap-y-1 text-xs mg-text-muted lg:flex"
+      [class.flex]="mobileView() === 'ROOM'"
+      [class.hidden]="mobileView() !== 'ROOM'"
+      role="status">
       @if (store.cachedAt(); as cachedAt) {
         <span>{{ 'pos.terminal.cachedAt' | translate: { date: (cachedAt | date: 'short') } }}</span>
       }
