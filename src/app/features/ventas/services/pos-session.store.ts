@@ -390,6 +390,36 @@ export class PosSessionStore implements OnDestroy {
   ): Promise<void> {
     const context = this.requireQueuedOrderContext();
     if (!context) return;
+    const mergeableLine =
+      !modifierOptionIds?.length && !note?.trim()
+        ? [...context.view.lines]
+            .reverse()
+            .find(
+              (line) =>
+                line.menuItemId === menuItemId &&
+                (line.serverStatus === null || line.serverStatus === 'OPEN') &&
+                line.modifiers.length === 0 &&
+                !line.note?.trim() &&
+                Number(line.discountGross) === 0
+            )
+        : undefined;
+    const mergedQuantity = mergeableLine ? this.addQuantities(mergeableLine.quantity, quantity) : null;
+    if (mergeableLine && mergedQuantity) {
+      await this.persistMutation(
+        context.snapshot,
+        {
+          type: 'UPDATE_LINE',
+          aggregateId: context.view.id,
+          targetId: mergeableLine.id,
+          data: {
+            ...this.versionedCommand(context.device.id, context.expectedVersion),
+            quantity: mergedQuantity
+          }
+        },
+        context.view.id
+      );
+      return;
+    }
     const lineId = `local-line:${randomUuid()}`;
     await this.persistMutation(
       context.snapshot,
@@ -407,6 +437,11 @@ export class PosSessionStore implements OnDestroy {
       },
       context.view.id
     );
+  }
+
+  private addQuantities(left: DecimalString, right: DecimalString): DecimalString | null {
+    const total = Number(left) + Number(right);
+    return Number.isFinite(total) && total > 0 ? total.toFixed(3).replace(/\.?0+$/, '') : null;
   }
 
   async updateLine(

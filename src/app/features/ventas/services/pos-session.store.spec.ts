@@ -199,6 +199,28 @@ describe('PosSessionStore offline', () => {
     expect(store.pendingCommandCount()).toBe(2);
   });
 
+  it('increments an open plain line and keeps configured items separate', async () => {
+    await store.initialize('enterprise-1');
+    await store.createOrder('TAKEAWAY');
+    await store.addItem('menu-item-1');
+    const firstLine = storedCommands.find((command) => command.type === 'ADD_LINE');
+    if (!firstLine || firstLine.type !== 'ADD_LINE') throw new Error('EXPECTED_ADD_LINE_COMMAND');
+
+    await store.addItem('menu-item-1');
+
+    const increment = queue.enqueueWithOrder.calls.mostRecent().args[1];
+    expect(increment.type).toBe('UPDATE_LINE');
+    if (increment.type !== 'UPDATE_LINE') throw new Error('EXPECTED_UPDATE_LINE_COMMAND');
+    expect(increment.targetId).toBe(firstLine.targetId);
+    expect(increment.data.quantity).toBe('2');
+
+    await store.addItem('menu-item-1', ['modifier-1']);
+    expect(queue.enqueueWithOrder.calls.mostRecent().args[1].type).toBe('ADD_LINE');
+
+    await store.addItem('menu-item-1', undefined, '1', 'Sin sal');
+    expect(queue.enqueueWithOrder.calls.mostRecent().args[1].type).toBe('ADD_LINE');
+  });
+
   it('ignores an invalid persisted command timestamp when creating the next command', async () => {
     const corrupted = createCommand('local:corrupt');
     storedCommands = [
