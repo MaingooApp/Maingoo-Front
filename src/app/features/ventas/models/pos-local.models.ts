@@ -8,6 +8,7 @@ import {
   PosOrderLineStatus,
   PosOrderStatus
 } from './pos.models';
+import { randomUuid } from '@shared/helpers/random-uuid';
 
 type QueuedAddLineCommand = Extract<QueuedPosCommand, { type: 'ADD_LINE' }>;
 type ServerOrder = PosOrder | OperationalPosOrder;
@@ -90,7 +91,7 @@ export interface PosOrderProjectionInput {
   menuItems: readonly MenuItem[];
 }
 
-export function createLocalOrderIdentity(uuid: string = crypto.randomUUID()): LocalOrderIdentity {
+export function createLocalOrderIdentity(uuid: string = randomUuid()): LocalOrderIdentity {
   const token = uuid
     .replace(/[^a-zA-Z0-9]/g, '')
     .slice(0, 8)

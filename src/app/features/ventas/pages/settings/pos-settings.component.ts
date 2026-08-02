@@ -130,6 +130,7 @@ export class PosSettingsComponent {
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly loadError = signal(false);
+  readonly foodPreparationsLoadError = signal(false);
   readonly dialogVisible = signal(false);
   readonly pairingDialogVisible = signal(false);
   readonly pairingLoading = signal(false);
@@ -194,6 +195,7 @@ export class PosSettingsComponent {
   loadAll(): void {
     this.loading.set(true);
     this.loadError.set(false);
+    this.foodPreparationsLoadError.set(false);
 
     forkJoin({
       settings: this.posService.getSettings(),
@@ -203,7 +205,12 @@ export class PosSettingsComponent {
       categories: this.posService.listMenuCategories({}),
       menuItems: this.posService.listMenuItems({}),
       modifierGroups: this.posService.listModifierGroups(),
-      foodPreparations: this.foodPreparationService.getAll().pipe(catchError(() => of([]))),
+      foodPreparations: this.foodPreparationService.getAll().pipe(
+        catchError(() => {
+          this.foodPreparationsLoadError.set(true);
+          return of([]);
+        })
+      ),
       stations: this.posService.listKitchenStations({})
     })
       .pipe(
@@ -229,7 +236,7 @@ export class PosSettingsComponent {
           this.categories.set(categories);
           this.menuItems.set(menuItems);
           this.modifierGroups.set(modifierGroups);
-          this.foodPreparations.set(foodPreparations);
+          this.foodPreparations.set(foodPreparations.filter((preparation) => preparation.type?.type === 'article'));
           this.stations.set(stations);
         },
         error: () => this.loadError.set(true)
@@ -364,6 +371,13 @@ export class PosSettingsComponent {
     this.dialogVisible.set(false);
   }
 
+  selectFoodPreparation(foodPreparationId: string): void {
+    this.entityForm.foodPreparationId = foodPreparationId;
+    if (this.editingEntityId || !foodPreparationId) return;
+    const article = this.foodPreparations().find(({ id }) => id === foodPreparationId);
+    if (article) this.entityForm.name = article.name;
+  }
+
   isActiveDevice(entity: ConfigEntity): entity is PosDevice {
     return 'status' in entity && entity.status === 'ACTIVE';
   }
@@ -401,8 +415,7 @@ export class PosSettingsComponent {
           this.closeRevoke();
           this.loadAll();
         },
-        error: (error: HttpErrorResponse) =>
-          this.revokeErrorCode.set(error.error?.code ?? 'UNKNOWN')
+        error: (error: HttpErrorResponse) => this.revokeErrorCode.set(error.error?.code ?? 'UNKNOWN')
       });
   }
 

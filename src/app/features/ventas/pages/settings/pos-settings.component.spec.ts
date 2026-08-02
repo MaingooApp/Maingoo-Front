@@ -15,6 +15,7 @@ describe('PosSettingsComponent', () => {
   let pairingService: jasmine.SpyObj<DevicePairingService>;
   let confirmDialog: jasmine.SpyObj<ConfirmDialogService>;
   let router: jasmine.SpyObj<Router>;
+  let foodPreparationService: jasmine.SpyObj<FoodPreparationService>;
 
   beforeEach(() => {
     const timestamp = '2026-07-25T10:00:00.000Z';
@@ -88,7 +89,7 @@ describe('PosSettingsComponent', () => {
     );
     posService.listModifierGroups.and.returnValue(of([]));
     posService.listKitchenStations.and.returnValue(of([]));
-    const foodPreparationService = jasmine.createSpyObj<FoodPreparationService>('FoodPreparationService', ['getAll']);
+    foodPreparationService = jasmine.createSpyObj<FoodPreparationService>('FoodPreparationService', ['getAll']);
     foodPreparationService.getAll.and.returnValue(throwError(() => new Error('missing permission')));
     pairingService = jasmine.createSpyObj<DevicePairingService>('DevicePairingService', ['lookup', 'approve', 'deny']);
     confirmDialog = jasmine.createSpyObj<ConfirmDialogService>('ConfirmDialogService', ['confirm']);
@@ -138,6 +139,35 @@ describe('PosSettingsComponent', () => {
     const buttons = fixture.nativeElement.querySelectorAll('nav button');
     expect(buttons[0].classList).toContain('p-button-outlined');
     expect(buttons[7].classList).not.toContain('p-button-outlined');
+  });
+
+  it('offers only articles as menu item bases and copies the selected name on create', () => {
+    foodPreparationService.getAll.and.returnValue(
+      of([
+        {
+          id: 'article-1',
+          enterpriseId: 'enterprise-1',
+          typeId: 'type-article',
+          name: 'Patatas bravas',
+          type: { id: 'type-article', type: 'article' }
+        },
+        {
+          id: 'elaboration-1',
+          enterpriseId: 'enterprise-1',
+          typeId: 'type-elaboration',
+          name: 'Salsa brava',
+          type: { id: 'type-elaboration', type: 'elaboration' }
+        }
+      ])
+    );
+
+    component.loadAll();
+    component.selectSection('items');
+    component.openCreate();
+    component.selectFoodPreparation('article-1');
+
+    expect(component.foodPreparations().map(({ id }) => id)).toEqual(['article-1']);
+    expect(component.entityForm.name).toBe('Patatas bravas');
   });
 
   it('normalizes a QR code and approves a KDS for all stations after confirmation', async () => {

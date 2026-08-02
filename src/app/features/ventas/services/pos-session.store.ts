@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, Injectable, OnDestroy, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { randomUuid } from '@shared/helpers/random-uuid';
 
 import {
   FiscalCustomer,
@@ -10,6 +11,7 @@ import {
 } from '../models/pos-command.models';
 import {
   createLocalOrderIdentity,
+  LocalOrderIdentity,
   LocalPosOrder,
   PosOrderViewModel,
   projectPosOrder
@@ -307,7 +309,13 @@ export class PosSessionStore implements OnDestroy {
   async createOrder(channel: PosOrderChannel, tableId?: string, guestCount?: number): Promise<void> {
     const device = this.requireDevice();
     if (!device) return;
-    const identity = createLocalOrderIdentity();
+    let identity: LocalOrderIdentity;
+    try {
+      identity = createLocalOrderIdentity();
+    } catch {
+      this.operationErrorCode.set('POS_OPERATION_FAILED');
+      return;
+    }
     const clientCreatedAt = this.queuedTimestamp();
     const data = {
       deviceId: device.id,
@@ -339,7 +347,7 @@ export class PosSessionStore implements OnDestroy {
   ): Promise<void> {
     const context = this.requireQueuedOrderContext();
     if (!context) return;
-    const lineId = `local-line:${crypto.randomUUID()}`;
+    const lineId = `local-line:${randomUuid()}`;
     await this.persistMutation(
       context.snapshot,
       {
@@ -595,7 +603,7 @@ export class PosSessionStore implements OnDestroy {
       this.operationErrorCode.set('POS_OPERATION_RECONCILIATION_REQUIRED');
       return;
     }
-    const key = this.directIntents.get(id) ?? crypto.randomUUID();
+    const key = this.directIntents.get(id) ?? randomUuid();
     this.directIntents.set(id, key);
     this.operationPending.set(true);
     this.operationErrorCode.set(null);

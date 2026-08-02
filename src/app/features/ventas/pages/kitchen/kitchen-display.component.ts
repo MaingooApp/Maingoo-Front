@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
+import { randomUuid } from '@shared/helpers/random-uuid';
 import {
   EMPTY,
   Observable,
@@ -222,7 +223,7 @@ export class KitchenDisplayComponent implements OnInit {
     };
 
     this.posService
-      .updateKitchenTicket(command, crypto.randomUUID(), this.authMode)
+      .updateKitchenTicket(command, randomUuid(), this.authMode)
       .pipe(
         finalize(() => this.setUpdating(ticket.id, false)),
         takeUntilDestroyed(this.destroyRef)

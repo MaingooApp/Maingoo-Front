@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { randomUuid } from '@shared/helpers/random-uuid';
 
 import { QueuedPosCommand, PosCommandStatus } from '../models/pos-command.models';
 import type { LocalPosOrder } from '../models/pos-local.models';
@@ -430,7 +431,7 @@ export class PosOfflineQueueService {
 
     return {
       ...input,
-      clientMutationId: crypto.randomUUID(),
+      clientMutationId: randomUuid(),
       enterpriseId,
       deviceId: input.data.deviceId,
       clientCreatedAt: input.data.clientCreatedAt,

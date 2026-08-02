@@ -51,7 +51,7 @@
     <div>
       <!-- Read mode: show name as text -->
       <h2 *ngIf="!isEditMode()" class="text-xl font-bold mg-text">
-        {{ selectedPreparation()?.name ?? 'Nueva ' + typeLabel }}
+        {{ selectedPreparation()?.name ?? newTypeLabel }}
       </h2>
       <!-- Edit mode: name is in the form below -->
       <h2 *ngIf="isEditMode()" class="text-xl font-bold mg-text">
@@ -174,6 +174,47 @@
         [placeholder]="'Ej: ' + (type === 'elaboration' ? 'Salsa de tomate' : 'Ensalada César')"
         class="w-full" />
     </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <label class="flex flex-col gap-1">
+        <span class="text-sm font-medium mg-text">Cantidad producida</span>
+        <input
+          pInputText
+          type="number"
+          min="0.001"
+          step="0.001"
+          inputmode="decimal"
+          [ngModel]="yieldQuantity()"
+          (ngModelChange)="yieldQuantity.set($event)"
+          placeholder="Ej: 1000" />
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-sm font-medium mg-text">Unidad de rendimiento</span>
+        <select
+          class="rounded-md border border-surface bg-transparent p-3 mg-text"
+          [ngModel]="yieldMeasure()"
+          (ngModelChange)="yieldMeasure.set($event)">
+          <option value="g">Gramos</option>
+          <option value="ml">Mililitros</option>
+          <option value="ud">Unidades</option>
+        </select>
+      </label>
+      <label class="flex flex-col gap-1">
+        <span class="text-sm font-medium mg-text">Porciones del lote (opcional)</span>
+        <input
+          pInputText
+          type="number"
+          min="0.001"
+          step="0.001"
+          inputmode="decimal"
+          [ngModel]="portionCount()"
+          (ngModelChange)="portionCount.set($event)"
+          placeholder="Ej: 10" />
+      </label>
+    </div>
+    <p class="-mt-2 text-xs mg-text-muted">
+      El rendimiento permite calcular correctamente el coste y el consumo de stock por venta.
+    </p>
 
     <!-- Ingredients Section -->
     <div class="flex flex-col gap-2 transition-all">

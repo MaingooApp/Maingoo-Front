@@ -13,6 +13,7 @@ import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
 import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
+import { randomUuid } from '@shared/helpers/random-uuid';
 
 import {
   AddPaymentRequest,
@@ -312,7 +313,7 @@ export class CashManagementComponent implements OnInit {
 
     this.executeIntent({
       kind: 'OPEN',
-      key: crypto.randomUUID(),
+      key: randomUuid(),
       command: { deviceId, openingAmount: this.openingAmount, clientCreatedAt: new Date().toISOString() }
     });
   }
@@ -333,7 +334,7 @@ export class CashManagementComponent implements OnInit {
 
     this.executeIntent({
       kind: 'MOVEMENT',
-      key: crypto.randomUUID(),
+      key: randomUuid(),
       sessionId: current.id,
       command: {
         deviceId: current.deviceId,
@@ -379,7 +380,7 @@ export class CashManagementComponent implements OnInit {
 
     this.executeIntent({
       kind: 'CLOSE',
-      key: crypto.randomUUID(),
+      key: randomUuid(),
       sessionId: current.id,
       command: {
         deviceId: current.deviceId,

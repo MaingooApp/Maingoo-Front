@@ -22,6 +22,7 @@ import { finalize } from 'rxjs';
 
 import { AppPermission } from '@core/constants/permissions.enum';
 import { ConfirmDialogService } from '@shared/services/confirm-dialog.service';
+import { randomUuid } from '@shared/helpers/random-uuid';
 
 import {
   addInventoryDecimals,
@@ -138,7 +139,7 @@ export class StockAdjustmentDialogComponent implements OnChanges {
         type: this.type,
         quantityBase: this.signedQuantity(),
         baseUnit: product.stockBaseUnit,
-        idempotencyKey: crypto.randomUUID(),
+        idempotencyKey: randomUuid(),
         reasonCode: this.reasonCode,
         ...(this.note.trim() ? { note: this.note.trim() } : {})
       }

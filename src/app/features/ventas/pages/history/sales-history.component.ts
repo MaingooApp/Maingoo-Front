@@ -14,6 +14,7 @@ import { Observable, finalize, forkJoin, fromEvent, map, of, switchMap, throwErr
 import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
 import { SkeletonComponent } from '@shared/components/skeleton/skeleton.component';
+import { randomUuid } from '@shared/helpers/random-uuid';
 
 import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
 import { CreateRefundCommandData } from '../../models/pos-command.models';
@@ -429,7 +430,7 @@ export class SalesHistoryComponent implements OnInit {
       map((cashSessionId) => {
         const attempt: RefundAttempt = {
           fingerprint,
-          idempotencyKey: crypto.randomUUID(),
+          idempotencyKey: randomUuid(),
           command: {
             deviceId,
             clientCreatedAt: new Date().toISOString(),

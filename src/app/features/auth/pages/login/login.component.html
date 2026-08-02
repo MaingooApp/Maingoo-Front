@@ -82,6 +82,18 @@
           [loading]="cargando"
           label="Iniciar Sesión"
           class="w-full py-3.5 rounded-content font-bold text-lg shadow-lg shadow-primary-500/30 mt-2 hover:scale-[1.02] active:scale-[0.98] transition-all"></button>
+
+        <div class="flex items-center gap-3" aria-hidden="true">
+          <span class="h-px flex-1 bg-surface-200 dark:bg-surface-700"></span>
+          <span class="text-xs uppercase tracking-wide text-surface-400">o</span>
+          <span class="h-px flex-1 bg-surface-200 dark:bg-surface-700"></span>
+        </div>
+
+        <a
+          pButton
+          routerLink="/dispositivo"
+          label="Configurar o abrir dispositivo TPV"
+          class="w-full justify-center p-button-outlined py-3 rounded-content font-semibold no-underline"></a>
       </form>
 
       <!-- Footer / Sign Up Link -->

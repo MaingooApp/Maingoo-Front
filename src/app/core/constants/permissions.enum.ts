@@ -27,6 +27,10 @@ export enum AppPermission {
   DocumentsRead = 'documents.read',
   DocumentsWrite = 'documents.write',
 
+  GestorsRead = 'gestors.read',
+  GestorsWrite = 'gestors.write',
+  GestorsDelete = 'gestors.delete',
+
   ProductsRead = 'products.read',
   ProductsWrite = 'products.write',
   ProductsDelete = 'products.delete',
@@ -44,6 +48,10 @@ export enum AppPermission {
   MachineryRead = 'machinery.read',
   MachineryWrite = 'machinery.write',
   MachineryDelete = 'machinery.delete',
+
+  IotRead = 'iot.read',
+  IotWrite = 'iot.write',
+  IotDelete = 'iot.delete',
 
   PosRead = 'pos.read',
   PosSell = 'pos.sell',

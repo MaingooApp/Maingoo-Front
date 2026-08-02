@@ -9,6 +9,8 @@ import { MobileBottomSheetComponent } from './mobile-bottom-sheet/mobile-bottom-
 import { LayoutService } from '../service/layout.service';
 import { AppMain } from './main/app.main';
 import { SubscriptionAlertBannerComponent } from '@features/billing/components/subscription-alert-banner/subscription-alert-banner.component';
+import { AuthService } from '@features/auth/services/auth-service.service';
+import { AppPermission } from '@core/constants/permissions.enum';
 
 @Component({
   selector: 'app-layout',
@@ -26,6 +28,20 @@ import { SubscriptionAlertBannerComponent } from '@features/billing/components/s
 })
 export class AppLayout {
   private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService);
+
+  protected get canUseAgent(): boolean {
+    return (
+      this.authService.hasPermission(AppPermission.AgentUse) || this.authService.hasPermission(AppPermission.AdminSuper)
+    );
+  }
+
+  protected get canReadBilling(): boolean {
+    return (
+      this.authService.hasPermission(AppPermission.BillingRead) ||
+      this.authService.hasPermission(AppPermission.AdminSuper)
+    );
+  }
 
   menuOutsideClickListener: (() => void) | null = null;
 

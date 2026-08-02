@@ -294,7 +294,8 @@
           name="foodPreparationId"
           class="rounded-md border border-surface bg-transparent p-3 mg-text"
           [required]="entityForm.trackStock"
-          [(ngModel)]="entityForm.foodPreparationId">
+          [ngModel]="entityForm.foodPreparationId"
+          (ngModelChange)="selectFoodPreparation($event)">
           <option [ngValue]="''">{{ 'pos.settings.none' | translate }}</option>
           @for (preparation of foodPreparations(); track preparation.id) {
             <option [ngValue]="preparation.id">{{ preparation.name }}</option>
@@ -302,6 +303,9 @@
         </select>
         @if (entityForm.trackStock) {
           <small class="mg-text-muted">{{ 'pos.settings.foodPreparationRequired' | translate }}</small>
+        }
+        @if (foodPreparationsLoadError()) {
+          <small class="text-red-600">{{ 'pos.settings.foodPreparationLoadError' | translate }}</small>
         }
       </label>
       <label class="flex flex-col gap-2">
@@ -455,7 +459,9 @@
         {{ 'pos.settings.deviceRevoke.description' | translate: { name: device.name } }}
       </p>
       @if (revokeErrorCode(); as errorCode) {
-        <p class="m-0 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300" role="alert">
+        <p
+          class="m-0 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300"
+          role="alert">
           {{ 'pos.settings.deviceRevoke.errors.' + errorCode | translate }}
         </p>
       }

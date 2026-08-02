@@ -4,10 +4,15 @@
     <app-topbar></app-topbar>
   </div>
 
+  @if (canReadBilling) {
   <app-subscription-alert-banner></app-subscription-alert-banner>
+  }
 
   <!-- ═══════ CONTENEDOR 2: MAIN + SIDEBAR (Azul) ═══════ -->
-  <div class="hidden md:block flex-auto overflow-hidden relative px-4">
+  <div
+    class="md:block flex-auto overflow-hidden relative px-4"
+    [class.hidden]="canUseAgent"
+    [class.block]="!canUseAgent">
     <app-sidebar></app-sidebar>
 
     <app-main [containerClass]="mainContainerClass">
@@ -16,7 +21,9 @@
   </div>
 
   <!-- Fase 1 mobile: experiencia centrada solo en chat. -->
+  @if (canUseAgent) {
   <app-mobile-bottom-sheet></app-mobile-bottom-sheet>
+  }
 
   <div class="hidden md:block layout-mask animate-fadein"></div>
 </div>

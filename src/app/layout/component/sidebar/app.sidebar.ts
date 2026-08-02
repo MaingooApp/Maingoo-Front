@@ -11,6 +11,7 @@ import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { SidebarChatComponent } from './sidebar-chat/sidebar-chat.component';
 import { AppPermission } from '@core/constants/permissions.enum';
 import { SidebarNotificationsComponent } from './sidebar-notifications/sidebar-notifications.component';
+import { AuthService } from '@features/auth/services/auth-service.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -30,9 +31,16 @@ export class AppSidebar implements OnInit {
   private destroyRef = inject(DestroyRef);
   private notificationService = inject(NotificationService);
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   // Tab activo: 'chat' o 'notifications'
-  activeTab = signal<'chat' | 'notifications'>('chat');
+  activeTab = signal<'chat' | 'notifications'>(this.canUseAgent ? 'chat' : 'notifications');
+
+  protected get canUseAgent(): boolean {
+    return (
+      this.authService.hasPermission(AppPermission.AgentUse) || this.authService.hasPermission(AppPermission.AdminSuper)
+    );
+  }
 
   // Notificaciones
   notifications = this.notificationService.items;
@@ -40,7 +48,12 @@ export class AppSidebar implements OnInit {
 
   // Acciones rápidas (Menú de navegación)
   quickLinks = [
-    { label: 'menu.dashboard', icon: 'monitoring', route: '/' },
+    {
+      label: 'menu.dashboard',
+      icon: 'monitoring',
+      route: '/',
+      permissions: [AppPermission.InvoicesRead, AppPermission.SuppliersRead]
+    },
     {
       label: 'menu.suppliers',
       icon: 'local_shipping',
@@ -71,8 +84,18 @@ export class AppSidebar implements OnInit {
       route: '/articulos',
       permissions: [AppPermission.ProductsRead]
     },
-    { label: 'menu.accounting', icon: 'description', route: '/gestoria' },
-    { label: 'menu.health', icon: 'shield', route: '/appcc' },
+    {
+      label: 'menu.accounting',
+      icon: 'description',
+      route: '/gestoria',
+      permissions: [AppPermission.InvoicesRead, AppPermission.GestorsRead]
+    },
+    {
+      label: 'menu.health',
+      icon: 'shield',
+      route: '/appcc',
+      permissions: [AppPermission.IotRead]
+    },
     {
       label: 'menu.subscription',
       icon: 'credit_card',
@@ -116,6 +139,10 @@ export class AppSidebar implements OnInit {
    * Cambia el tab activo
    */
   setActiveTab(tab: 'chat' | 'notifications'): void {
+    if (tab === 'chat' && !this.canUseAgent) {
+      return;
+    }
+
     this.activeTab.set(tab);
 
     if (tab === 'notifications') {

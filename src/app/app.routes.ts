@@ -8,6 +8,7 @@ import { DocGeneratorComponent } from './features/fiscal/fiscal.component';
 import { MyProfileComponent } from './features/enterprise/pages/profile/my-profile.component';
 import { ngxPermissionsGuard } from 'ngx-permissions';
 import { AppPermission } from './core/constants/permissions.enum';
+import { requireAllPermissions } from './core/guard/permissions.guard';
 
 export const appRoutes: Routes = [
   {
@@ -19,9 +20,17 @@ export const appRoutes: Routes = [
     component: AppLayout,
     canActivate: [authGuard],
     children: [
-      { path: '', component: Dashboard },
+      {
+        path: '',
+        component: Dashboard,
+        canActivate: [requireAllPermissions(AppPermission.InvoicesRead, AppPermission.SuppliersRead)]
+      },
 
-      { path: 'pages', loadChildren: () => import('./features/pages.routes') },
+      {
+        path: 'pages',
+        loadChildren: () => import('./features/pages.routes'),
+        canActivate: [requireAllPermissions(AppPermission.AdminSuper)]
+      },
       {
         path: 'facturas',
         loadChildren: () => import('./features/invoices/invoice.routes'),
@@ -46,16 +55,29 @@ export const appRoutes: Routes = [
         canActivate: [ngxPermissionsGuard],
         data: { permissions: { only: [AppPermission.ProductsRead] } }
       },
-      { path: 'gestoria', component: DocGeneratorComponent },
+      {
+        path: 'gestoria',
+        component: DocGeneratorComponent,
+        canActivate: [requireAllPermissions(AppPermission.InvoicesRead, AppPermission.GestorsRead)]
+      },
       {
         path: 'suscripcion',
         loadComponent: () =>
           import('./features/billing/pages/subscription-settings/subscription-settings.component').then(
             (m) => m.SubscriptionSettingsComponent
-          )
+          ),
+        canActivate: [requireAllPermissions(AppPermission.BillingRead)]
       },
-      { path: 'appcc', loadComponent: () => import('./features/appcc/appcc.component').then((m) => m.AppccComponent) },
-      { path: 'rrhh', loadComponent: () => import('./features/rrhh/rrhh.component').then((m) => m.RrhhComponent) },
+      {
+        path: 'appcc',
+        loadComponent: () => import('./features/appcc/appcc.component').then((m) => m.AppccComponent),
+        canActivate: [requireAllPermissions(AppPermission.IotRead)]
+      },
+      {
+        path: 'rrhh',
+        loadComponent: () => import('./features/rrhh/rrhh.component').then((m) => m.RrhhComponent),
+        canActivate: [requireAllPermissions(AppPermission.AdminSuper)]
+      },
       { path: 'miperfil', component: MyProfileComponent },
       {
         path: 'usuarios',

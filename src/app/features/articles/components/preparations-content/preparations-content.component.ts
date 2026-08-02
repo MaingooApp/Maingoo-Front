@@ -27,6 +27,7 @@ import { FoodPreparationService } from '../../services/food-preparation.service'
 import { FoodPreparationTypeService } from '../../services/food-preparation-type.service';
 
 type RecipeMeasure = 'g' | 'kg' | 'ml' | 'l' | 'ud';
+type YieldMeasure = 'g' | 'ml' | 'ud';
 
 export interface IngredientRow {
   type: 'ingredient' | 'elaboration';
@@ -38,6 +39,7 @@ export interface IngredientRow {
 interface IngredientOption {
   id: string;
   name: string;
+  yieldMeasure?: YieldMeasure | null;
   estimatedTotalCost?: number;
   estimatedCostPerKg?: number | null;
 }
@@ -83,6 +85,9 @@ export class PreparationsContentComponent implements OnInit {
   get typeIcon(): string {
     return this.type === 'elaboration' ? 'skillet' : 'brunch_dining';
   }
+  get newTypeLabel(): string {
+    return this.type === 'elaboration' ? 'Nueva elaboración' : 'Nuevo artículo';
+  }
 
   // ─── Internal data ────────────────────────────────────────────────────────
   preparations = signal<FoodPreparation[]>([]);
@@ -104,6 +109,9 @@ export class PreparationsContentComponent implements OnInit {
   // ─── Form State ─────────────────────────────────────────────────────────────
   newPreparationName = signal<string>('');
   preparationSteps = signal<string>('');
+  yieldQuantity = signal<number | null>(null);
+  yieldMeasure = signal<YieldMeasure>('g');
+  portionCount = signal<number | null>(null);
   isSaving = signal<boolean>(false);
 
   get isShellOpen(): boolean {
@@ -228,6 +236,9 @@ export class PreparationsContentComponent implements OnInit {
     this.editingId.set(detail.id);
     this.newPreparationName.set(detail.name);
     this.preparationSteps.set(detail.steps ?? '');
+    this.yieldQuantity.set(detail.yieldQuantity == null ? null : Number(detail.yieldQuantity));
+    this.yieldMeasure.set(detail.yieldMeasure ?? (this.type === 'article' ? 'ud' : 'g'));
+    this.portionCount.set(detail.portionCount == null ? null : Number(detail.portionCount));
 
     const ingredientRows: IngredientRow[] = (detail.ingredients ?? []).map((ing) => {
       const fullProduct = this.availableProducts.find((p) => p.id === ing.enterpriseProductId);
@@ -327,6 +338,9 @@ export class PreparationsContentComponent implements OnInit {
   resetForm() {
     this.newPreparationName.set('');
     this.preparationSteps.set('');
+    this.yieldQuantity.set(null);
+    this.yieldMeasure.set(this.type === 'article' ? 'ud' : 'g');
+    this.portionCount.set(null);
     this.selectedUtensils.set([]);
     this.selectedMachinery.set([]);
     this.editingId.set(null);
@@ -356,7 +370,7 @@ export class PreparationsContentComponent implements OnInit {
     const nextUnit =
       row.type === 'ingredient'
         ? this.normalizeMeasure((selectedItem as Product | null)?.recipeDefaultMeasure ?? 'g')
-        : 'g';
+        : this.normalizeMeasure(selectedItem?.yieldMeasure ?? 'g');
 
     this.updateIngredientRow(index, { selectedItem, unit: nextUnit });
   }
@@ -378,7 +392,14 @@ export class PreparationsContentComponent implements OnInit {
 
   getMeasureOptions(row: IngredientRow) {
     if (row.type === 'elaboration') {
-      return this.amountUnits.filter((unit) => ['g', 'kg'].includes(unit.value));
+      const compatibleUnits: Record<YieldMeasure, RecipeMeasure[]> = {
+        g: ['g', 'kg'],
+        ml: ['ml', 'l'],
+        ud: ['ud']
+      };
+      return this.amountUnits.filter((unit) =>
+        compatibleUnits[row.selectedItem?.yieldMeasure ?? 'g'].includes(unit.value as RecipeMeasure)
+      );
     }
 
     const product = row.selectedItem as Product | null;
@@ -480,6 +501,17 @@ export class PreparationsContentComponent implements OnInit {
       return;
     }
 
+    const yieldQuantity = this.yieldQuantity();
+    if (yieldQuantity === null || !Number.isFinite(yieldQuantity) || yieldQuantity <= 0) {
+      this.toastService.error('Rendimiento requerido', 'Indica una cantidad producida mayor que cero');
+      return;
+    }
+    const portionCount = this.portionCount();
+    if (portionCount !== null && (!Number.isFinite(portionCount) || portionCount <= 0)) {
+      this.toastService.error('Porciones no válidas', 'El número de porciones debe ser mayor que cero');
+      return;
+    }
+
     const filledRows = this.ingredientRows().filter((row): row is FilledIngredientRow =>
       Boolean(row.selectedItem?.id && row.amount)
     );
@@ -512,6 +544,9 @@ export class PreparationsContentComponent implements OnInit {
       const dto: UpdateFoodPreparationDto = {
         name,
         steps,
+        yieldQuantity,
+        yieldMeasure: this.yieldMeasure(),
+        portionCount,
         ingredients: ingredients.length > 0 ? ingredients : [],
         subPreparations: subPreparations.length > 0 ? subPreparations : [],
         utensilIds,
@@ -552,6 +587,9 @@ export class PreparationsContentComponent implements OnInit {
       typeId: this.preparationType()!.id,
       name,
       steps,
+      yieldQuantity,
+      yieldMeasure: this.yieldMeasure(),
+      ...(portionCount === null ? {} : { portionCount }),
       ingredients: ingredients.length > 0 ? ingredients : undefined,
       subPreparations: subPreparations.length > 0 ? subPreparations : undefined,
       utensilIds,

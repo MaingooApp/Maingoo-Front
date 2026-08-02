@@ -41,6 +41,9 @@ export interface FoodPreparation {
   enterpriseId: string;
   typeId: string;
   steps?: string | null;
+  yieldQuantity?: number | string | null;
+  yieldMeasure?: 'g' | 'ml' | 'ud' | null;
+  portionCount?: number | string | null;
   type?: FoodPreparationType;
   ingredients?: FoodPreparationIngredient[];
   subPreparations?: FoodPreparationSubPreparation[];
@@ -71,6 +74,9 @@ export interface CreateFoodPreparationDto {
   typeId: string;
   name: string;
   steps?: string;
+  yieldQuantity: number;
+  yieldMeasure: 'g' | 'ml' | 'ud';
+  portionCount?: number;
   ingredients?: IngredientItemDto[];
   subPreparations?: SubPreparationItemDto[];
   utensilIds?: string[];
@@ -81,6 +87,9 @@ export interface UpdateFoodPreparationDto {
   typeId?: string;
   name?: string;
   steps?: string;
+  yieldQuantity?: number;
+  yieldMeasure?: 'g' | 'ml' | 'ud';
+  portionCount?: number | null;
   ingredients?: IngredientItemDto[];
   subPreparations?: SubPreparationItemDto[];
   utensilIds?: string[];
