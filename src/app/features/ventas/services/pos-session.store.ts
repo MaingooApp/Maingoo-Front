@@ -622,7 +622,7 @@ export class PosSessionStore implements OnDestroy {
 
   private async applyDirectOrder(order: PosOrder): Promise<void> {
     this.upsertAuthoritativeOrder(order);
-    await this.queue.saveOrder(order);
+    if (this.queue.currentEnterpriseId() === order.enterpriseId) await this.queue.saveOrder(order);
   }
 
   private async runDirect(type: string, identity: unknown[], operation: (key: string) => Promise<void>): Promise<void> {
