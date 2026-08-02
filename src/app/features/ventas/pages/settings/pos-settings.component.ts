@@ -18,6 +18,7 @@ import { DevicePairingLookup } from '../../../device/models/device-session.model
 import { DevicePairingService } from '../../../device/services/device-pairing.service';
 import {
   CreateKitchenStationDto,
+  CreateCashRegisterDto,
   CreateModifierGroupDto,
   CreatePosAreaDto,
   CreatePosDeviceDto,
@@ -25,6 +26,7 @@ import {
   CreatePosMenuCategoryDto,
   CreatePosTableDto,
   UpdateKitchenStationDto,
+  UpdateCashRegisterDto,
   UpdateModifierGroupDto,
   UpdatePosAreaDto,
   UpdatePosDeviceDto,
@@ -34,6 +36,7 @@ import {
   UpdatePosTableDto
 } from '../../models/pos-configuration.models';
 import {
+  CashRegister,
   DiningArea,
   DiningTable,
   KitchenStation,
@@ -46,8 +49,25 @@ import {
 } from '../../models/pos.models';
 import { PosService } from '../../services/pos.service';
 
-type SettingsSection = 'general' | 'devices' | 'areas' | 'tables' | 'categories' | 'items' | 'modifiers' | 'stations';
-type ConfigEntity = PosDevice | DiningArea | DiningTable | MenuCategory | MenuItem | ModifierGroup | KitchenStation;
+type SettingsSection =
+  | 'general'
+  | 'devices'
+  | 'registers'
+  | 'areas'
+  | 'tables'
+  | 'categories'
+  | 'items'
+  | 'modifiers'
+  | 'stations';
+type ConfigEntity =
+  | PosDevice
+  | CashRegister
+  | DiningArea
+  | DiningTable
+  | MenuCategory
+  | MenuItem
+  | ModifierGroup
+  | KitchenStation;
 
 interface SettingsForm {
   enabled: boolean;
@@ -118,6 +138,7 @@ export class PosSettingsComponent {
   readonly sections: SettingsSection[] = [
     'general',
     'devices',
+    'registers',
     'areas',
     'tables',
     'categories',
@@ -143,6 +164,7 @@ export class PosSettingsComponent {
   readonly revokeDeviceTarget = signal<PosDevice | null>(null);
   readonly revokeErrorCode = signal<string | null>(null);
   readonly devices = signal<PosDevice[]>([]);
+  readonly cashRegisters = signal<CashRegister[]>([]);
   readonly areas = signal<DiningArea[]>([]);
   readonly tables = signal<DiningTable[]>([]);
   readonly categories = signal<MenuCategory[]>([]);
@@ -154,6 +176,8 @@ export class PosSettingsComponent {
     switch (this.activeSection()) {
       case 'devices':
         return this.devices();
+      case 'registers':
+        return this.cashRegisters();
       case 'areas':
         return this.areas();
       case 'tables':
@@ -200,6 +224,7 @@ export class PosSettingsComponent {
     forkJoin({
       settings: this.posService.getSettings(),
       devices: this.posService.listDevices({}),
+      cashRegisters: this.posService.listCashRegisters({}),
       areas: this.posService.listAreas({}),
       tables: this.posService.listTables({}),
       categories: this.posService.listMenuCategories({}),
@@ -221,6 +246,7 @@ export class PosSettingsComponent {
         next: ({
           settings,
           devices,
+          cashRegisters,
           areas,
           tables,
           categories,
@@ -231,6 +257,7 @@ export class PosSettingsComponent {
         }) => {
           this.settingsForm = this.settingsToForm(settings);
           this.devices.set(devices);
+          this.cashRegisters.set(cashRegisters);
           this.areas.set(areas);
           this.tables.set(tables);
           this.categories.set(categories);
@@ -286,6 +313,16 @@ export class PosSettingsComponent {
           code: device.code,
           type: device.type,
           appVersion: device.appVersion ?? ''
+        };
+        break;
+      }
+      case 'registers': {
+        const cashRegister = entity as CashRegister;
+        this.entityForm = {
+          ...this.entityForm,
+          name: cashRegister.name,
+          code: cashRegister.code,
+          active: cashRegister.active
         };
         break;
       }
@@ -540,6 +577,20 @@ export class PosSettingsComponent {
         this.runSave(id ? this.posService.updateDevice(id, update) : this.posService.createDevice(create), true);
         break;
       }
+      case 'registers': {
+        const dto: CreateCashRegisterDto | UpdateCashRegisterDto = {
+          name,
+          code: this.entityForm.code.trim(),
+          active: this.entityForm.active
+        };
+        this.runSave(
+          id
+            ? this.posService.updateCashRegister(id, dto)
+            : this.posService.createCashRegister(dto as CreateCashRegisterDto),
+          true
+        );
+        break;
+      }
       case 'areas': {
         const dto: CreatePosAreaDto | UpdatePosAreaDto = {
           name,
@@ -661,6 +712,13 @@ export class PosSettingsComponent {
           device.code,
           this.translate.instant(`pos.settings.deviceTypes.${device.type}`),
           this.translate.instant(`pos.settings.deviceStatuses.${device.status}`)
+        ].join(separator);
+      }
+      case 'registers': {
+        const cashRegister = entity as CashRegister;
+        return [
+          cashRegister.code,
+          this.translate.instant(`pos.settings.activeStates.${cashRegister.active ? 'active' : 'inactive'}`)
         ].join(separator);
       }
       case 'modifiers': {

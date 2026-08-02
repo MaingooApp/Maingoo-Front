@@ -21,7 +21,6 @@ import { InputTextModule } from 'primeng/inputtext';
 
 import {
   AddPaymentRequest,
-  OpenCashRequest,
   PaymentDialogComponent
 } from '../../components/payment/payment-dialog.component';
 import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
@@ -94,7 +93,6 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
   readonly guestCount = signal<number | null>(null);
   readonly paymentVisible = signal(false);
   readonly receiptOrder = signal<OperationalPosOrder | PosOrder | null>(null);
-  readonly canOpenCash = !this.pairedTerminal && !!this.permissions.getPermission(AppPermission.PosCash);
   readonly canReadFiscal = !this.pairedTerminal && !!this.permissions.getPermission(AppPermission.FiscalRead);
   readonly canVoidLines = this.pairedTerminal
     ? (this.deviceSession?.operatorSession()?.permissions.includes(AppPermission.PosVoid) ?? false)
@@ -395,10 +393,6 @@ export class PosTerminalComponent implements OnInit, OnDestroy {
 
   openPayment(): void {
     if (this.canOpenPayment()) this.paymentVisible.set(true);
-  }
-
-  async openCash(request: OpenCashRequest): Promise<void> {
-    await this.store.openCashSession(request.openingAmount);
   }
 
   async addPayment(request: AddPaymentRequest): Promise<void> {

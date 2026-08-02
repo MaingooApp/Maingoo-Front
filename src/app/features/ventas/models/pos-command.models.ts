@@ -85,17 +85,17 @@ export interface UpdateKitchenTicketCommandData extends DeviceCommandData {
   status: Exclude<KitchenTicketStatus, 'QUEUED'>;
 }
 
-export interface OpenCashSessionCommandData extends DeviceCommandData {
+export interface OpenCashSessionCommandData extends CashRegisterCommandData {
   openingAmount: DecimalString;
 }
 
-export interface CreateCashMovementCommandData extends DeviceCommandData {
+export interface CreateCashMovementCommandData extends CashRegisterCommandData {
   type: 'PAY_IN' | 'PAY_OUT' | 'ADJUSTMENT';
   amount: DecimalString;
   reason: string;
 }
 
-export interface CloseCashSessionCommandData extends DeviceCommandData {
+export interface CloseCashSessionCommandData extends CashRegisterCommandData {
   countedCash: DecimalString;
 }
 
@@ -112,6 +112,12 @@ export type QueuedPosCommand =
 export interface DeviceCommandData {
   enterpriseId?: string;
   deviceId: string;
+  clientCreatedAt: string;
+}
+
+export interface CashRegisterCommandData {
+  enterpriseId?: string;
+  cashRegisterId: string;
   clientCreatedAt: string;
 }
 

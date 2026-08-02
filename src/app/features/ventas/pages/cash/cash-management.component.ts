@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { Observable, finalize, from, fromEvent, map, merge, of, switchMap, throwError } from 'rxjs';
+import { Observable, finalize, fromEvent, map, merge, of, switchMap, throwError } from 'rxjs';
 
 import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
@@ -27,12 +27,8 @@ import {
   OpenCashSessionCommandData
 } from '../../models/pos-command.models';
 import { PosOrderViewModel } from '../../models/pos-local.models';
-import { CashSessionWithMovements, OperationalPosOrder, PosDevice, PosOrder } from '../../models/pos.models';
-import {
-  CachedPosDevice,
-  PosOfflineQueueService,
-  PosOfflineStorageError
-} from '../../services/pos-offline-queue.service';
+import { CashRegister, CashSessionWithMovements, OperationalPosOrder, PosOrder } from '../../models/pos.models';
+import { PosOfflineStorageError } from '../../services/pos-offline-queue.service';
 import { PosService } from '../../services/pos.service';
 import { PosSessionStore } from '../../services/pos-session.store';
 
@@ -67,23 +63,22 @@ type CashIntent =
 export class CashManagementComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
-  private readonly offlineQueue = inject(PosOfflineQueueService);
   private readonly posService = inject(PosService);
   readonly store = inject(PosSessionStore);
   private readonly confirmDialog = inject(ConfirmDialogService);
   private readonly translate = inject(TranslateService);
-  private deviceLoadVersion = 0;
+  private registerLoadVersion = 0;
   private sessionLoadVersion = 0;
 
-  readonly devices = signal<PosDevice[]>([]);
-  readonly selectedDeviceId = signal('');
+  readonly cashRegisters = signal<CashRegister[]>([]);
+  readonly selectedCashRegisterId = signal('');
   readonly session = signal<CashSessionWithMovements | null>(null);
-  readonly loadingDevices = signal(true);
+  readonly loadingCashRegisters = signal(true);
   readonly loadingSession = signal(false);
   readonly submitting = signal(false);
   readonly confirming = signal(false);
   readonly online = signal(typeof navigator === 'undefined' || navigator.onLine);
-  readonly deviceLoadFailed = signal(false);
+  readonly cashRegisterLoadFailed = signal(false);
   readonly errorCode = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
   readonly successKey = signal<string | null>(null);
@@ -93,6 +88,7 @@ export class CashManagementComponent implements OnInit {
   readonly receiptOrder = signal<OperationalPosOrder | PosOrder | null>(null);
   readonly orderSearch = signal('');
   readonly canReadFiscal = this.authService.hasPermission(AppPermission.FiscalRead);
+  readonly canManageCashRegisters = this.authService.hasPermission(AppPermission.CashRegistersWrite);
   readonly payableOrders = computed(() => {
     const search = this.orderSearch().trim().toLocaleLowerCase();
     const tables = new Map(this.store.tables().map((table) => [table.id, table.name]));
@@ -101,7 +97,6 @@ export class CashManagementComponent implements OnInit {
       .filter(
         (order) =>
           order.source === 'SERVER' &&
-          order.deviceId === this.selectedDeviceId() &&
           (order.serverStatus === 'SENT' || order.serverStatus === 'PARTIALLY_PAID') &&
           order.pendingCommandCount === 0
       )
@@ -125,12 +120,12 @@ export class CashManagementComponent implements OnInit {
     return this.store.stockSyncJobs().find((job) => job.orderId === orderId)?.status ?? null;
   });
 
-  selectedDevice(): PosDevice | null {
+  selectedCashRegister(): CashRegister | null {
     const enterpriseId = this.authService.getEnterpriseId();
     return (
-      this.devices().find(
-        ({ id, enterpriseId: deviceEnterpriseId }) =>
-          id === this.selectedDeviceId() && deviceEnterpriseId === enterpriseId
+      this.cashRegisters().find(
+        ({ id, enterpriseId: registerEnterpriseId }) =>
+          id === this.selectedCashRegisterId() && registerEnterpriseId === enterpriseId
       ) ?? null
     );
   }
@@ -151,76 +146,66 @@ export class CashManagementComponent implements OnInit {
     }
 
     const enterpriseId = this.authService.getEnterpriseId();
-    if (enterpriseId) await this.store.initialize(enterpriseId, 'HUMAN');
-    this.loadDevices();
+    if (enterpriseId) await this.store.initializeCashier(enterpriseId);
+    this.loadCashRegisters();
   }
 
-  loadDevices(): void {
-    const version = ++this.deviceLoadVersion;
+  loadCashRegisters(): void {
+    const version = ++this.registerLoadVersion;
     ++this.sessionLoadVersion;
     const enterpriseId = this.authService.getEnterpriseId();
-    this.loadingDevices.set(true);
-    this.deviceLoadFailed.set(false);
-    this.devices.set([]);
-    this.selectedDeviceId.set('');
+    this.loadingCashRegisters.set(true);
+    this.cashRegisterLoadFailed.set(false);
+    this.cashRegisters.set([]);
+    this.selectedCashRegisterId.set('');
     this.session.set(null);
     this.clearFeedback();
 
     if (!enterpriseId) {
-      this.loadingDevices.set(false);
-      this.deviceLoadFailed.set(true);
+      this.loadingCashRegisters.set(false);
+      this.cashRegisterLoadFailed.set(true);
       this.setError(new PosOfflineStorageError('POS_OFFLINE_NAMESPACE_REQUIRED'), 'POS_DEVICE_LOAD_FAILED');
       return;
     }
 
-    from(this.cachedDevice(enterpriseId))
+    this.posService
+      .listCashRegisters({ active: true })
       .pipe(
-        switchMap((cachedDevice) =>
-          this.posService
-            .listDevices({ type: 'REGISTER', status: 'ACTIVE' })
-            .pipe(map((devices) => ({ cachedDevice, devices })))
-        ),
         finalize(() => {
-          if (version === this.deviceLoadVersion) this.loadingDevices.set(false);
+          if (version === this.registerLoadVersion) this.loadingCashRegisters.set(false);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: ({ cachedDevice, devices }) => {
-          if (version !== this.deviceLoadVersion || this.authService.getEnterpriseId() !== enterpriseId) return;
-          this.devices.set(
-            devices.filter(
-              ({ enterpriseId: deviceEnterpriseId, type, status }) =>
-                deviceEnterpriseId === enterpriseId && type === 'REGISTER' && status === 'ACTIVE'
-            )
+        next: (registers) => {
+          if (version !== this.registerLoadVersion || this.authService.getEnterpriseId() !== enterpriseId) return;
+          this.cashRegisters.set(
+            registers.filter(({ enterpriseId: registerEnterpriseId, active }) => registerEnterpriseId === enterpriseId && active)
           );
-          if (cachedDevice && this.devices().some(({ id }) => id === cachedDevice.deviceId)) {
-            this.activateDevice(cachedDevice.deviceId, false);
-          }
+          if (this.cashRegisters().length === 1) this.activateCashRegister(this.cashRegisters()[0].id);
         },
         error: (error: unknown) => {
-          if (version !== this.deviceLoadVersion) return;
-          this.deviceLoadFailed.set(true);
+          if (version !== this.registerLoadVersion) return;
+          this.cashRegisterLoadFailed.set(true);
           this.setError(error, 'POS_DEVICE_LOAD_FAILED');
         }
       });
   }
 
-  selectDevice(deviceId: string): void {
+  selectCashRegister(cashRegisterId: string): void {
     if (this.busy()) return;
-
-    this.activateDevice(deviceId, true);
+    this.activateCashRegister(cashRegisterId);
   }
 
-  private activateDevice(deviceId: string, persist: boolean): void {
+  private activateCashRegister(cashRegisterId: string): void {
     ++this.sessionLoadVersion;
     const enterpriseId = this.authService.getEnterpriseId();
-    const device = this.devices().find(
-      ({ id, enterpriseId: deviceEnterpriseId, status, type }) =>
-        id === deviceId && deviceEnterpriseId === enterpriseId && status === 'ACTIVE' && type === 'REGISTER'
+    const cashRegister = this.cashRegisters().find(
+      ({ id, enterpriseId: registerEnterpriseId, active }) =>
+        id === cashRegisterId && registerEnterpriseId === enterpriseId && active
     );
 
-    this.selectedDeviceId.set(device?.id ?? '');
+    this.selectedCashRegisterId.set(cashRegister?.id ?? '');
     this.session.set(null);
     this.closing.set(false);
     this.lastIntent.set(null);
@@ -229,38 +214,19 @@ export class CashManagementComponent implements OnInit {
     this.store.selectOrder(null);
     this.clearFeedback();
 
-    if (!device) return;
-
-    void this.store.activateDevice(device.id);
-
-    if (!persist) {
-      this.loadCurrentSession();
-      return;
-    }
-
-    void this.offlineQueue
-      .saveDevice(device)
-      .then(() => {
-        if (this.selectedDeviceId() === device.id && this.authService.getEnterpriseId() === device.enterpriseId) {
-          this.loadCurrentSession();
-        }
-      })
-      .catch((error: unknown) => {
-        if (this.selectedDeviceId() === device.id) this.selectedDeviceId.set('');
-        this.setError(error, 'POS_DEVICE_SELECTION_FAILED');
-      });
+    if (cashRegister) this.loadCurrentSession();
   }
 
   loadCurrentSession(): void {
-    const deviceId = this.selectedDevice()?.id;
+    const cashRegisterId = this.selectedCashRegister()?.id;
     const enterpriseId = this.authService.getEnterpriseId();
-    if (!deviceId) return;
+    if (!cashRegisterId) return;
 
     const version = ++this.sessionLoadVersion;
     this.loadingSession.set(true);
     this.clearFeedback();
     this.posService
-      .getCurrentCashSession(deviceId)
+      .getCurrentCashSession(cashRegisterId)
       .pipe(
         finalize(() => {
           if (version === this.sessionLoadVersion) this.loadingSession.set(false);
@@ -272,11 +238,11 @@ export class CashManagementComponent implements OnInit {
           if (
             version !== this.sessionLoadVersion ||
             this.authService.getEnterpriseId() !== enterpriseId ||
-            this.selectedDevice()?.id !== deviceId
+            this.selectedCashRegister()?.id !== cashRegisterId
           ) {
             return;
           }
-          if (session && (session.enterpriseId !== enterpriseId || session.deviceId !== deviceId)) {
+          if (session && (session.enterpriseId !== enterpriseId || session.cashRegisterId !== cashRegisterId)) {
             this.session.set(null);
             this.setError(new PosOfflineStorageError('POS_OFFLINE_NAMESPACE_MISMATCH'), 'POS_CASH_LOAD_FAILED');
             return;
@@ -308,13 +274,13 @@ export class CashManagementComponent implements OnInit {
   }
 
   async openSession(): Promise<void> {
-    const deviceId = this.selectedDevice()?.id;
-    if (!deviceId || !this.online() || !this.openingAmountValid() || !(await this.confirm('open'))) return;
+    const cashRegisterId = this.selectedCashRegister()?.id;
+    if (!cashRegisterId || !this.online() || !this.openingAmountValid() || !(await this.confirm('open'))) return;
 
     this.executeIntent({
       kind: 'OPEN',
       key: randomUuid(),
-      command: { deviceId, openingAmount: this.openingAmount, clientCreatedAt: new Date().toISOString() }
+      command: { cashRegisterId, openingAmount: this.openingAmount, clientCreatedAt: new Date().toISOString() }
     });
   }
 
@@ -323,7 +289,7 @@ export class CashManagementComponent implements OnInit {
     if (
       current?.status !== 'OPEN' ||
       current.enterpriseId !== this.authService.getEnterpriseId() ||
-      current.deviceId !== this.selectedDevice()?.id ||
+      current.cashRegisterId !== this.selectedCashRegister()?.id ||
       !this.online() ||
       !this.movementAmountValid() ||
       !this.movementReasonValid() ||
@@ -337,7 +303,7 @@ export class CashManagementComponent implements OnInit {
       key: randomUuid(),
       sessionId: current.id,
       command: {
-        deviceId: current.deviceId,
+        cashRegisterId: current.cashRegisterId,
         type: this.movementType,
         amount: this.movementAmount,
         reason: this.movementReason.trim(),
@@ -351,7 +317,7 @@ export class CashManagementComponent implements OnInit {
     if (
       current?.status !== 'OPEN' ||
       current.enterpriseId !== this.authService.getEnterpriseId() ||
-      current.deviceId !== this.selectedDevice()?.id ||
+      current.cashRegisterId !== this.selectedCashRegister()?.id ||
       this.busy()
     ) {
       return;
@@ -370,7 +336,7 @@ export class CashManagementComponent implements OnInit {
     if (
       current?.status !== 'OPEN' ||
       current.enterpriseId !== this.authService.getEnterpriseId() ||
-      current.deviceId !== this.selectedDevice()?.id ||
+      current.cashRegisterId !== this.selectedCashRegister()?.id ||
       !this.online() ||
       !this.countedCashValid() ||
       !(await this.confirm('close'))
@@ -383,7 +349,7 @@ export class CashManagementComponent implements OnInit {
       key: randomUuid(),
       sessionId: current.id,
       command: {
-        deviceId: current.deviceId,
+        cashRegisterId: current.cashRegisterId,
         countedCash: this.countedCash,
         clientCreatedAt: new Date().toISOString()
       }
@@ -436,7 +402,7 @@ export class CashManagementComponent implements OnInit {
   }
 
   refreshPayableOrders(): void {
-    void this.store.syncNow();
+    void this.store.refreshCashierOrders();
   }
 
   closeReceipt(): void {
@@ -479,7 +445,7 @@ export class CashManagementComponent implements OnInit {
   }
 
   private executeIntent(intent: CashIntent): void {
-    if (this.busy() || intent.command.deviceId !== this.selectedDevice()?.id) return;
+    if (this.busy() || intent.command.cashRegisterId !== this.selectedCashRegister()?.id) return;
 
     this.lastIntent.set(intent);
     this.submitting.set(true);
@@ -497,7 +463,7 @@ export class CashManagementComponent implements OnInit {
 
     if (intent.kind === 'MOVEMENT') {
       const operation = this.posService.createCashMovement(intent.sessionId, intent.command, intent.key).pipe(
-        switchMap(() => this.posService.getCurrentCashSession(intent.command.deviceId)),
+        switchMap(() => this.posService.getCurrentCashSession(intent.command.cashRegisterId)),
         switchMap((session) => (session ? of(session) : throwError(() => new Error('OPEN_CASH_SESSION_NOT_FOUND'))))
       );
       this.runIntent(intent, operation, (session) => {
@@ -530,7 +496,7 @@ export class CashManagementComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          if (intent.command.deviceId !== this.selectedDevice()?.id) {
+          if (intent.command.cashRegisterId !== this.selectedCashRegister()?.id) {
             this.lastIntent.set(null);
             return;
           }
@@ -579,16 +545,4 @@ export class CashManagementComponent implements OnInit {
     if (clearIntent) this.lastIntent.set(null);
   }
 
-  private async cachedDevice(enterpriseId: string): Promise<CachedPosDevice | null> {
-    await this.offlineQueue.useEnterprise(enterpriseId);
-    const device = await this.offlineQueue.getDevice();
-    if (
-      this.authService.getEnterpriseId() !== enterpriseId ||
-      this.offlineQueue.currentEnterpriseId() !== enterpriseId ||
-      (device !== null && device.enterpriseId !== enterpriseId)
-    ) {
-      throw new PosOfflineStorageError('POS_OFFLINE_NAMESPACE_MISMATCH');
-    }
-    return device;
-  }
 }

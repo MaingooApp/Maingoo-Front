@@ -61,6 +61,10 @@ export enum AppPermission {
   PosKitchen = 'pos.kitchen',
   PosManage = 'pos.manage',
 
+  CashRegistersRead = 'cash-registers.read',
+  CashRegistersWrite = 'cash-registers.write',
+  CashRegistersDelete = 'cash-registers.delete',
+
   InventoryRead = 'inventory.read',
   InventoryWrite = 'inventory.write',
 

@@ -462,6 +462,20 @@
         }
       </select></label
     >
+    @if (selectedRefundPayment()?.method === 'CASH') {
+      <label class="flex flex-col gap-2 font-medium mg-text">
+        <span>{{ 'pos.history.refund.cashRegister' | translate }}</span>
+        <select
+          class="min-h-11 rounded-lg border border-surface bg-transparent px-3"
+          [(ngModel)]="refundCashRegisterId"
+          [disabled]="refundSubmitting()">
+          <option value="">{{ 'pos.history.refund.selectCashRegister' | translate }}</option>
+          @for (cashRegister of cashRegisters(); track cashRegister.id) {
+            <option [value]="cashRegister.id">{{ cashRegister.name }} · {{ cashRegister.code }}</option>
+          }
+        </select>
+      </label>
+    }
     <p class="m-0 text-sm mg-text-muted">{{ 'pos.history.refund.maximum' | translate: { amount: refundLimit() } }}</p>
     <label class="flex flex-col gap-2 font-medium mg-text"
       ><span>{{ 'pos.history.refund.amount' | translate }}</span

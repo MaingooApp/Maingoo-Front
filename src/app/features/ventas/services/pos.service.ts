@@ -26,6 +26,7 @@ import {
 } from '../models/pos-command.models';
 import {
   ActiveListFilters,
+  CreateCashRegisterDto,
   CreateKitchenStationDto,
   CreateModifierGroupDto,
   CreatePosAreaDto,
@@ -39,6 +40,7 @@ import {
   ListPosTablesFilters,
   RevokePosDeviceDto,
   UpdateKitchenStationDto,
+  UpdateCashRegisterDto,
   UpdateModifierGroupDto,
   UpdatePosAreaDto,
   UpdatePosDeviceDto,
@@ -48,6 +50,7 @@ import {
   UpdatePosTableDto
 } from '../models/pos-configuration.models';
 import {
+  CashRegister,
   CashMovement,
   CashDeviationReport,
   CashSessionWithMovements,
@@ -199,6 +202,24 @@ export class PosService extends BaseHttpService {
 
   revokeDevice(deviceId: string, dto: RevokePosDeviceDto): Observable<unknown> {
     return this.post(`${this.apiUrl}/devices/${deviceId}/revoke`, dto);
+  }
+
+  listCashRegisters(filters: ActiveListFilters = {}): Observable<CashRegister[]> {
+    return this.get<CashRegister[]>(`${this.apiUrl}/cash-registers`, undefined, this.params(filters));
+  }
+
+  createCashRegister(dto: CreateCashRegisterDto): Observable<CashRegister> {
+    return this.post<CashRegister>(`${this.apiUrl}/cash-registers`, dto);
+  }
+
+  updateCashRegister(id: string, dto: UpdateCashRegisterDto): Observable<CashRegister> {
+    return this.patch<CashRegister>(`${this.apiUrl}/cash-registers/${id}`, dto);
+  }
+
+  deleteCashRegister(id: string, enterpriseId?: string): Observable<{ id: string }> {
+    return this.http.delete<{ id: string }>(`${this.apiUrl}/cash-registers/${id}`, {
+      params: this.params({ enterpriseId })
+    });
   }
 
   listAreas(filters: ActiveListFilters = {}): Observable<DiningArea[]> {
@@ -481,11 +502,11 @@ export class PosService extends BaseHttpService {
     );
   }
 
-  getCurrentCashSession(deviceId: string, enterpriseId?: string): Observable<CashSessionWithMovements | null> {
+  getCurrentCashSession(cashRegisterId: string, enterpriseId?: string): Observable<CashSessionWithMovements | null> {
     return this.get<CashSessionWithMovements | null>(
       `${this.apiUrl}/cash-sessions/current`,
       undefined,
-      this.params({ deviceId, enterpriseId })
+      this.params({ cashRegisterId, enterpriseId })
     );
   }
 

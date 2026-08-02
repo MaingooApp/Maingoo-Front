@@ -6,11 +6,11 @@
       <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.description' | translate }}</p>
     </div>
 
-    @if (selectedDevice(); as device) {
+    @if (selectedCashRegister(); as cashRegister) {
       <div class="rounded-xl border border-surface px-4 py-3 text-right">
-        <span class="block text-xs uppercase tracking-wide mg-text-muted">{{ 'pos.cash.device' | translate }}</span>
-        <strong class="mg-text">{{ device.name }}</strong>
-        <span class="ml-2 text-sm mg-text-muted">{{ device.code }}</span>
+        <span class="block text-xs uppercase tracking-wide mg-text-muted">{{ 'pos.cash.cashRegister' | translate }}</span>
+        <strong class="mg-text">{{ cashRegister.name }}</strong>
+        <span class="ml-2 text-sm mg-text-muted">{{ cashRegister.code }}</span>
       </div>
     }
   </header>
@@ -51,9 +51,9 @@
     </div>
   }
 
-  @if (loadingDevices()) {
+  @if (loadingCashRegisters()) {
     <app-skeleton class="cash-no-print" mode="list" [count]="2"></app-skeleton>
-  } @else if (deviceLoadFailed()) {
+  } @else if (cashRegisterLoadFailed()) {
     <div class="cash-no-print flex min-h-52 flex-col items-center justify-center gap-4 text-center">
       <p class="m-0 mg-text-muted">{{ 'pos.cash.deviceLoadError' | translate }}</p>
       <button
@@ -61,33 +61,35 @@
         type="button"
         icon="pi pi-refresh"
         [label]="'pos.cash.retry' | translate"
-        (click)="loadDevices()"></button>
+        (click)="loadCashRegisters()"></button>
     </div>
-  } @else if (!selectedDeviceId()) {
+  } @else if (!selectedCashRegisterId()) {
     <div class="cash-no-print mx-auto flex w-full max-w-xl flex-col gap-5 rounded-xl border border-surface p-5">
       <div>
-        <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.selectDeviceTitle' | translate }}</h2>
-        <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.selectDeviceDescription' | translate }}</p>
+        <h2 class="m-0 text-xl font-semibold mg-text">{{ 'pos.cash.selectCashRegisterTitle' | translate }}</h2>
+        <p class="mb-0 mt-2 mg-text-muted">{{ 'pos.cash.selectCashRegisterDescription' | translate }}</p>
       </div>
 
-      @if (devices().length) {
+      @if (cashRegisters().length) {
         <label class="flex flex-col gap-2">
-          <span class="font-medium mg-text">{{ 'pos.cash.device' | translate }}</span>
+          <span class="font-medium mg-text">{{ 'pos.cash.cashRegister' | translate }}</span>
           <select
             class="min-h-11 rounded-md border border-surface bg-transparent px-3 mg-text"
-            [attr.aria-label]="'pos.cash.device' | translate"
-            [ngModel]="selectedDeviceId()"
-            (ngModelChange)="selectDevice($event)">
-            <option value="">{{ 'pos.cash.selectDevicePlaceholder' | translate }}</option>
-            @for (device of devices(); track device.id) {
-              <option [value]="device.id">{{ device.name }} · {{ device.code }}</option>
+            [attr.aria-label]="'pos.cash.cashRegister' | translate"
+            [ngModel]="selectedCashRegisterId()"
+            (ngModelChange)="selectCashRegister($event)">
+            <option value="">{{ 'pos.cash.selectCashRegisterPlaceholder' | translate }}</option>
+            @for (cashRegister of cashRegisters(); track cashRegister.id) {
+              <option [value]="cashRegister.id">{{ cashRegister.name }} · {{ cashRegister.code }}</option>
             }
           </select>
         </label>
       } @else {
         <div class="flex flex-col items-center gap-4 rounded-xl border border-dashed border-surface p-6 text-center">
-          <p class="m-0 mg-text-muted">{{ 'pos.cash.noRegisterDevices' | translate }}</p>
-          <a pButton routerLink="/ventas/configuracion" [label]="'pos.cash.configureDevices' | translate"></a>
+          <p class="m-0 mg-text-muted">{{ 'pos.cash.noCashRegisters' | translate }}</p>
+          @if (canManageCashRegisters) {
+            <a pButton routerLink="/ventas/configuracion" [label]="'pos.cash.configureCashRegisters' | translate"></a>
+          }
         </div>
       }
     </div>

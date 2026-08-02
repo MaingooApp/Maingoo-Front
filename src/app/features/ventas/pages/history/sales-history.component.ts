@@ -19,6 +19,7 @@ import { randomUuid } from '@shared/helpers/random-uuid';
 import { ReceiptViewComponent } from '../../components/payment/receipt-view.component';
 import { CreateRefundCommandData } from '../../models/pos-command.models';
 import {
+  CashRegister,
   DiningTable,
   FiscalDocument,
   Payment,
@@ -27,7 +28,6 @@ import {
   PosOrderChannel,
   PosOrderStatus
 } from '../../models/pos.models';
-import { PosOfflineQueueService, PosOfflineStorageError } from '../../services/pos-offline-queue.service';
 import { PosOrderFilters, PosService } from '../../services/pos.service';
 
 const MONEY_PATTERN = /^\d{1,10}(?:\.\d{1,2})?$/;
@@ -66,7 +66,6 @@ interface ApiFailure {
 export class SalesHistoryComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
-  private readonly offlineQueue = inject(PosOfflineQueueService);
   private readonly posService = inject(PosService);
   private readonly permissions = inject(NgxPermissionsService);
   private readonly confirmation = inject(ConfirmationService);
@@ -75,7 +74,6 @@ export class SalesHistoryComponent implements OnInit {
   private refundFocusTarget: HTMLElement | null = null;
   private receiptFocusTarget: HTMLElement | null = null;
   private refundAttempt: RefundAttempt | null = null;
-  private deviceLoadVersion = 0;
 
   readonly statuses: PosOrderStatus[] = ['DRAFT', 'OPEN', 'SENT', 'PARTIALLY_PAID', 'PAID', 'CANCELLED'];
   readonly channels: PosOrderChannel[] = ['DINE_IN', 'TAKEAWAY'];
@@ -91,6 +89,7 @@ export class SalesHistoryComponent implements OnInit {
   readonly orders = signal<PosOrder[]>([]);
   readonly tables = signal<DiningTable[]>([]);
   readonly devices = signal<PosDevice[]>([]);
+  readonly cashRegisters = signal<CashRegister[]>([]);
   readonly currency = signal('EUR');
   readonly page = signal(1);
   readonly nextPageNumber = signal<number | null>(null);
@@ -108,8 +107,6 @@ export class SalesHistoryComponent implements OnInit {
   readonly refundErrorCode = signal<string | null>(null);
   readonly refundErrorMessage = signal<string | null>(null);
   readonly refundSuccess = signal(false);
-  readonly cachedDeviceId = signal('');
-  readonly deviceSelectionErrorCode = signal<string | null>(null);
 
   status: StatusFilter = '';
   channel: ChannelFilter = '';
@@ -121,6 +118,7 @@ export class SalesHistoryComponent implements OnInit {
   refundPaymentId = '';
   refundAmount = '';
   refundReason = '';
+  refundCashRegisterId = '';
 
   readonly recordedPayments = computed(() =>
     (this.selectedOrder()?.payments ?? []).filter(({ status }) => status === 'RECORDED')
@@ -161,7 +159,7 @@ export class SalesHistoryComponent implements OnInit {
     return (
       this.canRefund &&
       this.online() &&
-      this.hasActiveDevice() &&
+      !!this.activeDeviceId() &&
       this.selectedOrder()?.status === 'PAID' &&
       this.orderRefundableCents() > 0 &&
       this.recordedPayments().length > 0
@@ -174,6 +172,7 @@ export class SalesHistoryComponent implements OnInit {
     return (
       this.online() &&
       !!this.selectedRefundPayment() &&
+      (this.selectedRefundPayment()?.method !== 'CASH' || !!this.refundCashRegisterId) &&
       amount !== null &&
       amount > 0 &&
       amount <= this.refundLimitCents() &&
@@ -189,7 +188,6 @@ export class SalesHistoryComponent implements OnInit {
     fromEvent(window, 'offline')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.online.set(false));
-    void this.loadDeviceSelection();
     this.loadFilterOptions();
     this.loadOrders();
   }
@@ -201,17 +199,19 @@ export class SalesHistoryComponent implements OnInit {
     forkJoin({
       settings: this.posService.getSettings(),
       tables: this.posService.listTables({}),
-      devices: this.posService.listDevices({})
+      devices: this.posService.listDevices({}),
+      cashRegisters: this.canRefund ? this.posService.listCashRegisters({ active: true }) : of([])
     })
       .pipe(
         finalize(() => this.optionsLoading.set(false)),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: ({ settings, tables, devices }) => {
+        next: ({ settings, tables, devices, cashRegisters }) => {
           this.currency.set(settings.currency);
           this.tables.set([...tables].sort((left, right) => left.sortOrder - right.sortOrder));
           this.devices.set([...devices].sort((left, right) => left.name.localeCompare(right.name)));
+          this.cashRegisters.set([...cashRegisters].sort((left, right) => left.name.localeCompare(right.name)));
         },
         error: (error: unknown) => {
           const failure = apiFailure(error);
@@ -326,6 +326,7 @@ export class SalesHistoryComponent implements OnInit {
     this.refundPaymentId = this.recordedPayments()[0]?.id ?? '';
     this.refundAmount = this.refundLimit();
     this.refundReason = '';
+    this.refundCashRegisterId = this.cashRegisters()[0]?.id ?? '';
     this.refundAttempt = null;
     this.refundErrorCode.set(null);
     this.refundErrorMessage.set(null);
@@ -426,7 +427,7 @@ export class SalesHistoryComponent implements OnInit {
   ): Observable<RefundAttempt> {
     if (this.refundAttempt?.fingerprint === fingerprint) return of(this.refundAttempt);
 
-    return this.cashSessionFor(payment, deviceId).pipe(
+    return this.cashSessionFor(payment).pipe(
       map((cashSessionId) => {
         const attempt: RefundAttempt = {
           fingerprint,
@@ -447,10 +448,10 @@ export class SalesHistoryComponent implements OnInit {
     );
   }
 
-  private cashSessionFor(payment: Payment, deviceId: string): Observable<string | null> {
+  private cashSessionFor(payment: Payment): Observable<string | null> {
     if (payment.method !== 'CASH') return of(null);
     return this.posService
-      .getCurrentCashSession(deviceId)
+      .getCurrentCashSession(this.refundCashRegisterId)
       .pipe(
         switchMap((session) =>
           session ? of(session.id) : throwError(() => ({ code: 'OPEN_CASH_SESSION_NOT_FOUND' satisfies string }))
@@ -477,44 +478,13 @@ export class SalesHistoryComponent implements OnInit {
 
   private activeDeviceId(): string | null {
     const enterpriseId = this.authService.getEnterpriseId();
-    const cachedDeviceId = this.cachedDeviceId();
+    const orderDeviceId = this.selectedOrder()?.deviceId;
     return (
       this.devices().find(
         ({ id, enterpriseId: deviceEnterpriseId, status, type }) =>
-          id === cachedDeviceId && deviceEnterpriseId === enterpriseId && status === 'ACTIVE' && type === 'REGISTER'
+          id === orderDeviceId && deviceEnterpriseId === enterpriseId && status === 'ACTIVE' && type === 'REGISTER'
       )?.id ?? null
     );
-  }
-
-  private async loadDeviceSelection(): Promise<void> {
-    const version = ++this.deviceLoadVersion;
-    const enterpriseId = this.authService.getEnterpriseId();
-    this.cachedDeviceId.set('');
-    this.deviceSelectionErrorCode.set(null);
-    if (!enterpriseId) {
-      this.deviceSelectionErrorCode.set('POS_OFFLINE_NAMESPACE_REQUIRED');
-      return;
-    }
-
-    try {
-      await this.offlineQueue.useEnterprise(enterpriseId);
-      const device = await this.offlineQueue.getDevice();
-      if (version !== this.deviceLoadVersion) return;
-      if (
-        this.authService.getEnterpriseId() !== enterpriseId ||
-        this.offlineQueue.currentEnterpriseId() !== enterpriseId ||
-        (device !== null && device.enterpriseId !== enterpriseId)
-      ) {
-        throw new PosOfflineStorageError('POS_OFFLINE_NAMESPACE_MISMATCH');
-      }
-      this.cachedDeviceId.set(device?.deviceId ?? '');
-    } catch (error: unknown) {
-      if (version !== this.deviceLoadVersion) return;
-      this.cachedDeviceId.set('');
-      this.deviceSelectionErrorCode.set(
-        error instanceof PosOfflineStorageError ? error.code : 'POS_OFFLINE_STORAGE_FAILED'
-      );
-    }
   }
 }
 

@@ -6,7 +6,12 @@ import { AuthService } from '@features/auth/services/auth-service.service';
 
 const FALLBACK_ROUTES: Array<{ permissions: AppPermission[]; route: string }> = [
   {
-    permissions: [AppPermission.PosRead, AppPermission.PosSell, AppPermission.PosCash],
+    permissions: [
+      AppPermission.PosRead,
+      AppPermission.PosSell,
+      AppPermission.PosCash,
+      AppPermission.CashRegistersRead
+    ],
     route: '/ventas/caja'
   },
   { permissions: [AppPermission.PosRead], route: '/ventas' },

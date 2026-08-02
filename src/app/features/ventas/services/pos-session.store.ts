@@ -209,6 +209,49 @@ export class PosSessionStore implements OnDestroy {
     }
   }
 
+  async initializeCashier(enterpriseId: string): Promise<void> {
+    const version = ++this.loadVersion;
+    this.sync.stop();
+    this.clearMemory();
+    this.enterpriseId = enterpriseId;
+    this.authMode = 'HUMAN';
+    this.loading.set(true);
+    try {
+      const [settings, tables, sent, partiallyPaid] = await Promise.all([
+        firstValueFrom(this.posService.getSettings(enterpriseId)),
+        firstValueFrom(this.posService.listTables({ enterpriseId, active: true })),
+        firstValueFrom(this.posService.listOrders({ enterpriseId, status: 'SENT', limit: 100 })),
+        firstValueFrom(this.posService.listOrders({ enterpriseId, status: 'PARTIALLY_PAID', limit: 100 }))
+      ]);
+      if (version !== this.loadVersion) return;
+      this.settings.set(settings);
+      this.tables.set(tables);
+      this.authoritativeOrders.set([...sent.items, ...partiallyPaid.items]);
+      this.syncState.set('ONLINE');
+    } catch (error: unknown) {
+      if (version === this.loadVersion) this.errorCode.set(errorCode(error) ?? 'POS_LOAD_FAILED');
+    } finally {
+      if (version === this.loadVersion) this.loading.set(false);
+    }
+  }
+
+  async refreshCashierOrders(): Promise<void> {
+    if (!this.enterpriseId || !this.requireOnline() || this.loading()) return;
+    this.loading.set(true);
+    try {
+      const [sent, partiallyPaid] = await Promise.all([
+        firstValueFrom(this.posService.listOrders({ status: 'SENT', limit: 100 })),
+        firstValueFrom(this.posService.listOrders({ status: 'PARTIALLY_PAID', limit: 100 }))
+      ]);
+      this.authoritativeOrders.set([...sent.items, ...partiallyPaid.items]);
+      this.errorCode.set(null);
+    } catch (error: unknown) {
+      this.errorCode.set(errorCode(error) ?? 'POS_LOAD_FAILED');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   async activateDevice(deviceId: string): Promise<void> {
     if (!this.enterpriseId) {
       this.errorCode.set('POS_ENTERPRISE_REQUIRED');
@@ -420,32 +463,12 @@ export class PosSessionStore implements OnDestroy {
       const order = await firstValueFrom(
         this.posService.voidLine(
           context.order.id,
-          { ...this.versionedCommand(context.device.id, context.order.version), lineId, reason },
+          { ...this.versionedCommand(context.deviceId, context.order.version), lineId, reason },
           key,
           this.authMode
         )
       );
       await this.applyDirectOrder(order);
-    });
-  }
-
-  async openCashSession(openingAmount: DecimalString): Promise<void> {
-    if (!this.requireHumanAction()) return;
-    const device = this.requireDevice();
-    if (!device || !this.requireOnline()) return;
-    if (this.cashSession()?.status === 'OPEN') {
-      this.operationErrorCode.set('CASH_SESSION_ALREADY_OPEN');
-      return;
-    }
-    await this.runDirect('OPEN_CASH_SESSION', [device.id, openingAmount], async (key) => {
-      this.cashSession.set(
-        await firstValueFrom(
-          this.posService.openCashSession(
-            { deviceId: device.id, clientCreatedAt: new Date().toISOString(), openingAmount },
-            key
-          )
-        )
-      );
     });
   }
 
@@ -461,7 +484,7 @@ export class PosSessionStore implements OnDestroy {
           this.posService.addPayment(
             context.order.id,
             {
-              ...this.versionedCommand(context.device.id, context.order.version),
+              ...this.versionedCommand(context.deviceId, context.order.version),
               cashSessionId: context.cashSession.id,
               method,
               amount,
@@ -472,9 +495,9 @@ export class PosSessionStore implements OnDestroy {
         );
         await this.applyDirectOrder(await firstValueFrom(this.posService.getOrder(context.order.id)));
         if (method === 'CASH') {
-          const session = await firstValueFrom(this.posService.getCurrentCashSession(context.device.id)).catch(
-            () => undefined
-          );
+          const session = await firstValueFrom(
+            this.posService.getCurrentCashSession(context.cashSession.cashRegisterId)
+          ).catch(() => undefined);
           if (session) this.cashSession.set(session);
         }
       }
@@ -499,7 +522,7 @@ export class PosSessionStore implements OnDestroy {
           this.posService.finalizeOrder(
             context.order.id,
             {
-              ...this.versionedCommand(context.device.id, context.order.version),
+              ...this.versionedCommand(context.deviceId, context.order.version),
               ...(fiscalCustomer ? { fiscalCustomer } : {})
             },
             key
@@ -673,23 +696,22 @@ export class PosSessionStore implements OnDestroy {
   }
 
   private requireDirectOrder(requireCashSession: true): {
-    device: PosDevice;
+    deviceId: string;
     order: AuthoritativeOrder;
     cashSession: CashSessionWithMovements;
   } | null;
   private requireDirectOrder(requireCashSession?: false): {
-    device: PosDevice;
+    deviceId: string;
     order: AuthoritativeOrder;
     cashSession: CashSessionWithMovements | null;
   } | null;
   private requireDirectOrder(requireCashSession = false): {
-    device: PosDevice;
+    deviceId: string;
     order: AuthoritativeOrder;
     cashSession: CashSessionWithMovements | null;
   } | null {
-    const device = this.requireDevice();
     const view = this.selectedOrder();
-    if (!device || !view || !this.requireOnline()) {
+    if (!view || !this.requireOnline()) {
       if (!view) this.operationErrorCode.set('POS_ORDER_REQUIRED');
       return null;
     }
@@ -711,7 +733,7 @@ export class PosSessionStore implements OnDestroy {
       this.operationErrorCode.set('CASH_SESSION_REQUIRED');
       return null;
     }
-    return { device, order, cashSession } as ReturnType<PosSessionStore['requireDirectOrder']>;
+    return { deviceId: order.deviceId, order, cashSession } as ReturnType<PosSessionStore['requireDirectOrder']>;
   }
 
   private requireDevice(): PosDevice | null {

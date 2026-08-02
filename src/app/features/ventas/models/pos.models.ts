@@ -59,6 +59,17 @@ export interface PosDevice {
   updatedAt: IsoDateString;
 }
 
+export interface CashRegister {
+  id: string;
+  enterpriseId: string;
+  name: string;
+  code: string;
+  active: boolean;
+  createdByUserId: string;
+  createdAt: IsoDateString;
+  updatedAt: IsoDateString;
+}
+
 export interface DiningArea {
   id: string;
   enterpriseId: string;
@@ -265,7 +276,7 @@ export interface CashMovement {
 export interface CashSession {
   id: string;
   enterpriseId: string;
-  deviceId: string;
+  cashRegisterId: string;
   status: CashSessionStatus;
   openingAmount: DecimalString;
   expectedCash: DecimalString;

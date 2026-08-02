@@ -36,6 +36,14 @@ export interface CreatePosDeviceDto extends EnterpriseScopedFilters {
 
 export type UpdatePosDeviceDto = Partial<Omit<CreatePosDeviceDto, 'code'>>;
 
+export interface CreateCashRegisterDto extends EnterpriseScopedFilters {
+  name: string;
+  code: string;
+  active?: boolean;
+}
+
+export type UpdateCashRegisterDto = Partial<CreateCashRegisterDto>;
+
 export interface RevokePosDeviceDto {
   reason: string;
   confirm: 'REVOKE';

@@ -4,7 +4,12 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AppPermission } from '@core/constants/permissions.enum';
 import { AuthService } from '@features/auth/services/auth-service.service';
 
-const REQUIRED_PERMISSIONS = [AppPermission.PosRead, AppPermission.PosSell, AppPermission.PosCash];
+const REQUIRED_PERMISSIONS = [
+  AppPermission.PosRead,
+  AppPermission.PosSell,
+  AppPermission.PosCash,
+  AppPermission.CashRegistersRead
+];
 
 export const cashierPermissionsGuard: CanActivateFn = () => {
   const authService = inject(AuthService);

@@ -181,7 +181,7 @@
         [(ngModel)]="entityForm.name" />
     </label>
 
-    @if (activeSection() === 'devices') {
+    @if (activeSection() === 'devices' || activeSection() === 'registers') {
       <label class="flex flex-col gap-2">
         <span class="font-medium mg-text">{{ 'pos.settings.fields.code' | translate }}</span>
         <input
@@ -194,25 +194,32 @@
           [disabled]="!!editingEntityId"
           [(ngModel)]="entityForm.code" />
       </label>
-      <label class="flex flex-col gap-2">
-        <span class="font-medium mg-text">{{ 'pos.settings.fields.type' | translate }}</span>
-        <select
-          required
-          name="type"
-          class="rounded-md border border-surface bg-transparent p-3 mg-text"
-          [(ngModel)]="entityForm.type">
-          @for (type of deviceTypes; track type) {
-            <option [ngValue]="type">{{ 'pos.settings.deviceTypes.' + type | translate }}</option>
+      @if (activeSection() === 'devices') {
+        <label class="flex flex-col gap-2">
+          <span class="font-medium mg-text">{{ 'pos.settings.fields.type' | translate }}</span>
+          <select
+            required
+            name="type"
+            class="rounded-md border border-surface bg-transparent p-3 mg-text"
+            [(ngModel)]="entityForm.type">
+            @for (type of deviceTypes; track type) {
+              <option [ngValue]="type">{{ 'pos.settings.deviceTypes.' + type | translate }}</option>
+            }
+          </select>
+        </label>
+        <label class="flex flex-col gap-2">
+          <span class="font-medium mg-text">{{ 'pos.settings.fields.appVersion' | translate }}</span>
+          <input pInputText maxlength="40" name="appVersion" [(ngModel)]="entityForm.appVersion" />
+          @if (editingEntityId) {
+            <small class="mg-text-muted">{{ 'pos.settings.appVersionCannotClear' | translate }}</small>
           }
-        </select>
-      </label>
-      <label class="flex flex-col gap-2">
-        <span class="font-medium mg-text">{{ 'pos.settings.fields.appVersion' | translate }}</span>
-        <input pInputText maxlength="40" name="appVersion" [(ngModel)]="entityForm.appVersion" />
-        @if (editingEntityId) {
-          <small class="mg-text-muted">{{ 'pos.settings.appVersionCannotClear' | translate }}</small>
-        }
-      </label>
+        </label>
+      } @else {
+        <label class="flex min-h-11 items-center gap-3">
+          <input type="checkbox" name="active" [(ngModel)]="entityForm.active" />
+          <span class="font-medium mg-text">{{ 'pos.settings.fields.active' | translate }}</span>
+        </label>
+      }
     }
 
     @if (activeSection() === 'tables') {
@@ -409,7 +416,7 @@
       </fieldset>
     }
 
-    @if (activeSection() !== 'devices' && activeSection() !== 'modifiers') {
+    @if (activeSection() !== 'devices' && activeSection() !== 'registers' && activeSection() !== 'modifiers') {
       <label class="flex flex-col gap-2">
         <span class="font-medium mg-text">{{ 'pos.settings.fields.sortOrder' | translate }}</span>
         <p-inputnumber

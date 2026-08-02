@@ -628,12 +628,11 @@
     [order]="store.selectedAuthoritativeOrder()"
     [balance]="store.selectedOrderBalance()"
     [cashSession]="store.cashSession()"
-    [canOpenCash]="canOpenCash"
+    [canOpenCash]="false"
     [loading]="store.operationPending()"
     [errorCode]="store.operationErrorCode()"
     [blockedReason]="paymentBlockedReason()"
     (visibleChange)="paymentVisible.set($event)"
-    (openCash)="openCash($event)"
     (addPayment)="addPayment($event)"
     (finalize)="finalizeOrder()"></app-payment-dialog>
 
