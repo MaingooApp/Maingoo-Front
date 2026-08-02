@@ -484,7 +484,10 @@ export class PosSessionStore implements OnDestroy {
           this.posService.addPayment(
             context.order.id,
             {
-              ...this.versionedCommand(context.deviceId, context.order.version),
+              ...this.versionedCashRegisterCommand(
+                context.cashSession.cashRegisterId,
+                context.order.version
+              ),
               cashSessionId: context.cashSession.id,
               method,
               amount,
@@ -522,7 +525,10 @@ export class PosSessionStore implements OnDestroy {
           this.posService.finalizeOrder(
             context.order.id,
             {
-              ...this.versionedCommand(context.deviceId, context.order.version),
+              ...this.versionedCashRegisterCommand(
+                context.cashSession.cashRegisterId,
+                context.order.version
+              ),
               ...(fiscalCustomer ? { fiscalCustomer } : {})
             },
             key
@@ -770,6 +776,10 @@ export class PosSessionStore implements OnDestroy {
 
   private versionedCommand(deviceId: string, expectedVersion: number): VersionedDeviceCommandData {
     return { deviceId, clientCreatedAt: this.queuedTimestamp(), expectedVersion };
+  }
+
+  private versionedCashRegisterCommand(cashRegisterId: string, expectedVersion: number) {
+    return { cashRegisterId, clientCreatedAt: this.queuedTimestamp(), expectedVersion };
   }
 
   private queuedTimestamp(): string {

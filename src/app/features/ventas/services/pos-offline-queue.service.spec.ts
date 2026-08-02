@@ -93,7 +93,7 @@ describe('PosOfflineQueueService', () => {
       type: 'FINALIZE_ORDER',
       aggregateId: 'order-1',
       data: {
-        deviceId: 'device-1',
+        cashRegisterId: 'cash-register-1',
         clientCreatedAt: '2026-07-27T10:10:00.000Z',
         expectedVersion: 1,
         fiscalCustomer: { legalName: 'Cliente SL', taxId: 'B12345678', fiscalAddress: 'Calle 1' }

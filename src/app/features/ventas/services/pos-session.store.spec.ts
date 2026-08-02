@@ -66,6 +66,7 @@ describe('PosSessionStore offline', () => {
     queue.saveOrder.and.resolveTo();
     queue.enqueueWithOrder.and.callFake(async (order, input) => {
       storedOrders = [...storedOrders.filter(({ id }) => id !== order.id), order];
+      if (!('deviceId' in input.data)) throw new Error('Unexpected cash command in offline queue');
       const command = {
         ...input,
         clientMutationId: crypto.randomUUID(),

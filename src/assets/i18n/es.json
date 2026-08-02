@@ -291,6 +291,10 @@
       "referenceHelp": "Referencia externa opcional; nunca introduzcas datos de la tarjeta.",
       "addPayment": "Registrar pago",
       "finalize": "Finalizar pedido",
+      "errors": {
+        "CASH_REGISTER_NOT_FOUND": "La caja seleccionada ya no está activa.",
+        "DEVICE_REVOKED": "El dispositivo que originó el pedido fue revocado."
+      },
       "blockedReasons": {
         "OFFLINE": "Sin conexión no se puede abrir caja, cobrar ni finalizar. El pedido no se marcará como completado.",
         "PENDING_SYNC": "Espera a que el pedido termine de sincronizar antes de cobrar o finalizar."

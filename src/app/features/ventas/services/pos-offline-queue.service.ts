@@ -425,7 +425,10 @@ export class PosOfflineQueueService {
   private createCommand(input: QueuedPosCommandInput): QueuedPosCommand {
     const enterpriseId = this.requireEnterprise();
     if (input.data.enterpriseId) this.assertEnterprise(input.data.enterpriseId, enterpriseId);
-    if (!['CREATE_ORDER', 'ADD_LINE', 'UPDATE_LINE', 'REMOVE_LINE', 'SEND_ORDER'].includes(input.type)) {
+    if (
+      !['CREATE_ORDER', 'ADD_LINE', 'UPDATE_LINE', 'REMOVE_LINE', 'SEND_ORDER'].includes(input.type) ||
+      !('deviceId' in input.data)
+    ) {
       throw new PosOfflineStorageError('POS_OFFLINE_SENSITIVE_COMMAND_NOT_ALLOWED');
     }
 

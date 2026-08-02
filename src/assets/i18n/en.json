@@ -291,6 +291,10 @@
       "referenceHelp": "Optional external reference; never enter card data.",
       "addPayment": "Record payment",
       "finalize": "Finalize order",
+      "errors": {
+        "CASH_REGISTER_NOT_FOUND": "The selected cash register is no longer active.",
+        "DEVICE_REVOKED": "The device that originated the order was revoked."
+      },
       "blockedReasons": {
         "OFFLINE": "The cash register, payments, and finalization are unavailable offline. The order will not be shown as completed.",
         "PENDING_SYNC": "Wait for the order to finish syncing before taking payment or finalizing."

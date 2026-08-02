@@ -39,7 +39,7 @@ export interface SendOrderCommandData extends VersionedDeviceCommandData {
   lineIds?: string[];
 }
 
-export interface AddPaymentCommandData extends VersionedDeviceCommandData {
+export interface AddPaymentCommandData extends VersionedCashRegisterCommandData {
   cashSessionId?: string;
   method: PaymentMethod;
   amount: DecimalString;
@@ -52,7 +52,7 @@ export interface FiscalCustomer {
   fiscalAddress: string;
 }
 
-export interface FinalizeOrderCommandData extends VersionedDeviceCommandData {
+export interface FinalizeOrderCommandData extends VersionedCashRegisterCommandData {
   fiscalCustomer?: FiscalCustomer;
 }
 
@@ -122,6 +122,10 @@ export interface CashRegisterCommandData {
 }
 
 export interface VersionedDeviceCommandData extends DeviceCommandData {
+  expectedVersion: number;
+}
+
+export interface VersionedCashRegisterCommandData extends CashRegisterCommandData {
   expectedVersion: number;
 }
 
